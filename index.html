@@ -133,7 +133,7 @@ const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv
 function setState(s){state=s;$('#core').dataset.s=s;$('#stat').dataset.s=s;$('#cs').textContent=LBL[s];$('#st').textContent=s.toUpperCase();const on=s==='listening';$('#mic').setAttribute('aria-pressed',on);$('#ml').textContent=on?'Voice interface active — simulated':'Activate voice interface';if(s==='responding'){pulse(1);cur.flash=1}refresh()}
 const clearT=()=>{timers.forEach(clearTimeout);timers=[];busy=false};
 $('#mic').onclick=()=>{clearT();if(state==='listening'){setState('standby');say(IDLE[0])}else{setState('listening');say('Listening… simulated. No audio is captured.')}};
-function run(t){const 
+
 async function run(t) {
   const q = t.trim().toLowerCase();
   if (!q) return;
