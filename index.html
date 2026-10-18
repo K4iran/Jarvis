@@ -133,11 +133,92 @@ const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv
 function setState(s){state=s;$('#core').dataset.s=s;$('#stat').dataset.s=s;$('#cs').textContent=LBL[s];$('#st').textContent=s.toUpperCase();const on=s==='listening';$('#mic').setAttribute('aria-pressed',on);$('#ml').textContent=on?'Voice interface active — simulated':'Activate voice interface';if(s==='responding'){pulse(1);cur.flash=1}refresh()}
 const clearT=()=>{timers.forEach(clearTimeout);timers=[];busy=false};
 $('#mic').onclick=()=>{clearT();if(state==='listening'){setState('standby');say(IDLE[0])}else{setState('listening');say('Listening… simulated. No audio is captured.')}};
-function run(t){const q=t.trim().toLowerCase();if(!q)return;clearT();let v=null,m;
-if(/standby|return/.test(q)){setView('idle');setState('standby');say('Returning to standby.');return}
-if(/profile/.test(q)){v='profile';m='Profile preview. No memory connected.'}else if(/lifeos|life os/.test(q)){v='lifeos';m='LifeOS preview. Integration pending.'}else if(/hoop/.test(q)){v='hoop';m='Hoop Central preview. Integration pending.'}else if(/status|system/.test(q)){v='status';m='System status. Frontend only.'}else m='Demonstration only. Try “Open LifeOS”.';
-busy=true;setState('processing');say('Processing… simulated.');
-timers.push(setTimeout(()=>{setState('responding');if(v)setView(v);say(m)},900),setTimeout(()=>{busy=false;setState('standby');say(IDLE[0])},2900))}
+function run(t){const 
+async function run(t) {
+  const q = t.trim().toLowerCase();
+  if (!q) return;
+  clearT();
+
+  let v = null, m;
+
+  // Keep Jarvis's existing quick commands
+  if (/standby|return/.test(q)) {
+    setView('idle');
+    setState('standby');
+    say('Returning to standby.');
+    return;
+  }
+
+  if (/profile/.test(q)) {
+    v = 'profile';
+    m = 'Profile preview. No memory connected.';
+  } else if (/lifeos|life os/.test(q)) {
+    v = 'lifeos';
+    m = 'LifeOS preview. Integration pending.';
+  } else if (/hoop/.test(q)) {
+    v = 'hoop';
+    m = 'Hoop Central preview. Integration pending.';
+  } else if (/status|system/.test(q)) {
+    v = 'status';
+    m = 'System status. Frontend only.';
+  }
+
+  if (v) {
+    busy = true;
+    setState('processing');
+    say('Processing… simulated.');
+
+    timers.push(
+      setTimeout(() => {
+        setState('responding');
+        setView(v);
+        say(m);
+      }, 900),
+      setTimeout(() => {
+        busy = false;
+        setState('standby');
+        say(IDLE[0]);
+      }, 2900)
+    );
+    return;
+  }
+
+  // Send other messages to the real Jarvis AI
+  busy = true;
+  setState('processing');
+  say('Connecting to Jarvis…');
+
+  try {
+    const response = await fetch(
+      'https://jtzlljxurhqvybkoygll.supabase.co/functions/v1/jarvis-chat',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'PASTE_YOUR_PUBLISHABLE_KEY_HERE'
+        },
+        body: JSON.stringify({ message: t })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || `Request failed (${response.status})`);
+    }
+
+    setState('responding');
+    say(data.reply || 'Jarvis returned an empty response.');
+    busy = false;
+    timers.push(setTimeout(() => setState('standby'), 1500));
+
+  } catch (error) {
+    console.error('Jarvis connection error:', error);
+    busy = false;
+    setState('standby');
+    say('Connection failed. Please try again.');
+  }
+}
 const cmd=$('#cmd'),inp=$('#ci');
 function cmdOpen(o){cmd.hidden=!o;$('#kb').setAttribute('aria-expanded',o);o?inp.focus():$('#kb').focus()}
 $('#kb').onclick=()=>cmdOpen(cmd.hidden);$('#cc').onclick=()=>cmdOpen(false);
