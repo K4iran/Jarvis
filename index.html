@@ -193,7 +193,10 @@ status:{l:'SYSTEM STATUS',i:'#i-stat',s:'FRONTEND ONLY',d:'Facts the interface c
 const idleHTML=`<div class="idle"><svg viewBox="0 0 200 110" aria-hidden="true"><g fill="none" stroke="rgba(88,223,255,.3)"><rect x="4" y="4" width="192" height="102"/><path d="M4 55h192M100 4v102M52 4v102M148 4v102"/><path d="M14 84l30-14 28 8 34-30 30 16 40-34" stroke="#58DFFF" stroke-dasharray="3 4"/></g>${[[44,70],[72,78],[106,48],[136,64],[176,30]].map(([x,y],i)=>`<circle class="dp" style="animation-delay:${i*-1.1}s" cx="${x}" cy="${y}" r="2.6" fill="#58DFFF"/>`).join('')}</svg><p class="lbl" style="color:var(--t)">Visualisation channel ready</p><p class="mut" style="margin:0;font-size:13px">Awaiting a display command.</p></div>`;
 $('#rail').innerHTML=Object.entries(P).map(([k,p])=>`<button class="pn" data-p="${k}"><svg class="ic"><use href="${p.i}"/></svg><span><b>${p.l}</b><small class="mono">${p.s}</small></span></button>`).join('');
 $('#rail').onclick=e=>{const b=e.target.closest('[data-p]');if(b)openOv(b.dataset.p)};
-const say=t=>$('#msg').textContent=t;
+const say=(t,persist=true)=>{
+  $('#msg').textContent=t;
+  $('#msg').dataset.persistent=persist?'true':'';
+};
 function renderDisp(){const p=P[view];$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
 function setView(v){view=v;renderDisp()}
 $('#dx').onclick=()=>setView('idle');
@@ -433,7 +436,7 @@ async function run(t) {
       setTimeout(() => {
         busy = false;
         setState('standby');
-        say(IDLE[0]);
+        
       }, 2900)
     );
     return;
@@ -485,7 +488,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape'){if(openId)closeOv();else if(
 addEventListener('resize',refresh);
 setInterval(() => {
   if (state === 'standby' && !busy && !$('#msg').dataset.persistent) {
-    say(IDLE[++ii % IDLE.length]);
+    say(IDLE[++ii % IDLE.length], false);
   }
 }, 9000);
 const tick=()=>$('#clk').textContent=new Date().toLocaleTimeString([],{hour12:false});tick();setInterval(tick,1000);
