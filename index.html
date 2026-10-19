@@ -338,6 +338,31 @@ async function run(t) {
   if (!q) return;
   clearT();
 
+  // JARVIS PERSONAL MEMORY COMMANDS
+  const rememberMatch = t.trim().match(/^remember\s+(.+?)\s+(?:is|=|:|as)\s+(.+)$/i);
+
+  if (rememberMatch) {
+    say(JarvisMemory.remember(rememberMatch[1], rememberMatch[2]));
+    return;
+  }
+
+  if (/^(what do you remember|show (my )?memories|list memories|my memories)\??$/i.test(t.trim())) {
+    say(JarvisMemory.list());
+    return;
+  }
+
+  const forgetMatch = t.trim().match(/^forget\s+(.+)$/i);
+
+  if (forgetMatch) {
+    say(JarvisMemory.forget(forgetMatch[1]));
+    return;
+  }
+
+  if (/^(clear|delete) all memories$/i.test(t.trim())) {
+    say(JarvisMemory.clear());
+    return;
+  }
+
   let v = null, m;
 
   // Keep Jarvis's existing quick commands
@@ -396,7 +421,7 @@ async function run(t) {
           'Content-Type': 'application/json',
           'apikey': 'PASTE_YOUR_PUBLISHABLE_KEY_HERE'
         },
-        body: JSON.stringify({ message: t })
+        body: JSON.stringify({ message: t + JarvisMemory.context() })
       }
     );
 
