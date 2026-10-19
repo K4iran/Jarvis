@@ -197,6 +197,81 @@ const say=(t,persist=true)=>{
   $('#msg').textContent=t;
   $('#msg').dataset.persistent=persist?'true':'';
 };
+  
+let jarvisSpeaking = false;
+let jarvisAudio = null;
+
+async function speakReply(text) {
+  let audioUrl = null;
+
+  try {
+    const response = await fetch(
+      'https://jtzlljxurhqvybkoygll.supabase.co/functions/v1/jarvis-speech',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df'
+        },
+        body: JSON.stringify({ text })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Speech request failed');
+    }
+
+    const binary = atob(data.audio);
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+
+    audioUrl = URL.createObjectURL(
+      new Blob([bytes], {
+        type: data.mimeType || 'audio/wav'
+      })
+    );
+
+    jarvisSpeaking = true;
+
+    // Stop the microphone listening while Jarvis speaks.
+    if (wakeEnabled && recognition) {
+      try { recognition.stop(); } catch (e) {}
+    }
+
+    jarvisAudio = new Audio(audioUrl);
+
+    const finishSpeaking = () => {
+      jarvisSpeaking = false;
+      URL.revokeObjectURL(audioUrl);
+
+      // Resume the existing wake-word microphone.
+      if (wakeEnabled && recognition) {
+        try { recognition.start(); } catch (e) {}
+      }
+    };
+
+    jarvisAudio.onended = finishSpeaking;
+    jarvisAudio.onerror = finishSpeaking;
+
+    await jarvisAudio.play();
+
+  } catch (error) {
+    console.error('Jarvis speech playback error:', error);
+    jarvisSpeaking = false;
+
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+
+    if (wakeEnabled && recognition) {
+      try { recognition.start(); } catch (e) {}
+    }
+  }
+}
+
 function renderDisp(){const p=P[view];$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
 function setView(v){view=v;renderDisp()}
 $('#dx').onclick=()=>setView('idle');
@@ -314,11 +389,11 @@ recognition.onstart=()=>{
   };
 
   recognition.onend=()=>{
-    if(!wakeEnabled||!recognition)return;
+    if(!wakeEnabled||!recognition||jarvisSpeaking)return;
 
     if(document.visibilityState==='visible'){
       setTimeout(()=>{
-        if(!wakeEnabled||!recognition)return;
+        if(!wakeEnabled||!recognition||jarvisSpeaking)return;
         try{recognition.start()}catch(e){}
       },300);
     }
@@ -473,7 +548,9 @@ async function run(t) {
 
     setState('responding');
     $('#msg').dataset.persistent = 'true';
-say(data.reply || 'Jarvis returned an empty response.');
+const reply = data.reply || 'Jarvis returned an empty response.';
+say(reply);
+speakReply(reply);
     busy = false;
     timers.push(setTimeout(() => setState('standby'), 1500));
 
