@@ -529,7 +529,9 @@ async function run(t) {
   say('Connecting to Jarvis…');
 
   try {
+    say('DEBUG: sending speech request');
     const response = await fetch(
+      
       'https://jtzlljxurhqvybkoygll.supabase.co/functions/v1/jarvis-chat',
       {
         method: 'POST',
@@ -540,6 +542,7 @@ async function run(t) {
         body: JSON.stringify({ message: t + JarvisMemory.context() })
       }
     );
+    say('DEBUG: speech response received ' + response.status);
 
     const data = await response.json();
 
