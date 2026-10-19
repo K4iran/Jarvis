@@ -227,7 +227,7 @@ async function speakReply(text) {
     }
 
     say('DEBUG: audio received ' + !!data.audio);
-    }
+  
 
     const binary = atob(data.audio);
     const bytes = new Uint8Array(binary.length);
