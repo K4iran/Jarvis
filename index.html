@@ -266,14 +266,12 @@ $('#mic').onclick=()=>{
   wakeEnabled=true;
   wakeArmed=false;
 
-  recognition.onstart=()=>{
+  
+recognition.onstart=()=>{
   if(!wakeEnabled)return;
   setState('listening');
-
-  if(!wakeArmed){
-    say('Wake word active. Say Hey Jarvis.', false);
-  }
 };
+
 
   recognition.onresult=(event)=>{
     for(let i=event.resultIndex;i<event.results.length;i++){
