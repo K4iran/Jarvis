@@ -323,6 +323,6 @@ s.material.opacity=.08+U.uPulse.value*.16;
 lines.material.opacity=.07+.18*Math.pow(Math.max(0,Math.sin(tt*.31)),10)+.4*U.uPulse.value;
 host.style.setProperty('--h2',(cur.halo+cur.flash*.25+U.uPulse.value*.15).toFixed(3));rd.render(sc,cam)}
 requestAnimationFrame(frame);
-addEventListener('pagehide',()=>{[g1,g2,g3,lg].forEach(g=>g.dispose());[[m1,m2,m3,lines.material,glow.material].forEach(m=>m.dispose());rd.dispose()});
+addEventListener('pagehide',()=>{[g1,g2,g3,lg].forEach(g=>g.dispose());[m1,m2,m3,lines.material,glow.material].forEach(m=>m.dispose());rd.dispose()});
 }catch(err){console.error(err);$('#core').classList.add('nogl');orbInfo='Unavailable'}})();
 </script></body></html>
