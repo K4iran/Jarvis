@@ -556,11 +556,18 @@ speakReply(reply);
     timers.push(setTimeout(() => setState('standby'), 1500));
 
   } catch (error) {
-    console.error('Jarvis speech playback error:', error);
-say('Speech error: ' + error.message);
-    busy = false;
-    setState('standby');
-    say('Connection failed. Please try again.');
+  console.error('Jarvis speech playback error:', error);
+
+  say('VOICE ERROR: ' + error.message);
+
+  jarvisSpeaking = false;
+
+  if (audioUrl) URL.revokeObjectURL(audioUrl);
+
+  if (wakeEnabled && recognition) {
+    try { recognition.start(); } catch (e) {}
+  }
+  }
   }
 }
 const cmd=$('#cmd'),inp=$('#ci');
