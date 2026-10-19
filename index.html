@@ -220,7 +220,11 @@ function setState(s){
   $('#st').textContent=s.toUpperCase();
   $('#mic').setAttribute('aria-pressed',wakeEnabled);
   $('#mic').setAttribute('aria-label',wakeEnabled?'Disable Hey Jarvis':'Enable Hey Jarvis');
-  $('#ml').textContent=wakeEnabled?'Wake word active — say Hey Jarvis':'Tap to enable Hey Jarvis';
+  if (s !== 'listening') {
+  $('#ml').textContent = wakeEnabled
+    ? 'Wake word active — say Hey Jarvis'
+    : 'Tap to enable Hey Jarvis';
+  }
   if(s==='responding'){pulse(1);cur.flash=1}
   refresh();
 }
