@@ -101,7 +101,7 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,grid:true};
 let state='standby',view='idle',openId=null,last=null,ct=0,busy=false,timers=[],ii=0,orbInfo='Unavailable',pulse=()=>{},ripple=()=>{};
 const IDLE=['Awaiting your command.','All systems standing by.','Ready when you are.','Awaiting input.'];
-const LBL={standby:'STANDBY',listening:'LISTENING — SIMULATED',processing:'PROCESSING — SIMULATED',responding:'RESPONDING — SIMULATED'};
+const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING — SIMULATED',responding:'RESPONDING — SIMULATED'};
 const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:1.6,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
 const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
@@ -130,9 +130,132 @@ $('#ov').onclick=e=>{if(e.target.id==='ov'||e.target.closest('#oc'))return close
 $('#ov').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=$$('#ov button'),a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
 function apply(){document.documentElement.classList.toggle('rm',S.rm);$('#grid').hidden=!S.grid}
 const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv()};
-function setState(s){state=s;$('#core').dataset.s=s;$('#stat').dataset.s=s;$('#cs').textContent=LBL[s];$('#st').textContent=s.toUpperCase();const on=s==='listening';$('#mic').setAttribute('aria-pressed',on);$('#ml').textContent=on?'Voice interface active — simulated':'Activate voice interface';if(s==='responding'){pulse(1);cur.flash=1}refresh()}
+
+let wakeEnabled=false, recognition=null, wakeArmed=false;
+
+function setState(s){
+  state=s;
+  $('#core').dataset.s=s;
+  $('#stat').dataset.s=s;
+  $('#cs').textContent=LBL[s];
+  $('#st').textContent=s.toUpperCase();
+  $('#mic').setAttribute('aria-pressed',wakeEnabled);
+  $('#mic').setAttribute('aria-label',wakeEnabled?'Disable Hey Jarvis':'Enable Hey Jarvis');
+  $('#ml').textContent=wakeEnabled?'Wake word active — say Hey Jarvis':'Tap to enable Hey Jarvis';
+  if(s==='responding'){pulse(1);cur.flash=1}
+  refresh();
+}
+
 const clearT=()=>{timers.forEach(clearTimeout);timers=[];busy=false};
-$('#mic').onclick=()=>{clearT();if(state==='listening'){setState('standby');say(IDLE[0])}else{setState('listening');say('Listening… simulated. No audio is captured.')}};
+
+function stopWake(){
+  wakeEnabled=false;
+  wakeArmed=false;
+  if(recognition){
+    recognition.onend=null;
+    recognition.onresult=null;
+    recognition.onerror=null;
+    try{recognition.stop()}catch(e){}
+    recognition=null;
+  }
+  setState('standby');
+}
+
+$('#mic').onclick=()=>{
+  if(wakeEnabled){
+    stopWake();
+    say('Wake word disabled.');
+    return;
+  }
+
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
+    say('Speech recognition is not supported by this browser. Try Chrome on Android.');
+    return;
+  }
+
+  recognition=new SpeechRecognition();
+  recognition.lang='en-GB';
+  recognition.continuous=true;
+  recognition.interimResults=false;
+  recognition.maxAlternatives=1;
+  wakeEnabled=true;
+  wakeArmed=false;
+
+  recognition.onstart=()=>{
+    if(!wakeEnabled)return;
+    setState('listening');
+    say('Wake word active. Say Hey Jarvis.');
+  };
+
+  recognition.onresult=(event)=>{
+    for(let i=event.resultIndex;i<event.results.length;i++){
+      if(!event.results[i].isFinal)continue;
+
+      const transcript=event.results[i][0].transcript.trim();
+      const match=transcript.match(/\bhey[\s,]+jarvis\b/i);
+
+      if(wakeArmed){
+        wakeArmed=false;
+        if(transcript)run(transcript);
+        continue;
+      }
+
+      if(match){
+        const command=transcript.slice(match.index+match[0].length)
+          .replace(/^[\s,.:!?-]+/,'').trim();
+
+        if(command){
+          run(command);
+        }else{
+          wakeArmed=true;
+          setState('listening');
+          say("I'm listening. What do you need?");
+        }
+      }
+    }
+  };
+
+  recognition.onerror=(event)=>{
+    if(!wakeEnabled)return;
+
+    if(event.error==='not-allowed'||event.error==='service-not-allowed'){
+      stopWake();
+      say('Microphone access was denied. Check your browser permissions.');
+    }else if(event.error==='audio-capture'){
+      stopWake();
+      say('No microphone was found.');
+    }
+  };
+
+  recognition.onend=()=>{
+    if(!wakeEnabled||!recognition)return;
+
+    if(document.visibilityState==='visible'){
+      setTimeout(()=>{
+        if(!wakeEnabled||!recognition)return;
+        try{recognition.start()}catch(e){}
+      },300);
+    }
+  };
+
+  try{
+    recognition.start();
+  }catch(e){
+    stopWake();
+    say('Could not start the microphone. Please try again.');
+  }
+};
+
+document.addEventListener('visibilitychange',()=>{
+  if(!wakeEnabled||!recognition)return;
+
+  if(document.visibilityState==='visible'){
+    try{recognition.start()}catch(e){}
+  }
+});
+
 
 async function run(t) {
   const q = t.trim().toLowerCase();
