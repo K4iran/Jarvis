@@ -363,6 +363,37 @@ async function run(t) {
     return;
   }
 
+  // JARVIS AUTOMATIC, SELECTIVE MEMORY
+  const memoryRules = [
+    {
+      pattern: /^(?:my\s+)?(favourite colour|favorite color|favourite team|favorite team|position|height|name|main goal|long-term goal|basketball goal)\s+(?:is|=|:)\s+(.+?)[.!]?$/i
+    },
+    {
+      pattern: /^i play (point guard|shooting guard|small forward|power forward|centre|center)\.?$/i,
+      key: 'Basketball position'
+    },
+    {
+      pattern: /^i prefer (.+?)[.!]?$/i,
+      key: 'Preference'
+    },
+    {
+      pattern: /^i don't like (.+?)[.!]?$/i,
+      key: 'Dislike'
+    }
+  ];
+
+  for (const rule of memoryRules) {
+    const match = t.trim().match(rule.pattern);
+
+    if (match) {
+      const key = rule.key || match[1];
+      const value = rule.key ? match[1] : match[2];
+
+      say(JarvisMemory.remember(key, value));
+      return;
+    }
+  }
+
   let v = null, m;
 
   // Keep Jarvis's existing quick commands
