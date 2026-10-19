@@ -256,14 +256,44 @@ arr.forEach((v,i)=>{P.set(v,i*3);R[i*2]=mult(Math.random());R[i*2+1]=Math.random
 const pts=[];for(let i=0;i<N;i++){const y=1-2*(i+.5)/N,q=Math.sqrt(1-y*y),a=i*2.39996;pts.push([Math.cos(a)*q,y,Math.sin(a)*q])}
 const shellA=pts.map(v=>{const j=1+(Math.random()-.5)*.002;return v.map(c=>c*j)});
 const innerA=Array.from({length:M},()=>{const u=Math.random()*2-1,a=Math.random()*6.283,q=Math.sqrt(1-u*u),r=.5+.35*Math.random();return[Math.cos(a)*q*r,u*r,Math.sin(a)*q*r]});
-const g1=geo(shellA,h=>h>.97?1.5:.85+.3*h),g2=geo(innerA,h=>.8+.4*h),m1=mat(Math.sqrt(12.566/N)*.278,1),m2=mat(.008/1.5,.4);
-const shell=new T.Mesh(g1,m1),inner=new T.Mesh(g2,m2);shell.frustumCulled=inner.frustumCulled=false;inner.renderOrder=0;shell.renderOrder=1;
+const innerB=Array.from({length:Math.floor(M*.55)},()=>{
+const u=Math.random()*2-1,a=Math.random()*6.283,
+q=Math.sqrt(1-u*u),r=.22+.2*Math.random();
+return[Math.cos(a)*q*r,u*r,Math.sin(a)*q*r]
+}); 
+
+const g1=geo(shellA,h=>h>.97?1.5:.85+.3*h),g2=geo(innerA,h=>.8+.4*h),g3=geo(innerB,h=>.8+.4*h),m1=mat(Math.sqrt(12.566/N)*.278,1),m2=mat(.008/1.5,.4),m3=mat(.006,.3);
+
+const shell=new T.Mesh(g1,m1),inner=new T.Mesh(g2,m2),inner2=new T.Mesh(g3,m3);shell.frustumCulled=inner.frustumCulled=false;inner.renderOrder=0;shell.renderOrder=1;
 const lp=[];for(let k=0;k<180;k++){const i=Math.random()*N|0,j=Math.min(N-1,i+1+(Math.random()*70|0));lp.push(...pts[i].map(c=>c*1.004),...pts[j].map(c=>c*1.004))}
 const lg=new T.BufferGeometry();lg.setAttribute('position',new T.Float32BufferAttribute(lp,3));
 const lines=new T.LineSegments(lg,new T.LineBasicMaterial({color:0x9fdcff,transparent:true,opacity:0,depthWrite:false}));
+
+const flowGroup=new T.Group();
+for(let k=0;k<3;k++){
+const p=[];
+for(let i=0;i<=180;i++){
+const t=i/180*Math.PI*2,
+lat=-.8+k*.8+.16*Math.sin(t*2+k);
+p.push(new T.Vector3(
+.43*Math.cos(t+k*2.094)*Math.cos(lat),
+.43*Math.sin(lat),
+.43*Math.sin(t+k*2.094)*Math.cos(lat)
+));
+}
+const curve=new T.BufferGeometry().setFromPoints(p);
+const stream=new T.Line(curve,new T.LineBasicMaterial({
+color:k===1?0x55caff:0x238cff,
+transparent:true,opacity:.12,depthWrite:false
+}));
+flowGroup.add(stream);
+}
+
 const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(150,215,255,.9)');gr.addColorStop(.4,'rgba(39,141,255,.35)');gr.addColorStop(1,'rgba(39,141,255,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
 const glow=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),blending:T.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.setScalar(1.7);glow.renderOrder=2;lines.renderOrder=3;
-const tilt=new T.Group(),spin=new T.Group();spin.add(shell,inner,lines);tilt.add(spin,glow);sc.add(tilt);
+const tilt=new T.Group(),spin=new T.Group();
+spin.add(shell,inner,inner2,lines,flowGroup);
+tilt.add(spin,glow);sc.add(tilt);
 orbInfo='WebGL · '+(N+M).toLocaleString()+' particles';refresh();
 let px=0,py=0,pt=2,pa=0,tp=2,idleT=2,tt=0,slow=0,t0=performance.now();const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize(),inv=new T.Quaternion();
 pulse=a=>{inv.copy(spin.quaternion).invert();U.uPulseDir.value.set(0,0,1).applyQuaternion(inv);pt=0;pa=a};
@@ -283,9 +313,16 @@ if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*
 if(tp<1.3){tp+=dt/1.1;U.uTouchT.value=tp;U.uTouchA.value=.9*Math.min(1,(1.3-tp)*3)}else U.uTouchA.value=0;
 tilt.rotation.x+=(py*.18-tilt.rotation.x)*.05;tilt.rotation.y+=(px*.25-tilt.rotation.y)*.05;U.uLight.value.set(-.45+px*.25,.55-py*.2,.7).normalize();
 glow.material.opacity=cur.core*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.3;
+                    
+flowGroup.rotation.y+=dt*.12*mo;
+flowGroup.rotation.x+=dt*.035*mo;
+flowGroup.children.forEach(s=>{
+s.material.opacity=.08+U.uPulse.value*.16;
+});
+
 lines.material.opacity=.07+.18*Math.pow(Math.max(0,Math.sin(tt*.31)),10)+.4*U.uPulse.value;
 host.style.setProperty('--h2',(cur.halo+cur.flash*.25+U.uPulse.value*.15).toFixed(3));rd.render(sc,cam)}
 requestAnimationFrame(frame);
-addEventListener('pagehide',()=>{[g1,g2,lg].forEach(g=>g.dispose());[m1,m2,lines.material,glow.material].forEach(m=>m.dispose());rd.dispose()});
+addEventListener('pagehide',()=>{[g1,g2,g3,lg].forEach(g=>g.dispose());[[m1,m2,m3,lines.material,glow.material].forEach(m=>m.dispose());rd.dispose()});
 }catch(err){console.error(err);$('#core').classList.add('nogl');orbInfo='Unavailable'}})();
 </script></body></html>
