@@ -558,21 +558,15 @@ speakReply(reply);
     busy = false;
     timers.push(setTimeout(() => setState('standby'), 1500));
 
-  } catch (error) {
-  console.error('Jarvis speech playback error:', error);
-
-  say('VOICE ERROR: ' + error.message);
-
-  jarvisSpeaking = false;
-
-  if (audioUrl) URL.revokeObjectURL(audioUrl);
-
-  if (wakeEnabled && recognition) {
-    try { recognition.start(); } catch (e) {}
-  }
-  }
+    } catch (error) {
+    console.error('Jarvis chat error:', error);
+    say('Connection failed: ' + error.message);
+    busy = false;
+    setState('standby');
   }
 }
+
+
 const cmd=$('#cmd'),inp=$('#ci');
 function cmdOpen(o){cmd.hidden=!o;$('#kb').setAttribute('aria-expanded',o);o?inp.focus():$('#kb').focus()}
 $('#kb').onclick=()=>cmdOpen(cmd.hidden);$('#cc').onclick=()=>cmdOpen(false);
