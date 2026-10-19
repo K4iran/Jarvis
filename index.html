@@ -218,10 +218,15 @@ async function speakReply(text) {
       }
     );
 
+        say('DEBUG: speech server responded ' + response.status);
+
     const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data.error || 'Speech request failed');
+    }
+
+    say('DEBUG: audio received ' + !!data.audio);
     }
 
     const binary = atob(data.audio);
