@@ -555,7 +555,8 @@ speakReply(reply);
     timers.push(setTimeout(() => setState('standby'), 1500));
 
   } catch (error) {
-    console.error('Jarvis connection error:', error);
+    console.error('Jarvis speech playback error:', error);
+say('Speech error: ' + error.message);
     busy = false;
     setState('standby');
     say('Connection failed. Please try again.');
