@@ -212,7 +212,8 @@ async function speakReply(text) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': 'sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df'
+          'apikey': 'sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df',
+          'Authorization': 'Bearer sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df'
         },
         body: JSON.stringify({ text })
       }
