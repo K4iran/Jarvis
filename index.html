@@ -266,16 +266,19 @@ async function speakReply(text) {
 
     await jarvisAudio.play();
 
-  } catch (error) {
-    console.error('Jarvis speech playback error:', error);
-    jarvisSpeaking = false;
+  
+} catch (error) {
+  console.error('Jarvis speech playback error:', error);
+  say('VOICE ERROR: ' + error.message);
+  jarvisSpeaking = false;
 
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
+  if (audioUrl) URL.revokeObjectURL(audioUrl);
 
-    if (wakeEnabled && recognition) {
-      try { recognition.start(); } catch (e) {}
-    }
+  if (wakeEnabled && recognition) {
+    try { recognition.start(); } catch (e) {}
   }
+}
+
 }
 
 function renderDisp(){const p=P[view];$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
