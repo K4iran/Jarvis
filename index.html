@@ -227,6 +227,7 @@ async function speakReply(text) {
     }
 
     say('DEBUG: audio received ' + !!data.audio);
+say('DEBUG: MIME ' + data.mimeType + ' | length ' + (data.audio ? data.audio.length : 0));
   
 
     const binary = atob(data.audio);
