@@ -264,9 +264,14 @@ say('DEBUG: MIME ' + data.mimeType + ' | length ' + (data.audio ? data.audio.len
     };
 
     jarvisAudio.onended = finishSpeaking;
-    jarvisAudio.onerror = finishSpeaking;
+jarvisAudio.onerror = () => {
+  const e = jarvisAudio.error;
+  say('AUDIO ERROR: code ' + (e && e.code) + ' ' + (e && e.message));
+  finishSpeaking();
+};
 
     await jarvisAudio.play();
+say('DEBUG: play() started');
 
   
 } catch (error) {
