@@ -545,6 +545,7 @@ async function run(t) {
   busy = true;
   setState('processing');
   say('Connecting to Jarvis…');
+  window.startBurstCharge();
 
   try {
     const response = await fetch(
@@ -571,6 +572,7 @@ async function run(t) {
     await speakReply(reply);
 
     } catch (error) {
+    window.cancelBurstCharge();
     console.error('Jarvis chat error:', error);
     say('Connection failed: ' + error.message);
     busy = false;
@@ -603,19 +605,56 @@ const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clien
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
 const U={uTime:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}};
 
+
 let burstPhase = 'idle';
 let burstElapsed = 0;
 let chargeLevel = 0;
 let burstResolve = null;
-const CHARGE_TIME=.8, BURST_OUT=1.2, REFORM_TIME=5;
+const CHARGE_TIME = 2.8, BURST_OUT = 0.65, REFORM_TIME = 5;
 
-burst=()=>new Promise(resolve=>{
-  if(S.rm){
-    U.uBurst.value=0;
-    chargeLevel=0;
+// Begin charging as soon as the real AI request starts.
+window.startBurstCharge = () => {
+  if (S.rm) return;
+
+  if (burstResolve) {
+    burstResolve();
+    burstResolve = null;
+  }
+
+  burstPhase = 'charge';
+  burstElapsed = 0;
+  chargeLevel = 0;
+  U.uBurst.value = 0;
+};
+
+// Cancel charging if the request fails.
+window.cancelBurstCharge = () => {
+  if (burstPhase === 'charge') {
+    burstPhase = 'idle';
+    burstElapsed = 0;
+    chargeLevel = 0;
+    U.uBurst.value = 0;
+  }
+};
+
+// Trigger the explosion when the response is ready.
+burst = () => new Promise(resolve => {
+  if (S.rm) {
+    U.uBurst.value = 0;
+    chargeLevel = 0;
     resolve();
     return;
   }
+
+  if (burstResolve) burstResolve();
+
+  burstResolve = resolve;
+  burstPhase = 'explode';
+  burstElapsed = 0;
+  chargeLevel = 0;
+  U.uBurst.value = 0;
+});
+
 
   if(burstResolve) burstResolve();
 
@@ -828,17 +867,15 @@ const T1=ST[state],k=1-Math.exp(-dt*2.2),mo=S.rm?0:1;for(const key in T1)cur[key
 if(burstPhase!=='idle'){
   burstElapsed+=dt;
 
-  if(burstPhase==='charge'){
-    const p=Math.min(1,burstElapsed/CHARGE_TIME);
-    chargeLevel=p*p*(3-2*p);
-    U.uBurst.value=0;
+ 
+if (burstPhase === 'charge') {
+  // Accelerate progressively and hold at maximum until the response is ready.
+  chargeLevel = 1 - Math.exp(-burstElapsed * 0.7);
+  U.uBurst.value = 0;
+}
+ 
 
-    if(p>=1){
-      chargeLevel=0;
-      burstPhase='explode';
-      burstElapsed=0;
-    }
-  }else if(burstPhase==='explode'){
+else if(burstPhase==='explode'){
     chargeLevel=0;
     const p=Math.min(1,burstElapsed/BURST_OUT);
     U.uBurst.value=1-Math.pow(1-p,3);
