@@ -663,10 +663,11 @@ vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7;float expansion = 0.38 * uBurst;vec3 p = aPos
   + on * (step(.9,h)*.005*sin(uTime*.8+h*60.) + vE*.006);vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
 vec3 vn=normalize(normalMatrix*on);vSN=normalize(normalMatrix*normal);vOrb=.4+.6*max(dot(vn,uLight),0.);vDepth=smoothstep(-.8,.8,vn.z);
 gl_Position=projectionMatrix*modelViewMatrix*vec4(vp,1.);}`;
-const FS=`uniform vec3 uLight;uniform float uGlow,uK;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
+const FS=`uniform vec3 uLight;uniform float uGlow,uK,uBurst;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
 void main(){vec3 n=normalize(vSN);float d=max(dot(n,uLight),0.);float sp=pow(max(dot(reflect(-uLight,n),vec3(0.,0.,1.)),0.),22.);float lit=(.2+.8*d)*vOrb;
 vec3 c=mix(vec3(.02,.12,.42),vec3(.18,.6,1.),lit);c=mix(c,vec3(.78,.94,1.),clamp(smoothstep(.5,1.,lit)*.65+vE*.45,0.,1.));c+=vec3(.75,.92,1.)*sp*.9;
-c=mix(c,vec3(.85,.96,1.),vBr*.35);c=mix(c,c*vec3(.35,.5,.95),vDk*.8);float ww=clamp(vW,0.0,1.0);c=mix(c,vec3(.62,.93,1.),ww*.5);c=mix(c,vec3(.92,.98,1.),smoothstep(.55,1.,ww)*vBr*.9);c*=(1.+vBr*.55)*(.32+.68*vDepth)*vTw*uGlow*uK*(1.+vE*.7+ww*1.1)*1.35;gl_FragColor=vec4(c,min(.9,.72+.12*vBr-.1*vDk+ww*.15));}`;
+c=mix(c,vec3(.85,.96,1.),vBr*.35);c=mix(c,c*vec3(.35,.5,.95),vDk*.8);float ww=clamp(vW,0.0,1.0);c=mix(c,vec3(.62,.93,1.),ww*.5);c=mix(c,vec3(.92,.98,1.),smoothstep(.55,1.,ww)*vBr*.9);c*=(1.+vBr*.55)*(.32+.68*vDepth)*vTw*uGlow*uK*(1.+vE*.7+ww*1.1)*1.35;float shellAlpha = 1.0 - 0.98 * smoothstep(0.06, 0.75, uBurst);
+gl_FragColor=vec4(c,min(.9,.72+.12*vBr-.1*vDk+ww*.15)*shellAlpha);}`;
 const mat=(ps,k)=>new T.ShaderMaterial({uniforms:{...U,uR:{value:1},uPS:{value:ps},uK:{value:k}},vertexShader:VS,fragmentShader:FS,transparent:true});
 const geo=(arr,mult)=>{const g=new T.InstancedBufferGeometry(),b=new T.SphereBufferGeometry(1,lo?5:6,lo?3:4),n=arr.length,P=new Float32Array(n*3),R=new Float32Array(n*2);g.index=b.index;g.setAttribute('position',b.attributes.position);g.setAttribute('normal',b.attributes.normal);
 arr.forEach((v,i)=>{P.set(v,i*3);R[i*2]=mult(Math.random());R[i*2+1]=Math.random()});g.setAttribute('aPos',new T.InstancedBufferAttribute(P,3));g.setAttribute('aR',new T.InstancedBufferAttribute(R,2));g.instanceCount=n;return g};
@@ -836,12 +837,102 @@ const driftMaterial = new T.PointsMaterial({
 const driftParticles = new T.Points(driftGeometry, driftMaterial);
 energyGroup.add(driftParticles);
 
+const disassemblyStep = lo ? 2 : 1;
+const disassemblyPositions = [];
+const disassemblySeeds = [];
+
+for (let i = 0; i < shellA.length; i += disassemblyStep) {
+  disassemblyPositions.push(...shellA[i]);
+  disassemblySeeds.push(Math.random());
+}
+
+const disassemblyGeometry = new T.BufferGeometry();
+
+disassemblyGeometry.setAttribute(
+  'position',
+  new T.Float32BufferAttribute(disassemblyPositions, 3)
+);
+
+disassemblyGeometry.setAttribute(
+  'aSeed',
+  new T.Float32BufferAttribute(disassemblySeeds, 1)
+);
+
+const disassemblyMaterial = new T.ShaderMaterial({
+  uniforms: {
+    uBurst: { value: 0 },
+    uTime: { value: 0 }
+  },
+  vertexShader: `
+    attribute float aSeed;
+    uniform float uBurst;
+    uniform float uTime;
+    varying float vAlpha;
+    varying float vSeed;
+
+    void main() {
+      vec3 home = position;
+      vec3 dir = normalize(home);
+
+      vec3 axis = normalize(
+        cross(dir, vec3(0.0, 1.0, 0.13))
+      );
+
+      float distance = 0.8 + aSeed * 1.3;
+      float swirl = sin(uTime * 1.8 + aSeed * 31.0) * 0.22;
+
+      vec3 p = home
+        + dir * uBurst * distance
+        + axis * swirl * uBurst;
+
+      vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
+
+      gl_Position = projectionMatrix * mvPosition;
+
+      gl_PointSize = (2.4 + aSeed * 2.6)
+        * (4.2 / max(1.0, -mvPosition.z));
+
+      vAlpha = smoothstep(0.02, 0.22, uBurst)
+        * (0.78 + 0.22 * sin(uTime * 5.0 + aSeed * 50.0));
+
+      vSeed = aSeed;
+    }
+  `,
+  fragmentShader: `
+    varying float vAlpha;
+    varying float vSeed;
+
+    void main() {
+      float d = length(gl_PointCoord - vec2(0.5));
+      float core = 1.0 - smoothstep(0.12, 0.5, d);
+
+      vec3 blue = vec3(0.18, 0.55, 1.0);
+      vec3 whiteBlue = vec3(0.78, 0.96, 1.0);
+      vec3 colour = mix(blue, whiteBlue, vSeed * 0.65 + 0.25);
+
+      gl_FragColor = vec4(colour, vAlpha * core);
+    }
+  `,
+  transparent: true,
+  depthWrite: false,
+  blending: T.AdditiveBlending
+});
+
+const disassemblyPoints = new T.Points(
+  disassemblyGeometry,
+  disassemblyMaterial
+);
+
+disassemblyPoints.renderOrder = 5;
+disassemblyPoints.frustumCulled = false;
+
 
 const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(150,215,255,.9)');gr.addColorStop(.4,'rgba(39,141,255,.35)');gr.addColorStop(1,'rgba(39,141,255,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
 const glow=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),blending:T.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.setScalar(1.7);glow.renderOrder=2;lines.renderOrder=3;
 const tilt=new T.Group(),spin=new T.Group();
 spin.add(shell,inner,inner2,lines,flowGroup);
 spin.add(energyGroup);
+spin.add(disassemblyPoints);
 tilt.add(spin,glow);sc.add(tilt);
 orbInfo='WebGL · '+(N+M).toLocaleString()+' particles';refresh();
 let px=0,py=0,pt=2,pa=0,tp=2,idleT=2,tt=0,slow=0,t0=performance.now();const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize(),inv=new T.Quaternion();
@@ -930,6 +1021,8 @@ driftMaterial.opacity = 0.55 * networkFade;
 driftParticles.rotation.y -= dt * 0.035 * mo;
 
 tt+=dt*mo;U.uTime.value=tt;U.uGlow.value=cur.glow+cur.flash*.35+chargeLevel*.65;
+disassemblyMaterial.uniforms.uBurst.value = U.uBurst.value;
+disassemblyMaterial.uniforms.uTime.value = tt;
 tilt.scale.setScalar(1-.23*chargeLevel);U.uWave.value=cur.wave;U.uProc.value=cur.proc;
 // Accelerate smoothly, hold speed throughout expansion, then slow as the orb reforms.
 let rotationBoost = 1;
@@ -966,11 +1059,11 @@ host.style.setProperty('--h2',(cur.halo+cur.flash*.25+U.uPulse.value*.15).toFixe
 requestAnimationFrame(frame);
 
 addEventListener('pagehide', () => {
-  [g1, g2, g3, lg, ...energyGroup.children.map(o => o.geometry)]
+  [g1, g2, g3, lg, disassemblyGeometry,...energyGroup.children.map(o => o.geometry)]
     .forEach(g => g && g.dispose());
 
   [
-    m1, m2, m3, lines.material, glow.material,
+    m1, m2, m3, lines.material, glow.material, disassemblyMaterial,
     ...energyGroup.children.map(o => o.material)
   ].forEach(m => {
     if (m) m.dispose();
