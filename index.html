@@ -603,7 +603,10 @@ const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clien
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
 const U={uTime:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}};
 
-
+let burstPhase = 'idle';
+let burstElapsed = 0;
+let chargeLevel = 0;
+let burstResolve = null;
 const CHARGE_TIME=.8, BURST_OUT=1.2, REFORM_TIME=5;
 
 burst=()=>new Promise(resolve=>{
