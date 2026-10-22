@@ -545,6 +545,7 @@ async function run(t) {
   busy = true;
   setState('processing');
   say('Connecting to Jarvis…');
+  window.startBurstCharge();
 
   try {
     const response = await fetch(
@@ -571,6 +572,7 @@ async function run(t) {
     await speakReply(reply);
 
     } catch (error) {
+    window.cancelBurstCharge();
     console.error('Jarvis chat error:', error);
     say('Connection failed: ' + error.message);
     busy = false;
@@ -603,34 +605,62 @@ const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clien
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
 const U={uTime:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}};
 
+
 let burstPhase = 'idle';
 let burstElapsed = 0;
 let chargeLevel = 0;
 let burstResolve = null;
-const CHARGE_TIME=.8, BURST_OUT=1.2, REFORM_TIME=5;
+const CHARGE_TIME = 2.8, BURST_OUT = 0.65, REFORM_TIME = 5;
 
-burst=()=>new Promise(resolve=>{
-  if(S.rm){
-    U.uBurst.value=0;
-    chargeLevel=0;
+// Begin charging as soon as the real AI request starts.
+window.startBurstCharge = () => {
+  if (S.rm) return;
+
+  if (burstResolve) {
+    burstResolve();
+    burstResolve = null;
+  }
+
+  burstPhase = 'charge';
+  burstElapsed = 0;
+  chargeLevel = 0;
+  U.uBurst.value = 0;
+};
+
+// Cancel charging if the request fails.
+window.cancelBurstCharge = () => {
+  if (burstPhase === 'charge') {
+    burstPhase = 'idle';
+    burstElapsed = 0;
+    chargeLevel = 0;
+    U.uBurst.value = 0;
+  }
+};
+burst = () => new Promise(resolve => {
+  if (S.rm) {
+    U.uBurst.value = 0;
+    chargeLevel = 0;
     resolve();
     return;
   }
 
-  if(burstResolve) burstResolve();
+  if (burstResolve) burstResolve();
 
-  burstPhase='charge';
-  burstElapsed=0;
-  chargeLevel=0;
-  U.uBurst.value=0;
-  burstResolve=resolve;
+  burstResolve = resolve;
+  burstPhase = 'explode';
+  burstElapsed = 0;
+  chargeLevel = 0;
+  U.uBurst.value = 0;
 });
+
+  
 const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA,uBurst;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
 float hs(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}float ga(float x){return exp(-x*x);}
 void main(){vec3 on=normalize(aPos);float h=aR.y;vBr=step(.88,fract(h*7.31));vDk=step(.8,fract(h*13.77+.37))*(1.-vBr);vTw=.9+.1*sin(uTime*(.5+h*1.5)+h*40.);float g=smoothstep(.987,1.,sin(uTime*.45+h*97.));
 float wv=ga((dot(on,uWaveDir)-sin(uTime*.7)*.8)*3.5)*uWave;float pr=smoothstep(.8,1.,sin(uTime*1.7+hs(floor(on*3.2+4.))*6.283))*uProc;
 float pd=acos(clamp(dot(on,uPulseDir),-1.,1.))-uPulseT*3.9;float pu=exp(-pd*pd/(pd>0.0?0.08:0.4))*uPulse;float tr=ga((acos(clamp(dot(on,uTouchDir),-1.,1.))-uTouchT*1.7)*7.)*uTouchA;
-vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7;float scatter=1.2+hs(floor(aPos*31.7+7.3))*1.4;vec3 p=aPos*uR+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006+uBurst*scatter);vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
+vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7;float expansion = 0.38 * uBurst;vec3 p = aPos * (uR + expansion)
+  + on * (step(.9,h)*.005*sin(uTime*.8+h*60.) + vE*.006);vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
 vec3 vn=normalize(normalMatrix*on);vSN=normalize(normalMatrix*normal);vOrb=.4+.6*max(dot(vn,uLight),0.);vDepth=smoothstep(-.8,.8,vn.z);
 gl_Position=projectionMatrix*modelViewMatrix*vec4(vp,1.);}`;
 const FS=`uniform vec3 uLight;uniform float uGlow,uK;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
@@ -676,10 +706,142 @@ transparent:true,opacity:.12,depthWrite:false
 flowGroup.add(stream);
 }
 
+
+const energyGroup = new T.Group();
+const energyMaterials = [];
+const energyNodeMaterials = [];
+
+function addEnergyPath(points, color, opacity, width = 1) {
+  const curve = new T.CatmullRomCurve3(points);
+  const sampled = curve.getPoints(64);
+  const geometry = new T.BufferGeometry().setFromPoints(sampled);
+  const material = new T.LineBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    blending: T.AdditiveBlending
+  });
+  const line = new T.Line(geometry, material);
+  line.renderOrder = 3;
+  energyGroup.add(line);
+  energyMaterials.push({ material, opacity });
+
+  // Tiny luminous nodes follow the curved path.
+  const nodePositions = [];
+  for (let i = 0; i < sampled.length; i += 4) {
+    nodePositions.push(sampled[i].x, sampled[i].y, sampled[i].z);
+  }
+
+  const nodeGeometry = new T.BufferGeometry();
+  nodeGeometry.setAttribute(
+    'position',
+    new T.Float32BufferAttribute(nodePositions, 3)
+  );
+
+  const nodeMaterial = new T.PointsMaterial({
+    color: 0x9feaff,
+    size: 0.025,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    blending: T.AdditiveBlending,
+    sizeAttenuation: true
+  });
+
+  const nodes = new T.Points(nodeGeometry, nodeMaterial);
+  nodes.renderOrder = 4;
+  energyGroup.add(nodes);
+  energyNodeMaterials.push({ material: nodeMaterial, opacity });
+}
+
+// Interconnected curved paths arranged around a larger 3D volume.
+for (let k = 0; k < 18; k++) {
+  const points = [];
+  const angle = Math.random() * Math.PI * 2;
+  const height = -0.9 + Math.random() * 1.8;
+  const radius = 1.05 + Math.random() * 0.38;
+  const waves = 1 + Math.floor(Math.random() * 3);
+  const phase = Math.random() * Math.PI * 2;
+
+  for (let j = 0; j <= 12; j++) {
+    const t = j / 12;
+    const a = angle + t * Math.PI * (1.1 + waves * 0.55);
+    const r = radius + Math.sin(t * Math.PI * 2 + phase) * 0.12;
+    const y = height + Math.sin(t * Math.PI * 2 + phase) * 0.2;
+
+    points.push(new T.Vector3(
+      Math.cos(a) * r,
+      y,
+      Math.sin(a) * r
+    ));
+  }
+
+  addEnergyPath(
+    points,
+    k % 3 === 0 ? 0x55caff : 0x9feaff,
+    0.22
+  );
+
+  // Branches curve away from selected points on the main paths.
+  if (k % 2 === 0) {
+    const branchStart = points[5].clone();
+    const branchMid = branchStart.clone().add(new T.Vector3(
+      (Math.random() - 0.5) * 0.65,
+      (Math.random() - 0.5) * 0.65,
+      (Math.random() - 0.5) * 0.65
+    ));
+    const branchEnd = points[8].clone().add(new T.Vector3(
+      (Math.random() - 0.5) * 0.5,
+      (Math.random() - 0.5) * 0.5,
+      (Math.random() - 0.5) * 0.5
+    ));
+
+    addEnergyPath(
+      [branchStart, branchMid, branchEnd],
+      0x48bfff,
+      0.16
+    );
+  }
+}
+
+// Independent drifting specks, created once and animated in the main loop.
+const driftPositions = [];
+for (let i = 0; i < 100; i++) {
+  const a = Math.random() * Math.PI * 2;
+  const y = (Math.random() * 2 - 1) * 1.45;
+  const r = 0.8 + Math.random() * 0.8;
+  driftPositions.push(
+    Math.cos(a) * r,
+    y,
+    Math.sin(a) * r
+  );
+}
+
+const driftGeometry = new T.BufferGeometry();
+driftGeometry.setAttribute(
+  'position',
+  new T.Float32BufferAttribute(driftPositions, 3)
+);
+
+const driftMaterial = new T.PointsMaterial({
+  color: 0x75dfff,
+  size: 0.018,
+  transparent: true,
+  opacity: 0,
+  depthWrite: false,
+  blending: T.AdditiveBlending
+});
+
+const driftParticles = new T.Points(driftGeometry, driftMaterial);
+energyGroup.add(driftParticles);
+
+
 const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(150,215,255,.9)');gr.addColorStop(.4,'rgba(39,141,255,.35)');gr.addColorStop(1,'rgba(39,141,255,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
 const glow=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),blending:T.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.setScalar(1.7);glow.renderOrder=2;lines.renderOrder=3;
 const tilt=new T.Group(),spin=new T.Group();
 spin.add(shell,inner,inner2,lines,flowGroup);
+spin.add(energyGroup);
 tilt.add(spin,glow);sc.add(tilt);
 orbInfo='WebGL · '+(N+M).toLocaleString()+' particles';refresh();
 let px=0,py=0,pt=2,pa=0,tp=2,idleT=2,tt=0,slow=0,t0=performance.now();const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize(),inv=new T.Quaternion();
@@ -695,17 +857,15 @@ const T1=ST[state],k=1-Math.exp(-dt*2.2),mo=S.rm?0:1;for(const key in T1)cur[key
 if(burstPhase!=='idle'){
   burstElapsed+=dt;
 
-  if(burstPhase==='charge'){
-    const p=Math.min(1,burstElapsed/CHARGE_TIME);
-    chargeLevel=p*p*(3-2*p);
-    U.uBurst.value=0;
+ 
+if (burstPhase === 'charge') {
+  // Accelerate progressively and hold at maximum until the response is ready.
+  chargeLevel = 1 - Math.exp(-burstElapsed * 0.7);
+  U.uBurst.value = 0;
+}
+ 
 
-    if(p>=1){
-      chargeLevel=0;
-      burstPhase='explode';
-      burstElapsed=0;
-    }
-  }else if(burstPhase==='explode'){
+else if(burstPhase==='explode'){
     chargeLevel=0;
     const p=Math.min(1,burstElapsed/BURST_OUT);
     U.uBurst.value=1-Math.pow(1-p,3);
@@ -734,9 +894,59 @@ if(burstPhase!=='idle'){
 }else{
   chargeLevel=0;
 }
+
+const networkTarget =
+  burstPhase === 'explode' ? 1 :
+  burstPhase === 'reform' ? 1 : 0;
+
+const networkFade = burstPhase === 'reform'
+  ? Math.max(0, 1 - burstElapsed / REFORM_TIME)
+  : networkTarget;
+
+energyGroup.visible = networkFade > 0.005;
+
+const expansionScale =
+  burstPhase === 'explode'
+    ? 0.15 + 0.85 * Math.min(1, burstElapsed / BURST_OUT)
+    : burstPhase === 'reform'
+      ? 1
+      : 0.001;
+
+energyGroup.scale.setScalar(expansionScale);
+energyGroup.rotation.y += dt * 0.12 * mo;
+energyGroup.rotation.x += dt * 0.035 * mo;
+
+energyMaterials.forEach(({ material, opacity }, i) => {
+  const pulse = 0.75 + 0.25 * Math.sin(tt * 2.2 + i * 1.7);
+  material.opacity = opacity * networkFade * pulse;
+});
+
+energyNodeMaterials.forEach(({ material, opacity }, i) => {
+  const pulse = 0.65 + 0.35 * Math.sin(tt * 3 + i * 2.1);
+  material.opacity = opacity * networkFade * pulse;
+});
+
+driftMaterial.opacity = 0.55 * networkFade;
+driftParticles.rotation.y -= dt * 0.035 * mo;
+
 tt+=dt*mo;U.uTime.value=tt;U.uGlow.value=cur.glow+cur.flash*.35+chargeLevel*.65;
 tilt.scale.setScalar(1-.23*chargeLevel);U.uWave.value=cur.wave;U.uProc.value=cur.proc;
-const sp=dt*.055*cur.rate*(1+.35*Math.sin(tt*.07))*mo;ax.set(Math.sin(tt*.043)*.5,1,Math.cos(tt*.031)*.35).normalize();spin.rotateOnAxis(ax,sp);spin.rotateOnAxis(ax2,sp*.3);inner.rotation.y-=dt*.03*mo;
+// Accelerate smoothly, hold speed throughout expansion, then slow as the orb reforms.
+let rotationBoost = 1;
+
+if (burstPhase === 'charge') {
+  rotationBoost = 1 + 2.2 * chargeLevel;
+} else if (burstPhase === 'explode') {
+  rotationBoost = 3.2;
+} else if (burstPhase === 'reform') {
+  const p = Math.min(1, burstElapsed / REFORM_TIME);
+  const smooth = p * p * (3 - 2 * p);
+  rotationBoost = 3.2 - 2.2 * smooth;
+}
+
+const sp = dt * .055 * cur.rate
+  * (1 + .35 * Math.sin(tt * .07))
+  * rotationBoost * mo;ax.set(Math.sin(tt*.043)*.5,1,Math.cos(tt*.031)*.35).normalize();spin.rotateOnAxis(ax,sp);spin.rotateOnAxis(ax2,sp*.3);inner.rotation.y-=dt*.03*mo;
 U.uWaveDir.value.set(Math.sin(tt*.2),Math.cos(tt*.13),.4).normalize();
 idleT-=dt*mo;if(idleT<0){pulse(.9);idleT=5}
 if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
@@ -754,6 +964,20 @@ s.material.opacity=.07+cur.proc*.13+U.uPulse.value*.18+cur.flash*.08;
 lines.material.opacity=.07+.18*Math.pow(Math.max(0,Math.sin(tt*.31)),10)+.4*U.uPulse.value;
 host.style.setProperty('--h2',(cur.halo+cur.flash*.25+U.uPulse.value*.15).toFixed(3));rd.render(sc,cam)}
 requestAnimationFrame(frame);
-addEventListener('pagehide',()=>{[g1,g2,g3,lg].forEach(g=>g.dispose());[m1,m2,m3,lines.material,glow.material].forEach(m=>m.dispose());rd.dispose()});
+
+addEventListener('pagehide', () => {
+  [g1, g2, g3, lg, ...energyGroup.children.map(o => o.geometry)]
+    .forEach(g => g && g.dispose());
+
+  [
+    m1, m2, m3, lines.material, glow.material,
+    ...energyGroup.children.map(o => o.material)
+  ].forEach(m => {
+    if (m) m.dispose();
+  });
+
+  rd.dispose();
+});
+
 }catch(err){console.error(err);$('#core').classList.add('nogl');orbInfo='Unavailable'}})();
 </script></body></html>
