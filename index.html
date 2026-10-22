@@ -179,7 +179,7 @@ const JarvisMemory = (() => {
   
 const IDLE=['Awaiting your command.','All systems standing by.','Ready when you are.','Awaiting input.'];
 const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING — SIMULATED',responding:'RESPONDING — SIMULATED'};
-const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:3.2,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
+const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:12,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
 const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
 function radar(){const C=140,Y=110,R=72,A=[[0,-1],[1,0],[0,1],[-1,0]],N=['BASKETBALL','PHYSICAL','INTELLIGENCE','SELF CARE'],V=[62,48,71,55],AN=['middle','start','middle','end'];
@@ -307,6 +307,7 @@ let wakeEnabled=false, recognition=null, wakeArmed=false;
 
 function setState(s){
   state=s;
+if(s==='processing') cur.rate=ST.processing.rate;
   $('#core').dataset.s=s;
   $('#stat').dataset.s=s;
   $('#cs').textContent=LBL[s];
@@ -603,11 +604,24 @@ const V3=(x,y,z)=>new T.Vector3(x,y,z);
 const U={uTime:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}};
 let burstPhase='idle',burstElapsed=0,burstResolve=null;
 const BURST_OUT=.35, REFORM_TIME=5;
+let burstPhase='idle',burstElapsed=0,burstResolve=null,chargeLevel=0;
+
+const CHARGE_TIME=.8, BURST_OUT=1.2, REFORM_TIME=5;
+
 burst=()=>new Promise(resolve=>{
-  if(S.rm){U.uBurst.value=0;resolve();return;}
+  if(S.rm){
+    U.uBurst.value=0;
+    chargeLevel=0;
+    resolve();
+    return;
+  }
+
   if(burstResolve) burstResolve();
-  burstPhase='explode';
+
+  burstPhase='charge';
   burstElapsed=0;
+  chargeLevel=0;
+  U.uBurst.value=0;
   burstResolve=resolve;
 });
 const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA,uBurst;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
@@ -679,37 +693,56 @@ if(dt>.034)slow++;else slow=Math.max(0,slow-1);if(slow>90&&dpr>1){dpr=1;fit();sl
 const T1=ST[state],k=1-Math.exp(-dt*2.2),mo=S.rm?0:1;for(const key in T1)cur[key]+=(T1[key]-cur[key])*k;cur.flash*=Math.exp(-dt*1.6);
 if(burstPhase!=='idle'){
   burstElapsed+=dt;
-  if(burstPhase==='explode'){
+
+  if(burstPhase==='charge'){
+    const p=Math.min(1,burstElapsed/CHARGE_TIME);
+    chargeLevel=p*p*(3-2*p);
+    U.uBurst.value=0;
+
+    if(p>=1){
+      chargeLevel=0;
+      burstPhase='explode';
+      burstElapsed=0;
+    }
+  }else if(burstPhase==='explode'){
+    chargeLevel=0;
     const p=Math.min(1,burstElapsed/BURST_OUT);
     U.uBurst.value=1-Math.pow(1-p,3);
+
     if(p>=1){
       U.uBurst.value=1;
       burstPhase='reform';
       burstElapsed=0;
+
       const resolveBurst=burstResolve;
       burstResolve=null;
       if(resolveBurst) resolveBurst();
     }
   }else if(burstPhase==='reform'){
+    chargeLevel=0;
     const p=Math.min(1,burstElapsed/REFORM_TIME);
     const smooth=p*p*(3-2*p);
     U.uBurst.value=1-smooth;
+
     if(p>=1){
       U.uBurst.value=0;
       burstPhase='idle';
       burstElapsed=0;
     }
   }
+}else{
+  chargeLevel=0;
 }
-tt+=dt*mo;U.uTime.value=tt;U.uGlow.value=cur.glow+cur.flash*.35;U.uWave.value=cur.wave;U.uProc.value=cur.proc;
+tt+=dt*mo;U.uTime.value=tt;U.uGlow.value=cur.glow+cur.flash*.35+chargeLevel*.65;
+tilt.scale.setScalar(1-.23*chargeLevel);U.uWave.value=cur.wave;U.uProc.value=cur.proc;
 const sp=dt*.055*cur.rate*(1+.35*Math.sin(tt*.07))*mo;ax.set(Math.sin(tt*.043)*.5,1,Math.cos(tt*.031)*.35).normalize();spin.rotateOnAxis(ax,sp);spin.rotateOnAxis(ax2,sp*.3);inner.rotation.y-=dt*.03*mo;
 U.uWaveDir.value.set(Math.sin(tt*.2),Math.cos(tt*.13),.4).normalize();
 idleT-=dt*mo;if(idleT<0){pulse(.9);idleT=5}
 if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
 if(tp<1.3){tp+=dt/1.1;U.uTouchT.value=tp;U.uTouchA.value=.9*Math.min(1,(1.3-tp)*3)}else U.uTouchA.value=0;
 tilt.rotation.x+=(py*.18-tilt.rotation.x)*.05;tilt.rotation.y+=(px*.25-tilt.rotation.y)*.05;U.uLight.value.set(-.45+px*.25,.55-py*.2,.7).normalize();
-glow.material.opacity=cur.core*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.3+cur.flash*.15;
-glow.scale.setScalar(1.7+cur.proc*.12+U.uPulse.value*.28+cur.flash*.2);
+glow.material.opacity=cur.core*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.3+cur.flash*.15+chargeLevel*.3;
+glow.scale.setScalar(1.7+cur.proc*.12+U.uPulse.value*.28+cur.flash*.2+chargeLevel*.35);
                     
 flowGroup.rotation.y+=dt*(.12+cur.proc*.24)*cur.rate*mo;
 flowGroup.rotation.x+=dt*(.035+cur.proc*.08)*cur.rate*mo;
