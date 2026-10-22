@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -99,7 +100,7 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,grid:true};
-let state='standby',view='idle',openId=null,last=null,ct=0,busy=false,timers=[],ii=0,orbInfo='Unavailable',pulse=()=>{},ripple=()=>{};
+let state='standby',view='idle',openId=null,last=null,ct=0,busy=false,timers=[],ii=0,orbInfo='Unavailable',pulse=()=>{},ripple=()=>{},burst=()=>Promise.resolve();
 
 /* JARVIS PERSONAL MEMORY — PHASE 1 */
 const JarvisMemory = (() => {
@@ -178,7 +179,7 @@ const JarvisMemory = (() => {
   
 const IDLE=['Awaiting your command.','All systems standing by.','Ready when you are.','Awaiting input.'];
 const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING — SIMULATED',responding:'RESPONDING — SIMULATED'};
-const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:1.6,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
+const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:3.2,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
 const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
 function radar(){const C=140,Y=110,R=72,A=[[0,-1],[1,0],[0,1],[-1,0]],N=['BASKETBALL','PHYSICAL','INTELLIGENCE','SELF CARE'],V=[62,48,71,55],AN=['middle','start','middle','end'];
@@ -202,7 +203,6 @@ let jarvisSpeaking = false;
 let jarvisAudio = null;
 
 async function speakReply(text) {
-  say('DEBUG: speakReply started');
   let audioUrl = null;
 
   try {
@@ -212,24 +212,20 @@ async function speakReply(text) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': 'sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df',
-        
+          'apikey': 'sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df'
         },
         body: JSON.stringify({ text })
       }
     );
 
-        say('DEBUG: speech server responded ' + response.status);
-
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'Speech request failed');
+      throw new Error(data.error || data.message || 'Speech request failed');
     }
-
-    say('DEBUG: audio received ' + !!data.audio);
-say('DEBUG: MIME ' + data.mimeType + ' | length ' + (data.audio ? data.audio.length : 0));
-  
+    if (!data || !data.audio) {
+      throw new Error('The speech service returned no audio.');
+    }
 
     const binary = atob(data.audio);
     const bytes = new Uint8Array(binary.length);
@@ -246,46 +242,52 @@ say('DEBUG: MIME ' + data.mimeType + ' | length ' + (data.audio ? data.audio.len
 
     jarvisSpeaking = true;
 
-    // Stop the microphone listening while Jarvis speaks.
+    // Stop wake-word recognition while Jarvis speaks.
     if (wakeEnabled && recognition) {
       try { recognition.stop(); } catch (e) {}
     }
 
     jarvisAudio = new Audio(audioUrl);
 
-    const finishSpeaking = () => {
-      jarvisSpeaking = false;
-      URL.revokeObjectURL(audioUrl);
+    // The burst promise resolves when the explosion ends and reformation begins.
+    await burst();
+    setState('responding');
 
-      // Resume the existing wake-word microphone.
-      if (wakeEnabled && recognition) {
-        try { recognition.start(); } catch (e) {}
+    // Wait for the full audio to finish, not just for playback to start.
+    await new Promise((resolve, reject) => {
+      const audio = jarvisAudio;
+      audio.onended = resolve;
+      audio.onerror = () => reject(new Error('The browser could not play the audio.'));
+
+      const playback = audio.play();
+      if (playback && typeof playback.catch === 'function') {
+        playback.catch(reject);
       }
-    };
+    });
+  } catch (error) {
+    console.error('Jarvis speech playback error:', error);
+    say('Voice playback failed: ' + (error && error.message ? error.message : 'Unknown audio error'));
+  } finally {
+    jarvisSpeaking = false;
 
-    jarvisAudio.onended = finishSpeaking;
-jarvisAudio.onerror = () => {
-  const e = jarvisAudio.error;
-  say('AUDIO ERROR: code ' + (e && e.code) + ' ' + (e && e.message));
-  finishSpeaking();
-};
+    if (jarvisAudio) {
+      jarvisAudio.onended = null;
+      jarvisAudio.onerror = null;
+      try { jarvisAudio.pause(); } catch (e) {}
+    }
+    jarvisAudio = null;
 
-    await jarvisAudio.play();
-say('DEBUG: play() started');
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
 
-  
-} catch (error) {
-  console.error('Jarvis speech playback error:', error);
-  say('VOICE ERROR: ' + error.message);
-  jarvisSpeaking = false;
+    // Return to standby only after speech ends or playback fails.
+    busy = false;
+    setState('standby');
 
-  if (audioUrl) URL.revokeObjectURL(audioUrl);
-
-  if (wakeEnabled && recognition) {
-    try { recognition.start(); } catch (e) {}
+    // Restore wake-word recognition if the user left it enabled.
+    if (wakeEnabled && recognition) {
+      try { recognition.start(); } catch (e) {}
+    }
   }
-}
-
 }
 
 function renderDisp(){const p=P[view];$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
@@ -544,7 +546,6 @@ async function run(t) {
   say('Connecting to Jarvis…');
 
   try {
-    say('DEBUG: sending speech request');
     const response = await fetch(
       
       'https://jtzlljxurhqvybkoygll.supabase.co/functions/v1/jarvis-chat',
@@ -557,21 +558,16 @@ async function run(t) {
         body: JSON.stringify({ message: t + JarvisMemory.context() })
       }
     );
-    say('DEBUG: speech response received ' + response.status);
-
     const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data.error || data.message || `Request failed (${response.status})`);
     }
 
-    setState('responding');
     $('#msg').dataset.persistent = 'true';
-const reply = data.reply || 'Jarvis returned an empty response.';
-say(reply);
-speakReply(reply);
-    busy = false;
-    timers.push(setTimeout(() => setState('standby'), 1500));
+    const reply = data.reply || 'Jarvis returned an empty response.';
+    say(reply);
+    await speakReply(reply);
 
     } catch (error) {
     console.error('Jarvis chat error:', error);
@@ -586,7 +582,7 @@ const cmd=$('#cmd'),inp=$('#ci');
 function cmdOpen(o){cmd.hidden=!o;$('#kb').setAttribute('aria-expanded',o);o?inp.focus():$('#kb').focus()}
 $('#kb').onclick=()=>cmdOpen(cmd.hidden);$('#cc').onclick=()=>cmdOpen(false);
 cmd.onsubmit=e=>{e.preventDefault();const t=inp.value;if(!t.trim())return;inp.value='';cmdOpen(false);run(t)};
-$$('.q').forEach(b=>b.onclick=()=>{cmdOpen(false);run(b.dataset.c)});
+$$('.q').forEach(b=>b.onclick=e=>{cmdOpen(false);run(b.dataset.c)});
 addEventListener('keydown',e=>{if(e.key==='Escape'){if(openId)closeOv();else if(!cmd.hidden)cmdOpen(false)}else if(e.key==='/'&&!openId&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();cmdOpen(true)}});
 addEventListener('resize',refresh);
 setInterval(() => {
@@ -604,13 +600,22 @@ const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.set
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
 const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
-const U={uTime:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0}};
-const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
+const U={uTime:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}};
+let burstPhase='idle',burstElapsed=0,burstResolve=null;
+const BURST_OUT=.35, REFORM_TIME=5;
+burst=()=>new Promise(resolve=>{
+  if(S.rm){U.uBurst.value=0;resolve();return;}
+  if(burstResolve) burstResolve();
+  burstPhase='explode';
+  burstElapsed=0;
+  burstResolve=resolve;
+});
+const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA,uBurst;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
 float hs(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}float ga(float x){return exp(-x*x);}
 void main(){vec3 on=normalize(aPos);float h=aR.y;vBr=step(.88,fract(h*7.31));vDk=step(.8,fract(h*13.77+.37))*(1.-vBr);vTw=.9+.1*sin(uTime*(.5+h*1.5)+h*40.);float g=smoothstep(.987,1.,sin(uTime*.45+h*97.));
 float wv=ga((dot(on,uWaveDir)-sin(uTime*.7)*.8)*3.5)*uWave;float pr=smoothstep(.8,1.,sin(uTime*1.7+hs(floor(on*3.2+4.))*6.283))*uProc;
 float pd=acos(clamp(dot(on,uPulseDir),-1.,1.))-uPulseT*3.9;float pu=exp(-pd*pd/(pd>0.0?0.08:0.4))*uPulse;float tr=ga((acos(clamp(dot(on,uTouchDir),-1.,1.))-uTouchT*1.7)*7.)*uTouchA;
-vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7;vec3 p=aPos*uR+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006);vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
+vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7;float scatter=1.2+hs(floor(aPos*31.7+7.3))*1.4;vec3 p=aPos*uR+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006+uBurst*scatter);vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
 vec3 vn=normalize(normalMatrix*on);vSN=normalize(normalMatrix*normal);vOrb=.4+.6*max(dot(vn,uLight),0.);vDepth=smoothstep(-.8,.8,vn.z);
 gl_Position=projectionMatrix*modelViewMatrix*vec4(vp,1.);}`;
 const FS=`uniform vec3 uLight;uniform float uGlow,uK;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
@@ -672,6 +677,30 @@ const sm=(a,b,v)=>Math.min(1,Math.max(0,(v-a)/(b-a)));
 function frame(now){requestAnimationFrame(frame);const dt=Math.min((now-t0)/1000,.05);t0=now;
 if(dt>.034)slow++;else slow=Math.max(0,slow-1);if(slow>90&&dpr>1){dpr=1;fit();slow=0}
 const T1=ST[state],k=1-Math.exp(-dt*2.2),mo=S.rm?0:1;for(const key in T1)cur[key]+=(T1[key]-cur[key])*k;cur.flash*=Math.exp(-dt*1.6);
+if(burstPhase!=='idle'){
+  burstElapsed+=dt;
+  if(burstPhase==='explode'){
+    const p=Math.min(1,burstElapsed/BURST_OUT);
+    U.uBurst.value=1-Math.pow(1-p,3);
+    if(p>=1){
+      U.uBurst.value=1;
+      burstPhase='reform';
+      burstElapsed=0;
+      const resolveBurst=burstResolve;
+      burstResolve=null;
+      if(resolveBurst) resolveBurst();
+    }
+  }else if(burstPhase==='reform'){
+    const p=Math.min(1,burstElapsed/REFORM_TIME);
+    const smooth=p*p*(3-2*p);
+    U.uBurst.value=1-smooth;
+    if(p>=1){
+      U.uBurst.value=0;
+      burstPhase='idle';
+      burstElapsed=0;
+    }
+  }
+}
 tt+=dt*mo;U.uTime.value=tt;U.uGlow.value=cur.glow+cur.flash*.35;U.uWave.value=cur.wave;U.uProc.value=cur.proc;
 const sp=dt*.055*cur.rate*(1+.35*Math.sin(tt*.07))*mo;ax.set(Math.sin(tt*.043)*.5,1,Math.cos(tt*.031)*.35).normalize();spin.rotateOnAxis(ax,sp);spin.rotateOnAxis(ax2,sp*.3);inner.rotation.y-=dt*.03*mo;
 U.uWaveDir.value.set(Math.sin(tt*.2),Math.cos(tt*.13),.4).normalize();
