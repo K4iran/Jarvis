@@ -1000,8 +1000,31 @@ disassemblyPoints.frustumCulled = false;
 
 const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(150,215,255,.9)');gr.addColorStop(.4,'rgba(39,141,255,.35)');gr.addColorStop(1,'rgba(39,141,255,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
 const glow=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),blending:T.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.setScalar(1.7);glow.renderOrder=2;lines.renderOrder=3;
+const strayGroup=new T.Group();
+const strayGeometry=new T.SphereGeometry(.018,7,5);
+const strayMaterial=new T.MeshBasicMaterial({
+  color:0x75dfff,
+  transparent:true,
+  opacity:.65
+});
+
+for(let i=0;i<45;i++){
+  const a=Math.random()*Math.PI*2;
+  const y=Math.random()*2-1;
+  const q=Math.sqrt(1-y*y);
+  const r=1.08+Math.random()*.38;
+  const sphere=new T.Mesh(strayGeometry,strayMaterial);
+  sphere.position.set(
+    Math.cos(a)*q*r,
+    y*r,
+    Math.sin(a)*q*r
+  );
+  strayGroup.add(sphere);
+}
 const tilt=new T.Group(),spin=new T.Group();
 spin.add(shell,inner,inner2,lines,flowGroup);
+spin.add(strayGroup);
+strayGroup.rotation.y=Math.random()*Math.PI*2;
 spin.add(energyGroup);
 spin.add(disassemblyPoints);
 tilt.add(spin,glow);sc.add(tilt);
@@ -1132,8 +1155,8 @@ if(coreWavePhase>=0){
 if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
 if(tp<1.3){tp+=dt/1.1;U.uTouchT.value=tp;U.uTouchA.value=.9*Math.min(1,(1.3-tp)*3)}else U.uTouchA.value=0;
 tilt.rotation.x+=(py*.18-tilt.rotation.x)*.05;tilt.rotation.y+=(px*.25-tilt.rotation.y)*.05;U.uLight.value.set(-.45+px*.25,.55-py*.2,.7).normalize();
-glow.material.opacity=Math.min(1,cur.core*1.2*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.3+cur.flash*.15+chargeLevel*.3);
-glow.scale.setScalar(1.8+cur.proc*.12+U.uPulse.value*.28+cur.flash*.2+chargeLevel*.35);
+glow.material.opacity=Math.min(1,cur.core*1.2*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.3+cur.flash*.15+chargeLevel*.3+U.uCoreWaveStrength.value*.4);
+glow.scale.setScalar(1.8+cur.proc*.12+U.uPulse.value*.28+cur.flash*.2+chargeLevel*.35+U.uCoreWaveStrength.value*.3);
                     
 flowGroup.rotation.y+=dt*(.12+cur.proc*.24)*cur.rate*mo;
 flowGroup.rotation.x+=dt*(.035+cur.proc*.08)*cur.rate*mo;
