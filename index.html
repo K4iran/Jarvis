@@ -677,12 +677,28 @@ const randn=()=>{
   return Math.sqrt(-2*Math.log(a))*Math.cos(Math.random()*Math.PI*2);
 };
 
-const centres=Array.from({length:8},()=>{
-  const y=Math.random()*2-1;
-  const a=Math.random()*Math.PI*2;
-  const q=Math.sqrt(1-y*y);
-  return new T.Vector3(Math.cos(a)*q,y,Math.sin(a)*q);
-});
+
+const centres = [];
+
+while (centres.length < 3) {
+  const y = Math.random() * 2 - 1;
+  const a = Math.random() * Math.PI * 2;
+  const q = Math.sqrt(1 - y * y);
+
+  const candidate = new T.Vector3(
+    Math.cos(a) * q,
+    y,
+    Math.sin(a) * q
+  );
+
+  // Keep cluster centres far apart on the sphere.
+  const minSeparation = Math.cos(1.25);
+
+  if (centres.every(c => c.dot(candidate) < minSeparation)) {
+    centres.push(candidate);
+  }
+}
+
 
 const pts=[];
 
