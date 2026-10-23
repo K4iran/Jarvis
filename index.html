@@ -660,6 +660,7 @@ void main(){vec3 on=normalize(aPos);float h=aR.y;vBr=step(.88,fract(h*7.31));vDk
 float wv=ga((dot(on,uWaveDir)-sin(uTime*.7)*.8)*3.5)*uWave;float pr=smoothstep(.8,1.,sin(uTime*1.7+hs(floor(on*3.2+4.))*6.283))*uProc;
 float pd=acos(clamp(dot(on,uPulseDir),-1.,1.))-uPulseT*3.9;float pu=exp(-pd*pd/(pd>0.0?0.08:0.4))*uPulse;float tr=ga((acos(clamp(dot(on,uTouchDir),-1.,1.))-uTouchT*1.7)*7.)*uTouchA;
 float coreWave=exp(-pow((length(aPos)-uCoreWave)*14.0,2.0))*uCoreWaveStrength;
+float edgeKick=exp(-pow((uCoreWave-1.0)*8.0,2.0))*uCoreWaveStrength;
 vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7+coreWave*1.8;
 float expansion=0.38*uBurst;
 vec3 p=aPos*(uR+expansion)+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006);
