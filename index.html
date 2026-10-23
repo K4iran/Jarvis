@@ -721,7 +721,17 @@ q=Math.sqrt(1-u*u),r=.22+.2*Math.random();
 return[Math.cos(a)*q*r,u*r,Math.sin(a)*q*r]
 }); 
 
-const g1=geo(shellA,h=>h>.97?1.5:.85+.3*h),g2=geo(innerA,h=>.8+.4*h),g3=geo(innerB,h=>.8+.4*h),m1=mat(Math.sqrt(12.566/N)*.278,1),m2=mat(.008/1.5,.4),m3=mat(.006,.3);
+
+const g1=geo(shellA,h=>h>.97?1.5:.85+.3*h),
+g2=geo(innerA,h=>.8+.4*h),
+g3=geo(innerB,h=>.8+.4*h),
+m1=mat(Math.sqrt(12.566/N)*.21,.78),
+m2=mat(.008/1.5,.4),
+m3=mat(.006,.3);
+
+m1.blending=T.AdditiveBlending;
+m1.depthWrite=false;
+
 
 const shell=new T.Mesh(g1,m1),inner=new T.Mesh(g2,m2),inner2=new T.Mesh(g3,m3);shell.frustumCulled=inner.frustumCulled=false;inner.renderOrder=0;shell.renderOrder=1;
 const lp=[];for(let k=0;k<180;k++){const i=Math.random()*N|0,j=Math.min(N-1,i+1+(Math.random()*70|0));lp.push(...pts[i].map(c=>c*1.004),...pts[j].map(c=>c*1.004))}
