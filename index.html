@@ -661,7 +661,9 @@ float wv=ga((dot(on,uWaveDir)-sin(uTime*.7)*.8)*3.5)*uWave;float pr=smoothstep(.
 float pd=acos(clamp(dot(on,uPulseDir),-1.,1.))-uPulseT*3.9;float pu=exp(-pd*pd/(pd>0.0?0.08:0.4))*uPulse;float tr=ga((acos(clamp(dot(on,uTouchDir),-1.,1.))-uTouchT*1.7)*7.)*uTouchA;
 float coreWave=exp(-pow((length(aPos)-uCoreWave)*14.0,2.0))*uCoreWaveStrength;
 vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7+coreWave*1.8;
-  + on * (step(.9,h)*.005*sin(uTime*.8+h*60.) + vE*.006);vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
+float expansion=0.38*uBurst;
+vec3 p=aPos*(uR+expansion)+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006);
+vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
 vec3 vn=normalize(normalMatrix*on);vSN=normalize(normalMatrix*normal);vOrb=.4+.6*max(dot(vn,uLight),0.);vDepth=smoothstep(-.8,.8,vn.z);
 gl_Position=projectionMatrix*modelViewMatrix*vec4(vp,1.);}`;
 const FS=`uniform vec3 uLight;uniform float uGlow,uK,uBurst;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
