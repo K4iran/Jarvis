@@ -598,8 +598,8 @@ apply();renderDisp();
 
 /* ---- Living particle orb (Three.js, instanced spheres) ---- */
 (function(){try{
-const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?21000:45000,M=lo?3750:7500;
-const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.setClearColor(0,0);let dpr=Math.min(devicePixelRatio||1,lo?1.5:2);
+const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?24000:52000,M=lo?4000:8500;
+const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.setClearColor(0,0);let dpr=Math.min(devicePixelRatio||1,lo?1.75:2);
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
 const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
@@ -669,7 +669,7 @@ vec3 c=mix(vec3(.02,.12,.42),vec3(.18,.6,1.),lit);c=mix(c,vec3(.78,.94,1.),clamp
 c=mix(c,vec3(.85,.96,1.),vBr*.35);c=mix(c,c*vec3(.35,.5,.95),vDk*.8);float ww=clamp(vW,0.0,1.0);c=mix(c,vec3(.62,.93,1.),ww*.5);c=mix(c,vec3(.92,.98,1.),smoothstep(.55,1.,ww)*vBr*.9);c*=(1.+vBr*.55)*(.32+.68*vDepth)*vTw*uGlow*uK*(1.+vE*.7+ww*1.1)*1.35;float shellAlpha = 1.0 - 0.98 * smoothstep(0.06, 0.75, uBurst);
 gl_FragColor=vec4(c,min(.9,.72+.12*vBr-.1*vDk+ww*.15)*shellAlpha);}`;
 const mat=(ps,k)=>new T.ShaderMaterial({uniforms:{...U,uR:{value:1},uPS:{value:ps},uK:{value:k}},vertexShader:VS,fragmentShader:FS,transparent:true});
-const geo=(arr,mult)=>{const g=new T.InstancedBufferGeometry(),b=new T.SphereBufferGeometry(1,lo?5:6,lo?3:4),n=arr.length,P=new Float32Array(n*3),R=new Float32Array(n*2);g.index=b.index;g.setAttribute('position',b.attributes.position);g.setAttribute('normal',b.attributes.normal);
+const geo=(arr,mult)=>{const g=new T.InstancedBufferGeometry(),b=new T.SphereBufferGeometry(1,lo?7:10,lo?5:7),n=arr.length,P=new Float32Array(n*3),R=new Float32Array(n*2);g.index=b.index;g.setAttribute('position',b.attributes.position);g.setAttribute('normal',b.attributes.normal);
 arr.forEach((v,i)=>{P.set(v,i*3);R[i*2]=mult(Math.random());R[i*2+1]=Math.random()});g.setAttribute('aPos',new T.InstancedBufferAttribute(P,3));g.setAttribute('aR',new T.InstancedBufferAttribute(R,2));g.instanceCount=n;return g};
 const pts=[];for(let i=0;i<N;i++){const y=1-2*(i+.5)/N,q=Math.sqrt(1-y*y),a=i*2.39996;pts.push([Math.cos(a)*q,y,Math.sin(a)*q])}
 const shellA=pts.map(v=>{const j=1+(Math.random()-.5)*.002;return v.map(c=>c*j)});
