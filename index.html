@@ -1005,7 +1005,7 @@ spin.add(energyGroup);
 spin.add(disassemblyPoints);
 tilt.add(spin,glow);sc.add(tilt);
 orbInfo='WebGL · '+(N+M).toLocaleString()+' particles';refresh();
-let px=0,py=0,pt=2,pa=0,tp=2,idleT=2,tt=0,slow=0,t0=performance.now();const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize(),inv=new T.Quaternion();
+let px=0,py=0,pt=2,pa=0,tp=2,idleT=10,tt=0,slow=0,t0=performance.now();const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize(),inv=new T.Quaternion();
 pulse=a=>{inv.copy(spin.quaternion).invert();U.uPulseDir.value.set(0,0,1).applyQuaternion(inv);pt=0;pa=a};
 ripple=(nx,ny)=>{const r=nx*nx+ny*ny;if(r>1)return;inv.copy(spin.quaternion).invert();U.uTouchDir.value.set(nx,-ny,Math.sqrt(1-r)).applyQuaternion(inv);tp=0};
 const rel=e=>{const r=host.getBoundingClientRect();return[(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1]};
@@ -1116,7 +1116,18 @@ const sp = dt * .055 * cur.rate
   * (1 + .35 * Math.sin(tt * .07))
   * rotationBoost * mo;ax.set(Math.sin(tt*.043)*.5,1,Math.cos(tt*.031)*.35).normalize();spin.rotateOnAxis(ax,sp);spin.rotateOnAxis(ax2,sp*.3);inner.rotation.y-=dt*.03*mo;
 U.uWaveDir.value.set(Math.sin(tt*.2),Math.cos(tt*.13),.4).normalize();
-idleT-=dt*mo;if(idleT<0){pulse(.9);idleT=5}
+idleT-=dt*mo;
+if(idleT<0){idleT=10;coreWavePhase=0}
+if(coreWavePhase>=0){
+  coreWavePhase+=dt*mo;
+  const p=Math.min(1,coreWavePhase/1.8);
+  U.uCoreWave.value=p*1.08;
+  U.uCoreWaveStrength.value=0.35+0.65*Math.sin(Math.PI*p);
+  if(p>=1){
+    coreWavePhase=-1;
+    U.uCoreWaveStrength.value=0;
+  }
+}
 if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
 if(tp<1.3){tp+=dt/1.1;U.uTouchT.value=tp;U.uTouchA.value=.9*Math.min(1,(1.3-tp)*3)}else U.uTouchA.value=0;
 tilt.rotation.x+=(py*.18-tilt.rotation.x)*.05;tilt.rotation.y+=(px*.25-tilt.rotation.y)*.05;U.uLight.value.set(-.45+px*.25,.55-py*.2,.7).normalize();
