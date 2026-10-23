@@ -603,7 +603,7 @@ const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.set
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
 const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
-const U={uTime:{value:0} uCoreWave:{value:0},uCoreWaveStrength:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}};
+const U={uTime:{value:0},uCoreWave:{value:0},uCoreWaveStrength:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}};
 
 
 let burstPhase = 'idle';
