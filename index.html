@@ -986,7 +986,9 @@ else if(burstPhase==='explode'){
   chargeLevel=0;
 }
 
+
 const networkTarget =
+  burstPhase === 'charge' ? chargeLevel * 0.78 :
   burstPhase === 'explode' ? 1 :
   burstPhase === 'reform' ? 1 : 0;
 
@@ -997,11 +999,14 @@ const networkFade = burstPhase === 'reform'
 energyGroup.visible = networkFade > 0.005;
 
 const expansionScale =
-  burstPhase === 'explode'
-    ? 0.15 + 0.85 * Math.min(1, burstElapsed / BURST_OUT)
-    : burstPhase === 'reform'
-      ? 1
-      : 0.001;
+  burstPhase === 'charge'
+    ? 0.55 + 0.30 * chargeLevel
+    : burstPhase === 'explode'
+      ? 0.65 + 0.35 * Math.min(1, burstElapsed / BURST_OUT)
+      : burstPhase === 'reform'
+        ? 1
+        : 0.001;
+
 
 energyGroup.scale.setScalar(expansionScale);
 energyGroup.rotation.y += dt * 0.12 * mo;
