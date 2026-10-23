@@ -603,7 +603,9 @@ const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.set
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
 const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
-const U={uTime:{value:0},uCoreWave:{value:0},uCoreWaveStrength:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}};
+const U={uTime:{value:0},uCoreWave:{value:0},uCoreWaveStrength:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}uCoreWaveDir:{value:V3(0,0,1)},
+uCoreWaveElapsed:{value:0},
+uCoreExpand:{value:0}};
 
 
 let burstPhase = 'idle';
@@ -654,15 +656,19 @@ burst = () => new Promise(resolve => {
 });
 
   
-const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA,uBurst,uCoreWave,uCoreWaveStrength;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
+const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA,uBurst,uCoreWave,uCoreWaveStrength,uCoreWaveElapsed,uCoreExpand;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight,uCoreWaveDir;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
 float hs(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}float ga(float x){return exp(-x*x);}
 void main(){vec3 on=normalize(aPos);float h=aR.y;vBr=step(.88,fract(h*7.31));vDk=step(.8,fract(h*13.77+.37))*(1.-vBr);vTw=.9+.1*sin(uTime*(.5+h*1.5)+h*40.);float g=smoothstep(.987,1.,sin(uTime*.45+h*97.));
 float wv=ga((dot(on,uWaveDir)-sin(uTime*.7)*.8)*3.5)*uWave;float pr=smoothstep(.8,1.,sin(uTime*1.7+hs(floor(on*3.2+4.))*6.283))*uProc;
 float pd=acos(clamp(dot(on,uPulseDir),-1.,1.))-uPulseT*3.9;float pu=exp(-pd*pd/(pd>0.0?0.08:0.4))*uPulse;float tr=ga((acos(clamp(dot(on,uTouchDir),-1.,1.))-uTouchT*1.7)*7.)*uTouchA;
-float coreWave=exp(-pow((length(aPos)-uCoreWave)*14.0,2.0))*uCoreWaveStrength;
-float edgeKick=exp(-pow((uCoreWave-1.0)*8.0,2.0))*uCoreWaveStrength;
-vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7+coreWave*1.8;
-float expansion=0.38*uBurst+edgeKick*.11;
+float waveAngle=acos(clamp(dot(on,uCoreWaveDir),-1.0,1.0));
+float waveFront=min(3.14159265,uCoreWaveElapsed*1.04719755);
+float coreWave=exp(-pow((waveAngle-waveFront)*12.0,2.0))*uCoreWaveStrength;
+float particleAge=uCoreWaveElapsed-waveAngle/1.04719755;
+float activated=step(0.0,particleAge)*step(particleAge,2.0)*exp(-1.5*max(0.0,particleAge));
+float edgeKick=exp(-pow((waveAngle-3.14159265)*12.0,2.0))*uCoreWaveStrength;
+vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7+coreWave*1.8+activated*1.8;
+float expansion=0.38*uBurst+0.25*uCoreExpand+edgeKick*.11;
 vec3 p=aPos*(uR+expansion)+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006+step(.94,h)*edgeKick*.14);
 vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
 vec3 vn=normalize(normalMatrix*on);vSN=normalize(normalMatrix*normal);vOrb=.4+.6*max(dot(vn,uLight),0.);vDepth=smoothstep(-.8,.8,vn.z);
@@ -1289,14 +1295,39 @@ const sp = dt * .055 * cur.rate
 U.uWaveDir.value.set(Math.sin(tt*.2),Math.cos(tt*.13),.4).normalize();
 idleT-=dt*mo;
 if(idleT<0){idleT=10;coreWavePhase=0}
+
 if(coreWavePhase>=0){
   coreWavePhase+=dt*mo;
-  const p=Math.min(1,coreWavePhase/1.8);
-  U.uCoreWave.value=p*1.08;
-  U.uCoreWaveStrength.value=0.35+0.65*Math.sin(Math.PI*p);
-  if(p>=1){
+
+  const elapsed=coreWavePhase;
+  const expandIn=Math.min(1,elapsed/3);
+  const smoothIn=expandIn*expandIn*(3-2*expandIn);
+
+  const returnP=Math.max(0,Math.min(1,(elapsed-3)/4));
+  const smoothOut=returnP*returnP*(3-2*returnP);
+
+  U.uCoreWaveElapsed.value=elapsed;
+  U.uCoreWave.value=Math.min(Math.PI,elapsed*Math.PI/3);
+  U.uCoreExpand.value=0.25*smoothIn*(1-smoothOut);
+
+  U.uCoreWaveStrength.value=
+    elapsed<3
+      ? 0.85+0.15*Math.sin(elapsed*Math.PI/3)
+      : 0;
+
+  if(elapsed<0.65){
+    const ignition=1-elapsed/0.65;
+    glow.material.opacity=Math.min(
+      1,
+      glow.material.opacity+ignition*0.5
+    );
+  }
+
+  if(elapsed>=7){
     coreWavePhase=-1;
     U.uCoreWaveStrength.value=0;
+    U.uCoreExpand.value=0;
+    U.uCoreWaveElapsed.value=7;
   }
 }
 if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
