@@ -1029,7 +1029,7 @@ spin.add(energyGroup);
 spin.add(disassemblyPoints);
 tilt.add(spin,glow);sc.add(tilt);
 orbInfo='WebGL · '+(N+M).toLocaleString()+' particles';refresh();
-let px=0,py=0,pt=2,pa=0,tp=2,idleT=10,tt=0,slow=0,t0=performance.now();const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize(),inv=new T.Quaternion();
+let px=0,py=0,pt=2,pa=0,tp=2,idleT=10,coreWavePhase=-1,tt=0,slow=0,t0=performance.now();const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize(),inv=new T.Quaternion();
 pulse=a=>{inv.copy(spin.quaternion).invert();U.uPulseDir.value.set(0,0,1).applyQuaternion(inv);pt=0;pa=a};
 ripple=(nx,ny)=>{const r=nx*nx+ny*ny;if(r>1)return;inv.copy(spin.quaternion).invert();U.uTouchDir.value.set(nx,-ny,Math.sqrt(1-r)).applyQuaternion(inv);tp=0};
 const rel=e=>{const r=host.getBoundingClientRect();return[(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1]};
