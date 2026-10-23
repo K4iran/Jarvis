@@ -654,7 +654,7 @@ burst = () => new Promise(resolve => {
 });
 
   
-const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA,uBurst;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
+const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA,uBurst,uCoreWave,uCoreWaveStrength;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
 float hs(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}float ga(float x){return exp(-x*x);}
 void main(){vec3 on=normalize(aPos);float h=aR.y;vBr=step(.88,fract(h*7.31));vDk=step(.8,fract(h*13.77+.37))*(1.-vBr);vTw=.9+.1*sin(uTime*(.5+h*1.5)+h*40.);float g=smoothstep(.987,1.,sin(uTime*.45+h*97.));
 float wv=ga((dot(on,uWaveDir)-sin(uTime*.7)*.8)*3.5)*uWave;float pr=smoothstep(.8,1.,sin(uTime*1.7+hs(floor(on*3.2+4.))*6.283))*uProc;
