@@ -1117,8 +1117,8 @@ idleT-=dt*mo;if(idleT<0){pulse(.9);idleT=5}
 if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
 if(tp<1.3){tp+=dt/1.1;U.uTouchT.value=tp;U.uTouchA.value=.9*Math.min(1,(1.3-tp)*3)}else U.uTouchA.value=0;
 tilt.rotation.x+=(py*.18-tilt.rotation.x)*.05;tilt.rotation.y+=(px*.25-tilt.rotation.y)*.05;U.uLight.value.set(-.45+px*.25,.55-py*.2,.7).normalize();
-glow.material.opacity=cur.core*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.3+cur.flash*.15+chargeLevel*.3;
-glow.scale.setScalar(1.7+cur.proc*.12+U.uPulse.value*.28+cur.flash*.2+chargeLevel*.35);
+glow.material.opacity=Math.min(1,cur.core*1.2*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.3+cur.flash*.15+chargeLevel*.3);
+glow.scale.setScalar(1.8+cur.proc*.12+U.uPulse.value*.28+cur.flash*.2+chargeLevel*.35);
                     
 flowGroup.rotation.y+=dt*(.12+cur.proc*.24)*cur.rate*mo;
 flowGroup.rotation.x+=dt*(.035+cur.proc*.08)*cur.rate*mo;
