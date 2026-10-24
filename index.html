@@ -677,8 +677,9 @@ float fadeOut = 1.0 - smoothstep(1.65, 2.0, particleAge);
 float activated = fadeIn * fadeOut
     * exp(-0.7 * max(0.0, particleAge));
 
+float edgeFade = 1.0 - smoothstep(3.0, 7.0, uCoreWaveElapsed);
 float edgeKick = exp(-pow((waveAngle-1.5708)*18.0, 2.0))
-    * uCoreWaveStrength;
+    * edgeFade;
 vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7+coreWave*1.8+activated*1.8;
 float expansion=0.38*uBurst+0.25*uCoreExpand+edgeKick*.11;
 vec3 p=aPos*(uR+expansion)+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006+step(.94,h)*edgeKick*.14);
