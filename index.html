@@ -1336,10 +1336,10 @@ if(coreWavePhase>=0){
   }
 
   if(elapsed>=7){
-    coreWavePhase=-1;
-    U.uCoreWaveStrength.value=0;
-    U.uCoreExpand.value=0;
-    U.uCoreWaveElapsed.value=7;
+  coreWavePhase=-1;
+  U.uCoreWaveStrength.value=0;
+  U.uCoreExpand.value=0;
+  U.uCoreWaveElapsed.value=7;
   }
 }
 if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
