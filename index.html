@@ -1269,21 +1269,27 @@ driftParticles.rotation.y -= dt * 0.035 * mo;
 
 tt+=dt*mo;U.uTime.value=tt;U.uGlow.value=cur.glow+cur.flash*.35+chargeLevel*.65;
 // Trigger a short, localised breach every 9 seconds.
-breachTimer += dt * mo;
+// Stray particles remain around the shell between waves.
+const baseDrift = 0.025 + 0.015 * Math.sin(tt * 0.8);
+let outward = 0;
+let breachAlpha = 0.22;
 
-const breachCycle = breachTimer % 9;
-const breachActive = breachCycle > 2 && breachCycle < 3.4;
+// When the ripple reaches the edge, push more particles outward.
+if (coreWavePhase >= 2.5 && coreWavePhase < 7) {
+  const p = Math.max(
+    0,
+    Math.min(1, (coreWavePhase - 2.5) / 4.5)
+  );
 
-if (breachActive) {
-  const p = (breachCycle - 2) / 1.4;
-
-  breachMaterial.uniforms.uBreachT.value = p;
-  breachMaterial.uniforms.uBreachA.value =
-    Math.sin(p * Math.PI) * 0.95;
-} else {
-  breachMaterial.uniforms.uBreachT.value = 0;
-  breachMaterial.uniforms.uBreachA.value = 0;
+  // Smooth outward movement, then gradual return.
+  outward = Math.sin(p * Math.PI);
+  breachAlpha = 0.22 + outward * 0.75;
 }
+
+breachMaterial.uniforms.uBreachT.value =
+  baseDrift + outward * 0.9;
+
+breachMaterial.uniforms.uBreachA.value = breachAlpha;
 
 breachMaterial.uniforms.uTime.value = tt;
 disassemblyMaterial.uniforms.uBurst.value = U.uBurst.value;
