@@ -664,9 +664,7 @@ float pd=acos(clamp(dot(on,uPulseDir),-1.,1.))-uPulseT*3.9;float pu=exp(-pd*pd/(
 float waveDistance=length(aPos);
 float waveFront=1.0+uCoreWaveElapsed*0.12;
 float coreWave=exp(-pow((waveDistance-waveFront)*24.0,2.0))*uCoreWaveStrength;
-float particleAge=(waveDistance-1.0)/0.12;
-float coreWave=exp(-pow((waveAngle-waveFront)*12.0,2.0))*uCoreWaveStrength;
-float particleAge=uCoreWaveElapsed-waveAngle/1.04719755;
+float particleAge=uCoreWaveElapsed-(waveDistance-1.0)/0.12;
 float fadeIn=smoothstep(0.0,0.12,particleAge);
 float fadeOut=1.0-smoothstep(1.65,2.0,particleAge);
 float activated=fadeIn*fadeOut*exp(-0.7*max(0.0,particleAge));
