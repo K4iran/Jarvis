@@ -1170,7 +1170,7 @@ const breachParticles = new T.Points(
 breachParticles.frustumCulled = false;
 breachParticles.renderOrder = 6;
 const tilt=new T.Group(),spin=new T.Group();
-spin.add(shell,inner,inner2,lines,flowGroup);
+spin.add(shell,inner,inner2);
 spin.add(breachParticles);
 spin.add(energyGroup);
 spin.add(disassemblyPoints);
@@ -1322,7 +1322,10 @@ const sp = dt * .055 * cur.rate
   * rotationBoost * mo;ax.set(Math.sin(tt*.043)*.5,1,Math.cos(tt*.031)*.35).normalize();spin.rotateOnAxis(ax,sp);spin.rotateOnAxis(ax2,sp*.3);inner.rotation.y-=dt*.03*mo;
 U.uWaveDir.value.set(Math.sin(tt*.2),Math.cos(tt*.13),.4).normalize();
 idleT-=dt*mo;
-if(idleT<0){idleT=10;coreWavePhase=0}
+if(idleT<0 && coreWavePhase<0){
+  idleT=1e9;
+  coreWavePhase=0;
+}
 
 if(coreWavePhase>=0){
   coreWavePhase+=dt*mo;
