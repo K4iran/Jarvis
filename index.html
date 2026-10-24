@@ -661,14 +661,19 @@ float hs(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453
 void main(){vec3 on=normalize(aPos);float h=aR.y;vBr=step(.88,fract(h*7.31));vDk=step(.8,fract(h*13.77+.37))*(1.-vBr);vTw=.9+.1*sin(uTime*(.5+h*1.5)+h*40.);float g=smoothstep(.987,1.,sin(uTime*.45+h*97.));
 float wv=ga((dot(on,uWaveDir)-sin(uTime*.7)*.8)*3.5)*uWave;float pr=smoothstep(.8,1.,sin(uTime*1.7+hs(floor(on*3.2+4.))*6.283))*uProc;
 float pd=acos(clamp(dot(on,uPulseDir),-1.,1.))-uPulseT*3.9;float pu=exp(-pd*pd/(pd>0.0?0.08:0.4))*uPulse;float tr=ga((acos(clamp(dot(on,uTouchDir),-1.,1.))-uTouchT*1.7)*7.)*uTouchA;
-float waveDistance=length(aPos);
-float waveFront=1.0+uCoreWaveElapsed*0.12;
-float coreWave=exp(-pow((waveDistance-waveFront)*24.0,2.0))*uCoreWaveStrength;
-float particleAge=uCoreWaveElapsed-(waveDistance-1.0)/0.12;
+float waveAngle=acos(clamp(dot(on,vec3(0.0,0.0,1.0)),-1.0,1.0));
+
+float waveSpeed=0.47;
+float waveFront=min(1.41,uCoreWaveElapsed*waveSpeed);
+
+float coreWave=exp(-pow((waveAngle-waveFront)*28.0,2.0))*uCoreWaveStrength;
+
+float particleAge=uCoreWaveElapsed-waveAngle/waveSpeed;
 float fadeIn=smoothstep(0.0,0.12,particleAge);
 float fadeOut=1.0-smoothstep(1.65,2.0,particleAge);
 float activated=fadeIn*fadeOut*exp(-0.7*max(0.0,particleAge));
-float edgeKick=exp(-pow((waveDistance-1.35)*18.0,2.0))*uCoreWaveStrength;
+
+float edgeKick=exp(-pow((waveAngle-1.41)*18.0,2.0))*uCoreWaveStrength;
 vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7+coreWave*1.8+activated*1.8;
 float expansion=0.38*uBurst+0.25*uCoreExpand+edgeKick*.11;
 vec3 p=aPos*(uR+expansion)+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006+step(.94,h)*edgeKick*.14);
