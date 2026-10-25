@@ -1456,7 +1456,7 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
   const axisX=1+amplitude*(2.35*Math.sin(time*.31+.55+phase*.2)+.38*Math.sin(time*.73+phase));
   const axisY=1+amplitude*(2.05*Math.sin(time*.27+2.1+phase*.3)+.3*Math.cos(time*.61+phase));
   const axisZ=1+amplitude*(2.25*Math.sin(time*.24+4.0+phase*.15)+.4*Math.sin(time*.57+phase*1.4));
-  const angle=time*(layer===0?.19:-.245);
+  const angle=time*(layer===0?.065:-.085);
   const ca=Math.cos(angle),sa=Math.sin(angle);
   for(let i=0;i<count;i++){
     const at=i*3,x=points[at],y=points[at+1],z=points[at+2],seed=seeds[i],p=seed*TAU;
@@ -1473,11 +1473,19 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     let r=radius*(1+amplitude*(wave+.95*lobe+1.35*spike)+activeWave)+drift;
     // Each vertex also slides tangentially, independently of its neighbours.
     // The links follow these coordinates, so the whole lattice visibly writhes.
-    const move=.012+amplitude*.24;
-    let xx=(x+move*Math.sin(time*(.48+seed*.4)+p*2.1+y*2.4))*r*axisX;
-    let yy=(y+move*Math.sin(time*(.41+seed*.5)+p*1.7+z*2.1))*r*axisY;
-    let zz=(z+move*Math.cos(time*(.45+seed*.45)+p*1.9+x*2.2))*r*axisZ;
-    const twist=y*(.12+amplitude*.95)*Math.sin(time*.17+p*.18+phase);
+    const move=.035+amplitude*.72;
+    const orbitA=time*(.34+seed*.48)+p*1.73;
+    const orbitB=time*(.29+seed*.57)+p*2.31;
+    const orbitC=time*(.38+seed*.39)+p*1.19;
+    // Independent 3D orbital drift: particles cross sideways, toward/away from camera,
+    // and diagonally instead of merely bobbing along one axis.
+    const moveX=move*(Math.sin(orbitA+y*3.2-z*1.8)+.42*Math.cos(orbitC+z*2.6));
+    const moveY=move*(Math.cos(orbitB+z*3.1-x*1.7)+.40*Math.sin(orbitA+x*2.4));
+    const moveZ=move*(Math.sin(orbitC+x*3.3-y*2.2)+.46*Math.cos(orbitB+y*2.7));
+    let xx=(x+moveX)*r*axisX;
+    let yy=(y+moveY)*r*axisY;
+    let zz=(z+moveZ)*r*axisZ;
+    const twist=(y*.72+x*.28)*(.28+amplitude*1.5)*Math.sin(time*.13+p*.31+phase+z*.8);
     const ct=Math.cos(twist),st=Math.sin(twist);
     const tx=xx*ct-zz*st,tz=xx*st+zz*ct;
     xx=tx;zz=tz;
