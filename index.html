@@ -1241,902 +1241,387 @@ setInterval(() => {
 const tick=()=>$('#clk').textContent=new Date().toLocaleTimeString([],{hour12:false});tick();setInterval(tick,1000);
 apply();renderDisp();
 
-/* ---- Living particle orb (Three.js, instanced spheres) ---- */
+/* ---- Living geometric particle orb (Three.js) ---- */
 (function(){try{
-const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?850:1400,M=lo?320:480;
-const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.setClearColor(0,0);rd.debug.checkShaderErrors=true;rd.debug.onShaderError=()=>{console.error('Orb shader failed to compile');host.classList.add('nogl');orbInfo='Unavailable'};let dpr=Math.min(devicePixelRatio||1,lo?1.75:2);
-const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
-const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
+const T=THREE,host=$('#core'),canvas=$('#gl');
+const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
+const N=700,M=230,TAU=Math.PI*2;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const rd=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
+rd.setClearColor(0x000000,0);
+let dpr=Math.min(window.devicePixelRatio||1,2);
+const sc=new T.Scene();
+const cam=new T.PerspectiveCamera(36,1,.1,50);
+cam.position.set(0,0,4.2);
+const fit=()=>{
+  const w=Math.max(1,host.clientWidth||300);
+  const h=Math.max(1,host.clientHeight||w);
+  rd.setPixelRatio(dpr);
+  rd.setSize(w,h,false);
+  cam.aspect=w/h;
+  cam.updateProjectionMatrix();
+};
+const resizeObserver=new ResizeObserver(fit);
+resizeObserver.observe(host);
+fit();
+
+sc.add(new T.AmbientLight(0x4777ce,.72));
+const keyLight=new T.DirectionalLight(0xcaf7ff,2.05);
+keyLight.position.set(-3.2,4.2,5);
+sc.add(keyLight);
+const fillLight=new T.DirectionalLight(0x176eff,.72);
+fillLight.position.set(3,-2,-4);
+sc.add(fillLight);
+
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
-const U={uTime:{value:0},uCoreWave:{value:0},uCoreWaveStrength:{value:0},uLight:{value:V3(-.45,.55,.7).normalize()},uGlow:{value:.85},uWave:{value:0},uProc:{value:0},uWaveDir:{value:V3(.3,1,.2).normalize()},uPulseDir:{value:V3(0,0,1)},uPulseT:{value:2},uPulse:{value:0},uTouchDir:{value:V3(0,0,1)},uTouchT:{value:2},uTouchA:{value:0},uBurst:{value:0}, uCoreWaveDir:{value:V3(0,0,1)},
-uCoreWaveElapsed:{value:0},
-uCoreExpand:{value:0}};
-
-
-let burstPhase = 'idle';
-let burstElapsed = 0;
-let chargeLevel = 0;
-let burstResolve = null;
-const CHARGE_TIME = 2.8, BURST_OUT = 0.65, REFORM_TIME = 5;
-
-// Begin charging as soon as the real AI request starts.
-window.startBurstCharge = () => {
-  if (S.rm) return;
-
-  if (burstResolve) {
-    burstResolve();
-    burstResolve = null;
-  }
-
-  burstPhase = 'charge';
-  burstElapsed = 0;
-  chargeLevel = 0;
-  U.uBurst.value = 0;
-};
-
-// Cancel charging if the request fails.
-window.cancelBurstCharge = () => {
-  if (burstPhase === 'charge') {
-    burstPhase = 'idle';
-    burstElapsed = 0;
-    chargeLevel = 0;
-    U.uBurst.value = 0;
-  }
-};
-burst = () => new Promise(resolve => {
-  if (S.rm) {
-    U.uBurst.value = 0;
-    chargeLevel = 0;
-    resolve();
-    return;
-  }
-
-  if (burstResolve) burstResolve();
-
-  burstResolve = resolve;
-  burstPhase = 'explode';
-  burstElapsed = 0;
-  chargeLevel = 0;
-  U.uBurst.value = 0;
-});
-
-  
-const VS=`attribute vec3 aPos;attribute vec2 aR;uniform float uTime,uR,uPS,uWave,uProc,uPulseT,uPulse,uTouchT,uTouchA,uBurst,uCoreWave,uCoreWaveStrength,uCoreWaveElapsed,uCoreExpand;uniform vec3 uWaveDir,uPulseDir,uTouchDir,uLight,uCoreWaveDir;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
-float hs(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}float ga(float x){return exp(-x*x);}
-void main(){vec3 on=normalize(aPos);float h=aR.y;vBr=step(.88,fract(h*7.31));vDk=step(.8,fract(h*13.77+.37))*(1.-vBr);vTw=.9+.1*sin(uTime*(.5+h*1.5)+h*40.);float g=smoothstep(.987,1.,sin(uTime*.45+h*97.));
-float wv=ga((dot(on,uWaveDir)-sin(uTime*.7)*.8)*3.5)*uWave;float pr=smoothstep(.8,1.,sin(uTime*1.7+hs(floor(on*3.2+4.))*6.283))*uProc;
-float pd=acos(clamp(dot(on,uPulseDir),-1.,1.))-uPulseT*3.9;float pu=exp(-pd*pd/(pd>0.0?0.08:0.4))*uPulse;float tr=ga((acos(clamp(dot(on,uTouchDir),-1.,1.))-uTouchT*1.7)*7.)*uTouchA;
-vec4 viewPos = modelViewMatrix * vec4(aPos, 1.0);
-float screenRadius = length(viewPos.xy);
-float waveAngle = asin(clamp(screenRadius, 0.0, 1.0));
-
-float waveSpeed = 0.5236;
-float waveFront = min(1.5708, uCoreWaveElapsed * waveSpeed);
-
-float coreWave = exp(-pow((waveAngle-waveFront)*20.0, 2.0))
-    * uCoreWaveStrength;
-
-float particleAge = uCoreWaveElapsed - waveAngle/waveSpeed;
-float fadeIn = smoothstep(0.0, 0.12, particleAge);
-float fadeOut = 1.0 - smoothstep(1.65, 2.0, particleAge);
-float activated = fadeIn * fadeOut
-    * exp(-0.7 * max(0.0, particleAge));
-
-float edgeFade = 1.0 - smoothstep(3.0, 7.0, uCoreWaveElapsed);
-float edgeKick = exp(-pow((waveAngle-1.5708)*18.0, 2.0))
-    * edgeFade;
-vW=pu;vE=wv*.8+pr*.9+pu*.5+tr+g*.7+coreWave*1.8;
-float expansion=0.38*uBurst+0.25*uCoreExpand;
-vec3 p=aPos*(uR+expansion)+on*(step(.9,h)*.005*sin(uTime*.8+h*60.)+vE*.006);
-vec3 vp=p+position*aR.x*uPS*(1.+vW*.45);
-vec3 vn=normalize(normalMatrix*on);vSN=normalize(normalMatrix*normal);vOrb=.4+.6*max(dot(vn,uLight),0.);vDepth=smoothstep(-.8,.8,vn.z);
-gl_Position=projectionMatrix*modelViewMatrix*vec4(vp,1.);}`;
-const FS=`uniform vec3 uLight;uniform float uGlow,uK,uBurst;varying vec3 vSN;varying float vOrb,vDepth,vE,vW,vTw,vBr,vDk;
-void main(){vec3 n=normalize(vSN);float d=max(dot(n,uLight),0.);float sp=pow(max(dot(reflect(-uLight,n),vec3(0.,0.,1.)),0.),22.);float lit=(.2+.8*d)*vOrb;
-vec3 c=mix(vec3(.02,.12,.42),vec3(.18,.6,1.),lit);c=mix(c,vec3(.78,.94,1.),clamp(smoothstep(.5,1.,lit)*.65+vE*.45,0.,1.));c+=vec3(.75,.92,1.)*sp*.9;
-c=mix(c,vec3(.85,.96,1.),vBr*.35);c=mix(c,c*vec3(.35,.5,.95),vDk*.8);float ww=clamp(vW,0.0,1.0);c=mix(c,vec3(.62,.93,1.),ww*.5);c=mix(c,vec3(.92,.98,1.),smoothstep(.55,1.,ww)*vBr*.9);c*=(1.+vBr*.55)*(.32+.68*vDepth)*vTw*uGlow*uK*(1.+vE*.7+ww*1.1)*1.35;float shellAlpha = 1.0 - 0.98 * smoothstep(0.06, 0.75, uBurst);
-gl_FragColor=vec4(c,min(.9,.72+.12*vBr-.1*vDk+ww*.15)*shellAlpha);}`;
-const mat=(ps,k)=>new T.ShaderMaterial({uniforms:{...U,uR:{value:1},uPS:{value:ps},uK:{value:k}},vertexShader:VS,fragmentShader:FS,transparent:true});
-const geo=(arr,mult)=>{const g=new T.InstancedBufferGeometry(),b=new T.SphereBufferGeometry(1,lo?10:12,lo?8:10),n=arr.length,P=new Float32Array(n*3),R=new Float32Array(n*2);g.index=b.index;g.setAttribute('position',b.attributes.position);g.setAttribute('normal',b.attributes.normal);
-arr.forEach((v,i)=>{P.set(v,i*3);R[i*2]=mult(Math.random());R[i*2+1]=Math.random()});g.setAttribute('aPos',new T.InstancedBufferAttribute(P,3));g.setAttribute('aR',new T.InstancedBufferAttribute(R,2));g.instanceCount=n;return g};
-
-const randn=()=>{
-  const a=Math.max(0.000001,Math.random());
-  return Math.sqrt(-2*Math.log(a))*Math.cos(Math.random()*Math.PI*2);
-};
-
-
-const centres = [];
-
-while (centres.length < 3) {
-  const y = Math.random() * 2 - 1;
-  const a = Math.random() * Math.PI * 2;
-  const q = Math.sqrt(1 - y * y);
-
-  const candidate = new T.Vector3(
-    Math.cos(a) * q,
-    y,
-    Math.sin(a) * q
-  );
-
-  // Keep cluster centres far apart on the sphere.
-  const minSeparation = Math.cos(1.25);
-
-  if (centres.every(c => c.dot(candidate) < minSeparation)) {
-    centres.push(candidate);
-  }
-}
-
-
-const pts=[];
-
-for(let i=0;i<N;i++){
-  let p;
-
-  if(Math.random()<0.28){
-    const c=centres[Math.random()*centres.length|0];
-    const ref=Math.abs(c.y)<0.85
-      ? new T.Vector3(0,1,0)
-      : new T.Vector3(1,0,0);
-
-    const tangent=new T.Vector3().crossVectors(c,ref).normalize();
-    const bitangent=new T.Vector3().crossVectors(c,tangent).normalize();
-    const spread=0.24+Math.random()*0.20;
-
-    p=c.clone()
-      .addScaledVector(tangent,randn()*spread)
-      .addScaledVector(bitangent,randn()*spread)
-      .normalize();
-  }else{
-    const y=Math.random()*2-1;
-    const a=Math.random()*Math.PI*2;
-    const q=Math.sqrt(1-y*y);
-    p=new T.Vector3(Math.cos(a)*q,y,Math.sin(a)*q);
-  }
-
-  pts.push([p.x,p.y,p.z]);
-}
-
-const shellA=pts.map(v=>{const j=1+(Math.random()-.5)*.002;return v.map(c=>c*j)});
-const innerA=Array.from({length:M},()=>{const u=Math.random()*2-1,a=Math.random()*6.283,q=Math.sqrt(1-u*u),r=.5+.35*Math.random();return[Math.cos(a)*q*r,u*r,Math.sin(a)*q*r]});
-const innerB=Array.from({length:Math.floor(M*.55)},()=>{
-const u=Math.random()*2-1,a=Math.random()*6.283,
-q=Math.sqrt(1-u*u),r=.22+.2*Math.random();
-return[Math.cos(a)*q*r,u*r,Math.sin(a)*q*r]
-}); 
-
-
-// The outer shell is rendered as luminous points, not shaded sphere meshes.
-// Each point has a bright energy core and a soft radial falloff.
-const g1 = new T.BufferGeometry();
-const shellPositions = new Float32Array(shellA.length * 3);
-const shellSeeds = new Float32Array(shellA.length);
-shellA.forEach((p, i) => {
-  shellPositions.set(p, i * 3);
-  shellSeeds[i] = Math.random();
-});
-g1.setAttribute('position', new T.BufferAttribute(shellPositions, 3));
-g1.setAttribute('aSeed', new T.BufferAttribute(shellSeeds, 1));
-
-const g2=geo(innerA,h=>.8+.4*h),
-g3=geo(innerB,h=>.8+.4*h);
-
-const m1 = new T.ShaderMaterial({
-  uniforms: { ...U },
-  vertexShader: `
-    attribute float aSeed;
-    uniform float uTime, uWave, uProc, uPulseT, uPulse, uTouchT, uTouchA;
-    uniform float uBurst, uCoreExpand, uGlow;
-    uniform vec3 uWaveDir, uPulseDir, uTouchDir;
-    varying float vDepth;
-    varying float vSeed;
-    varying float vEnergy;
-
-    void main() {
-      vec3 on = normalize(position);
-      float wave = exp(-pow((dot(on, uWaveDir) - sin(uTime * 0.7) * 0.8) * 3.5, 2.0)) * uWave;
-      float pulseAngle = acos(clamp(dot(on, uPulseDir), -1.0, 1.0)) - uPulseT * 3.9;
-      float pulse = exp(-pulseAngle * pulseAngle / (pulseAngle > 0.0 ? 0.08 : 0.4)) * uPulse;
-      float touchAngle = acos(clamp(dot(on, uTouchDir), -1.0, 1.0)) - uTouchT * 1.7;
-      float touch = exp(-pow(touchAngle * 7.0, 2.0)) * uTouchA;
-      float energy = wave * 0.8 + pulse * 0.7 + touch + uProc * 0.12;
-
-      float expansion = 0.38 * uBurst + 0.25 * uCoreExpand;
-      vec3 p = position * (1.0 + expansion)
-        + on * (0.004 * sin(uTime * 0.8 + aSeed * 60.0) + energy * 0.012);
-
-      vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-      gl_Position = projectionMatrix * mvPosition;
-      gl_PointSize = (3.2 + aSeed * 1.8) * (4.2 / max(1.0, -mvPosition.z));
-
-      // In view space, the near-facing shell is closer to zero than the far side.
-      vDepth = smoothstep(-5.2, -3.1, mvPosition.z);
-      vSeed = aSeed;
-      vEnergy = clamp(energy, 0.0, 1.0);
-    }
-  `,
-  fragmentShader: `
-    varying float vDepth;
-    varying float vSeed;
-    varying float vEnergy;
-
-    void main() {
-      float d = length(gl_PointCoord - vec2(0.5));
-      if (d > 0.5) discard;
-
-      float glow = exp(-d * d * 34.0);
-      float core = exp(-d * d * 190.0);
-      float depthLight = mix(0.10, 1.0, vDepth);
-      float energyLight = 0.72 + vEnergy * 0.7 + vSeed * 0.12;
-
-      vec3 deepBlue = vec3(0.008, 0.025, 0.12);
-      vec3 electricBlue = vec3(0.08, 0.48, 1.0);
-      vec3 iceBlue = vec3(0.62, 0.91, 1.0);
-      vec3 colour = mix(deepBlue, electricBlue, smoothstep(0.02, 0.9, vDepth));
-      colour = mix(colour, iceBlue, clamp(core * (0.52 + vDepth * 0.42), 0.0, 1.0));
-
-      float alpha = (glow * 0.13 + core * 0.92) * depthLight * energyLight;
-      gl_FragColor = vec4(colour, alpha);
-    }
-  `,
-  transparent: true,
-  depthWrite: false,
-  blending: T.AdditiveBlending
-});
-
-const m2=mat(.0055/1.5,.34),
-m3=mat(.004,.25);
-
-const shell=new T.Points(g1,m1),inner=new T.Mesh(g2,m2),inner2=new T.Mesh(g3,m3);
-shell.frustumCulled=inner.frustumCulled=false;
-inner.renderOrder=0;
-shell.renderOrder=1;
-const lp=[];for(let k=0;k<84;k++){const i=Math.random()*N|0,j=Math.min(N-1,i+1+(Math.random()*70|0));lp.push(...pts[i].map(c=>c*1.004),...pts[j].map(c=>c*1.004))}
-const lg=new T.BufferGeometry();lg.setAttribute('position',new T.Float32BufferAttribute(lp,3));
-const lines=new T.LineSegments(lg,new T.LineBasicMaterial({color:0x9fdcff,transparent:true,opacity:0,depthWrite:false}));
-
-const flowGroup=new T.Group();
-for(let k=0;k<3;k++){
-const p=[];
-for(let i=0;i<=180;i++){
-const t=i/180*Math.PI*2,
-lat=-.8+k*.8+.16*Math.sin(t*2+k);
-p.push(new T.Vector3(
-.43*Math.cos(t+k*2.094)*Math.cos(lat),
-.43*Math.sin(lat),
-.43*Math.sin(t+k*2.094)*Math.cos(lat)
-));
-}
-const curve=new T.BufferGeometry().setFromPoints(p);
-const stream=new T.Line(curve,new T.LineBasicMaterial({
-color:k===1?0x55caff:0x238cff,
-transparent:true,opacity:.12,depthWrite:false
+const glowCanvas=document.createElement('canvas');
+glowCanvas.width=glowCanvas.height=128;
+const glowContext=glowCanvas.getContext('2d');
+const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
+glowGradient.addColorStop(0,'rgba(150,215,255,.70)');
+glowGradient.addColorStop(.4,'rgba(39,141,255,.22)');
+glowGradient.addColorStop(1,'rgba(39,141,255,0)');
+glowContext.fillStyle=glowGradient;
+glowContext.fillRect(0,0,128,128);
+const glowTexture=new T.CanvasTexture(glowCanvas);
+const glow=new T.Sprite(new T.SpriteMaterial({
+  map:glowTexture,blending:T.AdditiveBlending,transparent:true,depthWrite:false
 }));
-flowGroup.add(stream);
-}
+glow.scale.setScalar(1.16);
+glow.position.set(0,0,-.25);
+glow.renderOrder=0;
 
-
-const energyGroup = new T.Group();
-const energyMaterials = [];
-const energyNodeMaterials = [];
-const energyFogMaterials = [];
-const energyFogPositions = [];
-
-function addEnergyPath(points, color, opacity, width = 1) {
-  const curve = new T.CatmullRomCurve3(points);
-  const sampled = curve.getPoints(80);
-
-  // A narrow tube gives the plasma a real, crisp body instead of a 1px line.
-  const geometry = new T.TubeGeometry(curve, 80, width > 1 ? 0.012 : 0.009, 5, false);
-  const material = new T.MeshBasicMaterial({
-    color,
-    transparent: true,
-    opacity: 0,
-    depthWrite: false,
-    blending: T.AdditiveBlending
-  });
-  const strand = new T.Mesh(geometry, material);
-  strand.renderOrder = 3;
-  energyGroup.add(strand);
-  energyMaterials.push({ material, opacity });
-
-  // A few sharp light-points sit directly on the plasma strand.
-  const nodePositions = [];
-  for (let i = 0; i < sampled.length; i += 10) {
-    nodePositions.push(sampled[i].x, sampled[i].y, sampled[i].z);
-  }
-
-  const nodeGeometry = new T.BufferGeometry();
-  nodeGeometry.setAttribute(
-    'position',
-    new T.Float32BufferAttribute(nodePositions, 3)
-  );
-  const nodeMaterial = new T.PointsMaterial({
-    color: 0xc5f4ff,
-    size: 0.014,
-    transparent: true,
-    opacity: 0,
-    depthWrite: false,
-    blending: T.AdditiveBlending,
-    sizeAttenuation: true
-  });
-  const nodes = new T.Points(nodeGeometry, nodeMaterial);
-  nodes.renderOrder = 4;
-  energyGroup.add(nodes);
-  energyNodeMaterials.push({ material: nodeMaterial, opacity });
-}
-
-// Flowing plasma strands weave THROUGH the orb instead of circling outside it.
-for (let k = 0; k < 12; k++) {
-  const points = [];
-  const angle = Math.random() * Math.PI * 2;
-  const height = -0.48 + Math.random() * 0.96;
-  const radius = 0.48 + Math.random() * 0.28;
-  const waves = 1 + Math.floor(Math.random() * 2);
-  const phase = Math.random() * Math.PI * 2;
-
-  for (let j = 0; j <= 24; j++) {
-    const t = j / 24;
-    const a = angle + t * Math.PI * (1.6 + waves * 0.35);
-    const r = radius + Math.sin(t * Math.PI * 2 + phase) * 0.075;
-    const y = height + Math.sin(t * Math.PI * 2 + phase) * 0.11;
-
-    points.push(new T.Vector3(
-      Math.cos(a) * r,
-      y,
-      Math.sin(a) * r
-    ));
-  }
-
-  addEnergyPath(
-    points,
-    k % 3 === 0 ? 0x279cff : 0x82eaff,
-    0.52,
-    k % 3 === 0 ? 1.3 : 1
-  );
-
-  // Shorter side-streams branch into the main currents, staying inside the sphere.
-  if (k % 3 === 0) {
-    const branchStart = points[9].clone();
-    const branchMid = branchStart.clone().add(new T.Vector3(
-      (Math.random() - 0.5) * 0.22,
-      (Math.random() - 0.5) * 0.22,
-      (Math.random() - 0.5) * 0.22
-    ));
-    const branchEnd = points[15].clone().add(new T.Vector3(
-      (Math.random() - 0.5) * 0.18,
-      (Math.random() - 0.5) * 0.18,
-      (Math.random() - 0.5) * 0.18
-    ));
-
-    addEnergyPath(
-      [branchStart, branchMid, branchEnd],
-      0x3cbbff,
-      0.38,
-      1
-    );
-  }
-}
-
-// Soft, low-contrast blue-violet mist gives the energy body instead of a wireframe look.
-const energyFogGeometry = new T.BufferGeometry();
-energyFogGeometry.setAttribute(
-  'position',
-  new T.Float32BufferAttribute(energyFogPositions, 3)
-);
-const energyFogMaterial = new T.PointsMaterial({
-  color: 0x34306f,
-  size: 0.075,
-  transparent: true,
-  opacity: 0,
-  depthWrite: false,
-  blending: T.NormalBlending,
-  sizeAttenuation: true
-});
-const energyFog = new T.Points(energyFogGeometry, energyFogMaterial);
-energyFog.renderOrder = 2;
-energyFog.frustumCulled = false;
-energyGroup.add(energyFog);
-
-// Independent drifting specks, created once and animated in the main loop.
-const driftPositions = [];
-for (let i = 0; i < 90; i++) {
-  const a = Math.random() * Math.PI * 2;
-  const z = Math.random() * 2 - 1;
-  const ring = Math.sqrt(1 - z * z);
-  const r = 0.58 + Math.random() * 0.28;
-
-  driftPositions.push(
-    Math.cos(a) * ring * r,
-    z * r,
-    Math.sin(a) * ring * r
-  );
-}
-
-const driftGeometry = new T.BufferGeometry();
-driftGeometry.setAttribute(
-  'position',
-  new T.Float32BufferAttribute(driftPositions, 3)
-);
-
-const driftMaterial = new T.PointsMaterial({
-  color: 0x75dfff,
-  size: 0.018,
-  transparent: true,
-  opacity: 0,
-  depthWrite: false,
-  blending: T.AdditiveBlending
+let burstPhase='idle',burstElapsed=0,chargeLevel=0,burstResolve=null;
+const CHARGE_TIME=2.8,BURST_OUT=.65,REFORM_TIME=5;
+window.startBurstCharge=()=>{
+  if(S.rm)return;
+  if(burstResolve){burstResolve();burstResolve=null;}
+  burstPhase='charge';burstElapsed=0;chargeLevel=0;
+};
+window.cancelBurstCharge=()=>{
+  if(burstPhase==='charge'){burstPhase='idle';burstElapsed=0;chargeLevel=0;}
+};
+window.burst=()=>new Promise(resolve=>{
+  if(S.rm){chargeLevel=0;resolve();return;}
+  if(burstResolve)burstResolve();
+  burstResolve=resolve;
+  burstPhase='explode';burstElapsed=0;chargeLevel=0;
 });
 
-const driftParticles = new T.Points(driftGeometry, driftMaterial);
-energyGroup.add(driftParticles);
-
-const disassemblyStep = lo ? 2 : 1;
-const disassemblyPositions = [];
-const disassemblySeeds = [];
-
-for (let i = 0; i < shellA.length; i += disassemblyStep) {
-  disassemblyPositions.push(...shellA[i]);
-  disassemblySeeds.push(Math.random());
+function makeSphere(count){
+  const positions=new Float32Array(count*3);
+  const seeds=new Float32Array(count);
+  const goldenAngle=Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<count;i++){
+    const y=1-2*(i+.5)/count;
+    const r=Math.sqrt(Math.max(0,1-y*y));
+    const a=i*goldenAngle;
+    positions[i*3]=Math.cos(a)*r;
+    positions[i*3+1]=y;
+    positions[i*3+2]=Math.sin(a)*r;
+    const raw=Math.sin((i+1)*78.233)*43758.5453;
+    seeds[i]=raw-Math.floor(raw);
+  }
+  return {positions,seeds};
 }
+const outerBase=makeSphere(N),innerBase=makeSphere(M);
 
-const disassemblyGeometry = new T.BufferGeometry();
-
-disassemblyGeometry.setAttribute(
-  'position',
-  new T.Float32BufferAttribute(disassemblyPositions, 3)
-);
-
-disassemblyGeometry.setAttribute(
-  'aSeed',
-  new T.Float32BufferAttribute(disassemblySeeds, 1)
-);
-
-const disassemblyMaterial = new T.ShaderMaterial({
-  uniforms: {
-    uBurst: { value: 0 },
-    uTime: { value: 0 }
-  },
-  vertexShader: `
-    attribute float aSeed;
-    uniform float uBurst;
-    uniform float uTime;
-    varying float vAlpha;
-    varying float vSeed;
-
-    void main() {
-      vec3 home = position;
-      vec3 dir = normalize(home);
-
-      vec3 axis = normalize(
-        cross(dir, vec3(0.0, 1.0, 0.13))
-      );
-
-      float distance = 0.8 + aSeed * 1.3;
-      float swirl = sin(uTime * 1.8 + aSeed * 31.0) * 0.22;
-
-      vec3 p = home
-        + dir * uBurst * distance
-        + axis * swirl * uBurst;
-
-      vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-
-      gl_Position = projectionMatrix * mvPosition;
-
-      gl_PointSize = (2.4 + aSeed * 2.6)
-        * (4.2 / max(1.0, -mvPosition.z));
-
-      vAlpha = smoothstep(0.02, 0.22, uBurst)
-        * (0.78 + 0.22 * sin(uTime * 5.0 + aSeed * 50.0));
-
-      vSeed = aSeed;
+function nearestEdges(points,count,k){
+  const edges=[],seen=new Set();
+  for(let i=0;i<count;i++){
+    const bestScores=new Float32Array(k);
+    const bestIndices=new Int32Array(k);
+    bestScores.fill(-Infinity);
+    bestIndices.fill(-1);
+    const ax=points[i*3],ay=points[i*3+1],az=points[i*3+2];
+    for(let j=0;j<count;j++){
+      if(i===j)continue;
+      const score=ax*points[j*3]+ay*points[j*3+1]+az*points[j*3+2];
+      let minSlot=0;
+      for(let q=1;q<k;q++)if(bestScores[q]<bestScores[minSlot])minSlot=q;
+      if(score>bestScores[minSlot]){bestScores[minSlot]=score;bestIndices[minSlot]=j;}
     }
-  `,
-  fragmentShader: `
-    varying float vAlpha;
-    varying float vSeed;
-
-    void main() {
-      float d = length(gl_PointCoord - vec2(0.5));
-      float core = 1.0 - smoothstep(0.12, 0.5, d);
-
-      vec3 blue = vec3(0.18, 0.55, 1.0);
-      vec3 whiteBlue = vec3(0.78, 0.96, 1.0);
-      vec3 colour = mix(blue, whiteBlue, vSeed * 0.65 + 0.25);
-
-      gl_FragColor = vec4(colour, vAlpha * core);
+    for(let q=0;q<k;q++){
+      const j=bestIndices[q];
+      if(j<0)continue;
+      const a=Math.min(i,j),b=Math.max(i,j),key=a*count+b;
+      if(!seen.has(key)){seen.add(key);edges.push([a,b]);}
     }
-  `,
-  transparent: true,
-  depthWrite: false,
-  blending: T.AdditiveBlending
+  }
+  return edges;
+}
+const outerEdges=nearestEdges(outerBase.positions,N,4);
+const innerEdges=nearestEdges(innerBase.positions,M,4);
+const spokes=[];
+for(let i=0;i<M;i++){
+  const ix=innerBase.positions[i*3],iy=innerBase.positions[i*3+1],iz=innerBase.positions[i*3+2];
+  let best=0,bestDot=-Infinity;
+  for(let j=0;j<N;j++){
+    const dot=ix*outerBase.positions[j*3]+iy*outerBase.positions[j*3+1]+iz*outerBase.positions[j*3+2];
+    if(dot>bestDot){bestDot=dot;best=j;}
+  }
+  spokes.push([i,best]);
+}
+
+const sphereGeometry=new T.SphereGeometry(1,lo?7:9,lo?5:7);
+const outerMaterial=new T.MeshPhongMaterial({
+  color:0xffffff,emissive:0x071b39,specular:0xe5fcff,shininess:115
 });
+const innerMaterial=new T.MeshPhongMaterial({
+  color:0xffffff,emissive:0x061a3a,specular:0xbff8ff,shininess:105
+});
+const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
+const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
+outerMesh.frustumCulled=innerMesh.frustumCulled=false;
+outerMesh.renderOrder=1;innerMesh.renderOrder=1;
+outerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
+innerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 
-const disassemblyPoints = new T.Points(
-  disassemblyGeometry,
-  disassemblyMaterial
-);
+const deepBlue=new T.Color('#041545');
+const electricBlue=new T.Color('#176dff');
+const iceBlue=new T.Color('#d8fbff');
+const particleColour=new T.Color();
+const dummy=new T.Object3D();
+function setParticleColour(mesh,i,z,seed,inner){
+  const depth=clamp((z+1.05)/2.1,0,1);
+  if(depth<.68)particleColour.copy(deepBlue).lerp(electricBlue,depth/.68);
+  else particleColour.copy(electricBlue).lerp(iceBlue,(depth-.68)/.32);
+  particleColour.multiplyScalar((inner?.82:.9)+seed*.16+Math.max(0,z)*.08);
+  mesh.setColorAt(i,particleColour);
+}
 
-disassemblyPoints.renderOrder = 5;
-disassemblyPoints.frustumCulled = false;
-
-
-const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(150,215,255,.9)');gr.addColorStop(.4,'rgba(39,141,255,.35)');gr.addColorStop(1,'rgba(39,141,255,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
-const glow=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),blending:T.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.setScalar(1.15);glow.renderOrder=2;lines.renderOrder=3;
-// Two localised breaches in the orb's outer energy barrier.
-const breachGeometry = new T.BufferGeometry();
-const breachPositions = [];
-const breachVelocities = [];
-const breachSeeds = [];
-const breachDistances = [];
-
-const breachCentres = [
-  new T.Vector3(0.58, 0.32, 0.75).normalize(),
-  new T.Vector3(-0.72, -0.18, 0.67).normalize()
+const tierColours=[
+  [0.012,.035,.16],
+  [.024,.13,.40],
+  [.045,.32,.70],
+  [.20,.62,.92],
+  [.62,.91,1]
 ];
+function lineColour(z,out,at){
+  const d=clamp((z+1)/2,0,.9999)*4;
+  const tier=Math.floor(d),mix=d-tier;
+  const a=tierColours[tier],b=tierColours[tier+1];
+  out[at]=lerp(a[0],b[0],mix);
+  out[at+1]=lerp(a[1],b[1],mix);
+  out[at+2]=lerp(a[2],b[2],mix);
+}
+function createLines(pairs,opacity){
+  const geometry=new T.BufferGeometry();
+  const positions=new Float32Array(pairs.length*6);
+  const colours=new Float32Array(pairs.length*6);
+  const positionAttribute=new T.BufferAttribute(positions,3);
+  const colourAttribute=new T.BufferAttribute(colours,3);
+  positionAttribute.setUsage(T.DynamicDrawUsage);
+  colourAttribute.setUsage(T.DynamicDrawUsage);
+  geometry.setAttribute('position',positionAttribute);
+  geometry.setAttribute('color',colourAttribute);
+  const material=new T.LineBasicMaterial({
+    color:0xffffff,vertexColors:true,transparent:true,opacity,
+    depthTest:true,depthWrite:false,blending:T.AdditiveBlending,toneMapped:false
+  });
+  const object=new T.LineSegments(geometry,material);
+  object.frustumCulled=false;
+  object.renderOrder=2;
+  return {geometry,material,object,positionAttribute,colourAttribute};
+}
+const outerLines=createLines(outerEdges,.78);
+const innerLines=createLines(innerEdges,.53);
+const spokeLines=createLines(spokes,.38);
 
-for (let b = 0; b < 2; b++) {
-  const centre = breachCentres[b];
+const tilt=new T.Group();
+tilt.add(glow,outerMesh,innerMesh,outerLines.object,innerLines.object,spokeLines.object);
+sc.add(tilt);
 
-  const reference = Math.abs(centre.y) < 0.9
-    ? new T.Vector3(0, 1, 0)
-    : new T.Vector3(1, 0, 0);
+const outerPositions=new Float32Array(N*3);
+const innerPositions=new Float32Array(M*3);
+let px=0,py=0,pt=2,pa=0,tp=2,tt=0,slow=0,t0=performance.now();
+let idleT=10,waveElapsed=-1,pulseAge=2,pulseStrength=0;
+const pulseDirection=V3(0,0,1),touchDirection=V3(0,0,1);
+const inv=new T.Quaternion();
+const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize();
+window.pulse=a=>{pulseDirection.set(0,0,1);pulseAge=0;pulseStrength=a;};
+window.ripple=(nx,ny)=>{
+  if(nx*nx+ny*ny>1)return;
+  touchDirection.set(nx,-ny,Math.sqrt(Math.max(0,1-nx*nx-ny*ny))).normalize();
+  tp=0;
+};
 
-  const tangent = new T.Vector3()
-    .crossVectors(centre, reference).normalize();
+const rel=e=>{
+  const r=host.getBoundingClientRect();
+  return [(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1];
+};
+host.addEventListener('pointermove',e=>{[px,py]=rel(e);});
+host.addEventListener('pointerleave',()=>{px=py=0;});
+host.addEventListener('pointerdown',e=>{const a=rel(e);window.ripple(a[0]/.74,a[1]/.74);});
 
-  const bitangent = new T.Vector3()
-    .crossVectors(centre, tangent).normalize();
+function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
+  const axisX=1+amplitude*1.65*Math.sin(time*.19+.55+phase*.2);
+  const axisY=1+amplitude*1.25*Math.sin(time*.16+2.1+phase*.3);
+  const axisZ=1+amplitude*1.55*Math.sin(time*.18+4.0+phase*.15);
+  const angle=time*(layer===0?.105:-.145);
+  const ca=Math.cos(angle),sa=Math.sin(angle);
+  for(let i=0;i<count;i++){
+    const at=i*3,x=points[at],y=points[at+1],z=points[at+2],seed=seeds[i],p=seed*TAU;
+    const w1=Math.sin(x*3.1+y*1.8-z*1.2+p+time*.23);
+    const w2=Math.sin(y*3.4+z*2.1+x*.7+p*1.7-time*.19);
+    const w3=Math.sin(z*2.8-x*1.7+y*.9-p*.7+time*.15);
+    const w4=Math.sin((x+y-z)*3.2+p*2.1+time*.11);
+    const lobe=Math.pow(Math.max(0,Math.sin((x*1.6-z*1.9+y*.65)*5.2+p+time*.16)),6);
+    const wave=.39*w1+.27*w2+.19*w3+.15*w4;
+    const drift=.0048*Math.sin(time*.42+p*2.3)*(1+amplitude*15);
+    let r=radius*(1+amplitude*(wave+.7*lobe))+drift;
+    let xx=x*r*axisX,yy=y*r*axisY,zz=z*r*axisZ;
+    const twist=y*(.12+amplitude*.95)*Math.sin(time*.17+p*.18+phase);
+    const ct=Math.cos(twist),st=Math.sin(twist);
+    const tx=xx*ct-zz*st,tz=xx*st+zz*ct;
+    xx=tx;zz=tz;
+    let ox=xx*ca+zz*sa,oz=-xx*sa+zz*ca,oy=yy;
 
-  // Dense close to the shell; progressively fewer particles travel far.
-  const count = 180;
+    if(waveElapsed>=0){
+      const theta=Math.acos(clamp(oz/Math.max(.001,radius),-1,1));
+      const front=Math.min(Math.PI/2,waveElapsed*Math.PI/6);
+      const ring=Math.exp(-Math.pow((theta-front)*18,2));
+      r=1+Math.max(0,waveElapsed<3?.014*ring:0);
+      ox*=r;oy*=r;oz*=r;
+    }
+    if(pulseAge<1.3){
+      const dot=clamp((ox*pulseDirection.x+oy*pulseDirection.y+oz*pulseDirection.z)/
+        Math.max(.001,Math.sqrt(ox*ox+oy*oy+oz*oz)),-1,1);
+      const theta=Math.acos(dot),front=Math.min(Math.PI,pulseAge*2.45);
+      const ring=Math.exp(-Math.pow((theta-front)*5.2,2))*pulseStrength*.022;
+      const scale=1+ring;
+      ox*=scale;oy*=scale;oz*=scale;
+    }
+    if(tp<1.3){
+      const dot=clamp((ox*touchDirection.x+oy*touchDirection.y+oz*touchDirection.z)/
+        Math.max(.001,Math.sqrt(ox*ox+oy*oy+oz*oz)),-1,1);
+      const theta=Math.acos(dot),front=Math.min(Math.PI,tp*1.7);
+      const ring=Math.exp(-Math.pow((theta-front)*7,2))*.018;
+      const scale=1+ring;
+      ox*=scale;oy*=scale;oz*=scale;
+    }
 
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-
-    const spread = 0.018 + Math.random() * 0.075;
-
-    const offset = tangent.clone()
-      .multiplyScalar(Math.cos(angle) * spread)
-      .addScaledVector(
-        bitangent,
-        Math.sin(angle) * spread
-      );
-
-    const base = centre.clone()
-      .add(offset)
-      .normalize()
-      .multiplyScalar(1.008);
-
-    // Most particles travel a short distance.
-    const distance = 0.12 + Math.pow(Math.random(), 2.5) * 0.9;
-
-    const velocity = centre.clone()
-      .addScaledVector(tangent, (Math.random() - 0.5) * 0.55)
-      .addScaledVector(bitangent, (Math.random() - 0.5) * 0.55)
-      .normalize();
-
-    breachPositions.push(base.x, base.y, base.z);
-    breachVelocities.push(velocity.x, velocity.y, velocity.z);
-    breachSeeds.push(Math.random());
-    breachDistances.push(distance);
+    output[at]=ox;output[at+1]=oy;output[at+2]=oz;
   }
 }
-
-breachGeometry.setAttribute(
-  'position',
-  new T.Float32BufferAttribute(breachPositions, 3)
-);
-
-breachGeometry.setAttribute(
-  'aVelocity',
-  new T.Float32BufferAttribute(breachVelocities, 3)
-);
-
-breachGeometry.setAttribute(
-  'aSeed',
-  new T.Float32BufferAttribute(breachSeeds, 1)
-);
-
-breachGeometry.setAttribute(
-  'aDistance',
-  new T.Float32BufferAttribute(breachDistances, 1)
-);
-
-const breachMaterial = new T.ShaderMaterial({
-  uniforms: {
-    uBreachT: { value: 0 },
-    uBreachA: { value: 0 },
-    uTime: { value: 0 }
-  },
-
-  vertexShader: `
-    attribute vec3 aVelocity;
-    attribute float aSeed;
-    attribute float aDistance;
-
-    uniform float uBreachT;
-    uniform float uBreachA;
-    uniform float uTime;
-
-    varying float vAlpha;
-    varying float vSeed;
-
-    void main() {
-      vec3 p = position
-        + aVelocity * uBreachT * aDistance;
-
-      vec4 mv = modelViewMatrix * vec4(p, 1.0);
-
-      gl_Position = projectionMatrix * mv;
-
-      gl_PointSize = (1.2 + aSeed * 2.0)
-        * (4.0 / max(1.0, -mv.z));
-
-      float distanceFade =
-        1.0 - smoothstep(0.25, 0.95, aDistance * uBreachT);
-
-      vAlpha = uBreachA * distanceFade;
-      vSeed = aSeed;
-    }
-  `,
-
-  fragmentShader: `
-    varying float vAlpha;
-    varying float vSeed;
-
-    void main() {
-      float d = length(gl_PointCoord - vec2(0.5));
-      float dotShape = 1.0 - smoothstep(0.18, 0.5, d);
-
-      vec3 blue = vec3(0.12, 0.48, 1.0);
-      vec3 ice = vec3(0.72, 0.94, 1.0);
-
-      vec3 colour = mix(blue, ice, vSeed * 0.65);
-
-      gl_FragColor = vec4(
-        colour,
-        vAlpha * dotShape
-      );
-    }
-  `,
-
-  transparent: true,
-  depthWrite: false,
-  blending: T.AdditiveBlending
-});
-
-const breachParticles = new T.Points(
-  breachGeometry,
-  breachMaterial
-);
-
-breachParticles.frustumCulled = false;
-breachParticles.renderOrder = 6;
-const tilt=new T.Group(),spin=new T.Group();
-spin.add(shell,inner,inner2);
-spin.add(breachParticles);
-spin.add(energyGroup);
-spin.add(disassemblyPoints);
-tilt.add(spin,glow);sc.add(tilt);
-orbInfo='WebGL · '+(N+M).toLocaleString()+' particles';refresh();
-let px=0,py=0,pt=2,pa=0,tp=2,idleT=10,coreWavePhase=-1,tt=0,slow=0,t0=performance.now();const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize(),inv=new T.Quaternion();
-let breachTimer = 0;
-pulse=a=>{inv.copy(spin.quaternion).invert();U.uPulseDir.value.set(0,0,1).applyQuaternion(inv);pt=0;pa=a};
-ripple=(nx,ny)=>{const r=nx*nx+ny*ny;if(r>1)return;inv.copy(spin.quaternion).invert();U.uTouchDir.value.set(nx,-ny,Math.sqrt(1-r)).applyQuaternion(inv);tp=0};
-const rel=e=>{const r=host.getBoundingClientRect();return[(e.clientX-r.left)/r.width*2-1,(e.clientY-r.top)/r.height*2-1]};
-host.addEventListener('pointermove',e=>{[px,py]=rel(e)});host.addEventListener('pointerleave',()=>{px=py=0});
-host.addEventListener('pointerdown',e=>{const[a,b]=rel(e);ripple(a/.74,b/.74)});
-const sm=(a,b,v)=>Math.min(1,Math.max(0,(v-a)/(b-a)));
-function frame(now){try{const dt=Math.min((now-t0)/1000,.05);t0=now;
-if(dt>.034)slow++;else slow=Math.max(0,slow-1);if(slow>90&&dpr>1){dpr=1;fit();slow=0}
-const T1=ST[state],k=1-Math.exp(-dt*2.2),mo=S.rm?0:1;for(const key in T1)cur[key]+=(T1[key]-cur[key])*k;cur.flash*=Math.exp(-dt*1.6);
-if(burstPhase!=='idle'){
-  burstElapsed+=dt;
-
- 
-if (burstPhase === 'charge') {
-  // Accelerate progressively and hold at maximum until the response is ready.
-  chargeLevel = 1 - Math.exp(-burstElapsed * 0.7);
-  U.uBurst.value = 0;
-}
- 
-
-else if(burstPhase==='explode'){
-    chargeLevel=0;
-    const p=Math.min(1,burstElapsed/BURST_OUT);
-    U.uBurst.value=1-Math.pow(1-p,3);
-
-    if(p>=1){
-      U.uBurst.value=1;
-      burstPhase='reform';
-      burstElapsed=0;
-
-      const resolveBurst=burstResolve;
-      burstResolve=null;
-      if(resolveBurst) resolveBurst();
-    }
-  }else if(burstPhase==='reform'){
-    chargeLevel=0;
-    const p=Math.min(1,burstElapsed/REFORM_TIME);
-    const smooth=p*p*(3-2*p);
-    U.uBurst.value=1-smooth;
-
-    if(p>=1){
-      U.uBurst.value=0;
-      burstPhase='idle';
-      burstElapsed=0;
-    }
+function updateMesh(mesh,base,positions,seeds,count,inner){
+  for(let i=0;i<count;i++){
+    const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
+    const depth=clamp((z+1)/2,0,1);
+    const size=(inner?.0062:.0068)+seed*(inner?.0024:.0032);
+    const frontScale=.84+depth*.34;
+    dummy.position.set(x,y,z);
+    dummy.scale.setScalar(size*frontScale);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i,dummy.matrix);
+    setParticleColour(mesh,i,z,seed,inner);
   }
-}else{
-  chargeLevel=0;
+  mesh.instanceMatrix.needsUpdate=true;
+  if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
 }
-
-
-const networkTarget =
-  burstPhase === 'charge' ? chargeLevel * 0.78 :
-  burstPhase === 'explode' ? 1 :
-  burstPhase === 'reform' ? 1 : 0;
-
-const burstNetworkFade = burstPhase === 'reform'
-  ? Math.max(0, 1 - burstElapsed / REFORM_TIME)
-  : networkTarget;
-// Plasma remains gently visible in standby, then intensifies during speech/bursts.
-const networkFade = Math.max(0.32, burstNetworkFade);
-
-energyGroup.visible = true;
-
-const expansionScale =
-  burstPhase === 'charge'
-    ? 0.55 + 0.30 * chargeLevel
-    : burstPhase === 'explode'
-      ? 0.65 + 0.35 * Math.min(1, burstElapsed / BURST_OUT)
-      : burstPhase === 'reform'
-        ? 1
-        : 1;
-
-
-energyGroup.scale.setScalar(expansionScale);
-energyGroup.rotation.y += dt * 0.12 * mo;
-energyGroup.rotation.x += dt * 0.035 * mo;
-
-energyMaterials.forEach(({ material, opacity }, i) => {
-  const pulse = 0.78 + 0.22 * Math.sin(tt * 2.2 + i * 1.7);
-  material.opacity = opacity * (0.68 + burstNetworkFade * 0.32) * pulse;
-});
-
-energyNodeMaterials.forEach(({ material, opacity }, i) => {
-  const pulse = 0.7 + 0.3 * Math.sin(tt * 3 + i * 2.1);
-  material.opacity = opacity * (0.62 + burstNetworkFade * 0.38) * pulse;
-});
-
-energyFogMaterial.opacity = 0; // Keep the plasma crisp; no smoky particle haze.
-energyFog.rotation.y += dt * 0.08 * mo;
-energyFog.rotation.x += dt * 0.025 * mo;
-
-driftMaterial.opacity = 0.34 + 0.21 * burstNetworkFade;
-driftParticles.rotation.y -= dt * 0.035 * mo;
-
-tt+=dt*mo;U.uTime.value=tt;U.uGlow.value=cur.glow+cur.flash*.35+chargeLevel*.65;
-// Trigger a short, localised breach every 9 seconds.
-
- // Stray particles persist between waves; the edge wave adds a temporary burst.
-const baseDrift = 0.12 + 0.025 * Math.sin(tt * 0.8);
-let outward = 0;
-let breachAlpha = 0.24;
-
-// The wave reaches the edge at about 3 seconds.
-if (coreWavePhase >= 3 && coreWavePhase < 7) {
-  const elapsedSinceEdge = coreWavePhase - 3;
-
-  // Ease outward over 0.8 seconds.
-  const pushIn = Math.min(1, elapsedSinceEdge / 0.8);
-  const pushSmooth = pushIn * pushIn * (3 - 2 * pushIn);
-
-  // Then ease back towards the shell over 3.2 seconds.
-  const returnIn = Math.max(
-    0,
-    Math.min(1, (elapsedSinceEdge - 0.8) / 3.2)
-  );
-  const returnSmooth = returnIn * returnIn * (3 - 2 * returnIn);
-
-  outward = pushSmooth * (1 - returnSmooth);
-  breachAlpha = 0.24 + outward * 0.65;
+function updateLines(bundle,pairs,a,b){
+  const p=bundle.positionAttribute.array,c=bundle.colourAttribute.array;
+  for(let i=0;i<pairs.length;i++){
+    const ai=pairs[i][0]*3,bi=pairs[i][1]*3,o=i*6;
+    const ax=a[ai],ay=a[ai+1],az=a[ai+2];
+    const bx=b[bi],by=b[bi+1],bz=b[bi+2];
+    p[o]=ax;p[o+1]=ay;p[o+2]=az;
+    p[o+3]=bx;p[o+4]=by;p[o+5]=bz;
+    const z=(az+bz)*.5,d=clamp((z+1)/2,0,.9999)*4,tier=Math.floor(d),mix=d-tier;
+    const ca=tierColours[tier],cb=tierColours[tier+1];
+    const r=lerp(ca[0],cb[0],mix),g=lerp(ca[1],cb[1],mix),bl=lerp(ca[2],cb[2],mix);
+    c[o]=r;c[o+1]=g;c[o+2]=bl;c[o+3]=r;c[o+4]=g;c[o+5]=bl;
+  }
+  bundle.positionAttribute.needsUpdate=true;
+  bundle.colourAttribute.needsUpdate=true;
 }
+const sm=(a,b,v)=>clamp((v-a)/(b-a),0,1);
+let speakingBlend=0,orbInfo='WebGL · 930 particles';
+refresh();
 
-breachMaterial.uniforms.uBreachT.value =
-  baseDrift + outward * 0.65;
+function frame(now){
+  try{
+    const dt=Math.min((now-t0)/1000,.05);t0=now;
+    if(dt>.034)slow++;else slow=Math.max(0,slow-1);
+    if(slow>90&&dpr>1){dpr=Math.max(1,dpr*.85);fit();slow=0;}
+    const motionAllowed=S.rm?0:1;
+    const targetSpeaking=state==='responding'?1:(state==='processing'?.42:(state==='listening'?.12:0));
+    const blendRate=targetSpeaking>speakingBlend?3.2:1.65;
+    speakingBlend+=(targetSpeaking-speakingBlend)*(1-Math.exp(-dt*blendRate));
+    tt+=dt*motionAllowed*(1+2*speakingBlend);
+    const voiceEnvelope=state==='responding'
+      ? .40+.60*(.5+.5*Math.sin(tt*3.1)*Math.sin(tt*1.17+.4))
+      : state==='processing'?.48:state==='listening'?.18:0;
+    const amplitude=.027+.092*speakingBlend*voiceEnvelope;
 
-breachMaterial.uniforms.uBreachA.value = breachAlpha;
+    if(burstPhase!=='idle'){
+      burstElapsed+=dt;
+      if(burstPhase==='charge'){
+        chargeLevel=1-Math.exp(-burstElapsed*.7);
+      }else if(burstPhase==='explode'){
+        const p=Math.min(1,burstElapsed/BURST_OUT);
+        chargeLevel=0;
+        if(p>=1){
+          burstPhase='reform';burstElapsed=0;
+          const done=burstResolve;burstResolve=null;if(done)done();
+        }
+      }else if(burstPhase==='reform'){
+        chargeLevel=0;
+        if(burstElapsed>=REFORM_TIME){burstPhase='idle';burstElapsed=0;}
+      }
+    }else chargeLevel=0;
 
-
-breachMaterial.uniforms.uTime.value = tt;
-disassemblyMaterial.uniforms.uBurst.value = U.uBurst.value;
-disassemblyMaterial.uniforms.uTime.value = tt;
-tilt.scale.setScalar(1-.23*chargeLevel);U.uWave.value=cur.wave;U.uProc.value=cur.proc;
-// Accelerate smoothly, hold speed throughout expansion, then slow as the orb reforms.
-let rotationBoost = 1;
-
-if (burstPhase === 'charge') {
-  rotationBoost = 1 + 2.2 * chargeLevel;
-} else if (burstPhase === 'explode') {
-  rotationBoost = 3.2;
-} else if (burstPhase === 'reform') {
-  const p = Math.min(1, burstElapsed / REFORM_TIME);
-  const smooth = p * p * (3 - 2 * p);
-  rotationBoost = 3.2 - 2.2 * smooth;
-}
-
-const sp = dt * .055 * cur.rate
-  * (1 + .35 * Math.sin(tt * .07))
-  * rotationBoost * mo;ax.set(Math.sin(tt*.043)*.5,1,Math.cos(tt*.031)*.35).normalize();spin.rotateOnAxis(ax,sp);spin.rotateOnAxis(ax2,sp*.3);inner.rotation.y-=dt*.03*mo;
-U.uWaveDir.value.set(Math.sin(tt*.2),Math.cos(tt*.13),.4).normalize();
-idleT-=dt*mo;
-
-
-if(coreWavePhase>=0){
-  coreWavePhase+=dt*mo;
-
-  const elapsed=coreWavePhase;
-  const expandIn=Math.min(1,elapsed/3);
-  const smoothIn=expandIn*expandIn*(3-2*expandIn);
-
-  const returnP=Math.max(0,Math.min(1,(elapsed-3)/4));
-  const smoothOut=returnP*returnP*(3-2*returnP);
-
-  U.uCoreWaveElapsed.value=elapsed;
-  U.uCoreWave.value=Math.min(Math.PI,elapsed*Math.PI/3);
-  U.uCoreExpand.value=0.25*smoothIn*(1-smoothOut);
-
-  U.uCoreWaveStrength.value=
-    elapsed<3
-      ? 0.85+0.15*Math.sin(elapsed*Math.PI/3)
+    const burstExpansion=burstPhase==='explode'
+      ? .045*Math.min(1,burstElapsed/BURST_OUT)
       : 0;
+    tilt.scale.setScalar((1-.10*chargeLevel)*(1+burstExpansion));
+    const visualTime=tt*(state==='processing'?1.45:1);
+    const waveTime=waveElapsed>=0?waveElapsed:-1;
+    deform(outerBase.positions,outerBase.seeds,N,1,visualTime,amplitude,0,0,outerPositions);
+    deform(innerBase.positions,innerBase.seeds,M,.55,visualTime,amplitude*.86,2.2,1,innerPositions);
+    updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
+    updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
+    updateLines(outerLines,outerEdges,outerPositions,outerPositions);
+    updateLines(innerLines,innerEdges,innerPositions,innerPositions);
+    updateLines(spokeLines,spokes,innerPositions,outerPositions);
 
-  if(elapsed<0.65){
-    const ignition=1-elapsed/0.65;
-    glow.material.opacity=Math.min(
-      1,
-      glow.material.opacity+ignition*0.5
-    );
-  }
+    if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
+    else pa=0;
+    if(tp<1.3)tp+=dt/1.1*motionAllowed;
+    if(pulseAge<1.3)pulseAge+=dt*motionAllowed;
+    if(waveElapsed>=0){
+      waveElapsed+=dt*motionAllowed;
+      if(waveElapsed>=7)waveElapsed=-1;
+    }else{
+      idleT-=dt*motionAllowed;
+      if(idleT<=0&&state==='standby'){waveElapsed=0;idleT=10;}
+    }
 
-  if(elapsed>=7){
-  coreWavePhase=-1;
-  U.uCoreWaveStrength.value=0;
-  U.uCoreExpand.value=0;
-  U.uCoreWaveElapsed.value=7;
+    const swayX=py*.18,swayY=px*.25;
+    tilt.rotation.x+=(swayX-tilt.rotation.x)*.05;
+    tilt.rotation.y+=(swayY-tilt.rotation.y)*.05;
+    glow.material.opacity=Math.min(.62,cur.core*.58*(.94+.06*Math.sin(tt*.8))+
+      pulseStrength*.12+chargeLevel*.12);
+    glow.scale.setScalar(1.14+cur.proc*.035+chargeLevel*.15);
+    pulseStrength*=Math.exp(-dt*1.6);
+    host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
+    rd.render(sc,cam);
+    host.classList.add('orb-ready');
+    requestAnimationFrame(frame);
+  }catch(err){
+    console.error('Orb animation failed:',err);
+    host.classList.add('nogl');orbInfo='Unavailable';
   }
 }
-if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
-if(tp<1.3){tp+=dt/1.1;U.uTouchT.value=tp;U.uTouchA.value=.9*Math.min(1,(1.3-tp)*3)}else U.uTouchA.value=0;
-tilt.rotation.x+=(py*.18-tilt.rotation.x)*.05;tilt.rotation.y+=(px*.25-tilt.rotation.y)*.05;U.uLight.value.set(-.45+px*.25,.55-py*.2,.7).normalize();
-glow.material.opacity=Math.min(.58,cur.core*.62*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.22+cur.flash*.1+chargeLevel*.2+U.uCoreWaveStrength.value*.25);
-glow.scale.setScalar(1.18+cur.proc*.08+U.uPulse.value*.18+cur.flash*.12+chargeLevel*.25+U.uCoreWaveStrength.value*.22);
-                    
-flowGroup.rotation.y+=dt*(.12+cur.proc*.24)*cur.rate*mo;
-flowGroup.rotation.x+=dt*(.035+cur.proc*.08)*cur.rate*mo;
-flowGroup.children.forEach(s=>{
-s.material.opacity=.07+cur.proc*.13+U.uPulse.value*.18+cur.flash*.08;
-});
-
-lines.material.opacity=.018+.075*Math.pow(Math.max(0,Math.sin(tt*.31)),10)+.22*U.uPulse.value;
-host.style.setProperty('--h2',(cur.halo+cur.flash*.25+U.uPulse.value*.15).toFixed(3));rd.render(sc,cam);host.classList.add('orb-ready');requestAnimationFrame(frame)}catch(err){console.error('Orb animation failed:',err);host.classList.add('nogl');orbInfo='Unavailable'}}
 requestAnimationFrame(frame);
 
-addEventListener('pagehide', () => {
-  [g1, g2, g3, lg, disassemblyGeometry,...energyGroup.children.map(o => o.geometry)]
-    .forEach(g => g && g.dispose());
-
-  [
-    m1, m2, m3, lines.material, glow.material, disassemblyMaterial,
-    ...energyGroup.children.map(o => o.material)
-  ].forEach(m => {
-    if (m) m.dispose();
-  });
-
-  rd.dispose();
+addEventListener('pagehide',()=>{
+  resizeObserver.disconnect();
+  outerLines.geometry.dispose();innerLines.geometry.dispose();spokeLines.geometry.dispose();
+  outerLines.material.dispose();innerLines.material.dispose();spokeLines.material.dispose();
+  sphereGeometry.dispose();outerMaterial.dispose();innerMaterial.dispose();
+  glow.material.map.dispose();glow.material.dispose();rd.dispose();
 });
-
 }catch(err){console.error(err);$('#core').classList.add('nogl');orbInfo='Unavailable'}})();
 </script></body></html>
