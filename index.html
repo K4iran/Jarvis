@@ -1143,7 +1143,7 @@ apply();renderDisp();
 /* ---- Living particle orb (Three.js, instanced spheres) ---- */
 (function(){try{
 const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?24000:52000,M=lo?4000:8500;
-const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.setClearColor(0,0);let dpr=Math.min(devicePixelRatio||1,lo?1.75:2);
+const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.setClearColor(0,0);rd.debug.checkShaderErrors=true;rd.debug.onShaderError=()=>{console.error('Orb shader failed to compile');host.classList.add('nogl');orbInfo='Unavailable'};let dpr=Math.min(devicePixelRatio||1,lo?1.75:2);
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
 const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
 const V3=(x,y,z)=>new T.Vector3(x,y,z);
