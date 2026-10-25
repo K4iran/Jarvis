@@ -1242,7 +1242,7 @@ apply();renderDisp();
 (function(){try{
 const T=THREE,host=$('#core'),canvas=$('#gl');
 const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
-const N=700,M=230,TAU=Math.PI*2;
+const N=540,M=175,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 const rd=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
@@ -1348,10 +1348,10 @@ function nearestEdges(points,count,k){
   }
   return edges;
 }
-const outerEdges=nearestEdges(outerBase.positions,N,4);
-const innerEdges=nearestEdges(innerBase.positions,M,4);
+const outerEdges=nearestEdges(outerBase.positions,N,3);
+const innerEdges=nearestEdges(innerBase.positions,M,3);
 const spokes=[];
-for(let i=0;i<M;i++){
+for(let i=0;i<M;i+=2){
   const ix=innerBase.positions[i*3],iy=innerBase.positions[i*3+1],iz=innerBase.positions[i*3+2];
   let best=0,bestDot=-Infinity;
   for(let j=0;j<N;j++){
@@ -1422,9 +1422,9 @@ function createLines(pairs,opacity){
   object.renderOrder=2;
   return {geometry,material,object,positionAttribute,colourAttribute};
 }
-const outerLines=createLines(outerEdges,.78);
-const innerLines=createLines(innerEdges,.53);
-const spokeLines=createLines(spokes,.38);
+const outerLines=createLines(outerEdges,.52);
+const innerLines=createLines(innerEdges,.36);
+const spokeLines=createLines(spokes,.25);
 
 const tilt=new T.Group();
 tilt.add(glow,outerMesh,innerMesh,outerLines.object,innerLines.object,spokeLines.object);
@@ -1455,7 +1455,7 @@ host.addEventListener('pointerdown',e=>{const a=rel(e);window.ripple(a[0]/.74,a[
 function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
   // Keep the orb's overall footprint stable; let its surface morph instead of inflating.
   const axisX=1,axisY=1,axisZ=1;
-  const angle=time*(layer===0?.065:-.085);
+  const angle=0; // The orb itself stays still; only individual particles flow.
   const ca=Math.cos(angle),sa=Math.sin(angle);
   for(let i=0;i<count;i++){
     const at=i*3,x=points[at],y=points[at+1],z=points[at+2],seed=seeds[i],p=seed*TAU;
@@ -1474,10 +1474,10 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     let r=radius*(.96+.085*Math.tanh(shapeSignal*1.5)+activeWave)+drift*.25;
     // Each vertex also slides tangentially, independently of its neighbours.
     // The links follow these coordinates, so the whole lattice visibly writhes.
-    const move=.012+amplitude*.24;
-    const orbitA=time*(.34+seed*.48)+p*1.73;
-    const orbitB=time*(.29+seed*.57)+p*2.31;
-    const orbitC=time*(.38+seed*.39)+p*1.19;
+    const move=.010+amplitude*.20;
+    const orbitA=time*(.24+seed*.62)+p*1.73;
+    const orbitB=time*(.21+seed*.70)+p*2.31;
+    const orbitC=time*(.27+seed*.58)+p*1.19;
     // Independent 3D orbital drift: particles cross sideways, toward/away from camera,
     // and diagonally instead of merely bobbing along one axis.
     const moveX=move*(Math.sin(orbitA+y*3.2-z*1.8)+.42*Math.cos(orbitC+z*2.6));
@@ -1486,7 +1486,7 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     let xx=(x+moveX)*r*axisX;
     let yy=(y+moveY)*r*axisY;
     let zz=(z+moveZ)*r*axisZ;
-    const twist=(y*.72+x*.28)*(.12+amplitude*.65)*Math.sin(time*.13+p*.31+phase+z*.8);
+    const twist=(y*.72+x*.28)*(.09+amplitude*.42)*Math.sin(time*.10+p*.31+phase+z*.8);
     const ct=Math.cos(twist),st=Math.sin(twist);
     const tx=xx*ct-zz*st,tz=xx*st+zz*ct;
     xx=tx;zz=tz;
@@ -1556,7 +1556,7 @@ function updateLines(bundle,pairs,a,b){
   bundle.colourAttribute.needsUpdate=true;
 }
 const sm=(a,b,v)=>clamp((v-a)/(b-a),0,1);
-let speakingBlend=0,orbInfo='WebGL · 930 particles';
+let speakingBlend=0,orbInfo='WebGL · 715 particles';
 refresh();
 
 function frame(now){
@@ -1620,9 +1620,7 @@ function frame(now){
       if(idleT<=0&&state==='standby'){waveElapsed=0;idleT=10;}
     }
 
-    const swayX=py*.18,swayY=px*.25;
-    tilt.rotation.x+=(swayX-tilt.rotation.x)*.05;
-    tilt.rotation.y+=(swayY-tilt.rotation.y)*.05;
+    // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
     glow.material.opacity=Math.min(.62,cur.core*.58*(.94+.06*Math.sin(tt*.8))+
       pulseStrength*.12+chargeLevel*.12);
     glow.scale.setScalar(1.14+cur.proc*.035+chargeLevel*.15);
