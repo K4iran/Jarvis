@@ -668,16 +668,26 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
     </linearGradient>
   </defs>
 
-  <!-- Large upper arc -->
-  <path class="arcPanel"
-    d="M89.6 58.2
-       A180 180 0 0 1 310.4 58.2
-       L293.2 78.4
-       A155 155 0 0 0 106.8 78.4 Z"/>
+  <!-- Large upper arc: taller, extending down towards the ring -->
+<path class="arcPanel"
+  d="M76 75
+     A180 180 0 0 1 324 75
+     L300 108
+     A140 140 0 0 0 100 108 Z"/>
 
-  <path class="arcHighlight"
-    d="M103 56
-       A160 160 0 0 1 297 56"/>
+<path class="arcHighlight"
+  d="M91 72
+     A160 160 0 0 1 309 72"/>
+
+<!-- Curved response text -->
+<path id="arcReplyPath" fill="none"
+  d="M106 94 A140 140 0 0 1 294 94"/>
+
+<text class="arcReplyText">
+  <textPath id="arcReplyText" href="#arcReplyPath"
+    startOffset="50%" text-anchor="middle"
+    textLength="155" lengthAdjust="spacingAndGlyphs">AWAITING YOUR COMMAND</textPath>
+</text>
 
   <!-- Curved response text -->
   <path id="arcReplyPath" fill="none"
@@ -689,31 +699,31 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
       textLength="155" lengthAdjust="spacingAndGlyphs">AWAITING YOUR COMMAND</textPath>
   </text>
 
-  <!-- Left arc panel -->
-  <path class="arcPanel"
-    d="M20 200
-       A180 180 0 0 1 82 62
-       L98 82
-       A155 155 0 0 0 45 200 Z"/>
+  <!-- Left arc panel: extended towards the ring -->
+<path class="arcPanel"
+  d="M20 200
+     A180 180 0 0 1 82 30
+     L105 48
+     A155 155 0 0 0 45 200 Z"/>
 
-  <path class="arcHighlight"
-    d="M30 185 A170 170 0 0 1 76 75"/>
+<path class="arcHighlight"
+  d="M30 185 A170 170 0 0 1 77 43"/>
 
-  <polyline class="arcWave" id="wave1"
-    points="34,184 40,168 47,153 55,138 64,123 73,109 83,95 91,84"/>
+<polyline class="arcWave" id="wave1"
+  points="34,184 39,163 46,142 54,121 63,101 72,82 83,62 96,45"/>
 
-  <!-- Right arc panel -->
-  <path class="arcPanel"
-    d="M318 65
-       A180 180 0 0 1 380 200
-       L355 200
-       A155 155 0 0 0 303 84 Z"/>
+<!-- Right arc panel: extended towards the ring -->
+<path class="arcPanel"
+  d="M318 30
+     A180 180 0 0 1 380 200
+     L355 200
+     A155 155 0 0 0 295 48 Z"/>
 
-  <path class="arcHighlight"
-    d="M324 76 A170 170 0 0 1 370 185"/>
+<path class="arcHighlight"
+  d="M323 43 A170 170 0 0 1 370 185"/>
 
-  <polyline class="arcWave" id="wave3"
-    points="366,184 360,168 353,153 345,138 336,123 327,109 317,95 309,84"/>
+<polyline class="arcWave" id="wave3"
+  points="366,184 361,163 354,142 346,121 337,101 328,82 317,62 304,45"/>
 </g>
 </svg>
 
