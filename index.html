@@ -302,10 +302,15 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
     x:Math.random(),y:Math.random(),r:rand(.35,1.15),a:rand(.16,.38),
     drift:rand(.0005,.002),phase:rand(0,Math.PI*2)
   }));
-  const streams=Array.from({length:7},(_,i)=>({
-    x:rand(-.12,1.12),y:rand(.08,.92),len:rand(.18,.42),
-    bend:rand(-.12,.12),phase:rand(0,Math.PI*2),speed:rand(.018,.045),
-    alpha:rand(.10,.17), hue:i%3===0?'164,220,255':'76,169,255'
+  const streams=Array.from({length:9},(_,i)=>({
+    x:rand(-.18,1.18),y:rand(.06,.94),len:rand(.26,.62),
+    bend:rand(-.18,.18),phase:rand(0,Math.PI*2),speed:rand(.025,.065),
+    alpha:rand(.17,.29), hue:['105,91,255','64,139,255','82,211,255','151,73,255'][i%4]
+  }));
+  const vortices=Array.from({length:3},(_,i)=>({
+    x:[.14,.84,.53][i],y:[.31,.66,.12][i],
+    radius:rand(.13,.23),phase:rand(0,Math.PI*2),
+    speed:rand(.035,.075),hue:['105,74,255','45,128,255','133,75,255'][i]
   }));
   function resize(){
     w=innerWidth;h=innerHeight;dpr=Math.min(devicePixelRatio||1,1.5);
@@ -318,12 +323,13 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
     if(reduced&&last) return;
     const dt=last?Math.min((now-last)/1000,.04):0;last=now;
     ctx.clearRect(0,0,w,h);
-    // Layered deep-space nebulae: moody and visible, never brighter than the orb.
+    // Deep nebula clouds: brighter colour at the edges, with a dark central void.
     const nebulae=[
-      [0.50,0.43,0.46,'rgba(21,34,91,.23)','rgba(3,5,18,0)'],
-      [0.17,0.26,0.34,'rgba(27,24,91,.18)','rgba(2,3,12,0)'],
-      [0.83,0.69,0.38,'rgba(8,46,92,.17)','rgba(2,3,12,0)'],
-      [0.52,0.91,0.29,'rgba(37,18,73,.13)','rgba(2,3,12,0)']
+      [0.50,0.43,0.52,'rgba(24,34,112,.30)','rgba(1,2,10,0)'],
+      [0.13,0.29,0.39,'rgba(63,24,137,.26)','rgba(1,2,10,0)'],
+      [0.87,0.68,0.44,'rgba(8,66,139,.25)','rgba(1,2,10,0)'],
+      [0.50,0.91,0.35,'rgba(73,23,124,.22)','rgba(1,2,10,0)'],
+      [0.23,0.77,0.28,'rgba(13,72,132,.18)','rgba(1,2,10,0)']
     ];
     for(const n of nebulae){
       const radius=Math.max(w,h)*n[2];
@@ -333,38 +339,75 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
       haze.addColorStop(1,n[4]);
       ctx.fillStyle=haze;ctx.fillRect(0,0,w,h);
     }
-    // Faint violet dust lanes add depth without forming a visible grid.
-    for(let i=0;i<3;i++){
-      const x=w*(.18+i*.31), y=h*(.18+(i%2)*.57);
-      const dust=ctx.createRadialGradient(x,y,0,x,y,Math.max(w,h)*.22);
-      dust.addColorStop(0,'rgba(58,47,124,.075)');
-      dust.addColorStop(1,'rgba(5,6,20,0)');
-      ctx.fillStyle=dust;ctx.fillRect(0,0,w,h);
+    // Slow, cloudy plasma eddies. These live in the background layer, not on the orb waves.
+    ctx.save();
+    ctx.globalCompositeOperation='screen';
+    for(const v of vortices){
+      if(!reduced)v.phase+=dt*v.speed;
+      const cx=w*(v.x+Math.sin(v.phase*.7)*.025),cy=h*(v.y+Math.cos(v.phase*.6)*.025);
+      const radius=Math.max(w,h)*v.radius;
+      const cloud=ctx.createRadialGradient(cx,cy,0,cx,cy,radius);
+      cloud.addColorStop(0,'rgba('+v.hue+',.02)');
+      cloud.addColorStop(.34,'rgba('+v.hue+',.12)');
+      cloud.addColorStop(.72,'rgba('+v.hue+',.045)');
+      cloud.addColorStop(1,'rgba('+v.hue+',0)');
+      ctx.fillStyle=cloud;ctx.fillRect(cx-radius,cy-radius,radius*2,radius*2);
+      for(let arm=0;arm<3;arm++){
+        const phase=v.phase+arm*Math.PI*2/3;
+        ctx.beginPath();
+        for(let j=0;j<=28;j++){
+          const t=j/28,angle=phase+t*4.6;
+          const rr=radius*(.12+t*.86);
+          const x=cx+Math.cos(angle)*rr,y=cy+Math.sin(angle)*rr*.58;
+          if(j===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        }
+        ctx.lineWidth=Math.max(1.1,w*.0022);
+        ctx.strokeStyle='rgba('+v.hue+',.2)';
+        ctx.shadowColor='rgba('+v.hue+',.75)';
+        ctx.shadowBlur=Math.max(9,w*.025);
+        ctx.stroke();
+        ctx.shadowBlur=0;
+      }
     }
+    ctx.restore();
     for(const s of stars){
       if(!reduced){s.y+=s.drift*dt*22;if(s.y>1.02)s.y=-.02;s.phase+=dt*.5;}
       const alpha=s.a*(.78+.22*Math.sin(s.phase));
       ctx.beginPath();ctx.arc(s.x*w,s.y*h,s.r,0,Math.PI*2);
       ctx.fillStyle='rgba(130,205,255,'+alpha.toFixed(3)+')';ctx.fill();
     }
+    // Layered plasma ribbons: smoky glow beneath a sharper energy filament.
+    ctx.save();
+    ctx.globalCompositeOperation='screen';
     for(const p of streams){
       if(!reduced)p.phase+=dt*p.speed;
       const x=p.x*w,y=p.y*h,len=p.len*w;
-      const drift=Math.sin(p.phase)*Math.min(h*.035,22);
-      const grad=ctx.createLinearGradient(x-len*.5,y,x+len*.5,y+drift);
-      grad.addColorStop(0,'rgba('+p.hue+',0)');
-      grad.addColorStop(.45,'rgba('+p.hue+','+p.alpha.toFixed(3)+')');
-      grad.addColorStop(1,'rgba('+p.hue+',0)');
-      ctx.beginPath();
-      ctx.moveTo(x-len*.5,y);
-      ctx.bezierCurveTo(x-len*.18,y+p.bend*h+drift*.3,x+len*.18,y-p.bend*h+drift*.7,x+len*.5,y+drift);
-      ctx.strokeStyle=grad;ctx.lineWidth=.7;ctx.stroke();
-      // One small moving data point per strand, never a bright flare.
-      const t=(p.phase*.13+(p.x*.7))%1;
+      const drift=Math.sin(p.phase)*Math.min(h*.065,42);
+      const drawRibbon=(width,blur,alpha)=>{
+        const grad=ctx.createLinearGradient(x-len*.5,y,x+len*.5,y+drift);
+        grad.addColorStop(0,'rgba('+p.hue+',0)');
+        grad.addColorStop(.28,'rgba('+p.hue+','+(alpha*.55).toFixed(3)+')');
+        grad.addColorStop(.55,'rgba('+p.hue+','+alpha.toFixed(3)+')');
+        grad.addColorStop(1,'rgba('+p.hue+',0)');
+        ctx.beginPath();
+        ctx.moveTo(x-len*.5,y);
+        ctx.bezierCurveTo(x-len*.18,y+p.bend*h+drift*.3,x+len*.18,y-p.bend*h+drift*.7,x+len*.5,y+drift);
+        ctx.strokeStyle=grad;ctx.lineWidth=width;ctx.shadowColor='rgba('+p.hue+',.8)';ctx.shadowBlur=blur;ctx.stroke();
+        ctx.shadowBlur=0;
+      };
+      drawRibbon(Math.max(10,w*.035),Math.max(18,w*.055),p.alpha*.25);
+      drawRibbon(Math.max(3,w*.009),Math.max(7,w*.02),p.alpha*.8);
+      drawRibbon(Math.max(1,w*.0018),0,p.alpha*1.25);
+      // A travelling spark makes each stream feel electrically alive.
+      const t=(p.phase*.13+p.x*.7+1)%1;
       const px=x-len*.5+len*t,py=y+drift*t+Math.sin(t*Math.PI*2+p.phase)*p.bend*h*.22;
-      ctx.beginPath();ctx.arc(px,py,1.05,0,Math.PI*2);
-      ctx.fillStyle='rgba('+p.hue+','+(p.alpha*1.65).toFixed(3)+')';ctx.fill();
+      const spark=ctx.createRadialGradient(px,py,0,px,py,Math.max(7,w*.014));
+      spark.addColorStop(0,'rgba(205,229,255,.65)');
+      spark.addColorStop(.25,'rgba('+p.hue+',.38)');
+      spark.addColorStop(1,'rgba('+p.hue+',0)');
+      ctx.fillStyle=spark;ctx.beginPath();ctx.arc(px,py,Math.max(7,w*.014),0,Math.PI*2);ctx.fill();
     }
+    ctx.restore();
   }
   addEventListener('resize',resize,{passive:true});
   resize();raf=requestAnimationFrame(draw);
@@ -1171,7 +1214,7 @@ apply();renderDisp();
 
 /* ---- Living particle orb (Three.js, instanced spheres) ---- */
 (function(){try{
-const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?24000:52000,M=lo?4000:8500;
+const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?16000:36000,M=lo?2800:6000;
 const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.setClearColor(0,0);rd.debug.checkShaderErrors=true;rd.debug.onShaderError=()=>{console.error('Orb shader failed to compile');host.classList.add('nogl');orbInfo='Unavailable'};let dpr=Math.min(devicePixelRatio||1,lo?1.75:2);
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
 const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
@@ -1265,7 +1308,7 @@ vec3 c=mix(vec3(.02,.12,.42),vec3(.18,.6,1.),lit);c=mix(c,vec3(.78,.94,1.),clamp
 c=mix(c,vec3(.85,.96,1.),vBr*.35);c=mix(c,c*vec3(.35,.5,.95),vDk*.8);float ww=clamp(vW,0.0,1.0);c=mix(c,vec3(.62,.93,1.),ww*.5);c=mix(c,vec3(.92,.98,1.),smoothstep(.55,1.,ww)*vBr*.9);c*=(1.+vBr*.55)*(.32+.68*vDepth)*vTw*uGlow*uK*(1.+vE*.7+ww*1.1)*1.35;float shellAlpha = 1.0 - 0.98 * smoothstep(0.06, 0.75, uBurst);
 gl_FragColor=vec4(c,min(.9,.72+.12*vBr-.1*vDk+ww*.15)*shellAlpha);}`;
 const mat=(ps,k)=>new T.ShaderMaterial({uniforms:{...U,uR:{value:1},uPS:{value:ps},uK:{value:k}},vertexShader:VS,fragmentShader:FS,transparent:true});
-const geo=(arr,mult)=>{const g=new T.InstancedBufferGeometry(),b=new T.SphereBufferGeometry(1,lo?7:10,lo?5:7),n=arr.length,P=new Float32Array(n*3),R=new Float32Array(n*2);g.index=b.index;g.setAttribute('position',b.attributes.position);g.setAttribute('normal',b.attributes.normal);
+const geo=(arr,mult)=>{const g=new T.InstancedBufferGeometry(),b=new T.SphereBufferGeometry(1,lo?8:10,lo?6:7),n=arr.length,P=new Float32Array(n*3),R=new Float32Array(n*2);g.index=b.index;g.setAttribute('position',b.attributes.position);g.setAttribute('normal',b.attributes.normal);
 arr.forEach((v,i)=>{P.set(v,i*3);R[i*2]=mult(Math.random());R[i*2+1]=Math.random()});g.setAttribute('aPos',new T.InstancedBufferAttribute(P,3));g.setAttribute('aR',new T.InstancedBufferAttribute(R,2));g.instanceCount=n;return g};
 
 const randn=()=>{
@@ -1337,7 +1380,7 @@ return[Math.cos(a)*q*r,u*r,Math.sin(a)*q*r]
 const g1=geo(shellA,h=>h>.97?1.5:.85+.3*h),
 g2=geo(innerA,h=>.8+.4*h),
 g3=geo(innerB,h=>.8+.4*h),
-m1=mat(Math.sqrt(12.566/N)*.21,.78),
+m1=mat(Math.sqrt(12.566/N)*.15,.78),
 m2=mat(.008/1.5,.4),
 m3=mat(.006,.3);
 
