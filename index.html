@@ -86,156 +86,268 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 <div class="core" id="core"><div class="halo" id="halo"></div><canvas id="gl" aria-label="Holographic particle orb" role="img"></canvas>
 
 
-
 <svg class="ring" viewBox="0 0 400 400" aria-hidden="true">
   <defs>
-    <filter id="precisionGlow" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
+    <linearGradient id="metalRail" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D7E8F1" stop-opacity=".82"/>
+      <stop offset=".22" stop-color="#648DA8" stop-opacity=".48"/>
+      <stop offset=".52" stop-color="#244B68" stop-opacity=".72"/>
+      <stop offset=".78" stop-color="#70D9F2" stop-opacity=".58"/>
+      <stop offset="1" stop-color="#D4F5FF" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="steelPanel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#183B54" stop-opacity=".92"/>
+      <stop offset=".48" stop-color="#071A2A" stop-opacity=".96"/>
+      <stop offset="1" stop-color="#102D43" stop-opacity=".88"/>
+    </linearGradient>
+    <linearGradient id="iceEdge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#58DFFF" stop-opacity=".15"/>
+      <stop offset=".5" stop-color="#D9FAFF" stop-opacity=".92"/>
+      <stop offset="1" stop-color="#58DFFF" stop-opacity=".25"/>
+    </linearGradient>
+    <filter id="hudSoftGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+    <filter id="hudPinGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation=".65" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <mask id="hudOrbClearance" maskUnits="userSpaceOnUse"
+      x="0" y="0" width="400" height="400">
+      <rect width="400" height="400" fill="white"/>
+      <circle cx="200" cy="200" r="149" fill="black"/>
+    </mask>
   </defs>
 
-  <!-- Precision boundaries -->
-  <g fill="none" stroke="#58DFFF">
-    <circle cx="200" cy="200" r="197" stroke-opacity=".1"/>
-    <circle cx="200" cy="200" r="192" stroke-opacity=".24" stroke-dasharray="1 7"/>
-    <circle cx="200" cy="200" r="184" stroke-opacity=".15"/>
-    <circle cx="200" cy="200" r="178" stroke-opacity=".22" stroke-dasharray="16 8 2 8"/>
-    <circle cx="200" cy="200" r="168" stroke-opacity=".13" stroke-dasharray="1 5"/>
-    <circle cx="200" cy="200" r="158" stroke-opacity=".12"/>
-  </g>
+  <!-- Protected centre: all HUD marks stay in the outer annulus -->
+  <g mask="url(#hudOrbClearance)" fill="none">
 
-  <!-- Rotating calibration layers -->
-  <g class="rot ccw" style="--d:210s" fill="none" stroke="#58DFFF">
-    <circle cx="200" cy="200" r="189" pathLength="360"
-      stroke-width="1.2" stroke-dasharray="25 8 3 12 40 14 2 256"
-      stroke-opacity=".45"/>
-    <circle cx="200" cy="200" r="181" pathLength="360"
-      stroke-width=".7" stroke-dasharray="1 4 8 7 1 5"
-      stroke-opacity=".5"/>
-  </g>
+    <!-- Outer casing: dark steel, bright bevels and fine engraved edges -->
+    <g stroke="url(#metalRail)">
+      <circle cx="200" cy="200" r="197" stroke-width="1.1" opacity=".64"/>
+      <circle cx="200" cy="200" r="194" stroke-width=".5"
+        stroke-dasharray="1 3" opacity=".46"/>
+      <circle cx="200" cy="200" r="190" stroke-width="1.4"
+        stroke-dasharray="28 5 3 8 12 7 2 14" opacity=".78"/>
+      <circle cx="200" cy="200" r="186.5" stroke-width=".6" opacity=".34"/>
+      <circle cx="200" cy="200" r="183" stroke-width=".85"
+        stroke-dasharray="1 5" opacity=".66"/>
+      <circle cx="200" cy="200" r="178" stroke-width="1"
+        stroke-dasharray="17 9 4 6 2 10" opacity=".55"/>
+      <circle cx="200" cy="200" r="173.5" stroke-width=".5" opacity=".38"/>
+      <circle cx="200" cy="200" r="168" stroke-width=".8"
+        stroke-dasharray="2 7" opacity=".56"/>
+      <circle cx="200" cy="200" r="161.5" stroke-width=".7" opacity=".4"/>
+      <circle cx="200" cy="200" r="153" stroke-width=".65"
+        stroke-dasharray="1 9" opacity=".36"/>
+    </g>
 
-  <g class="rot" style="--d:165s" fill="none" stroke="#58DFFF">
-    <circle cx="200" cy="200" r="173" pathLength="360"
-      stroke-width="1.1" stroke-dasharray="14 6 3 8 24 12 2 291"
-      stroke-opacity=".4"/>
-    <circle cx="200" cy="200" r="163" pathLength="360"
-      stroke-width=".7" stroke-dasharray="1 9"
-      stroke-opacity=".4"/>
-  </g>
+    <!-- Slow independent tracking rings -->
+    <g class="rot ccw" style="--d:240s" stroke="#61CBEA">
+      <circle cx="200" cy="200" r="192" pathLength="360"
+        stroke-width="1.3" stroke-dasharray="18 9 2 13 5 313"
+        opacity=".78"/>
+      <circle cx="200" cy="200" r="180" pathLength="360"
+        stroke-width=".65" stroke-dasharray="1 4 9 8 1 6"
+        opacity=".72"/>
+    </g>
+    <g class="rot" style="--d:176s" stroke="#C5F4FF">
+      <circle cx="200" cy="200" r="185" pathLength="360"
+        stroke-width="1.1" stroke-dasharray="7 27 2 12 24 288"
+        opacity=".62"/>
+      <circle cx="200" cy="200" r="164.5" pathLength="360"
+        stroke-width=".8" stroke-dasharray="1 12 3 6"
+        opacity=".55"/>
+    </g>
+    <g class="rot ccw" style="--d:125s" stroke="#398BB6">
+      <circle cx="200" cy="200" r="174" pathLength="360"
+        stroke-width="2.5" stroke-dasharray="5 55 12 288"
+        opacity=".42"/>
+      <circle cx="200" cy="200" r="157" pathLength="360"
+        stroke-width="1" stroke-dasharray="3 22 1 8"
+        opacity=".7"/>
+    </g>
 
-  <!-- Fine radial measurements -->
-  <g fill="none" stroke="#8DEBFF" stroke-width=".8" stroke-opacity=".52">
-    <path d="
-      M200 5v13 M200 25v7 M200 39v3
-      M200 358v3 M200 369v7 M200 382v13
-      M5 200h13 M25 200h7 M39 200h3
-      M358 200h3 M369 200h7 M382 200h13
-      M62 62l9 9 M78 78l5 5
-      M322 322l-9 -9 M306 306l-5 -5
-      M62 338l9 -9 M78 322l5 -5
-      M338 62l-9 9 M322 78l-5 5"/>
-  </g>
+    <!-- Precision graduations at varied lengths and brightness -->
+    <g stroke="#8DCFE4" stroke-linecap="square">
+      <path d="
+        M200 3v11 M200 19v5 M200 29v3
+        M200 386v11 M200 376v5 M200 368v3
+        M3 200h11 M19 200h5 M29 200h3
+        M386 200h11 M376 200h5 M368 200h3"
+        stroke-width=".9" opacity=".78"/>
+      <path d="
+        M200 9v3 M200 389v3 M9 200h3 M389 200h3
+        M198 37v4 M202 37v4 M198 359v4 M202 359v4
+        M37 198h4 M37 202h4 M359 198h4 M359 202h4"
+        stroke-width=".65" opacity=".42"/>
+      <path d="
+        M62 62l8 8 M73 73l4 4 M82 82l3 3
+        M338 62l-8 8 M327 73l-4 4 M318 82l-3 3
+        M62 338l8 -8 M73 327l4 -4 M82 318l3 -3
+        M338 338l-8 -8 M327 327l-4 -4 M318 318l-3 -3"
+        stroke-width=".8" opacity=".68"/>
+    </g>
 
-  <!-- Angular geometric brackets -->
-  <g fill="none" stroke="#58DFFF" stroke-width="1.1" stroke-opacity=".55">
-    <path d="M157 18h-18l-8 8h-12v12h-12"/>
-    <path d="M243 18h18l8 8h12v12h12"/>
-    <path d="M157 382h-18l-8 -8h-12v-12h-12"/>
-    <path d="M243 382h18l8 -8h12v-12h12"/>
+    <!-- Stepped corner machinery -->
+    <g stroke="url(#metalRail)" stroke-width="1.2"
+       stroke-linejoin="bevel" opacity=".82">
+      <path d="M154 10h-18l-9 9h-16v12h-9v12h-9"/>
+      <path d="M246 10h18l9 9h16v12h9v12h9"/>
+      <path d="M154 390h-18l-9 -9h-16v-12h-9v-12h-9"/>
+      <path d="M246 390h18l9 -9h16v-12h9v-12h9"/>
+      <path d="M10 154v-18l9 -9v-16h12v-9h12v-9"/>
+      <path d="M390 154v-18l-9 -9v-16h-12v-9h-12v-9"/>
+      <path d="M10 246v18l9 9v16h12v9h12v9"/>
+      <path d="M390 246v18l-9 9v16h-12v9h-12v9"/>
+    </g>
+    <g stroke="#4E9DC4" stroke-width=".7" opacity=".62">
+      <path d="M108 17h16l8 8h10 M292 17h-16l-8 8h-10
+        M108 383h16l8 -8h10 M292 383h-16l-8 -8h-10"/>
+      <path d="M17 108v16l8 8v10 M383 108v16l-8 8v10
+        M17 292v-16l8 -8v-10 M383 292v-16l-8 -8v-10"/>
+    </g>
 
-    <path d="M18 157v-18l8 -8h12v-12h12"/>
-    <path d="M382 157v-18l-8 -8h-12v-12h-12"/>
-    <path d="M18 243v18l8 8h12v12h12"/>
-    <path d="M382 243v18l-8 8h-12v12h-12"/>
-  </g>
+    <!-- Recessed metallic corner plates -->
+    <g fill="url(#steelPanel)" stroke="url(#metalRail)"
+       stroke-width=".9">
+      <path d="M81 35h20l9 9v14H95L81 44z"/>
+      <path d="M319 35h-20l-9 9v14h15l14 -14z"/>
+      <path d="M81 365h20l9 -9v-14H95l-14 14z"/>
+      <path d="M319 365h-20l-9 -9v-14h15l14 14z"/>
+      <path d="M35 81v20l9 9h14V95L44 81z"/>
+      <path d="M365 81v20l-9 9h-14V95l14 -14z"/>
+      <path d="M35 319v-20l9 -9h14v15l-14 14z"/>
+      <path d="M365 319v-20l-9 -9h-14v15l14 14z"/>
+    </g>
+    <g stroke="#8DDFF5" stroke-width=".7" opacity=".74">
+      <path d="M87 43h12l5 5v5 M313 43h-12l-5 5v5
+        M87 357h12l5 -5v-5 M313 357h-12l-5 -5v-5"/>
+      <path d="M43 87v12l5 5h5 M357 87v12l-5 5h-5
+        M43 313v-12l5 -5h5 M357 313v-12l-5 -5h-5"/>
+    </g>
 
-  <!-- Hexagonal technical details -->
-  <g fill="none" stroke="#58DFFF" stroke-width="1"
-     stroke-opacity=".55">
-    <path d="M91 39l7 -4 7 4v8l-7 4 -7 -4z"/>
-    <path d="M295 39l7 -4 7 4v8l-7 4 -7 -4z"/>
-    <path d="M91 353l7 -4 7 4v8l-7 4 -7 -4z"/>
-    <path d="M295 353l7 -4 7 4v8l-7 4 -7 -4z"/>
+    <!-- Hexagonal technical modules -->
+    <g fill="url(#steelPanel)" stroke="#66B7D8"
+       stroke-width=".9" opacity=".9">
+      <path d="M116 48l7 -4 7 4v9l-7 4 -7 -4z"/>
+      <path d="M277 48l7 -4 7 4v9l-7 4 -7 -4z"/>
+      <path d="M116 352l7 -4 7 4v9l-7 4 -7 -4z"/>
+      <path d="M277 352l7 -4 7 4v9l-7 4 -7 -4z"/>
+      <path d="M48 116l-4 7 4 7h9l4 -7 -4 -7z"/>
+      <path d="M352 116l-4 7 4 7h9l4 -7 -4 -7z"/>
+      <path d="M48 277l-4 7 4 7h9l4 -7 -4 -7z"/>
+      <path d="M352 277l-4 7 4 7h9l4 -7 -4 -7z"/>
+    </g>
+    <g stroke="#D0F7FF" stroke-width=".7" opacity=".72">
+      <path d="M120 49l3 2 3 -2 M120 57l3 -2 3 2
+        M281 49l3 2 3 -2 M281 57l3 -2 3 2
+        M49 120l2 3 -2 3 M57 120l-2 3 2 3
+        M349 120l2 3 -2 3 M357 120l-2 3 2 3
+        M120 353l3 2 3 -2 M120 361l3 -2 3 2
+        M281 353l3 2 3 -2 M281 361l3 -2 3 2
+        M49 281l2 3 -2 3 M57 281l-2 3 2 3
+        M349 281l2 3 -2 3 M357 281l-2 3 2 3"/>
+    </g>
 
-    <path d="M36 91l4 -7 8 0 4 7 -4 7h-8z"/>
-    <path d="M348 91l4 -7 8 0 4 7 -4 7h-8z"/>
-    <path d="M36 309l4 -7 8 0 4 7 -4 7h-8z"/>
-    <path d="M348 309l4 -7 8 0 4 7 -4 7h-8z"/>
-  </g>
+    <!-- Fine circuit traces in separate radial lanes -->
+    <g stroke="#4EACCf" stroke-width=".8" opacity=".72">
+      <path d="M137 62h15l7 7h8 M263 62h-15l-7 7h-8
+        M137 338h15l7 -7h8 M263 338h-15l-7 -7h-8"/>
+      <path d="M62 137v15l7 7v8 M338 137v15l-7 7v8
+        M62 263v-15l7 -7v-8 M338 263v-15l-7 -7v-8"/>
+      <path d="M94 66h12l5 5 M306 66h-12l-5 5
+        M94 334h12l5 -5 M306 334h-12l-5 -5"/>
+      <path d="M66 94v12l5 5 M334 94v12l-5 5
+        M66 306v-12l5 -5 M334 306v-12l-5 -5"/>
+    </g>
 
-  <!-- Fine circuit traces -->
-  <g fill="none" stroke="#58DFFF" stroke-width=".9" stroke-opacity=".42">
-    <path d="M105 54h19l7 7h13 M276 54h-15l-7 7h-18"/>
-    <path d="M105 346h19l7 -7h13 M276 346h-15l-7 -7h-18"/>
-    <path d="M54 105v19l7 7v13 M346 105v19l-7 7v13"/>
-    <path d="M54 276v-15l7 -7v-18 M346 276v-15l-7 -7v-18"/>
-    <path d="M125 29h15l5 5h10 M275 29h-15l-5 5h-10"/>
-    <path d="M29 125v15l5 5v10 M371 125v15l-5 5v10"/>
-  </g>
+    <!-- Tiny junctions, selectively illuminated -->
+    <g fill="#A9F3FF" filter="url(#hudPinGlow)">
+      <circle cx="159" cy="69" r="1.3" opacity=".85"/>
+      <circle cx="241" cy="69" r=".9" opacity=".48"/>
+      <circle cx="159" cy="331" r=".9" opacity=".48"/>
+      <circle cx="241" cy="331" r="1.3" opacity=".85"/>
+      <circle cx="69" cy="159" r="1.2" opacity=".72"/>
+      <circle cx="331" cy="159" r=".85" opacity=".42"/>
+      <circle cx="69" cy="241" r=".85" opacity=".42"/>
+      <circle cx="331" cy="241" r="1.2" opacity=".72"/>
+    </g>
 
-  <!-- Directional precision markers -->
-  <g fill="none" stroke="#B8F5FF" stroke-width="1.3"
-     stroke-linecap="round">
-    <path d="M200 3v14 M195 8h10"/>
-    <path d="M397 200h-14 M392 195v10"/>
-    <path d="M200 397v-14 M195 392h10"/>
-    <path d="M3 200h14 M8 195v10"/>
-  </g>
+    <!-- Technical readouts: restrained, dark inset panels -->
+    <g fill="url(#steelPanel)" stroke="url(#metalRail)" stroke-width=".8">
+      <path d="M145 17h39l6 6v13h-45z"/>
+      <path d="M255 17h-39l-6 6v13h45z"/>
+      <path d="M145 383h39l6 -6v-13h-45z"/>
+      <path d="M255 383h-39l-6 -6v-13h45z"/>
+      <path d="M17 145v39l6 6h13v-45z"/>
+      <path d="M383 145v39l-6 6h-13v-45z"/>
+      <path d="M17 255v-39l6 -6h13v45z"/>
+      <path d="M383 255v-39l-6 -6h-13v45z"/>
+    </g>
+    <g font-family="monospace" font-size="5.2"
+       letter-spacing=".6" fill="#B8EFFF">
+      <text x="151" y="28" opacity=".92">SYS / 01</text>
+      <text x="222" y="28" opacity=".58">LINK</text>
+      <text x="151" y="375" opacity=".72">CORE / OK</text>
+      <text x="222" y="375" opacity=".9">SCAN</text>
+      <text x="28" y="164" opacity=".76"
+        transform="rotate(-90 28 164)">TELEMETRY</text>
+      <text x="372" y="236" opacity=".64"
+        transform="rotate(90 372 236)">SENSORS</text>
+    </g>
 
-  <!-- Selected illuminated edges -->
-  <g class="rot ccw" style="--d:100s"
-     fill="none" stroke="#A6F1FF"
-     stroke-linecap="round" filter="url(#precisionGlow)">
-    <circle cx="200" cy="200" r="189" pathLength="360"
-      stroke-width="1.6" stroke-dasharray="8 352"
-      stroke-opacity=".8"/>
-    <circle cx="200" cy="200" r="173" pathLength="360"
-      stroke-width="1.3" stroke-dasharray="5 355"
-      stroke-opacity=".65"/>
-  </g>
+    <!-- Diagnostic bars with varied signal strength -->
+    <g fill="#57DFFF">
+      <rect x="151" y="31" width="4" height="1.5" opacity=".38"/>
+      <rect x="157" y="31" width="8" height="1.5" opacity=".9"/>
+      <rect x="167" y="31" width="3" height="1.5" opacity=".52"/>
+      <rect x="222" y="31" width="9" height="1.5" opacity=".72"/>
+      <rect x="233" y="31" width="4" height="1.5" opacity=".28"/>
+      <rect x="239" y="31" width="6" height="1.5" opacity=".62"/>
+      <rect x="151" y="369" width="8" height="1.5" opacity=".7"/>
+      <rect x="161" y="369" width="3" height="1.5" opacity=".3"/>
+      <rect x="167" y="369" width="9" height="1.5" opacity=".82"/>
+      <rect x="222" y="369" width="4" height="1.5" opacity=".36"/>
+      <rect x="228" y="369" width="11" height="1.5" opacity=".82"/>
+    </g>
 
-  <!-- Small diagnostic readouts -->
-  <g fill="#83DFFF" font-family="monospace"
-     font-size="5.5" letter-spacing=".8" opacity=".65">
-    <text x="111" y="71">CORE / 01</text>
-    <text x="253" y="71">SYS.ACT</text>
-    <text x="111" y="333">LINK STABLE</text>
-    <text x="253" y="333">SCAN / 02</text>
-  </g>
+    <!-- Directional indexing, not connected to the orb -->
+    <g stroke="#BFEFFF" stroke-width="1.2" opacity=".8">
+      <path d="M200 5v11 M196 9h8 M395 200h-11 M391 196v8
+        M200 395v-11 M196 391h8 M5 200h11 M9 196v8"/>
+    </g>
+    <g fill="#102B40" stroke="#8DDFF5" stroke-width=".8">
+      <path d="M200 21l5 6 -5 6 -5 -6z"/>
+      <path d="M379 200l-6 5 -6 -5 6 -5z"/>
+      <path d="M200 379l5 -6 -5 -6 -5 6z"/>
+      <path d="M21 200l6 -5 6 5 -6 5z"/>
+    </g>
+    <g fill="#A7E9FA" font-family="monospace"
+       font-size="4.8" letter-spacing=".4" opacity=".72">
+      <text x="207" y="29">N / 00</text>
+      <text x="343" y="194">E / 90</text>
+      <text x="207" y="374">S / 180</text>
+      <text x="29" y="194">W / 270</text>
+    </g>
 
-  <!-- Minimal diagnostic bars -->
-  <g fill="#58DFFF" opacity=".5">
-    <rect x="111" y="76" width="14" height="1"/>
-    <rect x="127" y="76" width="5" height="1" opacity=".4"/>
-    <rect x="253" y="76" width="4" height="1"/>
-    <rect x="259" y="76" width="13" height="1" opacity=".4"/>
-    <rect x="111" y="324" width="8" height="1"/>
-    <rect x="121" y="324" width="13" height="1" opacity=".4"/>
-    <rect x="253" y="324" width="12" height="1"/>
-    <rect x="267" y="324" width="5" height="1" opacity=".4"/>
-  </g>
-
-  <!-- Tiny illuminated junctions -->
-  <g fill="#A6F1FF" filter="url(#precisionGlow)">
-    <circle cx="132" cy="61" r="1.3"/>
-    <circle cx="255" cy="61" r="1.3"/>
-    <circle cx="132" cy="339" r="1.3"/>
-    <circle cx="255" cy="339" r="1.3"/>
-    <circle cx="61" cy="132" r="1.3"/>
-    <circle cx="339" cy="132" r="1.3"/>
-    <circle cx="61" cy="255" r="1.3"/>
-    <circle cx="339" cy="255" r="1.3"/>
-  </g>
-
-  <!-- Secondary calibration marks -->
-  <g class="rot" style="--d:125s" fill="none" stroke="#58DFFF">
-    <circle cx="200" cy="200" r="151" pathLength="360"
-      stroke-width=".7" stroke-dasharray="1 11"
-      stroke-opacity=".42"/>
+    <!-- A few bright edges only: no blanket neon glow -->
+    <g class="rot ccw" style="--d:92s" stroke="#D7FAFF"
+       stroke-linecap="round" filter="url(#hudSoftGlow)">
+      <circle cx="200" cy="200" r="190" pathLength="360"
+        stroke-width="1.6" stroke-dasharray="5 355" opacity=".9"/>
+      <circle cx="200" cy="200" r="176" pathLength="360"
+        stroke-width="1.1" stroke-dasharray="3 357" opacity=".62"/>
+      <circle cx="200" cy="200" r="153" pathLength="360"
+        stroke-width=".8" stroke-dasharray="2 358" opacity=".42"/>
+    </g>
   </g>
 </svg>
 
