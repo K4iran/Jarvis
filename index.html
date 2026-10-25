@@ -10,8 +10,14 @@
   <style>
     /* Curved glass HUD panels */
 .arcHud {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
   pointer-events: none;
-  opacity: .94;
+  opacity: .98;
+  overflow: visible;
   filter: drop-shadow(0 0 3px rgba(65, 200, 255, .13));
 }
 
@@ -191,8 +197,11 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
   position:relative;
   margin:7px 0 0;
   min-height:2.8em;
-  max-width:min(92vw,520px);
-  color:#BDEFFF;
+  width:min(92vw,520px);
+  max-width:520px;
+  position:relative;
+  z-index:4;
+  color:#D8F7FF;
   font-family:Sora,"Segoe UI",sans-serif;
   font-size:14px;
   font-weight:300;
@@ -265,6 +274,28 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 <div class="core" id="core"><div class="halo" id="halo"></div><canvas id="gl" aria-label="Holographic particle orb" role="img"></canvas>
 
 
+
+<svg class="arcHud" id="arcHud" viewBox="0 0 400 400" aria-hidden="true">
+  <defs>
+    <linearGradient id="arcGlassFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B2740" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#081126" stop-opacity=".48"/>
+    </linearGradient>
+    <linearGradient id="arcGlassEdge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B9F6FF" stop-opacity=".9"/>
+      <stop offset=".55" stop-color="#58DFFF" stop-opacity=".62"/>
+      <stop offset="1" stop-color="#827DFF" stop-opacity=".68"/>
+    </linearGradient>
+  </defs>
+  <g class="arcHudPanel">
+    <path class="arcPanel" d="M56 304 H319 L337 322 V363 H74 L56 345 Z"/>
+    <path class="arcHighlight" d="M57 304 H318 L336 322"/>
+    <path d="M73 322 H112" stroke="#58DFFF" stroke-width="1.5" opacity=".9"/>
+    <text x="73" y="318" fill="#83DFFF" font-family="JetBrains Mono, monospace" font-size="7" letter-spacing="1.1">J.A.R.V.I.S. / RESPONSE</text>
+    <text id="arcReplyText" class="arcReplyText" x="73" y="341">AWAITING COMMAND</text>
+    <path class="arcWave" d="M275 339 q4 -7 8 0 t8 0 t8 0 t8 0"/>
+  </g>
+</svg>
 
 <svg class="filaments" id="filaments"
      viewBox="0 0 400 400"
@@ -1375,18 +1406,91 @@ return[Math.cos(a)*q*r,u*r,Math.sin(a)*q*r]
 }); 
 
 
-const g1=geo(shellA,h=>h>.97?1.5:.85+.3*h),
-g2=geo(innerA,h=>.8+.4*h),
-g3=geo(innerB,h=>.8+.4*h),
-m1=mat(Math.sqrt(12.566/N)*.075,.78),
-m2=mat(.0055/1.5,.34),
+// The outer shell is rendered as luminous points, not shaded sphere meshes.
+// Each point has a bright energy core and a soft radial falloff.
+const g1 = new T.BufferGeometry();
+const shellPositions = new Float32Array(shellA.length * 3);
+const shellSeeds = new Float32Array(shellA.length);
+shellA.forEach((p, i) => {
+  shellPositions.set(p, i * 3);
+  shellSeeds[i] = Math.random();
+});
+g1.setAttribute('position', new T.BufferAttribute(shellPositions, 3));
+g1.setAttribute('aSeed', new T.BufferAttribute(shellSeeds, 1));
+
+const g2=geo(innerA,h=>.8+.4*h),
+g3=geo(innerB,h=>.8+.4*h);
+
+const m1 = new T.ShaderMaterial({
+  uniforms: { ...U },
+  vertexShader: `
+    attribute float aSeed;
+    uniform float uTime, uWave, uProc, uPulseT, uPulse, uTouchT, uTouchA;
+    uniform float uBurst, uCoreExpand, uGlow;
+    uniform vec3 uWaveDir, uPulseDir, uTouchDir;
+    varying float vDepth;
+    varying float vSeed;
+    varying float vEnergy;
+
+    void main() {
+      vec3 on = normalize(position);
+      float wave = exp(-pow((dot(on, uWaveDir) - sin(uTime * 0.7) * 0.8) * 3.5, 2.0)) * uWave;
+      float pulseAngle = acos(clamp(dot(on, uPulseDir), -1.0, 1.0)) - uPulseT * 3.9;
+      float pulse = exp(-pulseAngle * pulseAngle / (pulseAngle > 0.0 ? 0.08 : 0.4)) * uPulse;
+      float touchAngle = acos(clamp(dot(on, uTouchDir), -1.0, 1.0)) - uTouchT * 1.7;
+      float touch = exp(-pow(touchAngle * 7.0, 2.0)) * uTouchA;
+      float energy = wave * 0.8 + pulse * 0.7 + touch + uProc * 0.12;
+
+      float expansion = 0.38 * uBurst + 0.25 * uCoreExpand;
+      vec3 p = position * (1.0 + expansion)
+        + on * (0.004 * sin(uTime * 0.8 + aSeed * 60.0) + energy * 0.012);
+
+      vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mvPosition;
+      gl_PointSize = (6.0 + aSeed * 4.0) * (4.2 / max(1.0, -mvPosition.z));
+
+      // In view space, the near-facing shell is closer to zero than the far side.
+      vDepth = smoothstep(-5.2, -3.1, mvPosition.z);
+      vSeed = aSeed;
+      vEnergy = clamp(energy, 0.0, 1.0);
+    }
+  `,
+  fragmentShader: `
+    varying float vDepth;
+    varying float vSeed;
+    varying float vEnergy;
+
+    void main() {
+      float d = length(gl_PointCoord - vec2(0.5));
+      if (d > 0.5) discard;
+
+      float glow = exp(-d * d * 18.0);
+      float core = exp(-d * d * 82.0);
+      float depthLight = mix(0.10, 1.0, vDepth);
+      float energyLight = 0.72 + vEnergy * 0.7 + vSeed * 0.12;
+
+      vec3 deepBlue = vec3(0.008, 0.025, 0.12);
+      vec3 electricBlue = vec3(0.08, 0.48, 1.0);
+      vec3 iceBlue = vec3(0.62, 0.91, 1.0);
+      vec3 colour = mix(deepBlue, electricBlue, smoothstep(0.02, 0.9, vDepth));
+      colour = mix(colour, iceBlue, clamp(core * (0.52 + vDepth * 0.42), 0.0, 1.0));
+
+      float alpha = (glow * 0.48 + core * 0.66) * depthLight * energyLight;
+      gl_FragColor = vec4(colour, alpha);
+    }
+  `,
+  transparent: true,
+  depthWrite: false,
+  blending: T.AdditiveBlending
+});
+
+const m2=mat(.0055/1.5,.34),
 m3=mat(.004,.25);
 
-m1.blending=T.NormalBlending;
-m1.depthWrite=false;
-
-
-const shell=new T.Mesh(g1,m1),inner=new T.Mesh(g2,m2),inner2=new T.Mesh(g3,m3);shell.frustumCulled=inner.frustumCulled=false;inner.renderOrder=0;shell.renderOrder=1;
+const shell=new T.Points(g1,m1),inner=new T.Mesh(g2,m2),inner2=new T.Mesh(g3,m3);
+shell.frustumCulled=inner.frustumCulled=false;
+inner.renderOrder=0;
+shell.renderOrder=1;
 const lp=[];for(let k=0;k<84;k++){const i=Math.random()*N|0,j=Math.min(N-1,i+1+(Math.random()*70|0));lp.push(...pts[i].map(c=>c*1.004),...pts[j].map(c=>c*1.004))}
 const lg=new T.BufferGeometry();lg.setAttribute('position',new T.Float32BufferAttribute(lp,3));
 const lines=new T.LineSegments(lg,new T.LineBasicMaterial({color:0x9fdcff,transparent:true,opacity:0,depthWrite:false}));
