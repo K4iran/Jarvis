@@ -1453,9 +1453,8 @@ host.addEventListener('pointerleave',()=>{px=py=0;});
 host.addEventListener('pointerdown',e=>{const a=rel(e);window.ripple(a[0]/.74,a[1]/.74);});
 
 function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
-  const axisX=1+amplitude*(2.35*Math.sin(time*.31+.55+phase*.2)+.38*Math.sin(time*.73+phase));
-  const axisY=1+amplitude*(2.05*Math.sin(time*.27+2.1+phase*.3)+.3*Math.cos(time*.61+phase));
-  const axisZ=1+amplitude*(2.25*Math.sin(time*.24+4.0+phase*.15)+.4*Math.sin(time*.57+phase*1.4));
+  // Keep the orb's overall footprint stable; let its surface morph instead of inflating.
+  const axisX=1,axisY=1,axisZ=1;
   const angle=time*(layer===0?.065:-.085);
   const ca=Math.cos(angle),sa=Math.sin(angle);
   for(let i=0;i<count;i++){
@@ -1464,16 +1463,18 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     const w2=Math.sin(y*3.4+z*2.1+x*.7+p*1.7-time*(.31+seed*.19));
     const w3=Math.sin(z*2.8-x*1.7+y*.9-p*.7+time*(.28+seed*.22));
     const w4=Math.sin((x+y-z)*3.2+p*2.1+time*(.2+seed*.28));
-    const lobe=Math.pow(Math.max(0,Math.sin((x*1.6-z*1.9+y*.65)*5.2+p+time*(.27+seed*.13))),6);
+    // Broad, rounded lobes create fluid silhouettes without needle points.
+    const lobe=Math.pow(Math.max(0,Math.sin((x*1.6-z*1.9+y*.65)*4.1+p+time*(.22+seed*.09))),2.4);
     const pinch=Math.sin((x*.8-y*1.6+z*.65)*2.6+time*.37+phase);
-    const spike=Math.pow(Math.max(0,Math.sin((x*2.4+y*1.7-z*2.1)*4.1+p*1.3-time*.33)),9);
+    const spike=Math.pow(Math.max(0,Math.sin((x*2.0+y*1.5-z*1.8)*3.4+p*1.3-time*.25)),3.2);
     const wave=.32*w1+.24*w2+.18*w3+.13*w4+.13*pinch;
     const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.015;
     const drift=.012*Math.sin(time*(.55+seed*.8)+p*2.3);
-    let r=radius*(1+amplitude*(wave+.95*lobe+1.35*spike)+activeWave)+drift;
+    const shapeSignal=.58*wave+.32*lobe+.10*spike;
+    let r=radius*(.96+.085*Math.tanh(shapeSignal*1.5)+activeWave)+drift*.25;
     // Each vertex also slides tangentially, independently of its neighbours.
     // The links follow these coordinates, so the whole lattice visibly writhes.
-    const move=.035+amplitude*.72;
+    const move=.012+amplitude*.24;
     const orbitA=time*(.34+seed*.48)+p*1.73;
     const orbitB=time*(.29+seed*.57)+p*2.31;
     const orbitC=time*(.38+seed*.39)+p*1.19;
@@ -1485,11 +1486,16 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     let xx=(x+moveX)*r*axisX;
     let yy=(y+moveY)*r*axisY;
     let zz=(z+moveZ)*r*axisZ;
-    const twist=(y*.72+x*.28)*(.28+amplitude*1.5)*Math.sin(time*.13+p*.31+phase+z*.8);
+    const twist=(y*.72+x*.28)*(.12+amplitude*.65)*Math.sin(time*.13+p*.31+phase+z*.8);
     const ct=Math.cos(twist),st=Math.sin(twist);
     const tx=xx*ct-zz*st,tz=xx*st+zz*ct;
     xx=tx;zz=tz;
     let ox=xx*ca+zz*sa,oz=-xx*sa+zz*ca,oy=yy;
+    // Re-normalise after 3D drift so the silhouette changes while its diameter stays stable.
+    const targetRadius=radius*(.96+.085*Math.tanh(shapeSignal*1.5)+activeWave);
+    const currentRadius=Math.max(.001,Math.sqrt(ox*ox+oy*oy+oz*oz));
+    const fixedScale=targetRadius/currentRadius;
+    ox*=fixedScale;oy*=fixedScale;oz*=fixedScale;
 
     if(waveElapsed>=0){
       const theta=Math.acos(clamp(oz/Math.max(.001,radius),-1,1));
