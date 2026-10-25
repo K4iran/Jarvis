@@ -91,6 +91,43 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
     
   
 <svg class="ring" viewBox="0 0 400 400" aria-hidden="true">
+    <!-- Translucent glass energy module -->
+<g id="glassEnergyModule" fill="none"
+   stroke-linejoin="round" stroke-linecap="round">
+  <path d="M-10 -4.5 L-6.5 -8 H6.5 L10 -4.5
+    V4.5 L6.5 8 H-6.5 L-10 4.5 Z"
+    transform="translate(0 1.4)"
+    fill="#02091A" stroke="#02091A" stroke-width="1.7"/>
+
+  <path class="glassEdge"
+    d="M-10 -4.5 L-6.5 -8 H6.5 L10 -4.5
+    V4.5 L6.5 8 H-6.5 L-10 4.5 Z"
+    fill="url(#glassInset)"
+    stroke="url(#edgeLight)" stroke-width=".75"/>
+
+  <path d="M-6 -5 H6 L7 -3.8 V3.8 L6 5 H-6 L-7 -3.8 Z"
+    fill="#0A1D35" fill-opacity=".36"
+    stroke="url(#metalRail)" stroke-width=".4"/>
+
+  <path d="M-5.5 -3.2 H-1.8 M1.5 -3.2 H5
+    M-5.5 3.2 H-2.4 M2 3.2 H5"
+    stroke="#DDFBFF" stroke-width=".38" opacity=".7"/>
+
+  <path class="energyTrace"
+    d="M-5.5 0 H-2.2 L0 -1.5 L2.2 0 H5.5"
+    stroke="#70EFFF" stroke-width=".85" opacity=".7"/>
+
+  <path d="M-3.8 -1.8 V1.8 M3.8 -1.8 V1.8"
+    stroke="#A99CFF" stroke-width=".42" opacity=".7"/>
+
+  <path d="M-8 -2.8 V2.8 M8 -2.8 V2.8"
+    stroke="#DDFBFF" stroke-width=".5" opacity=".78"/>
+
+  <circle cx="-5.5" cy="-5.3" r=".65"
+    fill="#DDFBFF" stroke="none"/>
+  <circle cx="5.5" cy="5.3" r=".65"
+    fill="#76FFE6" stroke="none"/>
+</g>
   <defs>
     <!-- Colours flow continuously from violet through blue, cyan and ice -->
     <linearGradient id="metalRail" x1="0" y1="0" x2="1" y2="1">
@@ -291,6 +328,80 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
       <circle cx="339" cy="246" r=".9" fill="#A6B8FF" opacity=".8"/>
     </g>
 
+      <!-- Glass-and-metal energy modules -->
+<g class="glassModule" fill="none">
+  <use href="#glassEnergyModule"
+       transform="translate(200 34)"/>
+  <use href="#glassEnergyModule"
+       transform="translate(317.4 82.6) rotate(45)"/>
+  <use href="#glassEnergyModule"
+       transform="translate(366 200) rotate(90)"/>
+  <use href="#glassEnergyModule"
+       transform="translate(317.4 317.4) rotate(135)"/>
+  <use href="#glassEnergyModule"
+       transform="translate(200 366) rotate(180)"/>
+  <use href="#glassEnergyModule"
+       transform="translate(82.6 317.4) rotate(225)"/>
+  <use href="#glassEnergyModule"
+       transform="translate(34 200) rotate(270)"/>
+  <use href="#glassEnergyModule"
+       transform="translate(82.6 82.6) rotate(315)"/>
+</g>
+
+<!-- Intricate etched energy traces -->
+<g class="glassTraces" fill="none"
+   stroke-linecap="round" stroke-linejoin="round">
+  <path d="M187 34h-7l-3 3h-8
+    M213 34h7l3 3h8 M200 21v5 M200 42v5"
+    stroke="#70EFFF" stroke-width=".48" opacity=".68"/>
+
+  <path d="M317 69l-5 -5h-7
+    M331 96l5 5v7 M330 70l4 -4
+    M304 95l-4 4"
+    stroke="#A99CFF" stroke-width=".45" opacity=".62"/>
+
+  <path d="M366 187v-7l-3 -3v-8
+    M366 213v7l-3 3v8
+    M379 200h-5 M358 200h-5"
+    stroke="#8DEBFF" stroke-width=".48" opacity=".7"/>
+
+  <path d="M331 304l5 -5v-7
+    M304 331l-5 5h-7
+    M330 330l4 4 M304 304l-4 -4"
+    stroke="#79FFE2" stroke-width=".45" opacity=".62"/>
+
+  <path d="M187 366h-7l-3 -3h-8
+    M213 366h7l3 -3h8
+    M200 379v-5 M200 358v-5"
+    stroke="#A99CFF" stroke-width=".48" opacity=".68"/>
+
+  <path d="M83 331l5 5h7
+    M69 304l-5 -5v-7
+    M70 330l-4 4 M96 304l4 -4"
+    stroke="#70EFFF" stroke-width=".45" opacity=".62"/>
+
+  <path d="M34 187v-7l3 -3v-8
+    M34 213v7l3 3v8
+    M21 200h5 M42 200h5"
+    stroke="#B4A4FF" stroke-width=".48" opacity=".68"/>
+
+  <path d="M69 96l-5 5v7
+    M96 69l5 -5h7
+    M70 70l-4 -4 M96 96l4 4"
+    stroke="#79FFE2" stroke-width=".45" opacity=".62"/>
+
+  <path d="M169 42l-4 4h-7
+    M231 42l4 4h7
+    M169 358l-4 -4h-7
+    M231 358l4 -4h7"
+    stroke="#DDFBFF" stroke-width=".4" opacity=".48"/>
+
+  <path d="M42 169l4 -4v-7
+    M42 231l4 4v7
+    M358 169l-4 -4v-7
+    M358 231l-4 4v7"
+    stroke="#8CBFFF" stroke-width=".4" opacity=".48"/>
+</g>
     <!-- Four subtle orientation markers -->
     <g stroke="url(#edgeLight)" stroke-width=".7" opacity=".8">
       <path d="M200 18l4 5 -4 5 -4 -5z
