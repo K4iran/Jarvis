@@ -653,6 +653,7 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
     </g>
   </g>
   <!-- CURVED GLASS HUD -->
+<g<!-- CURVED GLASS HUD -->
 <g class="arcHud">
   <defs>
     <linearGradient id="arcGlassFill" x1="0" y1="0" x2="1" y2="1">
@@ -668,30 +669,20 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
     </linearGradient>
   </defs>
 
-  <!-- Large upper arc: taller, extending down towards the ring -->
-<path class="arcPanel"
-  d="M76 75
-     A180 180 0 0 1 324 75
-     L300 108
-     A140 140 0 0 0 100 108 Z"/>
+  <!-- TOP PANEL: concentric arcs, deeper glass band -->
+  <path class="arcPanel"
+    d="M64.24 64.24
+       A192 192 0 0 1 335.76 64.24
+       L308.89 91.11
+       A154 154 0 0 0 91.11 91.11 Z"/>
 
-<path class="arcHighlight"
-  d="M91 72
-     A160 160 0 0 1 309 72"/>
+  <path class="arcHighlight"
+    d="M76.6 76.6
+       A174 174 0 0 1 323.4 76.6"/>
 
-<!-- Curved response text -->
-<path id="arcReplyPath" fill="none"
-  d="M106 94 A140 140 0 0 1 294 94"/>
-
-<text class="arcReplyText">
-  <textPath id="arcReplyText" href="#arcReplyPath"
-    startOffset="50%" text-anchor="middle"
-    textLength="155" lengthAdjust="spacingAndGlyphs">AWAITING YOUR COMMAND</textPath>
-</text>
-
-  <!-- Curved response text -->
   <path id="arcReplyPath" fill="none"
-    d="M112 62 A155 155 0 0 1 288 62"/>
+    d="M81.1 81.1
+       A168 168 0 0 1 318.9 81.1"/>
 
   <text class="arcReplyText">
     <textPath id="arcReplyText" href="#arcReplyPath"
@@ -699,31 +690,33 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
       textLength="155" lengthAdjust="spacingAndGlyphs">AWAITING YOUR COMMAND</textPath>
   </text>
 
-  <!-- Left arc panel: extended towards the ring -->
-<path class="arcPanel"
-  d="M20 200
-     A180 180 0 0 1 82 30
-     L105 48
-     A155 155 0 0 0 45 200 Z"/>
+  <!-- LEFT PANEL: follows the same circular centre -->
+  <path class="arcPanel"
+    d="M8 200
+       A192 192 0 0 1 64.24 64.24
+       L91.11 91.11
+       A154 154 0 0 0 46 200 Z"/>
 
-<path class="arcHighlight"
-  d="M30 185 A170 170 0 0 1 77 43"/>
+  <path class="arcHighlight"
+    d="M26 200
+       A174 174 0 0 1 76.97 76.97"/>
 
-<polyline class="arcWave" id="wave1"
-  points="34,184 39,163 46,142 54,121 63,101 72,82 83,62 96,45"/>
+  <polyline class="arcWave" id="wave1"
+    points="28,200 29,178 36,157 46,137 57,119 70,102 85,87"/>
 
-<!-- Right arc panel: extended towards the ring -->
-<path class="arcPanel"
-  d="M318 30
-     A180 180 0 0 1 380 200
-     L355 200
-     A155 155 0 0 0 295 48 Z"/>
+  <!-- RIGHT PANEL: mirrored to match the left -->
+  <path class="arcPanel"
+    d="M335.76 64.24
+       A192 192 0 0 1 392 200
+       L354 200
+       A154 154 0 0 0 308.89 91.11 Z"/>
 
-<path class="arcHighlight"
-  d="M323 43 A170 170 0 0 1 370 185"/>
+  <path class="arcHighlight"
+    d="M323.03 76.97
+       A174 174 0 0 1 374 200"/>
 
-<polyline class="arcWave" id="wave3"
-  points="366,184 361,163 354,142 346,121 337,101 328,82 317,62 304,45"/>
+  <polyline class="arcWave" id="wave3"
+    points="372,200 371,178 364,157 354,137 343,119 330,102 315,87"/>
 </g>
 </svg>
 
