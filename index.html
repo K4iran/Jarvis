@@ -1543,6 +1543,9 @@ refresh();
 function frame(now){
   try{
     const dt=Math.min((now-t0)/1000,.05);t0=now;
+    const targetState=ST[state],stateBlend=1-Math.exp(-dt*2.2);
+    for(const key in targetState)cur[key]+=(targetState[key]-cur[key])*stateBlend;
+    cur.flash*=Math.exp(-dt*1.6);
     if(dt>.034)slow++;else slow=Math.max(0,slow-1);
     if(slow>90&&dpr>1){dpr=Math.max(1,dpr*.85);fit();slow=0;}
     const motionAllowed=S.rm?0:1;
