@@ -244,80 +244,12 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
   </defs>
 
   <g filter="url(#filamentGlow)">
-    
-    
-<path class="filament filament-cyan" id="filament1"
-  d="M 200,15
-     C 250,10 291,39 326,65
-     C 365,94 382,139 376,187
-     C 388,235 362,284 329,319
-     C 297,359 249,379 201,369
-     C 151,383 103,357 67,324
-     C 29,292 14,244 23,198
-     C 13,151 40,103 73,67
-     C 108,31 153,11 200,15 Z"/>
-
-<path class="filament filament-blue" id="filament2"
-  d="M 200,2
-     C 255,8 299,30 335,70
-     C 371,106 392,151 385,202
-     C 393,253 365,302 329,337
-     C 292,374 245,393 195,382
-     C 145,390 96,362 60,326
-     C 23,288 5,245 14,195
-     C 7,145 34,97 71,61
-     C 107,24 152,4 200,2 Z"/>
-
-<path class="filament filament-violet" id="filament3"
-  d="M 200,31
-     C 244,23 283,49 311,76
-     C 343,105 361,145 357,190
-     C 367,231 341,271 311,302
-     C 281,333 241,356 198,349
-     C 155,359 114,333 84,304
-     C 54,274 35,235 42,194
-     C 34,151 59,111 88,81
-     C 118,51 159,28 200,31 Z"/>
-
-<path class="filament filament-cyan" id="filament4"
-  d="M 200,7
-     C 231,20 270,10 301,42
-     C 337,68 372,101 369,143
-     C 385,180 364,218 378,249
-     C 371,285 334,305 319,338
-     C 289,370 252,374 218,389
-     C 180,382 145,395 112,365
-     C 76,344 64,307 37,282
-     C 17,247 34,211 20,177
-     C 25,139 49,110 68,79
-     C 100,53 135,35 163,17
-     C 179,9 190,9 200,7 Z"/>
-
-<path class="filament filament-blue" id="filament5"
-  d="M 200,-8
-     C 241,4 280,20 308,51
-     C 341,80 374,110 371,152
-     C 385,190 371,227 356,259
-     C 341,296 308,321 280,349
-     C 247,374 212,389 175,379
-     C 135,373 99,350 70,321
-     C 41,290 17,254 23,216
-     C 12,179 20,142 39,109
-     C 58,76 87,48 119,27
-     C 145,9 174,-5 200,-8 Z"/>
-
-<path class="filament filament-violet" id="filament6"
-  d="M 200,39
-     C 238,29 271,50 297,72
-     C 328,95 351,130 353,167
-     C 362,206 345,243 321,271
-     C 299,301 267,326 232,340
-     C 195,346 160,331 131,312
-     C 100,291 67,266 59,229
-     C 45,194 58,158 69,128
-     C 90,94 119,68 149,52
-     C 168,42 186,39 200,39 Z"/>
-
+    <path class="filament filament-cyan" id="filament1" d=""/>
+    <path class="filament filament-blue" id="filament2" d=""/>
+    <path class="filament filament-violet" id="filament3" d=""/>
+    <path class="filament filament-cyan" id="filament4" d=""/>
+    <path class="filament filament-blue" id="filament5" d=""/>
+    <path class="filament filament-violet" id="filament6" d=""/>
   </g>
 </svg>
 
@@ -547,6 +479,203 @@ function stopHudWaveform() {
   });
 }
 
+// Audio-reactive filaments: use the microphone while listening and
+// JARVIS's actual playback audio while replying. The orb renderer is untouched.
+let filamentAudioContext = null;
+let filamentMicStream = null;
+let filamentMicSource = null;
+let filamentMicAnalyser = null;
+let filamentMicData = null;
+let filamentSpeechAnalyser = null;
+let filamentSpeechData = null;
+let filamentAnimationStarted = false;
+let filamentLevel = 0;
+let filamentLastFrame = 0;
+
+const filamentIds = [
+  'filament1', 'filament2', 'filament3',
+  'filament4', 'filament5', 'filament6'
+];
+const filamentRadii = [173, 184, 195, 206, 217, 228];
+const filamentWaves = [3, 4, 5, 3, 6, 4];
+const filamentPhases = [0.2, 1.3, 2.5, 3.2, 4.4, 5.4];
+const filamentSpeeds = [0.18, -0.13, 0.11, -0.2, 0.15, -0.09];
+const filamentBaseOpacity = [0.72, 0.54, 0.4, 0.66, 0.48, 0.36];
+
+function getFilamentAudioContext() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!filamentAudioContext) {
+    filamentAudioContext = new AudioContextClass();
+  }
+  return filamentAudioContext;
+}
+
+async function startFilamentMic() {
+  if (filamentMicStream || !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia) return;
+
+  let stream = null;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+
+    // If the user disabled listening while permission was pending, release it.
+    if (!wakeEnabled) {
+      stream.getTracks().forEach(track => track.stop());
+      return;
+    }
+
+    const context = getFilamentAudioContext();
+    if (!context) {
+      stream.getTracks().forEach(track => track.stop());
+      return;
+    }
+    if (context.state === 'suspended') {
+      try { await context.resume(); } catch (e) {}
+    }
+
+    const source = context.createMediaStreamSource(stream);
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.78;
+    source.connect(analyser);
+
+    filamentMicStream = stream;
+    filamentMicSource = source;
+    filamentMicAnalyser = analyser;
+    filamentMicData = new Uint8Array(analyser.fftSize);
+  } catch (error) {
+    if (stream) stream.getTracks().forEach(track => track.stop());
+    console.warn('Filament microphone analysis unavailable:', error);
+  }
+}
+
+function stopFilamentMic() {
+  if (filamentMicSource) {
+    try { filamentMicSource.disconnect(); } catch (e) {}
+  }
+  filamentMicSource = null;
+  filamentMicAnalyser = null;
+  filamentMicData = null;
+
+  if (filamentMicStream) {
+    filamentMicStream.getTracks().forEach(track => track.stop());
+  }
+  filamentMicStream = null;
+}
+
+function connectFilamentSpeech(audio) {
+  if (!audio) return;
+  try {
+    const context = getFilamentAudioContext();
+    if (!context) return;
+
+    if (!audio.__filamentAudioNodes) {
+      const source = context.createMediaElementSource(audio);
+      const analyser = context.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.76;
+      source.connect(analyser);
+      analyser.connect(context.destination);
+      audio.__filamentAudioNodes = {
+        source,
+        analyser,
+        data: new Uint8Array(analyser.fftSize)
+      };
+    }
+
+    filamentSpeechAnalyser = audio.__filamentAudioNodes.analyser;
+    filamentSpeechData = audio.__filamentAudioNodes.data;
+    if (context.state === 'suspended') {
+      context.resume().catch(() => {});
+    }
+  } catch (error) {
+    console.warn('Filament speech analysis unavailable:', error);
+  }
+}
+
+function filamentRms(analyser, data) {
+  if (!analyser || !data) return 0;
+  analyser.getByteTimeDomainData(data);
+  let sum = 0;
+  for (let i = 0; i < data.length; i++) {
+    const sample = (data[i] - 128) / 128;
+    sum += sample * sample;
+  }
+  return Math.sqrt(sum / data.length);
+}
+
+function drawFilamentFrame(now) {
+  requestAnimationFrame(drawFilamentFrame);
+  filamentLastFrame = now;
+
+  let rms = 0;
+  if (jarvisSpeaking && filamentSpeechAnalyser) {
+    rms = filamentRms(filamentSpeechAnalyser, filamentSpeechData);
+  } else if (wakeEnabled && filamentMicAnalyser) {
+    rms = filamentRms(filamentMicAnalyser, filamentMicData);
+  }
+
+  const target = Math.max(0, Math.min(1, (rms - 0.009) * 13));
+  filamentLevel += (target - filamentLevel) *
+    (target > filamentLevel ? 0.28 : 0.095);
+
+  const time = now / 1000;
+  const amplitude = 2.2 + filamentLevel * 18;
+  const detailAmplitude = 1.2 + filamentLevel * 5;
+
+  filamentIds.forEach((id, layer) => {
+    const path = document.getElementById(id);
+    if (!path) return;
+
+    const points = [];
+    const count = 180;
+    for (let i = 0; i <= count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const drift = angle + time * filamentSpeeds[layer];
+      const wave = Math.sin(
+        angle * filamentWaves[layer] + time * (0.8 + layer * 0.06)
+        + filamentPhases[layer]
+      );
+      const detail = Math.sin(
+        angle * (filamentWaves[layer] + 2) - time * 0.63
+        + filamentPhases[layer] * 1.7
+      );
+      const ripple = Math.sin(angle * 7 + time * 0.42 + layer) *
+        filamentLevel * 2.2;
+      const radius = filamentRadii[layer] +
+        wave * amplitude + detail * detailAmplitude + ripple;
+      const x = 200 + Math.cos(drift) * radius;
+      const y = 200 + Math.sin(drift) * radius;
+      points.push((i === 0 ? 'M ' : 'L ') +
+        x.toFixed(2) + ' ' + y.toFixed(2));
+    }
+
+    path.setAttribute('d', points.join(' ') + ' Z');
+    path.style.opacity = Math.min(
+      1, filamentBaseOpacity[layer] + filamentLevel * 0.28
+    ).toFixed(3);
+    path.style.strokeWidth = (
+      (layer % 3 === 0 ? 1.05 : layer % 3 === 1 ? 0.8 : 0.7)
+      + filamentLevel * 0.9
+    ).toFixed(2);
+  });
+}
+
+function startFilamentAnimation() {
+  if (filamentAnimationStarted) return;
+  filamentAnimationStarted = true;
+  requestAnimationFrame(drawFilamentFrame);
+}
+
+startFilamentAnimation();
+
 async function speakReply(text) {
   let audioUrl = null;
 
@@ -593,6 +722,7 @@ async function speakReply(text) {
     }
 
     jarvisAudio = new Audio(audioUrl);
+    connectFilamentSpeech(jarvisAudio);
 
     // The burst promise resolves when the explosion ends and reformation begins.
     await burst();
@@ -673,6 +803,7 @@ const clearT=()=>{timers.forEach(clearTimeout);timers=[];busy=false};
 function stopWake(){
   wakeEnabled=false;
   wakeArmed=false;
+  stopFilamentMic();
   if(recognition){
     recognition.onend=null;
     recognition.onresult=null;
@@ -704,6 +835,7 @@ $('#mic').onclick=()=>{
   recognition.maxAlternatives=1;
   wakeEnabled=true;
   wakeArmed=false;
+  startFilamentMic();
 
   
 recognition.onstart=()=>{
