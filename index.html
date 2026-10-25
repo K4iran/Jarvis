@@ -326,8 +326,6 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
     <path class="filament filament-blue" id="filament2" d=""/>
     <path class="filament filament-violet" id="filament3" d=""/>
     <path class="filament filament-cyan" id="filament4" d=""/>
-    <path class="filament filament-blue" id="filament5" d=""/>
-    <path class="filament filament-violet" id="filament6" d=""/>
   </g>
 </svg>
 
@@ -661,14 +659,13 @@ let filamentLevel = 0;
 let filamentLastFrame = 0;
 
 const filamentIds = [
-  'filament1', 'filament2', 'filament3',
-  'filament4', 'filament5', 'filament6'
+  'filament1', 'filament2', 'filament3', 'filament4'
 ];
-const filamentRadii = [158, 169, 180, 191, 202, 213];
-const filamentWaves = [3, 4, 5, 3, 6, 4];
-const filamentPhases = [0.2, 1.3, 2.5, 3.2, 4.4, 5.4];
-const filamentSpeeds = [0.18, -0.13, 0.11, -0.2, 0.15, -0.09];
-const filamentBaseOpacity = [0.72, 0.54, 0.4, 0.66, 0.48, 0.36];
+const filamentRadii = [158, 176, 194, 212];
+const filamentWaves = [3, 5, 4, 6];
+const filamentPhases = [0.2, 2.5, 4.4, 5.4];
+const filamentSpeeds = [0.18, 0.11, 0.15, -0.09];
+const filamentBaseOpacity = [0.72, 0.4, 0.48, 0.36];
 
 function getFilamentAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -1456,23 +1453,30 @@ host.addEventListener('pointerleave',()=>{px=py=0;});
 host.addEventListener('pointerdown',e=>{const a=rel(e);window.ripple(a[0]/.74,a[1]/.74);});
 
 function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
-  const axisX=1+amplitude*1.65*Math.sin(time*.19+.55+phase*.2);
-  const axisY=1+amplitude*1.25*Math.sin(time*.16+2.1+phase*.3);
-  const axisZ=1+amplitude*1.55*Math.sin(time*.18+4.0+phase*.15);
-  const angle=time*(layer===0?.105:-.145);
+  const axisX=1+amplitude*(2.35*Math.sin(time*.31+.55+phase*.2)+.38*Math.sin(time*.73+phase));
+  const axisY=1+amplitude*(2.05*Math.sin(time*.27+2.1+phase*.3)+.3*Math.cos(time*.61+phase));
+  const axisZ=1+amplitude*(2.25*Math.sin(time*.24+4.0+phase*.15)+.4*Math.sin(time*.57+phase*1.4));
+  const angle=time*(layer===0?.19:-.245);
   const ca=Math.cos(angle),sa=Math.sin(angle);
   for(let i=0;i<count;i++){
     const at=i*3,x=points[at],y=points[at+1],z=points[at+2],seed=seeds[i],p=seed*TAU;
-    const w1=Math.sin(x*3.1+y*1.8-z*1.2+p+time*.23);
-    const w2=Math.sin(y*3.4+z*2.1+x*.7+p*1.7-time*.19);
-    const w3=Math.sin(z*2.8-x*1.7+y*.9-p*.7+time*.15);
-    const w4=Math.sin((x+y-z)*3.2+p*2.1+time*.11);
-    const lobe=Math.pow(Math.max(0,Math.sin((x*1.6-z*1.9+y*.65)*5.2+p+time*.16)),6);
-    const wave=.39*w1+.27*w2+.19*w3+.15*w4;
+    const w1=Math.sin(x*3.1+y*1.8-z*1.2+p+time*(.42+seed*.24));
+    const w2=Math.sin(y*3.4+z*2.1+x*.7+p*1.7-time*(.31+seed*.19));
+    const w3=Math.sin(z*2.8-x*1.7+y*.9-p*.7+time*(.28+seed*.22));
+    const w4=Math.sin((x+y-z)*3.2+p*2.1+time*(.2+seed*.28));
+    const lobe=Math.pow(Math.max(0,Math.sin((x*1.6-z*1.9+y*.65)*5.2+p+time*(.27+seed*.13))),6);
+    const pinch=Math.sin((x*.8-y*1.6+z*.65)*2.6+time*.37+phase);
+    const spike=Math.pow(Math.max(0,Math.sin((x*2.4+y*1.7-z*2.1)*4.1+p*1.3-time*.33)),9);
+    const wave=.32*w1+.24*w2+.18*w3+.13*w4+.13*pinch;
     const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.015;
-    const drift=.0048*Math.sin(time*.42+p*2.3)*(1+amplitude*15);
-    let r=radius*(1+amplitude*(wave+.7*lobe)+activeWave)+drift;
-    let xx=x*r*axisX,yy=y*r*axisY,zz=z*r*axisZ;
+    const drift=.012*Math.sin(time*(.55+seed*.8)+p*2.3);
+    let r=radius*(1+amplitude*(wave+.95*lobe+1.35*spike)+activeWave)+drift;
+    // Each vertex also slides tangentially, independently of its neighbours.
+    // The links follow these coordinates, so the whole lattice visibly writhes.
+    const move=.012+amplitude*.24;
+    let xx=(x+move*Math.sin(time*(.48+seed*.4)+p*2.1+y*2.4))*r*axisX;
+    let yy=(y+move*Math.sin(time*(.41+seed*.5)+p*1.7+z*2.1))*r*axisY;
+    let zz=(z+move*Math.cos(time*(.45+seed*.45)+p*1.9+x*2.2))*r*axisZ;
     const twist=y*(.12+amplitude*.95)*Math.sin(time*.17+p*.18+phase);
     const ct=Math.cos(twist),st=Math.sin(twist);
     const tx=xx*ct-zz*st,tz=xx*st+zz*ct;
@@ -1557,7 +1561,7 @@ function frame(now){
     const voiceEnvelope=state==='responding'
       ? .40+.60*(.5+.5*Math.sin(tt*3.1)*Math.sin(tt*1.17+.4))
       : state==='processing'?.48:state==='listening'?.18:0;
-    const amplitude=.027+.092*speakingBlend*voiceEnvelope;
+    const amplitude=.095+.12*speakingBlend*voiceEnvelope;
 
     if(burstPhase!=='idle'){
       burstElapsed+=dt;
