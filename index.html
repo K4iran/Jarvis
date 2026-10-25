@@ -1212,7 +1212,7 @@ apply();renderDisp();
 
 /* ---- Living particle orb (Three.js, instanced spheres) ---- */
 (function(){try{
-const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?16000:36000,M=lo?2800:6000;
+const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?5000:8000,M=lo?900:1400;
 const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.setClearColor(0,0);rd.debug.checkShaderErrors=true;rd.debug.onShaderError=()=>{console.error('Orb shader failed to compile');host.classList.add('nogl');orbInfo='Unavailable'};let dpr=Math.min(devicePixelRatio||1,lo?1.75:2);
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
 const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
@@ -1306,7 +1306,7 @@ vec3 c=mix(vec3(.02,.12,.42),vec3(.18,.6,1.),lit);c=mix(c,vec3(.78,.94,1.),clamp
 c=mix(c,vec3(.85,.96,1.),vBr*.35);c=mix(c,c*vec3(.35,.5,.95),vDk*.8);float ww=clamp(vW,0.0,1.0);c=mix(c,vec3(.62,.93,1.),ww*.5);c=mix(c,vec3(.92,.98,1.),smoothstep(.55,1.,ww)*vBr*.9);c*=(1.+vBr*.55)*(.32+.68*vDepth)*vTw*uGlow*uK*(1.+vE*.7+ww*1.1)*1.35;float shellAlpha = 1.0 - 0.98 * smoothstep(0.06, 0.75, uBurst);
 gl_FragColor=vec4(c,min(.9,.72+.12*vBr-.1*vDk+ww*.15)*shellAlpha);}`;
 const mat=(ps,k)=>new T.ShaderMaterial({uniforms:{...U,uR:{value:1},uPS:{value:ps},uK:{value:k}},vertexShader:VS,fragmentShader:FS,transparent:true});
-const geo=(arr,mult)=>{const g=new T.InstancedBufferGeometry(),b=new T.SphereBufferGeometry(1,lo?8:10,lo?6:7),n=arr.length,P=new Float32Array(n*3),R=new Float32Array(n*2);g.index=b.index;g.setAttribute('position',b.attributes.position);g.setAttribute('normal',b.attributes.normal);
+const geo=(arr,mult)=>{const g=new T.InstancedBufferGeometry(),b=new T.SphereBufferGeometry(1,lo?10:12,lo?8:10),n=arr.length,P=new Float32Array(n*3),R=new Float32Array(n*2);g.index=b.index;g.setAttribute('position',b.attributes.position);g.setAttribute('normal',b.attributes.normal);
 arr.forEach((v,i)=>{P.set(v,i*3);R[i*2]=mult(Math.random());R[i*2+1]=Math.random()});g.setAttribute('aPos',new T.InstancedBufferAttribute(P,3));g.setAttribute('aR',new T.InstancedBufferAttribute(R,2));g.instanceCount=n;return g};
 
 const randn=()=>{
@@ -1342,7 +1342,7 @@ const pts=[];
 for(let i=0;i<N;i++){
   let p;
 
-  if(Math.random()<0.72){
+  if(Math.random()<0.28){
     const c=centres[Math.random()*centres.length|0];
     const ref=Math.abs(c.y)<0.85
       ? new T.Vector3(0,1,0)
@@ -1378,16 +1378,16 @@ return[Math.cos(a)*q*r,u*r,Math.sin(a)*q*r]
 const g1=geo(shellA,h=>h>.97?1.5:.85+.3*h),
 g2=geo(innerA,h=>.8+.4*h),
 g3=geo(innerB,h=>.8+.4*h),
-m1=mat(Math.sqrt(12.566/N)*.15,.78),
-m2=mat(.008/1.5,.4),
-m3=mat(.006,.3);
+m1=mat(Math.sqrt(12.566/N)*.075,.78),
+m2=mat(.0055/1.5,.34),
+m3=mat(.004,.25);
 
-m1.blending=T.AdditiveBlending;
+m1.blending=T.NormalBlending;
 m1.depthWrite=false;
 
 
 const shell=new T.Mesh(g1,m1),inner=new T.Mesh(g2,m2),inner2=new T.Mesh(g3,m3);shell.frustumCulled=inner.frustumCulled=false;inner.renderOrder=0;shell.renderOrder=1;
-const lp=[];for(let k=0;k<180;k++){const i=Math.random()*N|0,j=Math.min(N-1,i+1+(Math.random()*70|0));lp.push(...pts[i].map(c=>c*1.004),...pts[j].map(c=>c*1.004))}
+const lp=[];for(let k=0;k<84;k++){const i=Math.random()*N|0,j=Math.min(N-1,i+1+(Math.random()*70|0));lp.push(...pts[i].map(c=>c*1.004),...pts[j].map(c=>c*1.004))}
 const lg=new T.BufferGeometry();lg.setAttribute('position',new T.Float32BufferAttribute(lp,3));
 const lines=new T.LineSegments(lg,new T.LineBasicMaterial({color:0x9fdcff,transparent:true,opacity:0,depthWrite:false}));
 
@@ -1669,7 +1669,7 @@ disassemblyPoints.frustumCulled = false;
 
 
 const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(150,215,255,.9)');gr.addColorStop(.4,'rgba(39,141,255,.35)');gr.addColorStop(1,'rgba(39,141,255,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
-const glow=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),blending:T.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.setScalar(1.7);glow.renderOrder=2;lines.renderOrder=3;
+const glow=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),blending:T.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.setScalar(1.15);glow.renderOrder=2;lines.renderOrder=3;
 // Two localised breaches in the orb's outer energy barrier.
 const breachGeometry = new T.BufferGeometry();
 const breachPositions = [];
@@ -1915,7 +1915,7 @@ energyNodeMaterials.forEach(({ material, opacity }, i) => {
   material.opacity = opacity * networkFade * pulse;
 });
 
-energyFogMaterial.opacity = (0.14 + 0.035 * Math.sin(tt * 1.7)) * networkFade;
+energyFogMaterial.opacity = (0.07 + 0.02 * Math.sin(tt * 1.7)) * networkFade;
 energyFog.rotation.y += dt * 0.08 * mo;
 energyFog.rotation.x += dt * 0.025 * mo;
 
@@ -2016,8 +2016,8 @@ if(coreWavePhase>=0){
 if(pt<1.15){pt+=dt/3.2*mo;U.uPulseT.value=pt;U.uPulse.value=pa*Math.min(1,pt*6)*Math.min(1,(1.15-pt)*3)}else U.uPulse.value=0;
 if(tp<1.3){tp+=dt/1.1;U.uTouchT.value=tp;U.uTouchA.value=.9*Math.min(1,(1.3-tp)*3)}else U.uTouchA.value=0;
 tilt.rotation.x+=(py*.18-tilt.rotation.x)*.05;tilt.rotation.y+=(px*.25-tilt.rotation.y)*.05;U.uLight.value.set(-.45+px*.25,.55-py*.2,.7).normalize();
-glow.material.opacity=Math.min(1,cur.core*1.2*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.3+cur.flash*.15+chargeLevel*.3+U.uCoreWaveStrength.value*.4);
-glow.scale.setScalar(1.8+cur.proc*.12+U.uPulse.value*.28+cur.flash*.2+chargeLevel*.35+U.uCoreWaveStrength.value*.3);
+glow.material.opacity=Math.min(.58,cur.core*.62*(.9+.1*Math.sin(tt*.8))+U.uPulse.value*.22+cur.flash*.1+chargeLevel*.2+U.uCoreWaveStrength.value*.25);
+glow.scale.setScalar(1.18+cur.proc*.08+U.uPulse.value*.18+cur.flash*.12+chargeLevel*.25+U.uCoreWaveStrength.value*.22);
                     
 flowGroup.rotation.y+=dt*(.12+cur.proc*.24)*cur.rate*mo;
 flowGroup.rotation.x+=dt*(.035+cur.proc*.08)*cur.rate*mo;
@@ -2025,7 +2025,7 @@ flowGroup.children.forEach(s=>{
 s.material.opacity=.07+cur.proc*.13+U.uPulse.value*.18+cur.flash*.08;
 });
 
-lines.material.opacity=.07+.18*Math.pow(Math.max(0,Math.sin(tt*.31)),10)+.4*U.uPulse.value;
+lines.material.opacity=.018+.075*Math.pow(Math.max(0,Math.sin(tt*.31)),10)+.22*U.uPulse.value;
 host.style.setProperty('--h2',(cur.halo+cur.flash*.25+U.uPulse.value*.15).toFixed(3));rd.render(sc,cam);host.classList.add('orb-ready');requestAnimationFrame(frame)}catch(err){console.error('Orb animation failed:',err);host.classList.add('nogl');orbInfo='Unavailable'}}
 requestAnimationFrame(frame);
 
