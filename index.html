@@ -1243,7 +1243,7 @@ apply();renderDisp();
 
 /* ---- Living particle orb (Three.js, instanced spheres) ---- */
 (function(){try{
-const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?5000:8000,M=lo?900:1400;
+const T=THREE,host=$('#core'),lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4,N=lo?850:1400,M=lo?320:480;
 const rd=new T.WebGLRenderer({canvas:$('#gl'),alpha:true,antialias:true});rd.setClearColor(0,0);rd.debug.checkShaderErrors=true;rd.debug.onShaderError=()=>{console.error('Orb shader failed to compile');host.classList.add('nogl');orbInfo='Unavailable'};let dpr=Math.min(devicePixelRatio||1,lo?1.75:2);
 const sc=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.1,50);cam.position.z=4.2;
 const fit=()=>{rd.setPixelRatio(dpr);rd.setSize(host.clientWidth||300,host.clientWidth||300,false)};new ResizeObserver(fit).observe(host);fit();
@@ -1447,7 +1447,7 @@ const m1 = new T.ShaderMaterial({
 
       vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
       gl_Position = projectionMatrix * mvPosition;
-      gl_PointSize = (6.0 + aSeed * 4.0) * (4.2 / max(1.0, -mvPosition.z));
+      gl_PointSize = (3.2 + aSeed * 1.8) * (4.2 / max(1.0, -mvPosition.z));
 
       // In view space, the near-facing shell is closer to zero than the far side.
       vDepth = smoothstep(-5.2, -3.1, mvPosition.z);
@@ -1464,8 +1464,8 @@ const m1 = new T.ShaderMaterial({
       float d = length(gl_PointCoord - vec2(0.5));
       if (d > 0.5) discard;
 
-      float glow = exp(-d * d * 18.0);
-      float core = exp(-d * d * 82.0);
+      float glow = exp(-d * d * 34.0);
+      float core = exp(-d * d * 190.0);
       float depthLight = mix(0.10, 1.0, vDepth);
       float energyLight = 0.72 + vEnergy * 0.7 + vSeed * 0.12;
 
@@ -1475,7 +1475,7 @@ const m1 = new T.ShaderMaterial({
       vec3 colour = mix(deepBlue, electricBlue, smoothstep(0.02, 0.9, vDepth));
       colour = mix(colour, iceBlue, clamp(core * (0.52 + vDepth * 0.42), 0.0, 1.0));
 
-      float alpha = (glow * 0.48 + core * 0.66) * depthLight * energyLight;
+      float alpha = (glow * 0.13 + core * 0.92) * depthLight * energyLight;
       gl_FragColor = vec4(colour, alpha);
     }
   `,
@@ -1603,8 +1603,8 @@ for (let k = 0; k < 18; k++) {
 
   addEnergyPath(
     points,
-    k % 3 === 0 ? 0x6978ff : 0x9ba8ff,
-    0.12
+    k % 3 === 0 ? 0x279cff : 0x82eaff,
+    0.34
   );
 
   // Branches curve away from selected points on the main paths.
@@ -1623,8 +1623,8 @@ for (let k = 0; k < 18; k++) {
 
     addEnergyPath(
       [branchStart, branchMid, branchEnd],
-      0x5964d9,
-      0.09
+      0x3cbbff,
+      0.22
     );
   }
 }
@@ -1989,11 +1989,13 @@ const networkTarget =
   burstPhase === 'explode' ? 1 :
   burstPhase === 'reform' ? 1 : 0;
 
-const networkFade = burstPhase === 'reform'
+const burstNetworkFade = burstPhase === 'reform'
   ? Math.max(0, 1 - burstElapsed / REFORM_TIME)
   : networkTarget;
+// Plasma remains gently visible in standby, then intensifies during speech/bursts.
+const networkFade = Math.max(0.32, burstNetworkFade);
 
-energyGroup.visible = networkFade > 0.005;
+energyGroup.visible = true;
 
 const expansionScale =
   burstPhase === 'charge'
@@ -2002,7 +2004,7 @@ const expansionScale =
       ? 0.65 + 0.35 * Math.min(1, burstElapsed / BURST_OUT)
       : burstPhase === 'reform'
         ? 1
-        : 0.001;
+        : 1;
 
 
 energyGroup.scale.setScalar(expansionScale);
@@ -2011,19 +2013,19 @@ energyGroup.rotation.x += dt * 0.035 * mo;
 
 energyMaterials.forEach(({ material, opacity }, i) => {
   const pulse = 0.75 + 0.25 * Math.sin(tt * 2.2 + i * 1.7);
-  material.opacity = opacity * networkFade * pulse;
+  material.opacity = opacity * (0.24 + burstNetworkFade * 0.76) * pulse;
 });
 
 energyNodeMaterials.forEach(({ material, opacity }, i) => {
   const pulse = 0.65 + 0.35 * Math.sin(tt * 3 + i * 2.1);
-  material.opacity = opacity * networkFade * pulse;
+  material.opacity = opacity * (0.24 + burstNetworkFade * 0.76) * pulse;
 });
 
-energyFogMaterial.opacity = (0.07 + 0.02 * Math.sin(tt * 1.7)) * networkFade;
+energyFogMaterial.opacity = 0; // Keep the plasma crisp; no smoky particle haze.
 energyFog.rotation.y += dt * 0.08 * mo;
 energyFog.rotation.x += dt * 0.025 * mo;
 
-driftMaterial.opacity = 0.55 * networkFade;
+driftMaterial.opacity = 0.34 + 0.21 * burstNetworkFade;
 driftParticles.rotation.y -= dt * 0.035 * mo;
 
 tt+=dt*mo;U.uTime.value=tt;U.uGlow.value=cur.glow+cur.flash*.35+chargeLevel*.65;
