@@ -1524,23 +1524,25 @@ const energyFogPositions = [];
 
 function addEnergyPath(points, color, opacity, width = 1) {
   const curve = new T.CatmullRomCurve3(points);
-  const sampled = curve.getPoints(64);
-  const geometry = new T.BufferGeometry().setFromPoints(sampled);
-  const material = new T.LineBasicMaterial({
+  const sampled = curve.getPoints(80);
+
+  // A narrow tube gives the plasma a real, crisp body instead of a 1px line.
+  const geometry = new T.TubeGeometry(curve, 80, width > 1 ? 0.012 : 0.009, 5, false);
+  const material = new T.MeshBasicMaterial({
     color,
     transparent: true,
     opacity: 0,
     depthWrite: false,
     blending: T.AdditiveBlending
   });
-  const line = new T.Line(geometry, material);
-  line.renderOrder = 3;
-  energyGroup.add(line);
+  const strand = new T.Mesh(geometry, material);
+  strand.renderOrder = 3;
+  energyGroup.add(strand);
   energyMaterials.push({ material, opacity });
 
-  // Tiny luminous nodes follow the curved path.
+  // A few sharp light-points sit directly on the plasma strand.
   const nodePositions = [];
-  for (let i = 0; i < sampled.length; i += 4) {
+  for (let i = 0; i < sampled.length; i += 10) {
     nodePositions.push(sampled[i].x, sampled[i].y, sampled[i].z);
   }
 
@@ -1549,50 +1551,35 @@ function addEnergyPath(points, color, opacity, width = 1) {
     'position',
     new T.Float32BufferAttribute(nodePositions, 3)
   );
-
   const nodeMaterial = new T.PointsMaterial({
-    color: 0x9feaff,
-    size: 0.025,
+    color: 0xc5f4ff,
+    size: 0.014,
     transparent: true,
     opacity: 0,
     depthWrite: false,
     blending: T.AdditiveBlending,
     sizeAttenuation: true
   });
-
   const nodes = new T.Points(nodeGeometry, nodeMaterial);
   nodes.renderOrder = 4;
   energyGroup.add(nodes);
   energyNodeMaterials.push({ material: nodeMaterial, opacity });
-
-  // Smoky dark-energy volume around the strand, so it reads as a turbulent wisp.
-  for (let i = 0; i < sampled.length; i += 2) {
-    const p = sampled[i];
-    for (let layer = 0; layer < 2; layer++) {
-      const spread = 0.025 + Math.random() * 0.075;
-      energyFogPositions.push(
-        p.x + (Math.random() - 0.5) * spread * 2,
-        p.y + (Math.random() - 0.5) * spread * 2,
-        p.z + (Math.random() - 0.5) * spread * 2
-      );
-    }
-  }
 }
 
-// Interconnected curved paths arranged around a larger 3D volume.
-for (let k = 0; k < 18; k++) {
+// Flowing plasma strands weave THROUGH the orb instead of circling outside it.
+for (let k = 0; k < 12; k++) {
   const points = [];
   const angle = Math.random() * Math.PI * 2;
-  const height = -0.9 + Math.random() * 1.8;
-  const radius = 1.05 + Math.random() * 0.38;
-  const waves = 1 + Math.floor(Math.random() * 3);
+  const height = -0.48 + Math.random() * 0.96;
+  const radius = 0.48 + Math.random() * 0.28;
+  const waves = 1 + Math.floor(Math.random() * 2);
   const phase = Math.random() * Math.PI * 2;
 
-  for (let j = 0; j <= 12; j++) {
-    const t = j / 12;
-    const a = angle + t * Math.PI * (1.1 + waves * 0.55);
-    const r = radius + Math.sin(t * Math.PI * 2 + phase) * 0.12;
-    const y = height + Math.sin(t * Math.PI * 2 + phase) * 0.2;
+  for (let j = 0; j <= 24; j++) {
+    const t = j / 24;
+    const a = angle + t * Math.PI * (1.6 + waves * 0.35);
+    const r = radius + Math.sin(t * Math.PI * 2 + phase) * 0.075;
+    const y = height + Math.sin(t * Math.PI * 2 + phase) * 0.11;
 
     points.push(new T.Vector3(
       Math.cos(a) * r,
@@ -1604,27 +1591,29 @@ for (let k = 0; k < 18; k++) {
   addEnergyPath(
     points,
     k % 3 === 0 ? 0x279cff : 0x82eaff,
-    0.34
+    0.52,
+    k % 3 === 0 ? 1.3 : 1
   );
 
-  // Branches curve away from selected points on the main paths.
-  if (k % 2 === 0) {
-    const branchStart = points[5].clone();
+  // Shorter side-streams branch into the main currents, staying inside the sphere.
+  if (k % 3 === 0) {
+    const branchStart = points[9].clone();
     const branchMid = branchStart.clone().add(new T.Vector3(
-      (Math.random() - 0.5) * 0.65,
-      (Math.random() - 0.5) * 0.65,
-      (Math.random() - 0.5) * 0.65
+      (Math.random() - 0.5) * 0.22,
+      (Math.random() - 0.5) * 0.22,
+      (Math.random() - 0.5) * 0.22
     ));
-    const branchEnd = points[8].clone().add(new T.Vector3(
-      (Math.random() - 0.5) * 0.5,
-      (Math.random() - 0.5) * 0.5,
-      (Math.random() - 0.5) * 0.5
+    const branchEnd = points[15].clone().add(new T.Vector3(
+      (Math.random() - 0.5) * 0.18,
+      (Math.random() - 0.5) * 0.18,
+      (Math.random() - 0.5) * 0.18
     ));
 
     addEnergyPath(
       [branchStart, branchMid, branchEnd],
       0x3cbbff,
-      0.22
+      0.38,
+      1
     );
   }
 }
@@ -1651,7 +1640,7 @@ energyGroup.add(energyFog);
 
 // Independent drifting specks, created once and animated in the main loop.
 const driftPositions = [];
-for (let i = 0; i < 400; i++) {
+for (let i = 0; i < 90; i++) {
   const a = Math.random() * Math.PI * 2;
   const z = Math.random() * 2 - 1;
   const ring = Math.sqrt(1 - z * z);
@@ -1672,7 +1661,7 @@ driftGeometry.setAttribute(
 
 const driftMaterial = new T.PointsMaterial({
   color: 0x75dfff,
-  size: 0.035,
+  size: 0.018,
   transparent: true,
   opacity: 0,
   depthWrite: false,
@@ -2012,13 +2001,13 @@ energyGroup.rotation.y += dt * 0.12 * mo;
 energyGroup.rotation.x += dt * 0.035 * mo;
 
 energyMaterials.forEach(({ material, opacity }, i) => {
-  const pulse = 0.75 + 0.25 * Math.sin(tt * 2.2 + i * 1.7);
-  material.opacity = opacity * (0.24 + burstNetworkFade * 0.76) * pulse;
+  const pulse = 0.78 + 0.22 * Math.sin(tt * 2.2 + i * 1.7);
+  material.opacity = opacity * (0.68 + burstNetworkFade * 0.32) * pulse;
 });
 
 energyNodeMaterials.forEach(({ material, opacity }, i) => {
-  const pulse = 0.65 + 0.35 * Math.sin(tt * 3 + i * 2.1);
-  material.opacity = opacity * (0.24 + burstNetworkFade * 0.76) * pulse;
+  const pulse = 0.7 + 0.3 * Math.sin(tt * 3 + i * 2.1);
+  material.opacity = opacity * (0.62 + burstNetworkFade * 0.38) * pulse;
 });
 
 energyFogMaterial.opacity = 0; // Keep the plasma crisp; no smoky particle haze.
