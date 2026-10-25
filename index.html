@@ -79,9 +79,9 @@ button,input{font:inherit;color:inherit}
 .mono{font-family:"JetBrains Mono",ui-monospace,monospace}.mut{color:var(--m)}
 .lbl{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--m);margin:0}
 :focus-visible{outline:2px solid var(--c);outline-offset:3px}
-#grid{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(88,223,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(88,223,255,.045) 1px,transparent 1px);background-size:48px 48px;-webkit-mask:radial-gradient(ellipse at 50% 45%,#000 10%,transparent 72%);mask:radial-gradient(ellipse at 50% 45%,#000 10%,transparent 72%);overflow:hidden}
-#grid::after{content:"";position:absolute;left:0;right:0;height:120px;background:linear-gradient(transparent,rgba(88,223,255,.07),transparent);animation:scan 11s linear infinite}
-@keyframes scan{from{transform:translateY(-120px)}to{transform:translateY(100vh)}}
+#cosmos{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:0;opacity:.42}
+body{background:radial-gradient(ellipse at 50% 42%,rgba(11,32,56,.72) 0%,#07101e 38%,#030711 78%)}
+@media(prefers-reduced-motion:reduce){#cosmos{opacity:.3}}
 #app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:var(--h)}
 #bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 14px;border-bottom:1px solid var(--ln);background:linear-gradient(rgba(9,19,33,.7),transparent)}
 .br,.rt{display:flex;align-items:center;gap:10px}.br b{font-weight:300;letter-spacing:.3em;font-size:13px}.br svg{width:24px;height:24px}
@@ -219,7 +219,7 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
 <symbol id="i-go" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
 </defs></svg>
-<div id="grid"></div>
+<canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
 <header id="bar"><div class="br"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#58DFFF" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><path d="M12 5l6 10H6z"/><circle cx="12" cy="12" r="2" fill="#58DFFF"/></g></svg><b>J.A.R.V.I.S.</b><span class="lbl hs">Personal assistant interface</span></div>
 <div class="rt"><span class="stat" id="stat" data-s="standby" title="Interface demonstration only. No AI is connected."><i></i><span id="st">STANDBY</span><em>·&nbsp;</em></span><time id="clk" class="mono hs"></time><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
@@ -273,7 +273,72 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,grid:true};
+const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,grid:false};
+
+/* Quiet digital-cosmos backdrop: intentionally much dimmer than the orb. */
+(function initCosmos(){
+  const canvas=$('#cosmos');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d',{alpha:true});
+  if(!ctx) return;
+  let w=0,h=0,dpr=1,raf=0,last=0;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  const stars=Array.from({length:Math.min(58,Math.max(30,Math.floor(innerWidth/18)))},()=>({
+    x:Math.random(),y:Math.random(),r:rand(.45,1.25),a:rand(.12,.34),
+    drift:rand(.0005,.002),phase:rand(0,Math.PI*2)
+  }));
+  const streams=Array.from({length:7},(_,i)=>({
+    x:rand(-.12,1.12),y:rand(.08,.92),len:rand(.18,.42),
+    bend:rand(-.12,.12),phase:rand(0,Math.PI*2),speed:rand(.018,.045),
+    alpha:rand(.045,.095), hue:i%3===0?'164,220,255':'76,169,255'
+  }));
+  function resize(){
+    w=innerWidth;h=innerHeight;dpr=Math.min(devicePixelRatio||1,1.5);
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+    canvas.style.width=w+'px';canvas.style.height=h+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function draw(now){
+    raf=requestAnimationFrame(draw);
+    if(reduced&&last) return;
+    const dt=last?Math.min((now-last)/1000,.04):0;last=now;
+    ctx.clearRect(0,0,w,h);
+    // Barely-there atmospheric bloom, kept behind the centrepiece.
+    const haze=ctx.createRadialGradient(w*.5,h*.43,0,w*.5,h*.43,Math.max(w,h)*.58);
+    haze.addColorStop(0,'rgba(18,63,100,.10)');
+    haze.addColorStop(.55,'rgba(9,35,61,.045)');
+    haze.addColorStop(1,'rgba(2,6,15,0)');
+    ctx.fillStyle=haze;ctx.fillRect(0,0,w,h);
+    for(const s of stars){
+      if(!reduced){s.y+=s.drift*dt*22;if(s.y>1.02)s.y=-.02;s.phase+=dt*.5;}
+      const alpha=s.a*(.78+.22*Math.sin(s.phase));
+      ctx.beginPath();ctx.arc(s.x*w,s.y*h,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(130,205,255,'+alpha.toFixed(3)+')';ctx.fill();
+    }
+    for(const p of streams){
+      if(!reduced)p.phase+=dt*p.speed;
+      const x=p.x*w,y=p.y*h,len=p.len*w;
+      const drift=Math.sin(p.phase)*Math.min(h*.035,22);
+      const grad=ctx.createLinearGradient(x-len*.5,y,x+len*.5,y+drift);
+      grad.addColorStop(0,'rgba('+p.hue+',0)');
+      grad.addColorStop(.45,'rgba('+p.hue+','+p.alpha.toFixed(3)+')');
+      grad.addColorStop(1,'rgba('+p.hue+',0)');
+      ctx.beginPath();
+      ctx.moveTo(x-len*.5,y);
+      ctx.bezierCurveTo(x-len*.18,y+p.bend*h+drift*.3,x+len*.18,y-p.bend*h+drift*.7,x+len*.5,y+drift);
+      ctx.strokeStyle=grad;ctx.lineWidth=.7;ctx.stroke();
+      // One small moving data point per strand, never a bright flare.
+      const t=(p.phase*.13+(p.x*.7))%1;
+      const px=x-len*.5+len*t,py=y+drift*t+Math.sin(t*Math.PI*2+p.phase)*p.bend*h*.22;
+      ctx.beginPath();ctx.arc(px,py,1.05,0,Math.PI*2);
+      ctx.fillStyle='rgba('+p.hue+','+(p.alpha*1.65).toFixed(3)+')';ctx.fill();
+    }
+  }
+  addEventListener('resize',resize,{passive:true});
+  resize();raf=requestAnimationFrame(draw);
+  addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
+})();
 let state='standby',view='idle',openId=null,last=null,ct=0,busy=false,timers=[],ii=0,orbInfo='Unavailable',pulse=()=>{},ripple=()=>{},burst=()=>Promise.resolve();
 
 /* JARVIS PERSONAL MEMORY — PHASE 1 */
