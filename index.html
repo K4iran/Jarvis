@@ -96,6 +96,45 @@ button,input{font:inherit;color:inherit}
 #center{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
 .core{position:relative;width:min(100%,58dvh,540px);aspect-ratio:1;margin:0 auto}
 .core canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
+    /* Audio-reactive energy filaments */
+.filaments {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.filament {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.05;
+  opacity: .66;
+}
+
+.filament-cyan {
+  stroke: #91F2FF;
+}
+
+.filament-blue {
+  stroke: #4DABFF;
+  stroke-width: .8;
+  opacity: .52;
+}
+
+.filament-violet {
+  stroke: #A5A1FF;
+  stroke-width: .7;
+  opacity: .38;
+}
+
+#core[data-s="listening"] .filament,
+#core[data-s="responding"] .filament {
+  opacity: 1;
+}
 .halo{position:absolute;inset:-6%;border-radius:50%;pointer-events:none;opacity:var(--h2,.35);background:radial-gradient(circle,transparent 0,transparent 32%,rgba(88,223,255,.16) 44%,rgba(39,141,255,.06) 58%,transparent 70%)}
 .ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .ring .glassModule {
@@ -190,540 +229,29 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 
 
 
-
-    
-  
-<svg class="ring" viewBox="0 0 400 400" aria-hidden="true">
-    <!-- Translucent glass energy module -->
-<g id="glassEnergyModule" fill="none"
-   stroke-linejoin="round" stroke-linecap="round">
-  <path d="M-10 -4.5 L-6.5 -8 H6.5 L10 -4.5
-    V4.5 L6.5 8 H-6.5 L-10 4.5 Z"
-    transform="translate(0 1.4)"
-    fill="#02091A" stroke="#02091A" stroke-width="1.7"/>
-
-  <path class="glassEdge"
-    d="M-10 -4.5 L-6.5 -8 H6.5 L10 -4.5
-    V4.5 L6.5 8 H-6.5 L-10 4.5 Z"
-    fill="url(#glassInset)"
-    stroke="url(#edgeLight)" stroke-width=".75"/>
-
-  <path d="M-6 -5 H6 L7 -3.8 V3.8 L6 5 H-6 L-7 -3.8 Z"
-    fill="#0A1D35" fill-opacity=".36"
-    stroke="url(#metalRail)" stroke-width=".4"/>
-
-  <path d="M-5.5 -3.2 H-1.8 M1.5 -3.2 H5
-    M-5.5 3.2 H-2.4 M2 3.2 H5"
-    stroke="#DDFBFF" stroke-width=".38" opacity=".7"/>
-
-  <path class="energyTrace"
-    d="M-5.5 0 H-2.2 L0 -1.5 L2.2 0 H5.5"
-    stroke="#70EFFF" stroke-width=".85" opacity=".7"/>
-
-  <path d="M-3.8 -1.8 V1.8 M3.8 -1.8 V1.8"
-    stroke="#A99CFF" stroke-width=".42" opacity=".7"/>
-
-  <path d="M-8 -2.8 V2.8 M8 -2.8 V2.8"
-    stroke="#DDFBFF" stroke-width=".5" opacity=".78"/>
-
-  <circle cx="-5.5" cy="-5.3" r=".65"
-    fill="#DDFBFF" stroke="none"/>
-  <circle cx="5.5" cy="5.3" r=".65"
-    fill="#76FFE6" stroke="none"/>
-    <!-- Specular reflections on the glass surface -->
-  <path d="M-6.3 -6.4 H5.4 L7 -4.8"
-    stroke="#F1FDFF" stroke-width=".55"
-    opacity=".82"/>
-
-  <path d="M-7.8 -2.2 V3.2 L-5.5 5.7"
-    stroke="#6EEBFF" stroke-width=".55"
-    opacity=".68"/>
-
-  <path d="M-4.5 -4.2 H-1.5 M-3.5 -2.8 H-2"
-    stroke="#FFFFFF" stroke-width=".3"
-    opacity=".55"/>
-
-  <!-- Fine internal machining -->
-  <path d="M-6.2 1.8 H-4.4
-    M4.4 -1.8 H6.2
-    M-1.1 -5.8 V-4.7
-    M1.1 4.7 V5.8"
-    stroke="#B8C9FF" stroke-width=".38"
-    opacity=".8"/>
-
-  <!-- Coloured energy glints -->
-  <circle cx="-6.4" cy="4.2" r=".45"
-    fill="#8D9FFF" stroke="none"
-    opacity=".9"/>
-
-  <circle cx="6.3" cy="-4.1" r=".4"
-    fill="#FFFFFF" stroke="none"
-    opacity=".95"/>
-
-  <path d="M-2.2 5.8 H1.2"
-    stroke="#76FFE6" stroke-width=".45"
-    opacity=".72"/>
-</g>
+<svg class="filaments" id="filaments"
+     viewBox="0 0 400 400"
+     aria-hidden="true">
   <defs>
-    <!-- Colours flow continuously from violet through blue, cyan and ice -->
-    <linearGradient id="metalRail" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#B9A7FF" stop-opacity=".72"/>
-      <stop offset=".2" stop-color="#638DFF" stop-opacity=".58"/>
-      <stop offset=".42" stop-color="#49D8FF" stop-opacity=".8"/>
-      <stop offset=".62" stop-color="#78FFE1" stop-opacity=".48"/>
-      <stop offset=".82" stop-color="#6B9FFF" stop-opacity=".72"/>
-      <stop offset="1" stop-color="#DDFBFF" stop-opacity=".8"/>
-    </linearGradient>
-
-    <linearGradient id="edgeLight" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".85"/>
-      <stop offset=".3" stop-color="#9BAEFF" stop-opacity=".35"/>
-      <stop offset=".6" stop-color="#66F0FF" stop-opacity=".9"/>
-      <stop offset="1" stop-color="#9D8BFF" stop-opacity=".3"/>
-    </linearGradient>
-
-    <linearGradient id="microMetal" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#DDFBFF" stop-opacity=".9"/>
-      <stop offset=".28" stop-color="#6A9DBD" stop-opacity=".58"/>
-      <stop offset=".52" stop-color="#142A4A" stop-opacity=".8"/>
-      <stop offset=".78" stop-color="#4EDFFF" stop-opacity=".58"/>
-      <stop offset="1" stop-color="#A69BFF" stop-opacity=".8"/>
-    </linearGradient>
-
-    <linearGradient id="glassInset" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8ADFFF" stop-opacity=".2"/>
-      <stop offset=".45" stop-color="#101D3A" stop-opacity=".55"/>
-      <stop offset="1" stop-color="#B3A4FF" stop-opacity=".16"/>
-    </linearGradient>
-
-    <filter id="hudSoftGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation=".8" result="blur"/>
+    <filter id="filamentGlow" x="-80%" y="-80%"
+            width="260%" height="260%">
+      <feGaussianBlur stdDeviation="1.8" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-
-    <mask id="hudOrbClearance" maskUnits="userSpaceOnUse"
-  x="0" y="0" width="400" height="400">
-  <rect width="400" height="400" fill="white"/>
-
-  <!-- Keep the ring clear of the orb -->
-  <circle cx="200" cy="200" r="149" fill="black"/>
-
-  <!-- Cut matching gaps behind the glass panels -->
-  <path fill="black"
-    d="M136.7 26.3 Q200 4 263.3 26.3
-       L254 51.5 Q200 42 146 51.5 Z"/>
-
-  <path fill="black"
-    d="M27 137 Q45 85 94 48 L109 72
-       Q76 104 52 146 Z"/>
-
-  <path fill="black"
-    d="M27 263 Q45 315 94 352 L109 328
-       Q76 296 52 254 Z"/>
-
-  <path fill="black"
-    d="M373 137 Q355 85 306 48 L291 72
-       Q324 104 348 146 Z"/>
-
-  <path fill="black"
-    d="M373 263 Q355 315 306 352 L291 328
-       Q324 296 348 254 Z"/>
-    </mask>
   </defs>
 
-  <g mask="url(#hudOrbClearance)" fill="none">
-
-    <!-- Fine concentric rails -->
-    <g stroke="url(#metalRail)">
-      <circle cx="200" cy="200" r="197" stroke-width=".65" opacity=".5"/>
-      <circle cx="200" cy="200" r="194" stroke-width=".35"
-        stroke-dasharray="1 3" opacity=".6"/>
-      <circle cx="200" cy="200" r="190" stroke-width=".85"
-        stroke-dasharray="18 3 2 9 5 13" opacity=".78"/>
-      <circle cx="200" cy="200" r="185" stroke-width=".45"
-        stroke-dasharray="1 5" opacity=".58"/>
-      <circle cx="200" cy="200" r="180" stroke-width=".65"
-        stroke-dasharray="12 7 2 5 1 10" opacity=".72"/>
-      <circle cx="200" cy="200" r="173" stroke-width=".4" opacity=".4"/>
-      <circle cx="200" cy="200" r="166" stroke-width=".65"
-        stroke-dasharray="1 7 3 12" opacity=".62"/>
-      <circle cx="200" cy="200" r="157" stroke-width=".45"
-        stroke-dasharray="2 8" opacity=".55"/>
-    </g>
-
-    <!-- Thin, slowly moving precision arcs -->
-    <g class="rot ccw" style="--d:210s" stroke="url(#edgeLight)">
-      <circle cx="200" cy="200" r="192" pathLength="360"
-        stroke-width=".85" stroke-dasharray="25 7 2 326" opacity=".9"/>
-      <circle cx="200" cy="200" r="178" pathLength="360"
-        stroke-width=".6" stroke-dasharray="1 4 12 8 2 333" opacity=".72"/>
-    </g>
-
-    <g class="rot" style="--d:165s" stroke="url(#metalRail)">
-      <circle cx="200" cy="200" r="186" pathLength="360"
-        stroke-width=".7" stroke-dasharray="8 25 2 12 16 297" opacity=".82"/>
-      <circle cx="200" cy="200" r="162" pathLength="360"
-        stroke-width=".55" stroke-dasharray="2 18 1 8" opacity=".7"/>
-    </g>
-
-    <!-- Micro-calibration marks: deliberately varied in brightness -->
-    <g stroke-linecap="round">
-      <g stroke="#A9A0FF" stroke-width=".6" opacity=".65">
-        <path d="M200 5v7 M200 16v3 M200 25v2
-          M395 200h-7 M384 200h-3 M375 200h-2"/>
-      </g>
-      <g stroke="#75E8FF" stroke-width=".7" opacity=".85">
-        <path d="M200 395v-7 M200 384v-3 M200 375v-2
-          M5 200h7 M16 200h3 M25 200h2"/>
-      </g>
-      <g stroke="#D9FBFF" stroke-width=".45" opacity=".55">
-        <path d="M200 34v4 M200 43v2 M200 357v4 M200 366v2
-          M34 200h4 M43 200h2 M357 200h4 M366 200h2"/>
-        <path d="M61 61l5 5 M69 69l3 3
-          M339 61l-5 5 M331 69l-3 3
-          M61 339l5 -5 M69 331l3 -3
-          M339 339l-5 -5 M331 331l-3 -3"/>
-      </g>
-    </g>
-
-    <!-- Fine angular braces instead of bulky corner boxes -->
-    <g stroke="url(#metalRail)" stroke-width=".8"
-       stroke-linejoin="bevel" opacity=".8">
-      <path d="M155 9h-16l-9 9h-14l-7 7
-        M245 9h16l9 9h14l7 7
-        M155 391h-16l-9 -9h-14l-7 -7
-        M245 391h16l9 -9h14l7 -7"/>
-      <path d="M9 155v-16l9 -9v-14l7 -7
-        M391 155v-16l-9 -9v-14l-7 -7
-        M9 245v16l9 9v14l7 7
-        M391 245v16l-9 9v14l-7 7"/>
-    </g>
-
-    <!-- Fine offset edges create a shallow machined-metal depth -->
-    <g stroke="#040C20" stroke-width="1.5" opacity=".8">
-      <path d="M87 43l13 0 8 8v8
-        M313 43h-13l-8 8v8
-        M87 357h13l8 -8v-8
-        M313 357h-13l-8 -8v-8"/>
-      <path d="M43 87v13l8 8h8
-        M357 87v13l-8 8h-8
-        M43 313v-13l8 -8h8
-        M357 313v-13l-8 -8h-8"/>
-    </g>
-
-    <g stroke="url(#edgeLight)" stroke-width=".65" opacity=".85">
-      <path d="M86 41h16l8 8v10
-        M314 41h-16l-8 8v10
-        M86 359h16l8 -8v-10
-        M314 359h-16l-8 -8v-10"/>
-      <path d="M41 86v16l8 8h10
-        M359 86v16l-8 8h-10
-        M41 314v-16l8 -8h10
-        M359 314v-16l-8 -8h-10"/>
-    </g>
-
-    <!-- Tiny floating-looking inset plates: minimal and widely spaced -->
-    <g stroke="url(#metalRail)" stroke-width=".65"
-       stroke-linejoin="round">
-      <path d="M116 43l6 -3 6 3v7l-6 3 -6 -3z"
-        fill="url(#glassInset)"/>
-      <path d="M272 43l6 -3 6 3v7l-6 3 -6 -3z"
-        fill="url(#glassInset)"/>
-      <path d="M116 357l6 -3 6 3v-7l-6 -3 -6 3z"
-        fill="url(#glassInset)"/>
-      <path d="M272 357l6 -3 6 3v-7l-6 -3 -6 3z"
-        fill="url(#glassInset)"/>
-
-      <path d="M43 116l-3 6 3 6h7l3 -6 -3 -6z"
-        fill="url(#glassInset)"/>
-      <path d="M357 116l-3 6 3 6h-7l-3 -6 3 -6z"
-        fill="url(#glassInset)"/>
-      <path d="M43 272l-3 6 3 6h7l3 -6 -3 -6z"
-        fill="url(#glassInset)"/>
-      <path d="M357 272l-3 6 3 6h-7l-3 -6 3 -6z"
-        fill="url(#glassInset)"/>
-    </g>
-
-    <!-- Micro-circuit traces -->
-    <g stroke="url(#metalRail)" stroke-width=".55" opacity=".8">
-      <path d="M132 55h12l6 6h7 M268 55h-12l-6 6h-7
-        M132 345h12l6 -6h7 M268 345h-12l-6 -6h-7"/>
-      <path d="M55 132v12l6 6v7 M345 132v12l-6 6v7
-        M55 268v-12l6 -6v-7 M345 268v-12l-6 -6v-7"/>
-      <path d="M95 75h9l4 4 M305 75h-9l-4 4
-        M95 325h9l4 -4 M305 325h-9l-4 -4"/>
-      <path d="M75 95v9l4 4 M325 95v9l-4 4
-        M75 305v-9l4 -4 M325 305v-9l-4 -4"/>
-    </g>
-
-    <!-- Tiny colour-coded signal bars -->
-    <g stroke-linecap="round">
-      <path d="M145 25h8 M156 25h4 M163 25h11"
-        stroke="#79E8FF" stroke-width="1" opacity=".8"/>
-      <path d="M226 25h4 M234 25h8"
-        stroke="#A99CFF" stroke-width="1" opacity=".75"/>
-      <path d="M145 375h10 M159 375h4 M167 375h7"
-        stroke="#74FFE2" stroke-width="1" opacity=".72"/>
-      <path d="M226 375h8 M238 375h4"
-        stroke="#86A9FF" stroke-width="1" opacity=".75"/>
-      <path d="M25 145v8 M25 157v4 M25 164v8"
-        stroke="#75E8FF" stroke-width="1" opacity=".75"/>
-      <path d="M375 226v4 M375 234v8"
-        stroke="#B3A0FF" stroke-width="1" opacity=".75"/>
-    </g>
-
-    <!-- Small luminous nodes with different hues and intensities -->
-    <g filter="url(#hudSoftGlow)">
-      <circle cx="154" cy="61" r="1" fill="#80F0FF" opacity=".85"/>
-      <circle cx="246" cy="61" r=".65" fill="#B2A1FF" opacity=".65"/>
-      <circle cx="154" cy="339" r=".65" fill="#91A7FF" opacity=".58"/>
-      <circle cx="246" cy="339" r="1" fill="#7BFFE2" opacity=".78"/>
-      <circle cx="61" cy="154" r=".8" fill="#7CDBFF" opacity=".75"/>
-      <circle cx="339" cy="154" r=".65" fill="#C2A3FF" opacity=".58"/>
-      <circle cx="61" cy="246" r=".65" fill="#76FFE6" opacity=".62"/>
-      <circle cx="339" cy="246" r=".9" fill="#A6B8FF" opacity=".8"/>
-    </g>
-
-      <!-- Glass-and-metal energy modules -->
-<g class="glassModule" fill="none">
-  <use href="#glassEnergyModule"
-       transform="translate(200 34) scale(1.5)"
-  <use href="#glassEnergyModule"
-       transform="translate(317.4 82.6) rotate(45) scale(1.5)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(366 200) rotate(90) scale(1.5)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(317.4 317.4) rotate(135) scale(1.5)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(200 366) rotate(180) scale(1.5)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(82.6 317.4) rotate(225) scale(1.5)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(34 200) rotate(270) scale(1.5)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(82.6 82.6) rotate(315) scale(1.5)"/>
-</g>
-
-<!-- Intricate etched energy traces -->
-<g class="glassTraces" fill="none"
-   stroke-linecap="round" stroke-linejoin="round">
-  <path d="M187 34h-7l-3 3h-8
-    M213 34h7l3 3h8 M200 21v5 M200 42v5"
-    stroke="#70EFFF" stroke-width=".48" opacity=".68"/>
-
-  <path d="M317 69l-5 -5h-7
-    M331 96l5 5v7 M330 70l4 -4
-    M304 95l-4 4"
-    stroke="#A99CFF" stroke-width=".45" opacity=".62"/>
-
-  <path d="M366 187v-7l-3 -3v-8
-    M366 213v7l-3 3v8
-    M379 200h-5 M358 200h-5"
-    stroke="#8DEBFF" stroke-width=".48" opacity=".7"/>
-
-  <path d="M331 304l5 -5v-7
-    M304 331l-5 5h-7
-    M330 330l4 4 M304 304l-4 -4"
-    stroke="#79FFE2" stroke-width=".45" opacity=".62"/>
-
-  <path d="M187 366h-7l-3 -3h-8
-    M213 366h7l3 -3h8
-    M200 379v-5 M200 358v-5"
-    stroke="#A99CFF" stroke-width=".48" opacity=".68"/>
-
-  <path d="M83 331l5 5h7
-    M69 304l-5 -5v-7
-    M70 330l-4 4 M96 304l4 -4"
-    stroke="#70EFFF" stroke-width=".45" opacity=".62"/>
-
-  <path d="M34 187v-7l3 -3v-8
-    M34 213v7l3 3v8
-    M21 200h5 M42 200h5"
-    stroke="#B4A4FF" stroke-width=".48" opacity=".68"/>
-
-  <path d="M69 96l-5 5v7
-    M96 69l5 -5h7
-    M70 70l-4 -4 M96 96l4 4"
-    stroke="#79FFE2" stroke-width=".45" opacity=".62"/>
-
-  <path d="M169 42l-4 4h-7
-    M231 42l4 4h7
-    M169 358l-4 -4h-7
-    M231 358l4 -4h7"
-    stroke="#DDFBFF" stroke-width=".4" opacity=".48"/>
-
-  <path d="M42 169l4 -4v-7
-    M42 231l4 4v7
-    M358 169l-4 -4v-7
-    M358 231l-4 4v7"
-    stroke="#8CBFFF" stroke-width=".4" opacity=".48"/>
-</g>
-    <!-- Glass-and-metal energy modules -->
-<g class="glassModule" fill="none">
-  <use href="#glassEnergyModule"
-       transform="translate(200 34)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(317.4 82.6) rotate(45)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(366 200) rotate(90)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(317.4 317.4) rotate(135)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(200 366) rotate(180)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(82.6 317.4) rotate(225)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(34 200) rotate(270)"/>
-  <use href="#glassEnergyModule"
-       transform="translate(82.6 82.6) rotate(315)"/>
-</g>
-
-<!-- Intricate etched energy traces -->
-<g class="glassTraces" fill="none"
-   stroke-linecap="round" stroke-linejoin="round">
-  <path d="M187 34h-7l-3 3h-8
-    M213 34h7l3 3h8 M200 21v5 M200 42v5"
-    stroke="#70EFFF" stroke-width=".48" opacity=".68"/>
-
-  <path d="M317 69l-5 -5h-7
-    M331 96l5 5v7 M330 70l4 -4
-    M304 95l-4 4"
-    stroke="#A99CFF" stroke-width=".45" opacity=".62"/>
-
-  <path d="M366 187v-7l-3 -3v-8
-    M366 213v7l-3 3v8
-    M379 200h-5 M358 200h-5"
-    stroke="#8DEBFF" stroke-width=".48" opacity=".7"/>
-
-  <path d="M331 304l5 -5v-7
-    M304 331l-5 5h-7
-    M330 330l4 4 M304 304l-4 -4"
-    stroke="#79FFE2" stroke-width=".45" opacity=".62"/>
-
-  <path d="M187 366h-7l-3 -3h-8
-    M213 366h7l3 -3h8
-    M200 379v-5 M200 358v-5"
-    stroke="#A99CFF" stroke-width=".48" opacity=".68"/>
-
-  <path d="M83 331l5 5h7
-    M69 304l-5 -5v-7
-    M70 330l-4 4 M96 304l4 -4"
-    stroke="#70EFFF" stroke-width=".45" opacity=".62"/>
-
-  <path d="M34 187v-7l3 -3v-8
-    M34 213v7l3 3v8
-    M21 200h5 M42 200h5"
-    stroke="#B4A4FF" stroke-width=".48" opacity=".68"/>
-
-  <path d="M69 96l-5 5v7
-    M96 69l5 -5h7
-    M70 70l-4 -4 M96 96l4 4"
-    stroke="#79FFE2" stroke-width=".45" opacity=".62"/>
-
-  <path d="M169 42l-4 4h-7
-    M231 42l4 4h7
-    M169 358l-4 -4h-7
-    M231 358l4 -4h7"
-    stroke="#DDFBFF" stroke-width=".4" opacity=".48"/>
-
-  <path d="M42 169l4 -4v-7
-    M42 231l4 4v7
-    M358 169l-4 -4v-7
-    M358 231l-4 4v7"
-    stroke="#8CBFFF" stroke-width=".4" opacity=".48"/>
-</g>
-    <!-- Four subtle orientation markers -->
-    <g stroke="url(#edgeLight)" stroke-width=".7" opacity=".8">
-      <path d="M200 18l4 5 -4 5 -4 -5z
-        M382 200l-5 4 -5 -4 5 -4z
-        M200 382l4 -5 -4 -5 -4 5z
-        M18 200l5 -4 5 4 -5 4z"/>
-    </g>
-
-    <!-- Fine highlights, offset from the darker rail for depth -->
-    <g class="rot ccw" style="--d:100s"
-       stroke="#DDFBFF" stroke-linecap="round">
-      <circle cx="200" cy="200" r="190" pathLength="360"
-        stroke-width="1" stroke-dasharray="4 356" opacity=".82"/>
-      <circle cx="200" cy="200" r="178" pathLength="360"
-        stroke-width=".7" stroke-dasharray="3 357" opacity=".55"/>
-    </g>
+  <g filter="url(#filamentGlow)">
+    <polyline class="filament filament-cyan" id="filament1"/>
+    <polyline class="filament filament-blue" id="filament2"/>
+    <polyline class="filament filament-violet" id="filament3"/>
+    <polyline class="filament filament-cyan" id="filament4"/>
+    <polyline class="filament filament-blue" id="filament5"/>
+    <polyline class="filament filament-violet" id="filament6"/>
   </g>
-  <!-- CURVED GLASS HUD -->
-
-<g class="arcHud">
-  <defs>
-    
-<linearGradient id="arcGlassFill" x1="0" y1="0" x2="1" y2="1">
-  <stop offset="0" stop-color="#A9C5D8" stop-opacity=".045"/>
-  <stop offset=".45" stop-color="#152432" stop-opacity=".36"/>
-  <stop offset="1" stop-color="#070D16" stop-opacity=".56"/>
-</linearGradient>
-
-
-    
-<linearGradient id="arcGlassEdge" x1="0" y1="0" x2="1" y2="1">
-  <stop offset="0" stop-color="#D1E2EC" stop-opacity=".34"/>
-  <stop offset=".5" stop-color="#7898AD" stop-opacity=".24"/>
-  <stop offset="1" stop-color="#9C9BB8" stop-opacity=".28"/>
-</linearGradient>
-
-  </defs>
-
-  <!-- TOP PANEL: concentric arcs, deeper glass band -->
-  <path class="arcPanel"
-    d="M64.24 64.24
-       A192 192 0 0 1 335.76 64.24
-       L308.89 91.11
-       A154 154 0 0 0 91.11 91.11 Z"/>
-
-  <path class="arcHighlight"
-    d="M76.6 76.6
-       A174 174 0 0 1 323.4 76.6"/>
-
-  <path id="arcReplyPath" fill="none"
-    d="M81.1 81.1
-       A168 168 0 0 1 318.9 81.1"/>
-
-  <text class="arcReplyText">
-    <textPath id="arcReplyText" href="#arcReplyPath"
-      startOffset="50%" text-anchor="middle"
-      textLength="155" lengthAdjust="spacingAndGlyphs">AWAITING YOUR COMMAND</textPath>
-  </text>
-
-  <!-- LEFT PANEL: follows the same circular centre -->
-  <path class="arcPanel"
-    d="M8 200
-       A192 192 0 0 1 64.24 64.24
-       L91.11 91.11
-       A154 154 0 0 0 46 200 Z"/>
-
-  <path class="arcHighlight"
-    d="M26 200
-       A174 174 0 0 1 76.97 76.97"/>
-
-  <polyline class="arcWave" id="wave1"
-    points="28,200 29,178 36,157 46,137 57,119 70,102 85,87"/>
-
-  <!-- RIGHT PANEL: mirrored to match the left -->
-  <path class="arcPanel"
-    d="M335.76 64.24
-       A192 192 0 0 1 392 200
-       L354 200
-       A154 154 0 0 0 308.89 91.11 Z"/>
-
-  <path class="arcHighlight"
-    d="M323.03 76.97
-       A174 174 0 0 1 374 200"/>
-
-  <polyline class="arcWave" id="wave3"
-    points="372,200 371,178 364,157 354,137 343,119 330,102 315,87"/>
-</g>
 </svg>
-
 
 
     
