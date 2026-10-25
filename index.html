@@ -656,71 +656,64 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 <g class="arcHud">
   <defs>
     <linearGradient id="arcGlassFill" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#A8F4FF" stop-opacity=".19"/>
-      <stop offset=".48" stop-color="#173B60" stop-opacity=".72"/>
-      <stop offset="1" stop-color="#10142E" stop-opacity=".86"/>
+      <stop offset="0" stop-color="#A8F4FF" stop-opacity=".08"/>
+      <stop offset=".5" stop-color="#10253B" stop-opacity=".58"/>
+      <stop offset="1" stop-color="#080F20" stop-opacity=".78"/>
     </linearGradient>
 
     <linearGradient id="arcGlassEdge" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F1FDFF" stop-opacity=".95"/>
-      <stop offset=".48" stop-color="#58DFFF" stop-opacity=".85"/>
-      <stop offset="1" stop-color="#A99CFF" stop-opacity=".9"/>
+      <stop offset="0" stop-color="#DDFBFF" stop-opacity=".65"/>
+      <stop offset=".5" stop-color="#58DFFF" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#A99CFF" stop-opacity=".55"/>
     </linearGradient>
   </defs>
 
-  <!-- Top panel: follows a circular arc around the orb -->
+  <!-- Large upper arc -->
   <path class="arcPanel"
-    d="M136.7 26.3 Q200 4 263.3 26.3
-       L254 51.5 Q200 42 146 51.5 Z"/>
+    d="M89.6 58.2
+       A180 180 0 0 1 310.4 58.2
+       L293.2 78.4
+       A155 155 0 0 0 106.8 78.4 Z"/>
 
   <path class="arcHighlight"
-    d="M143 28 Q200 9 257 28"/>
+    d="M103 56
+       A160 160 0 0 1 297 56"/>
 
   <!-- Curved response text -->
   <path id="arcReplyPath" fill="none"
-    d="M145 44 Q200 25 255 44"/>
+    d="M112 62 A155 155 0 0 1 288 62"/>
 
   <text class="arcReplyText">
     <textPath id="arcReplyText" href="#arcReplyPath"
       startOffset="50%" text-anchor="middle"
-      textLength="105" lengthAdjust="spacingAndGlyphs">AWAITING YOUR COMMAND</textPath>
+      textLength="155" lengthAdjust="spacingAndGlyphs">AWAITING YOUR COMMAND</textPath>
   </text>
 
-  <!-- Upper-left panel -->
+  <!-- Left arc panel -->
   <path class="arcPanel"
-    d="M27 137 Q45 85 94 48 L109 72
-       Q76 104 52 146 Z"/>
+    d="M20 200
+       A180 180 0 0 1 82 62
+       L98 82
+       A155 155 0 0 0 45 200 Z"/>
+
   <path class="arcHighlight"
-    d="M34 130 Q52 87 91 54"/>
+    d="M30 185 A170 170 0 0 1 76 75"/>
+
   <polyline class="arcWave" id="wave1"
-    points="41,128 46,121 51,116 56,119 61,108 66,114 71,100 76,106 82,91"/>
+    points="34,184 40,168 47,153 55,138 64,123 73,109 83,95 91,84"/>
 
-  <!-- Lower-left panel -->
+  <!-- Right arc panel -->
   <path class="arcPanel"
-    d="M27 263 Q45 315 94 352 L109 328
-       Q76 296 52 254 Z"/>
-  <path class="arcHighlight"
-    d="M34 270 Q52 313 91 346"/>
-  <polyline class="arcWave violet" id="wave2"
-    points="41,272 46,279 51,284 56,281 61,292 66,286 71,300 76,294 82,309"/>
+    d="M318 65
+       A180 180 0 0 1 380 200
+       L355 200
+       A155 155 0 0 0 303 84 Z"/>
 
-  <!-- Upper-right panel -->
-  <path class="arcPanel"
-    d="M373 137 Q355 85 306 48 L291 72
-       Q324 104 348 146 Z"/>
   <path class="arcHighlight"
-    d="M366 130 Q348 87 309 54"/>
+    d="M324 76 A170 170 0 0 1 370 185"/>
+
   <polyline class="arcWave" id="wave3"
-    points="359,128 354,121 349,116 344,119 339,108 334,114 329,100 324,106 318,91"/>
-
-  <!-- Lower-right panel -->
-  <path class="arcPanel"
-    d="M373 263 Q355 315 306 352 L291 328
-       Q324 296 348 254 Z"/>
-  <path class="arcHighlight"
-    d="M366 270 Q348 313 309 346"/>
-  <polyline class="arcWave violet" id="wave4"
-    points="359,272 354,279 349,284 344,281 339,292 334,286 329,300 324,294 318,309"/>
+    points="366,184 360,168 353,153 345,138 336,123 327,109 317,95 309,84"/>
 </g>
 </svg>
 
