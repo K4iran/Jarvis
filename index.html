@@ -80,7 +80,7 @@ button,input{font:inherit;color:inherit}
 .lbl{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--m);margin:0}
 :focus-visible{outline:2px solid var(--c);outline-offset:3px}
  #cosmos{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:0;opacity:1}
-body{background:radial-gradient(ellipse at 50% 42%,rgba(11,32,56,.72) 0%,#07101e 38%,#030711 78%)}
+body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,9,24,.78) 28%,#02030a 68%,#010207 100%)}
 @media(prefers-reduced-motion:reduce){#cosmos{opacity:.8}}
 #app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:var(--h)}
 #bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 14px;border-bottom:1px solid var(--ln);background:linear-gradient(rgba(9,19,33,.7),transparent)}
@@ -111,24 +111,26 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(11,32,56,.72) 0%,#07101e
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.05;
-  opacity: .66;
+  stroke-width: 1.45;
+  opacity: .72;
+  filter: drop-shadow(0 0 5px rgba(54,74,255,.55))
+          drop-shadow(0 0 10px rgba(20,18,74,.72));
 }
 
 .filament-cyan {
-  stroke: #91F2FF;
+  stroke: #9DEBFF;
 }
 
 .filament-blue {
-  stroke: #4DABFF;
-  stroke-width: .8;
-  opacity: .52;
+  stroke: #526DFF;
+  stroke-width: 1.15;
+  opacity: .6;
 }
 
 .filament-violet {
-  stroke: #A5A1FF;
-  stroke-width: .7;
-  opacity: .38;
+  stroke: #A18BFF;
+  stroke-width: 1;
+  opacity: .48;
 }
 
 #core[data-s="listening"] .filament,
@@ -235,12 +237,22 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
      viewBox="0 0 400 400"
      aria-hidden="true">
   <defs>
-    <filter id="filamentGlow" x="-80%" y="-80%"
-            width="260%" height="260%">
-      <feGaussianBlur stdDeviation="1.8" result="blur"/>
+    <filter id="filamentGlow" x="-100%" y="-100%"
+            width="300%" height="300%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.045"
+                    numOctaves="2" seed="8" result="energyNoise"/>
+      <feDisplacementMap in="SourceGraphic" in2="energyNoise"
+                         scale="7" xChannelSelector="R"
+                         yChannelSelector="G" result="distortedEnergy"/>
+      <feGaussianBlur in="distortedEnergy" stdDeviation="5.5" result="wideMist"/>
+      <feGaussianBlur in="distortedEnergy" stdDeviation="1.7" result="softGlow"/>
+      <feFlood flood-color="#17143f" flood-opacity=".9" result="darkTint"/>
+      <feComposite in="darkTint" in2="wideMist" operator="in" result="shadowEnergy"/>
       <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
+        <feMergeNode in="shadowEnergy"/>
+        <feMergeNode in="wideMist"/>
+        <feMergeNode in="softGlow"/>
+        <feMergeNode in="distortedEnergy"/>
       </feMerge>
     </filter>
   </defs>
@@ -286,8 +298,8 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
   let w=0,h=0,dpr=1,raf=0,last=0;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const rand=(a,b)=>a+Math.random()*(b-a);
-  const stars=Array.from({length:Math.min(84,Math.max(44,Math.floor(innerWidth/13)))},()=>({
-    x:Math.random(),y:Math.random(),r:rand(.55,1.35),a:rand(.24,.46),
+  const stars=Array.from({length:Math.min(190,Math.max(105,Math.floor(innerWidth/7)))},()=>({
+    x:Math.random(),y:Math.random(),r:rand(.35,1.15),a:rand(.16,.38),
     drift:rand(.0005,.002),phase:rand(0,Math.PI*2)
   }));
   const streams=Array.from({length:7},(_,i)=>({
@@ -306,12 +318,29 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
     if(reduced&&last) return;
     const dt=last?Math.min((now-last)/1000,.04):0;last=now;
     ctx.clearRect(0,0,w,h);
-    // Barely-there atmospheric bloom, kept behind the centrepiece.
-    const haze=ctx.createRadialGradient(w*.5,h*.43,0,w*.5,h*.43,Math.max(w,h)*.58);
-    haze.addColorStop(0,'rgba(18,63,100,.19)');
-    haze.addColorStop(.55,'rgba(9,35,61,.09)');
-    haze.addColorStop(1,'rgba(2,6,15,0)');
-    ctx.fillStyle=haze;ctx.fillRect(0,0,w,h);
+    // Layered deep-space nebulae: moody and visible, never brighter than the orb.
+    const nebulae=[
+      [0.50,0.43,0.46,'rgba(21,34,91,.23)','rgba(3,5,18,0)'],
+      [0.17,0.26,0.34,'rgba(27,24,91,.18)','rgba(2,3,12,0)'],
+      [0.83,0.69,0.38,'rgba(8,46,92,.17)','rgba(2,3,12,0)'],
+      [0.52,0.91,0.29,'rgba(37,18,73,.13)','rgba(2,3,12,0)']
+    ];
+    for(const n of nebulae){
+      const radius=Math.max(w,h)*n[2];
+      const haze=ctx.createRadialGradient(w*n[0],h*n[1],0,w*n[0],h*n[1],radius);
+      haze.addColorStop(0,n[3]);
+      haze.addColorStop(.52,'rgba(7,12,37,.09)');
+      haze.addColorStop(1,n[4]);
+      ctx.fillStyle=haze;ctx.fillRect(0,0,w,h);
+    }
+    // Faint violet dust lanes add depth without forming a visible grid.
+    for(let i=0;i<3;i++){
+      const x=w*(.18+i*.31), y=h*(.18+(i%2)*.57);
+      const dust=ctx.createRadialGradient(x,y,0,x,y,Math.max(w,h)*.22);
+      dust.addColorStop(0,'rgba(58,47,124,.075)');
+      dust.addColorStop(1,'rgba(5,6,20,0)');
+      ctx.fillStyle=dust;ctx.fillRect(0,0,w,h);
+    }
     for(const s of stars){
       if(!reduced){s.y+=s.drift*dt*22;if(s.y>1.02)s.y=-.02;s.phase+=dt*.5;}
       const alpha=s.a*(.78+.22*Math.sin(s.phase));
@@ -1345,6 +1374,8 @@ flowGroup.add(stream);
 const energyGroup = new T.Group();
 const energyMaterials = [];
 const energyNodeMaterials = [];
+const energyFogMaterials = [];
+const energyFogPositions = [];
 
 function addEnergyPath(points, color, opacity, width = 1) {
   const curve = new T.CatmullRomCurve3(points);
@@ -1388,6 +1419,19 @@ function addEnergyPath(points, color, opacity, width = 1) {
   nodes.renderOrder = 4;
   energyGroup.add(nodes);
   energyNodeMaterials.push({ material: nodeMaterial, opacity });
+
+  // Smoky dark-energy volume around the strand, so it reads as a turbulent wisp.
+  for (let i = 0; i < sampled.length; i += 2) {
+    const p = sampled[i];
+    for (let layer = 0; layer < 2; layer++) {
+      const spread = 0.025 + Math.random() * 0.075;
+      energyFogPositions.push(
+        p.x + (Math.random() - 0.5) * spread * 2,
+        p.y + (Math.random() - 0.5) * spread * 2,
+        p.z + (Math.random() - 0.5) * spread * 2
+      );
+    }
+  }
 }
 
 // Interconnected curved paths arranged around a larger 3D volume.
@@ -1414,8 +1458,8 @@ for (let k = 0; k < 18; k++) {
 
   addEnergyPath(
     points,
-    k % 3 === 0 ? 0x55caff : 0x9feaff,
-    0.22
+    k % 3 === 0 ? 0x6978ff : 0x9ba8ff,
+    0.12
   );
 
   // Branches curve away from selected points on the main paths.
@@ -1434,11 +1478,31 @@ for (let k = 0; k < 18; k++) {
 
     addEnergyPath(
       [branchStart, branchMid, branchEnd],
-      0x48bfff,
-      0.16
+      0x5964d9,
+      0.09
     );
   }
 }
+
+// Soft, low-contrast blue-violet mist gives the energy body instead of a wireframe look.
+const energyFogGeometry = new T.BufferGeometry();
+energyFogGeometry.setAttribute(
+  'position',
+  new T.Float32BufferAttribute(energyFogPositions, 3)
+);
+const energyFogMaterial = new T.PointsMaterial({
+  color: 0x34306f,
+  size: 0.075,
+  transparent: true,
+  opacity: 0,
+  depthWrite: false,
+  blending: T.NormalBlending,
+  sizeAttenuation: true
+});
+const energyFog = new T.Points(energyFogGeometry, energyFogMaterial);
+energyFog.renderOrder = 2;
+energyFog.frustumCulled = false;
+energyGroup.add(energyFog);
 
 // Independent drifting specks, created once and animated in the main loop.
 const driftPositions = [];
@@ -1809,6 +1873,10 @@ energyNodeMaterials.forEach(({ material, opacity }, i) => {
   const pulse = 0.65 + 0.35 * Math.sin(tt * 3 + i * 2.1);
   material.opacity = opacity * networkFade * pulse;
 });
+
+energyFogMaterial.opacity = (0.14 + 0.035 * Math.sin(tt * 1.7)) * networkFade;
+energyFog.rotation.y += dt * 0.08 * mo;
+energyFog.rotation.x += dt * 0.025 * mo;
 
 driftMaterial.opacity = 0.55 * networkFade;
 driftParticles.rotation.y -= dt * 0.035 * mo;
