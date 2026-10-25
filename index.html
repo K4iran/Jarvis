@@ -85,125 +85,160 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 <section id="center">
 <div class="core" id="core"><div class="halo" id="halo"></div><canvas id="gl" aria-label="Holographic particle orb" role="img"></canvas>
 
+
 <svg class="ring" viewBox="0 0 400 400" aria-hidden="true">
   <defs>
-    <filter id="ringGlow" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+    <radialGradient id="hudSphere" cx="30%" cy="25%" r="75%">
+      <stop offset="0%" stop-color="#F0FDFF"/>
+      <stop offset="25%" stop-color="#9CEEFF"/>
+      <stop offset="65%" stop-color="#36BDEB"/>
+      <stop offset="100%" stop-color="#1473C9" stop-opacity=".7"/>
+    </radialGradient>
+
+    <filter id="hudGlow" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-    <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur stdDeviation="4"/>
+
+    <filter id="hudSoftGlow" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="5"/>
     </filter>
   </defs>
 
-  <!-- Subtle outer frame -->
+  <!-- Outer boundaries -->
   <g fill="none" stroke="#58DFFF">
-    <circle cx="200" cy="200" r="197" stroke-opacity=".13"/>
-    <circle cx="200" cy="200" r="194" stroke-opacity=".2" stroke-dasharray="1 8"/>
-    <circle cx="200" cy="200" r="185" stroke-opacity=".16"/>
-    <circle cx="200" cy="200" r="165" stroke-opacity=".12" stroke-dasharray="2 9"/>
+    <circle cx="200" cy="200" r="197" stroke-opacity=".12"/>
+    <circle cx="200" cy="200" r="193" stroke-opacity=".23" stroke-dasharray="1 7"/>
+    <circle cx="200" cy="200" r="187" stroke-opacity=".12"/>
+    <circle cx="200" cy="200" r="180" stroke-opacity=".2" stroke-dasharray="18 9 2 9"/>
+    <circle cx="200" cy="200" r="174" stroke-opacity=".12" stroke-dasharray="1 5"/>
+    <circle cx="200" cy="200" r="165" stroke-opacity=".16"/>
+  </g>
 
-    <!-- Rotating outer technical segments -->
-    <g class="rot ccw" style="--d:180s">
-      <circle cx="200" cy="200" r="190"
-        pathLength="360" stroke-width="1.5"
-        stroke-dasharray="26 5 2 8 42 12 3 262"
-        stroke-opacity=".5"/>
-      <circle cx="200" cy="200" r="181"
-        pathLength="360" stroke-width=".8"
-        stroke-dasharray="1 3 12 8 1 6"
-        stroke-opacity=".55"/>
+  <!-- Slow independent rotating calibration rings -->
+  <g class="rot ccw" style="--d:210s" fill="none" stroke="#58DFFF">
+    <circle cx="200" cy="200" r="190" pathLength="360"
+      stroke-width="1.5" stroke-dasharray="22 8 3 12 38 15 2 260"
+      stroke-opacity=".45"/>
+    <circle cx="200" cy="200" r="183" pathLength="360"
+      stroke-width=".8" stroke-dasharray="1 3 9 7 1 5"
+      stroke-opacity=".55"/>
+  </g>
+
+  <g class="rot" style="--d:155s" fill="none" stroke="#58DFFF">
+    <circle cx="200" cy="200" r="176" pathLength="360"
+      stroke-width="1.1" stroke-dasharray="12 4 2 7 26 10 3 296"
+      stroke-opacity=".42"/>
+    <circle cx="200" cy="200" r="169" pathLength="360"
+      stroke-width=".7" stroke-dasharray="1 6"
+      stroke-opacity=".38"/>
+  </g>
+
+  <!-- Fine radial measuring ticks -->
+  <g fill="none" stroke="#8DEBFF" stroke-width=".8" stroke-opacity=".48">
+    <path d="
+      M200 8v12 M200 29v4 M200 42v3
+      M200 367v3 M200 378v4 M200 380v12
+      M8 200h12 M29 200h4 M42 200h3
+      M367 200h3 M378 200h4 M380 200h12
+      M63 63l9 9 M82 82l4 4
+      M328 328l9 9 M314 314l4 4
+      M63 337l9 -9 M82 318l4 -4
+      M328 72l9 -9 M314 86l4 -4"/>
+  </g>
+
+  <!-- Circuit pathways -->
+  <g fill="none" stroke="#58DFFF" stroke-width="1" stroke-opacity=".42">
+    <path d="M79 35h24l8 8h13l5 5h12"/>
+    <path d="M321 35h-24l-8 8h-13l-5 5h-12"/>
+    <path d="M79 365h24l8 -8h13l5 -5h12"/>
+    <path d="M321 365h-24l-8 -8h-13l-5 -5h-12"/>
+
+    <path d="M35 79v24l8 8v13l5 5v12"/>
+    <path d="M365 79v24l-8 8v13l-5 5v12"/>
+    <path d="M35 321v-24l8 -8v-13l5 -5v-12"/>
+    <path d="M365 321v-24l-8 -8v-13l-5 -5v-12"/>
+  </g>
+
+  <!-- Small technical brackets -->
+  <g fill="none" stroke="#B8F5FF" stroke-width="1.3" stroke-opacity=".7">
+    <path d="M183 10h-10l-5 5 M217 10h10l5 5"/>
+    <path d="M183 390h-10l-5 -5 M217 390h10l5 -5"/>
+    <path d="M10 183v-10l5 -5 M10 217v10l5 5"/>
+    <path d="M390 183v-10l-5 -5 M390 217v10l-5 5"/>
+  </g>
+
+  <!-- Glowing arc segments -->
+  <g class="rot ccw" style="--d:95s"
+     fill="none" stroke="#8DEBFF" stroke-linecap="round"
+     filter="url(#hudGlow)">
+    <circle cx="200" cy="200" r="190" pathLength="360"
+      stroke-width="1.8" stroke-dasharray="7 353" stroke-opacity=".8"/>
+    <circle cx="200" cy="200" r="176" pathLength="360"
+      stroke-width="1.3" stroke-dasharray="4 356" stroke-opacity=".7"/>
+  </g>
+
+  <!-- Sparse floating sphere-like HUD nodes -->
+  <g>
+    <!-- Soft halos behind selected spheres -->
+    <g fill="#58DFFF" opacity=".2" filter="url(#hudSoftGlow)">
+      <circle cx="104" cy="45" r="5"/>
+      <circle cx="318" cy="105" r="4"/>
+      <circle cx="288" cy="351" r="5"/>
+      <circle cx="43" cy="274" r="4"/>
     </g>
 
-    <!-- Fine inner segmented rings -->
-    <g class="rot" style="--d:240s">
-      <circle cx="200" cy="200" r="174"
-        pathLength="360" stroke-width="1.3"
-        stroke-dasharray="15 5 3 7 24 12 2 292"
-        stroke-opacity=".38"/>
-      <circle cx="200" cy="200" r="169"
-        pathLength="360" stroke-width=".7"
-        stroke-dasharray="1 5"
-        stroke-opacity=".5"/>
+    <!-- Each sphere has a different size and position -->
+    <g fill="url(#hudSphere)" filter="url(#hudGlow)">
+      <circle cx="104" cy="45" r="2.8"/>
+      <circle cx="318" cy="105" r="2.2"/>
+      <circle cx="288" cy="351" r="3"/>
+      <circle cx="43" cy="274" r="2.3"/>
+      <circle cx="355" cy="290" r="1.8"/>
+      <circle cx="57" cy="125" r="1.8"/>
+      <circle cx="239" cy="23" r="1.7"/>
+      <circle cx="163" cy="377" r="2"/>
     </g>
 
-    <!-- Precision measurement arcs -->
-    <g stroke-width="1.3" stroke-opacity=".62">
-      <path d="M200 8 A192 192 0 0 1 245 13"/>
-      <path d="M392 200 A192 192 0 0 1 387 245"/>
-      <path d="M200 392 A192 192 0 0 1 155 387"/>
-      <path d="M8 200 A192 192 0 0 1 13 155"/>
+    <!-- Tiny glints make the nodes feel rounded -->
+    <g fill="#F0FDFF">
+      <circle cx="103.2" cy="44.1" r=".8"/>
+      <circle cx="317.4" cy="104.4" r=".55"/>
+      <circle cx="287.1" cy="350" r=".8"/>
+      <circle cx="42.4" cy="273.4" r=".55"/>
+      <circle cx="354.5" cy="289.5" r=".45"/>
+      <circle cx="56.5" cy="124.5" r=".45"/>
     </g>
+  </g>
 
-    <!-- Radial ticks -->
-    <g stroke-opacity=".36" stroke-width=".9">
-      <path d="
-        M200 15v9 M200 31v4
-        M200 365v4 M200 376v9
-        M15 200h9 M31 200h4
-        M365 200h4 M376 200h9
-        M69 69l7 7 M82 82l3 3
-        M331 331l-7 -7 M318 318l-3 -3
-        M69 331l7 -7 M82 318l3 -3
-        M331 69l-7 7 M318 82l-3 3"/>
-    </g>
+  <!-- Tiny data points and illuminated junctions -->
+  <g fill="#58DFFF">
+    <circle cx="127" cy="48" r="1.1"/>
+    <circle cx="273" cy="48" r="1.1"/>
+    <circle cx="48" cy="127" r="1.1"/>
+    <circle cx="352" cy="127" r="1.1"/>
+    <circle cx="48" cy="273" r="1.1"/>
+    <circle cx="352" cy="273" r="1.1"/>
+    <circle cx="127" cy="352" r="1.1"/>
+    <circle cx="273" cy="352" r="1.1"/>
+  </g>
 
-    <!-- Circuit-like corner details -->
-    <g stroke-width="1.1" stroke-opacity=".48">
-      <path d="M87 29h18l7 7h17"/>
-      <path d="M313 29h-18l-7 7h-17"/>
-      <path d="M87 371h18l7 -7h17"/>
-      <path d="M313 371h-18l-7 -7h-17"/>
+  <!-- Four brighter directional indicators -->
+  <g fill="none" stroke="#D6F9FF" stroke-width="1.4"
+     stroke-linecap="round" filter="url(#hudGlow)">
+    <path d="M200 3v13 M195 8h10"/>
+    <path d="M397 200h-13 M392 195v10"/>
+    <path d="M200 397v-13 M195 392h10"/>
+    <path d="M3 200h13 M8 195v10"/>
+  </g>
 
-      <path d="M29 87v18l7 7v17"/>
-      <path d="M371 87v18l-7 7v17"/>
-      <path d="M29 313v-18l7 -7v-17"/>
-      <path d="M371 313v-18l-7 -7v-17"/>
-    </g>
-
-    <!-- Small luminous nodes -->
-    <g fill="#58DFFF" stroke="none">
-      <circle cx="112" cy="36" r="2" filter="url(#ringGlow)"/>
-      <circle cx="288" cy="36" r="2" filter="url(#ringGlow)"/>
-      <circle cx="112" cy="364" r="2" filter="url(#ringGlow)"/>
-      <circle cx="288" cy="364" r="2" filter="url(#ringGlow)"/>
-      <circle cx="36" cy="112" r="2" filter="url(#ringGlow)"/>
-      <circle cx="364" cy="112" r="2" filter="url(#ringGlow)"/>
-      <circle cx="36" cy="288" r="2" filter="url(#ringGlow)"/>
-      <circle cx="364" cy="288" r="2" filter="url(#ringGlow)"/>
-    </g>
-
-    <!-- Four brighter directional markers -->
-    <g filter="url(#ringGlow)" stroke="#B8F5FF"
-       stroke-width="1.5" stroke-opacity=".9">
-      <path d="M200 4v15 M196 8h8"/>
-      <path d="M396 200h-15 M392 196v8"/>
-      <path d="M200 396v-15 M196 392h8"/>
-      <path d="M4 200h15 M8 196v8"/>
-    </g>
-
-    <!-- Glowing arc highlights -->
-    <g class="rot ccw" style="--d:90s"
-       filter="url(#ringGlow)" stroke="#8DEBFF"
-       stroke-width="2" stroke-linecap="round">
-      <circle cx="200" cy="200" r="190"
-        pathLength="360" stroke-dasharray="9 351"
-        stroke-opacity=".8"/>
-      <circle cx="200" cy="200" r="174"
-        pathLength="360" stroke-dasharray="5 355"
-        stroke-opacity=".65"/>
-    </g>
-
-    <!-- Tiny status lights -->
-    <g fill="#B8F5FF" filter="url(#ringGlow)">
-      <circle cx="200" cy="24" r="1.5"/>
-      <circle cx="376" cy="200" r="1.5"/>
-      <circle cx="200" cy="376" r="1.5"/>
-      <circle cx="24" cy="200" r="1.5"/>
-    </g>
+  <!-- Secondary small floating calibration dots -->
+  <g class="rot" style="--d:120s" fill="none" stroke="#58DFFF">
+    <circle cx="200" cy="200" r="157" pathLength="360"
+      stroke-width=".8" stroke-dasharray="1 12" stroke-opacity=".5"/>
   </g>
 </svg>
 </div>
