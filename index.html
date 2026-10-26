@@ -1074,7 +1074,7 @@ recognition.onstart=()=>{
 
       // The mic button activates conversation mode: speak naturally, with or
       // without saying "Hey Jarvis" first.
-      const match=transcript.match(/\\bhey[\\s,]+jarvis\\b/i);
+      const match=transcript.match(/\bhey[\s,]+jarvis\b/i);
       const command=match
         ? transcript.slice(match.index+match[0].length).replace(/^[\\s,.:!?-]+/,'').trim()
         : transcript;
@@ -1084,6 +1084,9 @@ recognition.onstart=()=>{
       if(command)run(command);
       else {
         wakeArmed=true;
+        busy=true;
+        if(recognition){try{recognition.stop()}catch(e){}}
+        setState('responding');
         speakReply("I'm listening, what do you need sir?", true);
       }
     }
