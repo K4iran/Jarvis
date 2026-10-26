@@ -1499,32 +1499,37 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     const fineShape=.035*wave+.045*(lobe-.25)+.026*spike;
     const motionShape=.035*Math.sin(x*4.5+y*3.4-z*3.8+time*.8+p)*Math.cos(y*3.2-z*2.4+time*.54);
 
-    // Soft, overlapping tendrils. Several groups extend at once, with
-    // little side wisps attached to the central flow rather than sharp spikes.
+    // Three soft flow clusters, each made from five neighbouring strands.
+    // This keeps the extensions broad and fluid instead of producing isolated spikes.
     let tendrilShape=0;
-    for(let j=0;j<11;j++){
-      const a=time*(.105+(j%4)*.009)+j*2.399;
-      const b=time*(.073+(j%3)*.008)+j*1.713;
+    for(let j=0;j<15;j++){
+      const group=Math.floor(j/5),strand=j%5;
+      const a=time*(.105+(group%3)*.009)+group*2.399;
+      const b=time*(.073+(group%3)*.008)+group*1.713;
       let dx=Math.sin(a)*Math.cos(b);
-      let dy=Math.sin(b)*.82+Math.cos(a*.63+j)*.18;
+      let dy=Math.sin(b)*.82+Math.cos(a*.63+group)*.18;
       let dz=Math.cos(a)*Math.cos(b);
+      // Spread each set of five just enough to merge into one broad lobe.
+      const side=(strand-2)*.055;
+      dx+=side*Math.cos(group+1.2);
+      dy+=side*.65*Math.sin(group+2.1);
+      dz+=side*Math.sin(group+1.2);
       const dlen=Math.hypot(dx,dy,dz)||1;
       dx/=dlen;dy/=dlen;dz/=dlen;
       const dot=clamp(x*dx+y*dy+z*dz,-1,1);
       const theta=Math.acos(dot);
-      // Offset phases overlap: multiple extensions are active simultaneously.
-      const progress=((time*.155+j*.093)%1+1)%1;
-      const flow=.24+.76*Math.pow(Math.max(0,Math.sin(Math.PI*progress)),.8);
-      // Wide Gaussian shoulders soften the silhouette and blend adjacent lobes.
-      const outwardCore=Math.exp(-Math.pow(theta/.255,2));
-      const inwardShell=Math.exp(-Math.pow((theta-.36)/.17,2));
-      const middleFlow=Math.exp(-Math.pow((theta-.54)/.30,2));
-      // Small secondary wisps remain rooted in the main lobe and ripple in/out.
-      const wispAngle=.15+.055*Math.sin(time*.48+j*1.9);
-      const wisps=Math.exp(-Math.pow((theta-wispAngle)/.075,2));
+      // Each strand has a slightly staggered pulse, with four or five overlapping.
+      const progress=((time*.135+group*.31+strand*.035)%1+1)%1;
+      const flow=.35+.65*Math.pow(Math.max(0,Math.sin(Math.PI*progress)),.8);
+      const outwardCore=Math.exp(-Math.pow(theta/.31,2));
+      const inwardShell=Math.exp(-Math.pow((theta-.34)/.19,2));
+      const middleFlow=Math.exp(-Math.pow((theta-.51)/.32,2));
+      const wispAngle=.17+.045*Math.sin(time*.48+j*1.9);
+      const wisps=Math.exp(-Math.pow((theta-wispAngle)/.085,2));
       const wispPulse=.5+.5*Math.sin(time*.72+j*2.17);
-      tendrilShape+=(.31*outwardCore-.205*inwardShell-.045*middleFlow
-        +.075*wisps*(wispPulse-.42))*flow;
+      // Reduced positive displacement keeps the tendrils close to the orb.
+      tendrilShape+=(.19*outwardCore-.15*inwardShell-.035*middleFlow
+        +.045*wisps*(wispPulse-.42))*flow;
     }
         const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.018;
     const radial=radius*(1+localShape+fineShape+motionShape+tendrilShape+activeWave);
@@ -1586,7 +1591,7 @@ function updateMesh(mesh,base,positions,seeds,count,inner){
   mesh.instanceMatrix.needsUpdate=true;
   if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
 }
-function updateLines(bundle,pairs,a,b){
+function updateLines(bundle,pairs,a,b,time=0){
   const p=bundle.positionAttribute.array,c=bundle.colourAttribute.array;
   for(let i=0;i<pairs.length;i++){
     const ai=pairs[i][0]*3,bi=pairs[i][1]*3,o=i*6;
@@ -1597,7 +1602,13 @@ function updateLines(bundle,pairs,a,b){
     const z=(az+bz)*.5,d=clamp((z+1)/2,0,.9999)*4,tier=Math.floor(d),mix=d-tier;
     const ca=tierColours[tier],cb=tierColours[tier+1];
     const r=lerp(ca[0],cb[0],mix),g=lerp(ca[1],cb[1],mix),bl=lerp(ca[2],cb[2],mix);
-    c[o]=r;c[o+1]=g;c[o+2]=bl;c[o+3]=r;c[o+4]=g;c[o+5]=bl;
+    // Bright accents, medium strands, and faint near-invisible filaments.
+    const slot=(i*7+Math.floor(i/3))%12;
+    const level=slot<2?.95:(slot<7?.48:.095);
+    const shimmer=.84+.16*(.5+.5*Math.sin(time*.55+i*.37));
+    const brightness=level*shimmer;
+    c[o]=r*brightness;c[o+1]=g*brightness;c[o+2]=bl*brightness;
+    c[o+3]=r*brightness;c[o+4]=g*brightness;c[o+5]=bl*brightness;
   }
   bundle.positionAttribute.needsUpdate=true;
   bundle.colourAttribute.needsUpdate=true;
@@ -1651,9 +1662,9 @@ function frame(now){
     deform(innerBase.positions,innerBase.seeds,M,.55,visualTime,amplitude*.86,2.2,1,innerPositions);
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
-    updateLines(outerLines,outerEdges,outerPositions,outerPositions);
-    updateLines(innerLines,innerEdges,innerPositions,innerPositions);
-    updateLines(spokeLines,spokes,innerPositions,outerPositions);
+    updateLines(outerLines,outerEdges,outerPositions,outerPositions,tt);
+    updateLines(innerLines,innerEdges,innerPositions,innerPositions,tt);
+    updateLines(spokeLines,spokes,innerPositions,outerPositions,tt);
 
     if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
     else pa=0;
