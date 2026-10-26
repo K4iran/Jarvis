@@ -1070,33 +1070,21 @@ recognition.onstart=()=>{
       if(!event.results[i].isFinal)continue;
 
       const transcript=event.results[i][0].transcript.trim();
-      const match=transcript.match(/\bhey[\s,]+jarvis\b/i);
+      if(!transcript || jarvisSpeaking || busy)continue;
 
-      if(wakeArmed){
-        wakeArmed=false;
-        if(transcript)run(transcript);
-        continue;
-      }
+      // The mic button activates conversation mode: speak naturally, with or
+      // without saying "Hey Jarvis" first.
+      const match=transcript.match(/\\bhey[\\s,]+jarvis\\b/i);
+      const command=match
+        ? transcript.slice(match.index+match[0].length).replace(/^[\\s,.:!?-]+/,'').trim()
+        : transcript;
 
-      if(match){
-        const command=transcript.slice(match.index+match[0].length)
-          .replace(/^[\s,.:!?-]+/,'').trim();
-
-        conversationMode=true;
-        if(command){
-          run(command);
-        }else{
-          wakeArmed=true;
-          setState('listening');
-          // Speak the acknowledgement aloud, and skip the animation delay.
-          speakReply("I'm listening, what do you need sir?", true);
-        }
-        continue;
-      }
-
-      // Once awakened, keep the conversation open for follow-up questions.
-      if(conversationMode && transcript){
-        run(transcript);
+      conversationMode=true;
+      wakeArmed=false;
+      if(command)run(command);
+      else {
+        wakeArmed=true;
+        speakReply("I'm listening, what do you need sir?", true);
       }
     }
   };
