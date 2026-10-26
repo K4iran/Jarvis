@@ -1498,8 +1498,27 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     }
     const fineShape=.035*wave+.045*(lobe-.25)+.026*spike;
     const motionShape=.035*Math.sin(x*4.5+y*3.4-z*3.8+time*.8+p)*Math.cos(y*3.2-z*2.4+time*.54);
+
+    // Staggered liquid-like tendrils: each connected patch swells outward,
+    // then eases back to the core before the next patch follows.
+    let tendrilShape=0;
+    for(let j=0;j<6;j++){
+      const a=time*(.12+j*.006)+j*2.399;
+      const b=time*(.085+j*.004)+j*1.713;
+      let dx=Math.sin(a)*Math.cos(b);
+      let dy=Math.sin(b)*.82+Math.cos(a*.63+j)*.18;
+      let dz=Math.cos(a)*Math.cos(b);
+      const dlen=Math.hypot(dx,dy,dz)||1;
+      dx/=dlen;dy/=dlen;dz/=dlen;
+      const dot=clamp(x*dx+y*dy+z*dz,-1,1);
+      const angular=Math.exp(-Math.pow((1-dot)/.19,1.25));
+      // Offset each group in time so the extensions travel in a loose sequence.
+      const progress=((time*.19+j*.167)%1+1)%1;
+      const swell=Math.pow(Math.max(0,Math.sin(Math.PI*progress)),1.35);
+      tendrilShape+=.34*angular*swell;
+    }
     const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.018;
-    const radial=radius*(1+localShape+fineShape+motionShape+activeWave);
+    const radial=radius*(1+localShape+fineShape+motionShape+tendrilShape+activeWave);
     // Each particle has its own pace and 3D route; neighbours need not move in unison.
     const move=.022+amplitude*.43;
     const orbitA=time*(.43+seed*.95)+p*1.73;
