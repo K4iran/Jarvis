@@ -1407,8 +1407,8 @@ function setParticleColour(mesh,i,z,seed,inner,radial){
   if(depth<.68)particleColour.copy(deepBlue).lerp(electricBlue,depth/.68);
   else particleColour.copy(electricBlue).lerp(iceBlue,(depth-.68)/.32);
   // The energy core is the brightest point; particles fade smoothly into the outer shell.
-  const coreFalloff=1-clamp(radial/1.22,0,1);
-  const radialLight=.22+1.02*Math.pow(coreFalloff,1.18);
+  const coreFalloff=1-clamp(radial/1.48,0,1);
+  const radialLight=.14+1.34*Math.pow(coreFalloff,.92);
   particleColour.multiplyScalar(radialLight*((inner?1.08:1.02)+seed*.14+Math.max(0,z)*.08));
   mesh.setColorAt(i,particleColour);
 }
