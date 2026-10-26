@@ -1499,38 +1499,30 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     const fineShape=.035*wave+.045*(lobe-.25)+.026*spike;
     const motionShape=.035*Math.sin(x*4.5+y*3.4-z*3.8+time*.8+p)*Math.cos(y*3.2-z*2.4+time*.54);
 
-    // Three soft flow clusters, each made from five neighbouring strands.
-    // This keeps the extensions broad and fluid instead of producing isolated spikes.
+    // Liquid symbiote surface: broad crests flow into troughs, then rise
+    // into the next crest. Three overlapping wave fields keep the motion connected.
     let tendrilShape=0;
-    for(let j=0;j<15;j++){
-      const group=Math.floor(j/5),strand=j%5;
-      const a=time*(.105+(group%3)*.009)+group*2.399;
-      const b=time*(.073+(group%3)*.008)+group*1.713;
+    for(let group=0;group<3;group++){
+      const a=time*(.105+group*.009)+group*2.399;
+      const b=time*(.073+group*.008)+group*1.713;
       let dx=Math.sin(a)*Math.cos(b);
       let dy=Math.sin(b)*.82+Math.cos(a*.63+group)*.18;
       let dz=Math.cos(a)*Math.cos(b);
-      // Spread each set of five just enough to merge into one broad lobe.
-      const side=(strand-2)*.055;
-      dx+=side*Math.cos(group+1.2);
-      dy+=side*.65*Math.sin(group+2.1);
-      dz+=side*Math.sin(group+1.2);
       const dlen=Math.hypot(dx,dy,dz)||1;
       dx/=dlen;dy/=dlen;dz/=dlen;
       const dot=clamp(x*dx+y*dy+z*dz,-1,1);
       const theta=Math.acos(dot);
-      // Each strand has a slightly staggered pulse, with four or five overlapping.
-      const progress=((time*.135+group*.31+strand*.035)%1+1)%1;
-      const flow=.35+.65*Math.pow(Math.max(0,Math.sin(Math.PI*progress)),.8);
-      const outwardCore=Math.exp(-Math.pow(theta/.31,2));
-      const inwardShell=Math.exp(-Math.pow((theta-.34)/.19,2));
-      const middleFlow=Math.exp(-Math.pow((theta-.51)/.32,2));
-      const wispAngle=.17+.045*Math.sin(time*.48+j*1.9);
-      const wisps=Math.exp(-Math.pow((theta-wispAngle)/.085,2));
-      const wispPulse=.5+.5*Math.sin(time*.72+j*2.17);
-      // Reduced positive displacement keeps the tendrils close to the orb.
-      tendrilShape+=(.19*outwardCore-.15*inwardShell-.035*middleFlow
-        +.045*wisps*(wispPulse-.42))*flow;
+      // Alternating positive crests and negative troughs create a continuous,
+      // rounded wave instead of a set of separate pointed tendrils.
+      const phase=theta*7.4-time*1.18+group*1.7;
+      const envelope=Math.exp(-Math.pow(theta/1.05,2));
+      const wave=Math.sin(phase)*envelope;
+      const secondary=Math.sin(phase*1.48-.8)*envelope*.22;
+      tendrilShape+=(wave+secondary)*.105;
     }
+    // A slow global ripple helps neighbouring crests merge into a liquid skin.
+    const surfaceRipple=Math.sin((x*.9+y*.75-z*.8)*5.2-time*.9)*.018;
+    tendrilShape+=surfaceRipple;
         const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.018;
     const radial=radius*(1+localShape+fineShape+motionShape+tendrilShape+activeWave);
     // Each particle has its own pace and 3D route; neighbours need not move in unison.
