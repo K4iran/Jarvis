@@ -1499,8 +1499,9 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     const fineShape=.035*wave+.045*(lobe-.25)+.026*spike;
     const motionShape=.035*Math.sin(x*4.5+y*3.4-z*3.8+time*.8+p)*Math.cos(y*3.2-z*2.4+time*.54);
 
-    // Staggered liquid-like tendrils: each connected patch swells outward,
-    // then eases back to the core before the next patch follows.
+    // Bidirectional liquid flow: each tendril's core pushes outward while
+    // its surrounding shell pulls inward at the same time. A broad, softer
+    // middle band blends the two directions so the surface flows continuously.
     let tendrilShape=0;
     for(let j=0;j<6;j++){
       const a=time*(.12+j*.006)+j*2.399;
@@ -1511,11 +1512,15 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
       const dlen=Math.hypot(dx,dy,dz)||1;
       dx/=dlen;dy/=dlen;dz/=dlen;
       const dot=clamp(x*dx+y*dy+z*dz,-1,1);
-      const angular=Math.exp(-Math.pow((1-dot)/.19,1.25));
-      // Offset each group in time so the extensions travel in a loose sequence.
+      const theta=Math.acos(dot);
+      // Each moving centre has its own pulse, so one group can extend while
+      // the neighbouring particles are drawn back toward the orb's core.
       const progress=((time*.19+j*.167)%1+1)%1;
-      const swell=Math.pow(Math.max(0,Math.sin(Math.PI*progress)),1.35);
-      tendrilShape+=.34*angular*swell;
+      const flow=Math.pow(Math.max(0,Math.sin(Math.PI*progress)),1.15);
+      const outwardCore=Math.exp(-Math.pow(theta/.19,2));
+      const inwardShell=Math.exp(-Math.pow((theta-.30)/.115,2));
+      const middleFlow=Math.exp(-Math.pow((theta-.49)/.24,2));
+      tendrilShape+=(.40*outwardCore-.27*inwardShell-.075*middleFlow)*flow;
     }
     const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.018;
     const radial=radius*(1+localShape+fineShape+motionShape+tendrilShape+activeWave);
