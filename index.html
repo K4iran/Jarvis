@@ -1499,13 +1499,12 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     const fineShape=.035*wave+.045*(lobe-.25)+.026*spike;
     const motionShape=.035*Math.sin(x*4.5+y*3.4-z*3.8+time*.8+p)*Math.cos(y*3.2-z*2.4+time*.54);
 
-    // Bidirectional liquid flow: each tendril's core pushes outward while
-    // its surrounding shell pulls inward at the same time. A broad, softer
-    // middle band blends the two directions so the surface flows continuously.
+    // Soft, overlapping tendrils. Several groups extend at once, with
+    // little side wisps attached to the central flow rather than sharp spikes.
     let tendrilShape=0;
-    for(let j=0;j<6;j++){
-      const a=time*(.12+j*.006)+j*2.399;
-      const b=time*(.085+j*.004)+j*1.713;
+    for(let j=0;j<11;j++){
+      const a=time*(.105+(j%4)*.009)+j*2.399;
+      const b=time*(.073+(j%3)*.008)+j*1.713;
       let dx=Math.sin(a)*Math.cos(b);
       let dy=Math.sin(b)*.82+Math.cos(a*.63+j)*.18;
       let dz=Math.cos(a)*Math.cos(b);
@@ -1513,16 +1512,21 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
       dx/=dlen;dy/=dlen;dz/=dlen;
       const dot=clamp(x*dx+y*dy+z*dz,-1,1);
       const theta=Math.acos(dot);
-      // Each moving centre has its own pulse, so one group can extend while
-      // the neighbouring particles are drawn back toward the orb's core.
-      const progress=((time*.19+j*.167)%1+1)%1;
-      const flow=Math.pow(Math.max(0,Math.sin(Math.PI*progress)),1.15);
-      const outwardCore=Math.exp(-Math.pow(theta/.19,2));
-      const inwardShell=Math.exp(-Math.pow((theta-.30)/.115,2));
-      const middleFlow=Math.exp(-Math.pow((theta-.49)/.24,2));
-      tendrilShape+=(.40*outwardCore-.27*inwardShell-.075*middleFlow)*flow;
+      // Offset phases overlap: multiple extensions are active simultaneously.
+      const progress=((time*.155+j*.093)%1+1)%1;
+      const flow=.24+.76*Math.pow(Math.max(0,Math.sin(Math.PI*progress)),.8);
+      // Wide Gaussian shoulders soften the silhouette and blend adjacent lobes.
+      const outwardCore=Math.exp(-Math.pow(theta/.255,2));
+      const inwardShell=Math.exp(-Math.pow((theta-.36)/.17,2));
+      const middleFlow=Math.exp(-Math.pow((theta-.54)/.30,2));
+      // Small secondary wisps remain rooted in the main lobe and ripple in/out.
+      const wispAngle=.15+.055*Math.sin(time*.48+j*1.9);
+      const wisps=Math.exp(-Math.pow((theta-wispAngle)/.075,2));
+      const wispPulse=.5+.5*Math.sin(time*.72+j*2.17);
+      tendrilShape+=(.31*outwardCore-.205*inwardShell-.045*middleFlow
+        +.075*wisps*(wispPulse-.42))*flow;
     }
-    const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.018;
+        const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.018;
     const radial=radius*(1+localShape+fineShape+motionShape+tendrilShape+activeWave);
     // Each particle has its own pace and 3D route; neighbours need not move in unison.
     const move=.022+amplitude*.43;
