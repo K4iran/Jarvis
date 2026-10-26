@@ -944,7 +944,24 @@ async function speakReply(text, fast = false) {
     });
   } catch (error) {
     console.error('Jarvis speech playback error:', error);
-    say('Voice playback failed: ' + (error && error.message ? error.message : 'Unknown audio error'));
+
+    // Keep the AI's written reply on screen if Fish Audio is unavailable.
+    // Fall back to the browser's built-in speech engine where supported.
+    if ('speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined') {
+      try {
+        window.speechSynthesis.cancel();
+        await new Promise((resolve, reject) => {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'en-GB';
+          utterance.onend = resolve;
+          utterance.onerror = resolve;
+          window.speechSynthesis.speak(utterance);
+        });
+      } catch (fallbackError) {
+        console.warn('Browser speech fallback unavailable:', fallbackError);
+      }
+    }
+    // Do not replace the real AI response with a voice-service error.
   } finally {
     jarvisSpeaking = false;
 
