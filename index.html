@@ -243,6 +243,11 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 #disp{padding:14px;min-height:240px;display:flex;flex-direction:column}.hd{display:flex;justify-content:space-between;align-items:center;min-height:44px;margin:-8px -8px 6px 0}#dv{flex:1;display:grid;align-items:center}
 .fade{animation:fin .45s ease both}@keyframes fin{from{opacity:0;transform:translateY(8px)}}
 .idle{text-align:center;display:grid;gap:4px;justify-items:center}.idle svg{width:min(100%,240px);margin-bottom:6px}.dp{animation:dp 6s ease-in-out infinite}@keyframes dp{50%{transform:translate(6px,-5px);opacity:.35}}
+#core[data-scene="hangman"] .filaments,#core[data-scene="hangman"] .ring,#core[data-scene="hangman"] .arcHud,#core[data-scene="hangman"] .halo{opacity:0!important;visibility:hidden!important}
+.hg-wrap{display:grid;gap:14px;padding:4px 2px 8px;animation:fin .3s ease both}.hg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.hg-head h2{margin:3px 0;font-size:21px;font-weight:300;letter-spacing:.22em;color:#e6faff}.hg-clue{margin:3px 0 0;color:#9ce8ff;font-size:12px;letter-spacing:.08em}.hg-count{border:1px solid rgba(126,215,255,.35);padding:6px 9px;color:#bdefff;font:11px 'JetBrains Mono',monospace;letter-spacing:.08em;white-space:nowrap}
+.hg-word{display:flex;justify-content:center;gap:clamp(4px,1.4vw,11px);flex-wrap:wrap;padding:12px 0 5px}.hg-slot{display:grid;place-items:center;min-width:clamp(19px,5.2vw,34px);width:clamp(19px,5.2vw,34px);height:39px;border-bottom:2px solid rgba(142,224,255,.72);color:#e5faff;font:600 clamp(18px,5vw,26px) 'JetBrains Mono',monospace;text-shadow:0 0 10px rgba(104,205,255,.45)}.hg-miss-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.hg-misses{display:flex;gap:7px;flex-wrap:wrap;min-height:24px}.hg-miss{position:relative;display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 5px;color:#ff93b7;border:1px solid rgba(255,105,158,.28);background:rgba(255,73,131,.07);font:12px 'JetBrains Mono',monospace;text-decoration:line-through;text-decoration-thickness:2px}.hg-none{font-size:12px;color:var(--m)}
+.hg-keys{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.hg-key{min-width:0;min-height:36px;border:1px solid rgba(105,199,255,.32);background:rgba(56,143,214,.08);color:#ccefff;font:12px 'JetBrains Mono',monospace;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}.hg-key:not(:disabled):hover{border-color:#9ce8ff;background:rgba(100,196,255,.2);transform:translateY(-1px)}.hg-key:disabled{cursor:default;opacity:.35}.hg-key.correct{background:rgba(70,220,190,.12);border-color:rgba(95,255,218,.55);color:#a5ffe9}.hg-key.wrong{background:rgba(255,73,131,.08);border-color:rgba(255,105,158,.25);color:#ff8eaf;text-decoration:line-through}.hg-help,.hg-result{margin:0;font-size:12px;color:var(--m);line-height:1.7}.hg-result{color:#bdefff;min-height:18px}.hg-actions{display:flex;gap:8px;flex-wrap:wrap}.hg-action{border:1px solid rgba(105,199,255,.38);background:rgba(56,143,214,.09);padding:9px 12px;color:#d7f5ff;font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.hg-action.primary{background:rgba(92,190,255,.18);border-color:rgba(156,232,255,.65)}.hg-action:hover{background:rgba(92,190,255,.22)}
+@media(max-width:390px){.hg-keys{gap:4px}.hg-key{min-height:33px}.hg-wrap{gap:11px}}
 .chip{display:inline-block;padding:3px 10px;border:1px solid var(--ln2);color:var(--c);font-size:10px;letter-spacing:.14em;margin:10px 0}
 .viz{width:100%;max-width:340px;margin:6px auto;display:block}.viz text{font-size:9px;fill:var(--m);letter-spacing:.14em;font-family:inherit}
 .r{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--ln);font-size:13px}.r span{color:var(--m)}.r b{font-weight:400;text-align:right;font-size:12px}.r b.ok{color:var(--c)}
@@ -509,11 +514,86 @@ function radar(){const C=140,Y=110,R=72,A=[[0,-1],[1,0],[0,1],[-1,0]],N=['BASKET
 const pt=(i,k)=>[C+A[i][0]*R*k,Y+A[i][1]*R*k],pl=f=>A.map((_,i)=>pt(i,f(i)).join(',')).join(' ');
 return `<svg viewBox="0 0 280 220" class="viz" role="img" aria-label="Illustrative radar chart placeholder"><g fill="none" stroke="rgba(88,223,255,.25)">${[.33,.66,1].map(k=>`<polygon points="${pl(()=>k)}"/>`).join('')}<path d="M140 38V182M68 110H212"/></g><polygon points="${pl(i=>V[i]/99)}" fill="rgba(88,223,255,.16)" stroke="#58DFFF" stroke-width="1.5" stroke-dasharray="4 3"/>${N.map((n,i)=>{const [x,y]=pt(i,1.2);return `<text x="${x}" y="${y+(i==2?8:i==0?-2:3)}" text-anchor="${AN[i]}">${n}</text>`}).join('')}</svg>`}
 const court=()=>`<svg viewBox="0 0 200 150" class="viz" role="img" aria-label="Illustrative shot chart placeholder"><g fill="none" stroke="rgba(88,223,255,.45)"><rect x="8" y="6" width="184" height="138"/><rect x="72" y="6" width="56" height="62"/><path d="M72 68a28 28 0 0 0 56 0M30 6v30a70 70 0 0 0 140 0V6M88 20h24"/><circle cx="100" cy="24" r="4" stroke="#EAF8FF"/></g>${[[100,48],[70,80],[132,84],[50,60],[150,56],[100,104],[40,100]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="3" fill="#58DFFF" opacity="${i%3?.5:.9}"/>`).join('')}</svg>`;
+const HANGMAN_WORDS=[
+  {word:'NEBULA',clue:'SPACE'},{word:'COMET',clue:'SPACE'},{word:'GALAXY',clue:'SPACE'},
+  {word:'ORBIT',clue:'SPACE'},{word:'ASTEROID',clue:'SPACE'},{word:'SATELLITE',clue:'SPACE'},
+  {word:'TELESCOPE',clue:'ASTRONOMY'},{word:'QUASAR',clue:'ASTRONOMY'},
+  {word:'ROBOT',clue:'TECHNOLOGY'},{word:'HOLOGRAM',clue:'TECHNOLOGY'},
+  {word:'CIRCUIT',clue:'TECHNOLOGY'},{word:'PHOTON',clue:'PHYSICS'}
+];
+const hangmanGame={active:false,word:'',clue:'',guessed:[],wrong:[],status:'playing'};
+const HANGMAN_ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+function renderHangmanPanel(){
+  if(!hangmanGame.active)return `<div class="hg-wrap"><div class="hg-head"><div><p class="lbl">PARTICLE GAME</p><h2>HANGMAN</h2><p class="hg-clue">The orb particles form the gallows, figure, word and crossed-out letters.</p></div></div><p class="mut" style="margin:0;font-size:13px">Start a round, then tap letters or say “guess E”.</p><div class="hg-actions"><button class="hg-action primary" data-hg-action="start">Start Hangman</button></div></div>`;
+  const ended=hangmanGame.status!=='playing',solved=hangmanGame.status==='won',lost=hangmanGame.status==='lost';
+  const guessed=new Set(hangmanGame.guessed);
+  const slots=hangmanGame.word.split('').map(letter=>{const shown=guessed.has(letter)||ended;return `<span class="hg-slot" aria-label="${shown?letter:'hidden letter'}">${shown?letter:'_'}</span>`;}).join('');
+  const wrong=hangmanGame.wrong.length?hangmanGame.wrong.map(letter=>`<span class="hg-miss">${letter}</span>`).join(''):'<span class="hg-none">None yet</span>';
+  const keys=HANGMAN_ALPHABET.map(letter=>{const used=guessed.has(letter),kind=used?(hangmanGame.word.includes(letter)?'correct':'wrong'):'';return `<button type="button" class="hg-key ${kind}" data-hg-letter="${letter}" aria-label="Guess ${letter}" ${used||ended?'disabled':''}>${letter}</button>`;}).join('');
+  let result='Tap a letter or use voice: “guess E”.';
+  if(solved)result=`Solved — the word was ${hangmanGame.word}.`;
+  if(lost)result=`Game over — the word was ${hangmanGame.word}.`;
+  return `<div class="hg-wrap">
+    <div class="hg-head"><div><p class="lbl">PARTICLE GAME · LIVE</p><h2>HANGMAN</h2><p class="hg-clue">CLUE: ${hangmanGame.clue}</p></div><span class="hg-count">${hangmanGame.wrong.length}/6 MISSES</span></div>
+    <div class="hg-word" aria-label="Current word">${slots}</div>
+    <div class="hg-miss-row"><span class="lbl">Crossed out</span><div class="hg-misses" aria-label="Wrong guesses">${wrong}</div></div>
+    <div class="hg-keys" role="group" aria-label="Choose a letter">${keys}</div>
+    <p class="hg-result" aria-live="polite">${result}</p>
+    <p class="hg-help">Every wrong guess adds a part to the figure. Six misses ends the round.</p>
+    <div class="hg-actions"><button type="button" class="hg-action primary" data-hg-action="new">New game</button><button type="button" class="hg-action" data-hg-action="exit">Exit game</button></div>
+  </div>`;
+}
+function syncHangmanOrb(){
+  if(window.setOrbHangmanScene)window.setOrbHangmanScene({active:hangmanGame.active,word:hangmanGame.word,clue:hangmanGame.clue,guessed:hangmanGame.guessed.slice(),wrong:hangmanGame.wrong.slice(),status:hangmanGame.status});
+}
+function startHangman(){
+  const previous=hangmanGame.word;
+  let choices=HANGMAN_WORDS.filter(item=>item.word!==previous);
+  if(!choices.length)choices=HANGMAN_WORDS;
+  const chosen=choices[Math.floor(Math.random()*choices.length)];
+  hangmanGame.active=true;hangmanGame.word=chosen.word;hangmanGame.clue=chosen.clue;
+  hangmanGame.guessed=[];hangmanGame.wrong=[];hangmanGame.status='playing';
+  if(openId)closeOv();
+  setState('standby');setView('hangman');syncHangmanOrb();
+  say('Hangman ready. Guess a letter below, or say “guess E”.');
+}
+function exitHangman(){
+  hangmanGame.active=false;
+  if(openId==='hangman')closeOv();
+  syncHangmanOrb();setView('idle');say('Hangman closed. Back to standby.');
+}
+function guessHangman(value){
+  const letter=String(value||'').trim().toUpperCase();
+  if(!hangmanGame.active||hangmanGame.status!=='playing'||!/^[A-Z]$/.test(letter))return;
+  if(hangmanGame.guessed.includes(letter)){say(letter+' has already been tried.');return;}
+  hangmanGame.guessed.push(letter);
+  if(!hangmanGame.word.includes(letter))hangmanGame.wrong.push(letter);
+  if(hangmanGame.word.split('').every(char=>hangmanGame.guessed.includes(char)))hangmanGame.status='won';
+  else if(hangmanGame.wrong.length>=6)hangmanGame.status='lost';
+  syncHangmanOrb();
+  if(view==='hangman')renderDisp();
+  if(openId==='hangman')renderOv();
+  if(hangmanGame.status==='won')say('Excellent. You solved '+hangmanGame.word+'.');
+  else if(hangmanGame.status==='lost')say('Round over. The word was '+hangmanGame.word+'.');
+  else if(hangmanGame.word.includes(letter))say('Good guess. '+letter+' is in the word.');
+  else say('No '+letter+'. That letter is crossed out.');
+}
+function handleHangmanClick(event){
+  const key=event.target.closest('[data-hg-letter]');
+  if(key){event.preventDefault();guessHangman(key.dataset.hgLetter);return;}
+  const action=event.target.closest('[data-hg-action]');
+  if(!action)return;
+  event.preventDefault();
+  if(action.dataset.hgAction==='start'||action.dataset.hgAction==='new')startHangman();
+  else if(action.dataset.hgAction==='exit')exitHangman();
+}
+
 const P={
 profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'MEMORY NOT CONNECTED',d:'Preferences, goals and remembered details will appear here once a memory source is connected.',v:()=>`${chip('MEMORY NOT CONNECTED')}${row('Name','Not set')}${row('Preferences','Not set')}${row('Goals','Not set')}<p class="lbl" style="margin-top:12px">Placeholder only. Nothing has been stored.</p>`},
 lifeos:{l:'LIFEOS',i:'#i-life',s:'INTEGRATION PENDING',d:'Will show your LifeOS categories and attributes, rated 0 to 99, with radar charts and history.',v:()=>`${chip('INTEGRATION PENDING')}${radar()}<p class="lbl">Illustrative placeholder shape. Not your real ratings.</p>`},
 hoop:{l:'HOOP CENTRAL',i:'#i-hoop',s:'INTEGRATION PENDING',d:'Will show scoring, assists, steals, shooting splits, shot charts and rating trends from Hoop Central.',v:()=>`${chip('INTEGRATION PENDING')}${court()}<div class="kp">${['PPG','AST','STL','FG%'].map(k=>`<div><b class="mono">—</b><span class="lbl">${k}</span></div>`).join('')}</div><p class="lbl" style="margin-top:10px">Layout placeholder. No real statistics.</p>`},
 status:{l:'SYSTEM STATUS',i:'#i-stat',s:'FRONTEND ONLY',d:'Facts the interface can determine for itself. External systems are not connected.',v:()=>[row('Interface','Loaded',1),row('Animation system',S.rm?'Reduced':'Active',1),row('Orb renderer',orbInfo,orbInfo!=='Unavailable'),row('Viewport',innerWidth+' × '+innerHeight+' px'),row('Interface mode',state.toUpperCase()+' · SIMULATED'),row('Voice input','Not implemented'),row('Integrations','0 of 3 connected'),row('Memory','Not connected')].join('')}};
+P.hangman={l:'HANGMAN',i:'#i-stat',s:'PARTICLE GAME',d:'A playable Hangman round whose gallows, figure, word and crossed-out letters are drawn by the orb particles.',v:()=>renderHangmanPanel()};
 const idleHTML=`<div class="idle"><svg viewBox="0 0 200 110" aria-hidden="true"><g fill="none" stroke="rgba(88,223,255,.3)"><rect x="4" y="4" width="192" height="102"/><path d="M4 55h192M100 4v102M52 4v102M148 4v102"/><path d="M14 84l30-14 28 8 34-30 30 16 40-34" stroke="#58DFFF" stroke-dasharray="3 4"/></g>${[[44,70],[72,78],[106,48],[136,64],[176,30]].map(([x,y],i)=>`<circle class="dp" style="animation-delay:${i*-1.1}s" cx="${x}" cy="${y}" r="2.6" fill="#58DFFF"/>`).join('')}</svg><p class="lbl" style="color:var(--t)">Visualisation channel ready</p><p class="mut" style="margin:0;font-size:13px">Awaiting a display command.</p></div>`;
 $('#rail').innerHTML=Object.entries(P).map(([k,p])=>`<button class="pn" data-p="${k}"><svg class="ic"><use href="${p.i}"/></svg><span><b>${p.l}</b><small class="mono">${p.s}</small></span></button>`).join('');
 $('#rail').onclick=e=>{const b=e.target.closest('[data-p]');if(b)openOv(b.dataset.p)};
@@ -942,7 +1022,9 @@ async function speakReply(text, fast = false) {
 
 function renderDisp(){const p=P[view];$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
 function setView(v){view=v;renderDisp()}
-$('#dx').onclick=()=>setView('idle');
+$('#dv').addEventListener('click',handleHangmanClick);
+$('#ob').addEventListener('click',handleHangmanClick);
+$('#dx').onclick=()=>{if(hangmanGame.active)exitHangman();else setView('idle')};
 const settings=()=>[['rm','Reduce motion'],['cosmos','Cosmic background']].map(([k,n])=>`<div class="r" style="align-items:center"><span style="color:var(--t)">${n}</span><button class="sw" role="switch" data-t="${k}" aria-label="${n}" aria-checked="${S[k]}"></button></div>`).join('')+`<p class="lbl" style="margin-top:14px;line-height:1.8">Phase 1 · frontend simulation. No AI, voice, memory or integrations are connected.</p>`;
 function renderOv(){const p=P[openId];$('#ot').textContent=openId==='set'?'SETTINGS':p.l;$('#ob').innerHTML=openId==='set'?settings():`<p class="mut" style="margin:6px 0">${p.d}</p>${p.v()}<button class="btn" data-show="${openId}">SHOW IN VISUALISATION CHANNEL</button>`}
 function openOv(id){last=document.activeElement;openId=id;clearTimeout(ct);renderOv();const o=$('#ov');o.hidden=false;requestAnimationFrame(()=>{o.classList.add('on');$('#oc').focus()})}
@@ -1156,6 +1238,14 @@ async function run(t) {
       say(JarvisMemory.remember(key, value));
       return;
     }
+  }
+
+  if (q.includes('hangman')) { startHangman(); return; }
+  if (hangmanGame.active) {
+    if (/^(?:new game|restart(?: game)?)$/.test(q)) { startHangman(); return; }
+    if (/^(?:exit|quit|close|stop)(?: the)?(?: hangman| game)?$/.test(q) || /^(?:leave hangman|return to standby|standby)$/.test(q)) { exitHangman(); return; }
+    const guessMatch=q.match(/^(?:guess|pick|try|letter) +([a-z])$/i)||q.match(/^([a-z])$/i);
+    if(guessMatch){guessHangman(guessMatch[1]);return;}
   }
 
   let v = null, m;
@@ -1402,6 +1492,7 @@ const deepBlue=new T.Color('#041545');
 const electricBlue=new T.Color('#176dff');
 const iceBlue=new T.Color('#d8fbff');
 const particleColour=new T.Color();
+const coreTint=new T.Color('#9ce8ff');
 const dummy=new T.Object3D();
 function setParticleColour(mesh,i,z,seed,inner,radial){
   const depth=clamp((z+1.05)/2.1,0,1);
@@ -1410,7 +1501,7 @@ function setParticleColour(mesh,i,z,seed,inner,radial){
   // The energy core is the brightest point; particles fade smoothly into the outer shell.
   const coreFalloff=Math.exp(-radial*1.22);
   const radialLight=.24+2.45*coreFalloff;
-  particleColour.lerp(new T.Color('#9ce8ff'),.22+coreFalloff*.32);
+  particleColour.lerp(coreTint,.22+coreFalloff*.32);
   particleColour.multiplyScalar(radialLight*((inner?1.22:1.12)+seed*.14+Math.max(0,z)*.08));
   mesh.setColorAt(i,particleColour);
 }
@@ -1508,6 +1599,48 @@ const innerPositions=new Float32Array(M*3);
 let px=0,py=0,pt=2,pa=0,tp=2,tt=0,slow=0,t0=performance.now();
 let idleT=10,waveElapsed=-1,pulseAge=2,pulseStrength=0;
 const pulseDirection=V3(0,0,1),touchDirection=V3(0,0,1);
+let hangmanSceneRequested=false,hangmanBlend=0;
+let hangmanTargetsOuter=null,hangmanTargetsInner=null;
+let hangmanCurrentOuter=null,hangmanCurrentInner=null;
+const hangmanParticleBlue=new T.Color('#a9eaff');
+function makeHangmanCloud(model){
+  const size=512,cloudCanvas=document.createElement('canvas');
+  cloudCanvas.width=cloudCanvas.height=size;
+  const ctx=cloudCanvas.getContext('2d');
+  ctx.clearRect(0,0,size,size);ctx.strokeStyle='#fff';ctx.fillStyle='#fff';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=6;
+  const line=(x1,y1,x2,y2)=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()};
+  line(38,382,280,382);line(88,382,88,70);line(88,70,230,70);line(230,70,230,106);
+  const misses=(model.wrong||[]).length;
+  if(misses>=1){ctx.beginPath();ctx.arc(230,137,29,0,Math.PI*2);ctx.stroke()}
+  if(misses>=2)line(230,166,230,255);
+  if(misses>=3)line(230,194,190,232);
+  if(misses>=4)line(230,194,270,232);
+  if(misses>=5)line(230,255,194,310);
+  if(misses>=6)line(230,255,266,310);
+  ctx.font='600 14px monospace';ctx.fillText('J.A.R.V.I.S. / HANGMAN',26,34);line(26,47,486,47);
+  ctx.font='600 17px monospace';ctx.fillText('MISSES',330,82);ctx.font='600 25px monospace';
+  (model.wrong||[]).slice(0,6).forEach((letter,i)=>{const x=334+(i%3)*48,y=125+Math.floor(i/3)*48;ctx.fillText(letter,x,y);ctx.lineWidth=3;line(x-5,y-21,x+22,y+4);ctx.lineWidth=6;});
+  ctx.font='14px monospace';ctx.fillText(String(misses)+'/6 WRONG',330,235);
+  if(model.status==='won')ctx.fillText('SOLVED',330,278);else if(model.status==='lost')ctx.fillText('GAME OVER',330,278);else ctx.fillText('IN PLAY',330,278);
+  ctx.font='600 14px monospace';ctx.fillText('WORD',42,427);
+  const word=String(model.word||'ORBIT').toUpperCase(),guessed=new Set(model.guessed||[]),ended=model.status==='won'||model.status==='lost';
+  const cell=Math.min(28,260/Math.max(1,word.length)),start=42+(260-word.length*cell)*.5;
+  ctx.lineWidth=3;
+  for(let i=0;i<word.length;i++){const x=start+i*cell,shown=guessed.has(word[i])||ended;line(x,476,x+cell*.72,476);if(shown){ctx.font='600 '+Math.round(cell*.88)+'px monospace';ctx.fillText(word[i],x+1,468)}}
+  const pixels=ctx.getImageData(0,0,size,size).data,pool=[];
+  for(let y=8;y<size-8;y++)for(let x=8;x<size-8;x++)if(pixels[(y*size+x)*4+3]>45)pool.push(y*size+x);
+  if(!pool.length)return new Float32Array((N+M)*3);
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)),swap=pool[i];pool[i]=pool[j];pool[j]=swap;}
+  const total=N+M,points=new Float32Array(total*3);
+  for(let i=0;i<total;i++){const pixel=pool[Math.min(pool.length-1,Math.floor((i+.5)*pool.length/total))],x=pixel%size,y=Math.floor(pixel/size),at=i*3;points[at]=(x/(size-1)-.5)*2.06;points[at+1]=(.5-y/(size-1))*2.06;points[at+2]=(((i*37)%101)/100-.5)*.055;}
+  return points;
+}
+window.setOrbHangmanScene=(model)=>{
+  if(!model||!model.active){hangmanSceneRequested=false;host.dataset.scene='orb';return;}
+  if(!hangmanSceneRequested){if(!hangmanCurrentOuter)hangmanCurrentOuter=new Float32Array(outerPositions);else hangmanCurrentOuter.set(outerPositions);if(!hangmanCurrentInner)hangmanCurrentInner=new Float32Array(innerPositions);else hangmanCurrentInner.set(innerPositions);}
+  const points=makeHangmanCloud(model);hangmanTargetsOuter=points.slice(0,N*3);hangmanTargetsInner=points.slice(N*3);
+  hangmanSceneRequested=true;host.dataset.scene='hangman';
+};
 const inv=new T.Quaternion();
 const ax=V3(0,1,0),ax2=V3(1,0,.3).normalize();
 window.pulse=a=>{pulseDirection.set(0,0,1);pulseAge=0;pulseStrength=a;pt=0;pa=a;};
@@ -1543,14 +1676,8 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
   }
   for(let i=0;i<count;i++){
     const at=i*3,x=points[at],y=points[at+1],z=points[at+2],seed=seeds[i],p=seed*TAU;
-    const w1=Math.sin(x*3.1+y*1.8-z*1.2+p+time*(.65+seed*.55));
-    const w2=Math.sin(y*3.4+z*2.1+x*.7+p*1.7-time*(.48+seed*.62));
-    const w3=Math.sin(z*2.8-x*1.7+y*.9-p*.7+time*(.52+seed*.48));
-    const w4=Math.sin((x+y-z)*3.2+p*2.1+time*(.39+seed*.58));
     const lobe=Math.pow(Math.max(0,Math.sin((x*1.6-z*1.9+y*.65)*4.1+p+time*(.38+seed*.18))),2.0);
-    const pinch=Math.sin((x*.8-y*1.6+z*.65)*2.6+time*.57+phase);
     const spike=Math.pow(Math.max(0,Math.sin((x*2.0+y*1.5-z*1.8)*3.4+p*1.3-time*.43)),2.3);
-    const wave=.30*w1+.24*w2+.19*w3+.14*w4+.13*pinch;
     let localShape=0;
     for(let j=0;j<centres.length;j++){
       const c=centres[j];
@@ -1560,40 +1687,12 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
       // Positive values push a small region out; negative values carve a dent inward.
       localShape+=c[3]*influence;
     }
-    const fineShape=.052*wave+.046*(lobe-.25)+.018*spike;
+    const fineShape=.046*(lobe-.25)+.018*spike;
     const motionShape=.038*Math.sin(x*4.5+y*3.4-z*3.8+time*.8+p)*Math.cos(y*3.2-z*2.4+time*.54);
 
-    // Liquid symbiote surface: broad crests flow into troughs, then rise
-    // into the next crest. Three overlapping wave fields keep the motion connected.
-    let tendrilShape=0;
-    for(let group=0;group<4;group++){
-      const a=time*(.105+group*.009)+group*2.399;
-      const b=time*(.073+group*.008)+group*1.713;
-      let dx=Math.sin(a)*Math.cos(b);
-      let dy=Math.sin(b)*.82+Math.cos(a*.63+group)*.18;
-      let dz=Math.cos(a)*Math.cos(b);
-      const dlen=Math.hypot(dx,dy,dz)||1;
-      dx/=dlen;dy/=dlen;dz/=dlen;
-      const dot=clamp(x*dx+y*dy+z*dz,-1,1);
-      const theta=Math.acos(dot);
-      // Alternating positive crests and negative troughs create a continuous,
-      // rounded wave instead of a set of separate pointed tendrils.
-      // The outward half of each wave travels faster than its return stroke.
-      const phase=theta*5.4-time*1.10+group*1.52;
-      const crest=Math.sin(phase);
-      const envelope=Math.exp(-Math.pow(theta/1.28,2));
-      const outward=Math.max(0,crest),returnFlow=Math.min(0,crest);
-      const secondary=Math.sin(phase*1.48-.8)*envelope*.22;
-      tendrilShape+=(outward*.135+returnFlow*.085+secondary*.070)*envelope;
-    }
-    // Dense central particles are gently tugged by the passing wave, then pulled
-    // back toward the core as the crest recedes, like liquid stretching and recoiling.
-    const centrePull=Math.exp(-Math.pow((x*.9+y*.75-z*.8)/.62,2));
-    const centrePhase=(x*.9+y*.75-z*.8)*5.2-time*1.55;
-    const centreTug=Math.sin(centrePhase)*centrePull*.055;
-    const centreRecoil=Math.sin(centrePhase-.85)*centrePull*.028;
-    tendrilShape+=centreTug+centreRecoil;
-        const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.018;
+    // Removed liquid-wave deformation so the particle field stays geometrically clear.
+    const tendrilShape=0;
+    const activeWave=0;
     const radial=radius*(1+localShape+fineShape+motionShape+tendrilShape+activeWave);
     // Each particle has its own pace and 3D route; neighbours need not move in unison.
     const move=.022+amplitude*.38;
@@ -1612,45 +1711,20 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     xx=tx;zz=tz;
     let ox=xx*ca+zz*sa,oz=-xx*sa+zz*ca,oy=yy;
 
-    if(waveElapsed>=0){
-      const theta=Math.acos(clamp(oz/Math.max(.001,radius),-1,1));
-      const front=Math.min(Math.PI/2,waveElapsed*Math.PI/6);
-      const ring=Math.exp(-Math.pow((theta-front)*18,2));
-      const scale=1+Math.max(0,waveElapsed<3?.014*ring:0);
-      ox*=scale;oy*=scale;oz*=scale;
-    }
-    if(pulseAge<1.3){
-      const dot=clamp((ox*pulseDirection.x+oy*pulseDirection.y+oz*pulseDirection.z)/
-        Math.max(.001,Math.sqrt(ox*ox+oy*oy+oz*oz)),-1,1);
-      const theta=Math.acos(dot),front=Math.min(Math.PI,pulseAge*2.45);
-      const ring=Math.exp(-Math.pow((theta-front)*5.2,2))*pulseStrength*.022;
-      const scale=1+ring;
-      ox*=scale;oy*=scale;oz*=scale;
-    }
-    if(tp<1.3){
-      const dot=clamp((ox*touchDirection.x+oy*touchDirection.y+oz*touchDirection.z)/
-        Math.max(.001,Math.sqrt(ox*ox+oy*oy+oz*oz)),-1,1);
-      const theta=Math.acos(dot),front=Math.min(Math.PI,tp*1.7);
-      const ring=Math.exp(-Math.pow((theta-front)*7,2))*.018;
-      const scale=1+ring;
-      ox*=scale;oy*=scale;oz*=scale;
-    }
+    // No particle ripples or travelling rings: keep silhouettes clean.
     output[at]=ox;output[at+1]=oy;output[at+2]=oz;
   }
 }
 function updateMesh(mesh,base,positions,seeds,count,inner){
   for(let i=0;i<count;i++){
     const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
-    const depth=clamp((z+1)/2,0,1);
-    const radial=Math.sqrt(x*x+y*y+z*z);
-    // Fine pinprick particles keep the orb crisp rather than chunky.
-    const size=(inner?.0028:.00225)+seed*(inner?.00085:.0010);
-    const frontScale=.84+depth*.34;
-    dummy.position.set(x,y,z);
-    dummy.scale.setScalar(size*frontScale);
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i,dummy.matrix);
+    const depth=clamp((z+1)/2,0,1),radial=Math.sqrt(x*x+y*y+z*z);
+    const normalSize=(inner?.0028:.00225)+seed*(inner?.00085:.0010);
+    const gameSize=(inner?.0039:.0031)+seed*(inner?.00115:.00125);
+    const size=lerp(normalSize,gameSize,hangmanBlend),frontScale=.84+depth*.34;
+    dummy.position.set(x,y,z);dummy.scale.setScalar(size*frontScale);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
     setParticleColour(mesh,i,z,seed,inner,radial);
+    if(hangmanBlend>0){particleColour.lerp(hangmanParticleBlue,hangmanBlend);particleColour.multiplyScalar(1+hangmanBlend*.28);mesh.setColorAt(i,particleColour);}
   }
   mesh.instanceMatrix.needsUpdate=true;
   if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
@@ -1724,6 +1798,14 @@ function frame(now){
     const waveTime=waveElapsed>=0?waveElapsed:-1;
     deform(outerBase.positions,outerBase.seeds,N,1,visualTime,amplitude,0,0,outerPositions);
     deform(innerBase.positions,innerBase.seeds,M,.55,visualTime,amplitude*.86,2.2,1,innerPositions);
+    if(hangmanSceneRequested&&hangmanTargetsOuter&&hangmanTargetsInner&&hangmanCurrentOuter&&hangmanCurrentInner){
+      const follow=1-Math.exp(-dt*3.0);
+      for(let i=0;i<hangmanCurrentOuter.length;i++)hangmanCurrentOuter[i]+=(hangmanTargetsOuter[i]-hangmanCurrentOuter[i])*follow;
+      for(let i=0;i<hangmanCurrentInner.length;i++)hangmanCurrentInner[i]+=(hangmanTargetsInner[i]-hangmanCurrentInner[i])*follow;
+    }
+    hangmanBlend+=((hangmanSceneRequested?1:0)-hangmanBlend)*(1-Math.exp(-dt*2.25));
+    if(!hangmanSceneRequested&&hangmanBlend<.001)hangmanBlend=0;
+    if(hangmanCurrentOuter&&hangmanCurrentInner&&hangmanBlend>0){for(let i=0;i<outerPositions.length;i++)outerPositions[i]=lerp(outerPositions[i],hangmanCurrentOuter[i],hangmanBlend);for(let i=0;i<innerPositions.length;i++)innerPositions[i]=lerp(innerPositions[i],hangmanCurrentInner[i],hangmanBlend);}
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
     updateFlyMotes(dt*motionAllowed);
@@ -1731,13 +1813,8 @@ function frame(now){
     else pa=0;
     if(tp<1.3)tp+=dt/1.1*motionAllowed;
     if(pulseAge<1.3)pulseAge+=dt*motionAllowed;
-    if(waveElapsed>=0){
-      waveElapsed+=dt*motionAllowed;
-      if(waveElapsed>=7)waveElapsed=-1;
-    }else{
-      idleT-=dt*motionAllowed;
-      if(idleT<=0&&state==='standby'){waveElapsed=0;idleT=10;}
-    }
+    // Automatic idle wave pulses are disabled.
+    waveElapsed=-1;
 
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
     glow.material.opacity=Math.min(1,cur.core*1.05*(.94+.06*Math.sin(tt*.8))+
