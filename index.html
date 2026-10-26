@@ -1444,12 +1444,8 @@ function createLines(pairs,opacity){
   object.renderOrder=2;
   return {geometry,material,object,positionAttribute,colourAttribute};
 }
-const outerLines=createLines(outerEdges,.52);
-const innerLines=createLines(innerEdges,.36);
-const spokeLines=createLines(spokes,.25);
-
 const tilt=new T.Group();
-tilt.add(glow,outerMesh,innerMesh,outerLines.object,innerLines.object,spokeLines.object);
+tilt.add(glow,outerMesh,innerMesh);
 
 // Occasional foreground motes peel off the orb and travel toward the viewer.
 const flyCount=9;
@@ -1725,13 +1721,6 @@ function frame(now){
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
     updateFlyMotes(dt*motionAllowed);
-    updateLines(outerLines,outerEdges,outerPositions,outerPositions,tt);
-    updateLines(innerLines,innerEdges,innerPositions,innerPositions,tt);
-    updateLines(spokeLines,spokes,innerPositions,outerPositions,tt);
-    outerLines.material.opacity=.34;
-    innerLines.material.opacity=.27;
-    spokeLines.material.opacity=.16;
-
     if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
     else pa=0;
     if(tp<1.3)tp+=dt/1.1*motionAllowed;
@@ -1762,8 +1751,6 @@ requestAnimationFrame(frame);
 
 addEventListener('pagehide',()=>{
   if(resizeObserver)resizeObserver.disconnect();
-  outerLines.geometry.dispose();innerLines.geometry.dispose();spokeLines.geometry.dispose();
-  outerLines.material.dispose();innerLines.material.dispose();spokeLines.material.dispose();
   sphereGeometry.dispose();outerMaterial.dispose();innerMaterial.dispose();
   glow.material.map.dispose();glow.material.dispose();rd.dispose();
 });
