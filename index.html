@@ -527,7 +527,7 @@ function renderHangmanPanel(){
   if(!hangmanGame.active)return `<div class="hg-wrap"><div class="hg-head"><div><p class="lbl">PARTICLE GAME</p><h2>HANGMAN</h2><p class="hg-clue">The orb particles form the gallows, figure, word and crossed-out letters.</p></div></div><p class="mut" style="margin:0;font-size:13px">Start a round, then tap letters or say “guess E”.</p><div class="hg-actions"><button class="hg-action primary" data-hg-action="start">Start Hangman</button></div></div>`;
   const ended=hangmanGame.status!=='playing',solved=hangmanGame.status==='won',lost=hangmanGame.status==='lost';
   const guessed=new Set(hangmanGame.guessed);
-  const slots=hangmanGame.word.split('').map(letter=>{const shown=guessed.has(letter)||ended;return `<span class="hg-slot" aria-label="${shown?letter:'hidden letter'}">${shown?letter:'_'}</span>`;}).join('');
+  const slots=hangmanGame.word.split('').map(letter=>{const shown=guessed.has(letter)||ended;return `<span class="hg-slot" aria-label="${shown?letter:'hidden letter'}">${shown?letter:''}</span>`;}).join('');
   const wrong=hangmanGame.wrong.length?hangmanGame.wrong.map(letter=>`<span class="hg-miss">${letter}</span>`).join(''):'<span class="hg-none">None yet</span>';
   const keys=HANGMAN_ALPHABET.map(letter=>{const used=guessed.has(letter),kind=used?(hangmanGame.word.includes(letter)?'correct':'wrong'):'';return `<button type="button" class="hg-key ${kind}" data-hg-letter="${letter}" aria-label="Guess ${letter}" ${used||ended?'disabled':''}>${letter}</button>`;}).join('');
   let result='Tap a letter or use voice: “guess E”.';
