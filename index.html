@@ -356,6 +356,34 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
 <section id="disp" class="fr" aria-label="Visualisation channel"><div class="hd"><span class="lbl" id="dt">Visualisation channel</span><button class="ib" id="dx" aria-label="Close view" hidden><svg class="ic"><use href="#i-x"/></svg></button></div><div id="dv"></div></section>
 </main></div>
 <div id="ov" hidden role="dialog" aria-modal="true" aria-labelledby="ot"><div class="sheet fr"><div class="hd"><span id="ot" class="lbl"></span><button class="ib" id="oc" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div><div id="ob"></div></div></div>
+<script>
+/* Emergency diagnostics: keep a visible error message if the main interface fails. */
+(function () {
+  const show = (message) => {
+    const el = document.getElementById('msg');
+    if (!el) return;
+    el.textContent = 'J.A.R.V.I.S. diagnostic: ' + String(message || 'Unknown startup error').slice(0, 220);
+    el.dataset.persistent = 'true';
+    el.dataset.typing = 'false';
+    el.classList.remove('msg-out');
+    el.classList.add('msg-in');
+  };
+  window.addEventListener('error', (event) => {
+    if (event && event.message) show(event.message);
+  });
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event && event.reason;
+    show(reason && reason.message ? reason.message : reason || 'Unhandled promise rejection');
+  });
+  window.addEventListener('DOMContentLoaded', () => {
+    window.setTimeout(() => {
+      if (!window.__jarvisCoreInitialized) {
+        show('Main interface did not finish starting. Reload this page and check this message.');
+      }
+    }, 8000);
+  }, { once: true });
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -1256,6 +1284,7 @@ setInterval(() => {
 }, 9000);
 const tick=()=>$('#clk').textContent=new Date().toLocaleTimeString([],{hour12:false});tick();setInterval(tick,1000);
 apply();renderDisp();
+window.__jarvisCoreInitialized = true;
 
 /* ---- Living geometric particle orb (Three.js) ---- */
 (function(){try{
