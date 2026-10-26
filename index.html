@@ -841,7 +841,7 @@ function startFilamentAnimation() {
 
 startFilamentAnimation();
 
-async function speakReply(text) {
+async function speakReply(text, fast = false) {
   let audioUrl = null;
 
   try {
@@ -889,8 +889,8 @@ async function speakReply(text) {
     jarvisAudio = new Audio(audioUrl);
     connectFilamentSpeech(jarvisAudio);
 
-    // The burst promise resolves when the explosion ends and reformation begins.
-    await burst();
+    // Skip the visual burst for short listening prompts so speech starts sooner.
+    if (!fast) await burst();
     setState('responding');
 
     // Wait for the full audio to finish, not just for playback to start.
@@ -943,7 +943,7 @@ $('#ov').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=$$('#ov 
 function apply(){document.documentElement.classList.toggle('rm',S.rm);const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos}
 const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv()};
 
-let wakeEnabled=false, recognition=null, wakeArmed=false;
+let wakeEnabled=false, recognition=null, wakeArmed=false, conversationMode=false;
 
 function setState(s){
   state=s;
@@ -968,6 +968,7 @@ const clearT=()=>{timers.forEach(clearTimeout);timers=[];busy=false};
 function stopWake(){
   wakeEnabled=false;
   wakeArmed=false;
+  conversationMode=false;
   stopFilamentMic();
   if(recognition){
     recognition.onend=null;
@@ -1026,13 +1027,21 @@ recognition.onstart=()=>{
         const command=transcript.slice(match.index+match[0].length)
           .replace(/^[\s,.:!?-]+/,'').trim();
 
+        conversationMode=true;
         if(command){
           run(command);
         }else{
           wakeArmed=true;
           setState('listening');
-          say("I'm listening. What do you need?");
+          // Speak the acknowledgement aloud, and skip the animation delay.
+          speakReply("I'm listening, what do you need sir?", true);
         }
+        continue;
+      }
+
+      // Once awakened, keep the conversation open for follow-up questions.
+      if(conversationMode && transcript){
+        run(transcript);
       }
     }
   };
