@@ -957,7 +957,7 @@ let wakeEnabled=false, recognition=null, wakeArmed=false, conversationMode=false
 
 function setState(s){
   state=s;
-if(s==='processing') cur.rate=ST.processing.rate;
+/* Orb animation state is scoped inside its own module; do not access it here. */
   $('#core').dataset.s=s;
   $('#stat').dataset.s=s;
   $('#cs').textContent=LBL[s];
