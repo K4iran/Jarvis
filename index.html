@@ -978,10 +978,8 @@ async function speakReply(text, fast = false) {
     busy = false;
     setState('standby');
 
-    // Restore wake-word recognition if the user left it enabled.
-    if (wakeEnabled && recognition) {
-      try { recognition.start(); } catch (e) {}
-    }
+    // Resume listening once after speech finishes; never race the onend handler.
+    restartRecognition();
   }
 }
 
@@ -998,7 +996,16 @@ $('#ov').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=$$('#ov 
 function apply(){document.documentElement.classList.toggle('rm',S.rm);const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos}
 const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv()};
 
-let wakeEnabled=false, recognition=null, wakeArmed=false, conversationMode=false;
+let wakeEnabled=false, recognition=null, wakeArmed=false, conversationMode=false, recognitionRestartTimer=0;
+
+function restartRecognition(){
+  clearTimeout(recognitionRestartTimer);
+  if(!wakeEnabled||!recognition||jarvisSpeaking||busy||document.visibilityState!=='visible')return;
+  recognitionRestartTimer=setTimeout(()=>{
+    if(!wakeEnabled||!recognition||jarvisSpeaking||busy||document.visibilityState!=='visible')return;
+    try{recognition.start()}catch(e){}
+  },350);
+}
 
 function setState(s){
   state=s;
@@ -1024,6 +1031,7 @@ function stopWake(){
   wakeEnabled=false;
   wakeArmed=false;
   conversationMode=false;
+  clearTimeout(recognitionRestartTimer);
   stopFilamentMic();
   if(recognition){
     recognition.onend=null;
@@ -1051,18 +1059,27 @@ $('#mic').onclick=()=>{
 
   recognition=new SpeechRecognition();
   recognition.lang='en-GB';
-  recognition.continuous=true;
+  // A single speech session per utterance avoids repeated Android Chrome mic beeps.
+  recognition.continuous=false;
   recognition.interimResults=false;
   recognition.maxAlternatives=1;
   wakeEnabled=true;
   wakeArmed=false;
-  startFilamentMic();
+  // Do not open a second getUserMedia stream beside SpeechRecognition; on Android
+  // this can compete with recognition and repeatedly toggle audio capture.
 
   
 recognition.onstart=()=>{
-  if(!wakeEnabled)return;
-  setState('listening');
-};
+    if(!wakeEnabled)return;
+    setState('listening');
+    say('Listening. Go ahead.', false);
+  };
+  recognition.onspeechstart=()=>{
+    if(wakeEnabled&&!busy&&!jarvisSpeaking)say('I can hear you.', false);
+  };
+  recognition.onnomatch=()=>{
+    if(wakeEnabled&&!busy&&!jarvisSpeaking)say('I didn’t catch that. Please try again.', false);
+  };
 
 
   recognition.onresult=(event)=>{
@@ -1105,14 +1122,8 @@ recognition.onstart=()=>{
   };
 
   recognition.onend=()=>{
-    if(!wakeEnabled||!recognition||jarvisSpeaking||busy)return;
-
-    if(document.visibilityState==='visible'){
-      setTimeout(()=>{
-        if(!wakeEnabled||!recognition||jarvisSpeaking)return;
-        try{recognition.start()}catch(e){}
-      },300);
-    }
+    // One central restart scheduler prevents competing start() calls.
+    restartRecognition();
   };
 
   try{
@@ -1125,10 +1136,7 @@ recognition.onstart=()=>{
 
 document.addEventListener('visibilitychange',()=>{
   if(!wakeEnabled||!recognition)return;
-
-  if(document.visibilityState==='visible' && !busy && !jarvisSpeaking){
-    try{recognition.start()}catch(e){}
-  }
+  if(document.visibilityState==='visible')restartRecognition();
 });
 
 
