@@ -1393,7 +1393,7 @@ function setParticleColour(mesh,i,z,seed,inner){
   const depth=clamp((z+1.05)/2.1,0,1);
   if(depth<.68)particleColour.copy(deepBlue).lerp(electricBlue,depth/.68);
   else particleColour.copy(electricBlue).lerp(iceBlue,(depth-.68)/.32);
-  particleColour.multiplyScalar((inner?.98:1.08)+seed*.18+Math.max(0,z)*.10);
+  particleColour.multiplyScalar((inner?1.08:1.19)+seed*.20+Math.max(0,z)*.13);
   mesh.setColorAt(i,particleColour);
 }
 
@@ -1437,6 +1437,56 @@ const spokeLines=createLines(spokes,.25);
 
 const tilt=new T.Group();
 tilt.add(glow,outerMesh,innerMesh,outerLines.object,innerLines.object,spokeLines.object);
+
+// Occasional foreground motes peel off the orb and travel toward the viewer.
+const flyCount=9;
+const flyPositions=new Float32Array(flyCount*3);
+const flyColours=new Float32Array(flyCount*3);
+const flyState=Array.from({length:flyCount},()=>({age:10,duration:1.25,x:0,y:0,z:.65,vx:0,vy:0}));
+for(let i=0;i<flyCount;i++){
+  flyPositions[i*3+2]=-8;
+  const shade=i%3===0?[.72,.94,1]:[.20,.58,1];
+  flyColours.set(shade,i*3);
+}
+const flyGeometry=new T.BufferGeometry();
+flyGeometry.setAttribute('position',new T.BufferAttribute(flyPositions,3).setUsage(T.DynamicDrawUsage));
+flyGeometry.setAttribute('color',new T.BufferAttribute(flyColours,3));
+const flyMaterial=new T.PointsMaterial({
+  size:.047,vertexColors:true,transparent:true,opacity:.95,
+  blending:T.AdditiveBlending,depthWrite:false,sizeAttenuation:true
+});
+const flyMotes=new T.Points(flyGeometry,flyMaterial);
+flyMotes.frustumCulled=false;
+tilt.add(flyMotes);
+let flyClock=1.7;
+const updateFlyMotes=(dt)=>{
+  flyClock-=dt;
+  if(flyClock<=0){
+    const mote=flyState.find(q=>q.age>=q.duration);
+    if(mote){
+      const a=Math.random()*Math.PI*2,r=.18+Math.random()*.56;
+      mote.age=0;mote.duration=.85+Math.random()*.7;
+      mote.x=Math.cos(a)*r;mote.y=Math.sin(a)*r;
+      mote.z=.45+Math.random()*.35;
+      mote.vx=mote.x*.30+(Math.random()-.5)*.20;
+      mote.vy=mote.y*.30+(Math.random()-.5)*.20;
+    }
+    flyClock=1.1+Math.random()*2.3;
+  }
+  for(let i=0;i<flyCount;i++){
+    const q=flyState[i],at=i*3;
+    if(q.age<q.duration){
+      q.age+=dt;
+      const p=Math.min(1,q.age/q.duration);
+      flyPositions[at]=q.x+q.vx*p;
+      flyPositions[at+1]=q.y+q.vy*p;
+      flyPositions[at+2]=q.z+1.45*p;
+    }else{
+      flyPositions[at]=0;flyPositions[at+1]=0;flyPositions[at+2]=-8;
+    }
+  }
+  flyGeometry.attributes.position.needsUpdate=true;
+}; 
 sc.add(tilt);
 
 const outerPositions=new Float32Array(N*3);
@@ -1579,7 +1629,7 @@ function updateMesh(mesh,base,positions,seeds,count,inner){
     const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
     const depth=clamp((z+1)/2,0,1);
     // Slightly larger, brighter particles make the liquid mass feel denser.
-    const size=(inner?.0070:.0075)+seed*(inner?.0026:.0035);
+    const size=(inner?.0080:.0086)+seed*(inner?.0030:.0040);
     const frontScale=.84+depth*.34;
     dummy.position.set(x,y,z);
     dummy.scale.setScalar(size*frontScale);
@@ -1661,6 +1711,7 @@ function frame(now){
     deform(innerBase.positions,innerBase.seeds,M,.55,visualTime,amplitude*.86,2.2,1,innerPositions);
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
+    updateFlyMotes(dt*motionAllowed);
     updateLines(outerLines,outerEdges,outerPositions,outerPositions,tt);
     updateLines(innerLines,innerEdges,innerPositions,innerPositions,tt);
     updateLines(spokeLines,spokes,innerPositions,outerPositions,tt);
