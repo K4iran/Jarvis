@@ -1793,7 +1793,7 @@ function setParticleColour(mesh,i,z,seed,inner,waveGlow=0){
   /* Preserve the blue depth gradient, then let the travelling light wave
      briefly lift each particle toward icy white before it softly fades. */
   const depth=clamp((z+1)/2,0,1);
-  const front=depth*depth*(3-2*front);
+  const front=depth*depth*(3-2*depth);
   /* Keep the spheres near-white at all angles, with only a faint cool-blue tint. */
   const whiteAmount=clamp(.22+front*.48+(seed-.5)*.035,0,1);
   particleColour.copy(iceBlue).lerp(nearWhite,whiteAmount);
