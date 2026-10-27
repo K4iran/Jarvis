@@ -1660,7 +1660,7 @@ const outerMaterial=new T.MeshPhongMaterial({
   color:0xffffff,emissive:0x020817,specular:0x17365c,shininess:24
 });
 const innerMaterial=new T.MeshPhongMaterial({
-  color:0xffffff,emissive:0x6bdbff,specular:0xf2fdff,shininess:64
+  color:0xffffff,emissive:0x163956,specular:0xd8f7ff,shininess:52
 });
 const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
 const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
@@ -1676,16 +1676,19 @@ const nearWhite=new T.Color('#f4fdff');
 const particleColour=new T.Color();
 const dummy=new T.Object3D();
 function setParticleColour(mesh,i,z,seed,inner){
-  /* Smooth continuous blue ramp across both particle layers, avoiding a
-     sudden colour jump between the inner core and the outer shell. */
+  /* Preserve the blue gradient across the orb. Only the small forward-facing
+     core fades toward white; particles progressively return to blue outward. */
   const depth=clamp((z+1)/2,0,1);
   const front=depth*depth*(3-2*depth);
   const shellBias=inner ? .10 : -.055;
   const shade=clamp(.035+front*.73+shellBias+(seed-.5)*.025,0,1);
   particleColour.copy(deepBlue).lerp(iceBlue,shade);
-  /* The inner cloud approaches white; the outer shell retains the blue ramp. */
-  if(inner) particleColour.lerp(nearWhite,.78);
-  particleColour.multiplyScalar(inner ? .98+front*.18+(seed-.5)*.018 : .80+front*.25+(seed-.5)*.025);
+  if(inner){
+    const whiteCore=clamp((front-.72)/.28,0,1);
+    const whiteFade=whiteCore*whiteCore*(3-2*whiteCore);
+    particleColour.lerp(nearWhite,whiteFade*.82);
+  }
+  particleColour.multiplyScalar(inner ? .88+front*.20+(seed-.5)*.018 : .80+front*.25+(seed-.5)*.025);
   mesh.setColorAt(i,particleColour);
 }
 
