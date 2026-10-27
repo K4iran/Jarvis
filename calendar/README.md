@@ -25,6 +25,7 @@ Include these scripts on the JARVIS page (only after the main page is safely pat
 ```html
 <script src="./calendar/config.js"></script>
 <script src="./calendar/google-calendar.js"></script>
+<script src="./calendar/calendar-panel.js"></script>
 ```
 
 `config.js` now contains the public OAuth Client ID you created. It is okay for this browser client ID to be visible in the website source; never add a client secret or access token there.
@@ -42,6 +43,8 @@ await window.JarvisGoogleCalendar.connect();
 ```
 
 Google's access token is held only in JavaScript memory; it is not written to localStorage or sent to JARVIS/Supabase. It expires, so the user may need to reconnect. The requested scope is `calendar.events` (event read/write, not Gmail access).
+
+The staged `calendar-panel.js` provides a basic calendar overlay with Connect, Refresh, create, edit, and confirmed-delete controls. It listens for `jarvis:calendar-open-request` and `jarvis:calendar-events`. It is not visible on the live site until the main page loads all three scripts and the existing voice handler calls `JarvisGoogleCalendar.openCalendar()` for the calendar command.
 
 ## 3. Available API methods
 
