@@ -1682,10 +1682,10 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(50,140,255,.62)');
-glowGradient.addColorStop(.18,'rgba(50,140,255,.48)');
-glowGradient.addColorStop(.38,'rgba(50,140,255,.26)');
-glowGradient.addColorStop(.68,'rgba(39,141,255,.09)');
+glowGradient.addColorStop(0,'rgba(50,140,255,.88)');
+glowGradient.addColorStop(.18,'rgba(50,140,255,.70)');
+glowGradient.addColorStop(.38,'rgba(50,140,255,.42)');
+glowGradient.addColorStop(.68,'rgba(39,141,255,.16)');
 glowGradient.addColorStop(1,'rgba(39,141,255,0)');
 glowContext.fillStyle=glowGradient;
 glowContext.fillRect(0,0,128,128);
@@ -1693,7 +1693,7 @@ const glowTexture=new T.CanvasTexture(glowCanvas);
 const glow=new T.Sprite(new T.SpriteMaterial({
   map:glowTexture,blending:T.AdditiveBlending,transparent:true,depthWrite:false
 }));
-glow.scale.setScalar(1.42);
+glow.scale.setScalar(2.45);
 glow.position.set(0,0,-.25);
 glow.renderOrder=0;
 
@@ -1794,20 +1794,16 @@ function setParticleColour(mesh,i,z,seed,inner,waveGlow=0){
      briefly lift each particle toward icy white before it softly fades. */
   const depth=clamp((z+1)/2,0,1);
   const front=depth*depth*(3-2*depth);
-  const shellBias=inner ? .10 : -.055;
-  const shade=clamp(.13+front*.78+shellBias+(seed-.5)*.025,0,1);
-  particleColour.copy(deepBlue).lerp(iceBlue,shade);
-  if(inner){
-    const whiteCore=clamp((front-.72)/.28,0,1);
-    const whiteFade=whiteCore*whiteCore*(3-2*whiteCore);
-    particleColour.lerp(nearWhite,whiteFade*.82);
-  }
+  /* Keep the spheres near-white at all angles, with only a faint cool-blue tint. */
+  const whiteAmount=clamp(.22+front*.48+(seed-.5)*.035,0,1);
+  particleColour.copy(iceBlue).lerp(nearWhite,whiteAmount);
+  if(inner)particleColour.lerp(nearWhite,.22);
   const waveStrength=clamp(waveGlow,0,1);
   if(waveStrength>0){
-    particleColour.lerp(nearWhite,waveStrength*.94);
-    particleColour.multiplyScalar(1+waveStrength*.85);
+    particleColour.lerp(nearWhite,waveStrength*.72);
+    particleColour.multiplyScalar(1+waveStrength*.55);
   }
-  particleColour.multiplyScalar(inner ? .88+front*.20+(seed-.5)*.018 : .80+front*.25+(seed-.5)*.025);
+  particleColour.multiplyScalar(inner ? .94+front*.08+(seed-.5)*.012 : .91+front*.09+(seed-.5)*.015);
   mesh.setColorAt(i,particleColour);
 }
 
