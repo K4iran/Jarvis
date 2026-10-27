@@ -1661,7 +1661,7 @@ const electricBlue=new T.Color('#176dff');
 const iceBlue=new T.Color('#d8fbff');
 const particleColour=new T.Color();
 const dummy=new T.Object3D();
-function setParticleColour(mesh,i,z,seed,inner,radialDistance){
+function setParticleColour(mesh,i,z,seed,inner){
   /* The particles sit on two spherical shells, so radius alone cannot create
      a smooth centre gradient. Use shell identity plus front-facing depth:
      keep the outer shell dark and reserve icy highlights for the inner core. */
@@ -1913,8 +1913,7 @@ function updateMesh(mesh,base,positions,seeds,count,inner){
     dummy.scale.setScalar(size*frontScale);
     dummy.updateMatrix();
     mesh.setMatrixAt(i,dummy.matrix);
-    const radialDistance=Math.sqrt(x*x+y*y+z*z);
-    setParticleColour(mesh,i,z,seed,inner,radialDistance);
+    setParticleColour(mesh,i,z,seed,inner);
   }
   mesh.instanceMatrix.needsUpdate=true;
   if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
