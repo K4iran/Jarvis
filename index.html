@@ -115,6 +115,17 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,
   overflow: visible;
   pointer-events: none;
   z-index: 2;
+  transform-origin: 50% 50%;
+}
+
+/* Keep the existing liquid filament deformation running while the whole
+   sound-wave layer spins rapidly during both listening and speech output. */
+#core[data-s="listening"] .filaments,
+#core[data-s="responding"] .filaments {
+  animation: filamentFastSpin .62s linear infinite;
+}
+@keyframes filamentFastSpin {
+  to { transform: rotate(360deg); }
 }
 
 .filament {
@@ -1557,8 +1568,10 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(150,215,255,.70)');
-glowGradient.addColorStop(.4,'rgba(39,141,255,.22)');
+glowGradient.addColorStop(0,'rgba(255,255,255,1)');
+glowGradient.addColorStop(.16,'rgba(244,253,255,.98)');
+glowGradient.addColorStop(.34,'rgba(178,239,255,.72)');
+glowGradient.addColorStop(.58,'rgba(39,141,255,.24)');
 glowGradient.addColorStop(1,'rgba(39,141,255,0)');
 glowContext.fillStyle=glowGradient;
 glowContext.fillRect(0,0,128,128);
@@ -1566,7 +1579,7 @@ const glowTexture=new T.CanvasTexture(glowCanvas);
 const glow=new T.Sprite(new T.SpriteMaterial({
   map:glowTexture,blending:T.AdditiveBlending,transparent:true,depthWrite:false
 }));
-glow.scale.setScalar(1.16);
+glow.scale.setScalar(1.42);
 glow.position.set(0,0,-.25);
 glow.renderOrder=0;
 
@@ -1647,7 +1660,7 @@ const outerMaterial=new T.MeshPhongMaterial({
   color:0xffffff,emissive:0x020817,specular:0x17365c,shininess:24
 });
 const innerMaterial=new T.MeshPhongMaterial({
-  color:0xffffff,emissive:0x0b3768,specular:0x82dfff,shininess:48
+  color:0xffffff,emissive:0x6bdbff,specular:0xf2fdff,shininess:64
 });
 const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
 const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
@@ -1659,6 +1672,7 @@ innerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 const deepBlue=new T.Color('#041545');
 const electricBlue=new T.Color('#176dff');
 const iceBlue=new T.Color('#d8fbff');
+const nearWhite=new T.Color('#f4fdff');
 const particleColour=new T.Color();
 const dummy=new T.Object3D();
 function setParticleColour(mesh,i,z,seed,inner){
@@ -1669,7 +1683,9 @@ function setParticleColour(mesh,i,z,seed,inner){
   const shellBias=inner ? .10 : -.055;
   const shade=clamp(.035+front*.73+shellBias+(seed-.5)*.025,0,1);
   particleColour.copy(deepBlue).lerp(iceBlue,shade);
-  particleColour.multiplyScalar(.80+front*.25+(inner ? .035 : 0)+(seed-.5)*.025);
+  /* The inner cloud approaches white; the outer shell retains the blue ramp. */
+  if(inner) particleColour.lerp(nearWhite,.78);
+  particleColour.multiplyScalar(inner ? .98+front*.18+(seed-.5)*.018 : .80+front*.25+(seed-.5)*.025);
   mesh.setColorAt(i,particleColour);
 }
 
@@ -2001,7 +2017,7 @@ function frame(now){
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
     glow.material.opacity=Math.min(.62,cur.core*.58*(.94+.06*Math.sin(tt*.8))+
       pulseStrength*.12+chargeLevel*.12);
-    glow.scale.setScalar(1.28+cur.proc*.045+chargeLevel*.18);
+    glow.scale.setScalar(1.48+cur.proc*.045+chargeLevel*.18);
     pulseStrength*=Math.exp(-dt*1.6);
     host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
     rd.render(sc,cam);
