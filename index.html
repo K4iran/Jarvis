@@ -888,14 +888,23 @@ function drawFilamentFrame(now) {
     ).toFixed(2);
   });
 
-  /* Sparse, very faint bridges between neighbouring wave rings, visible while voice is active. */
+  /* Denser faint bridges between neighbouring wave rings. Keep every bridge
+     outside the orb silhouette (radius 120px plus a safety margin). */
   const links = [];
+  const orbClearRadius = 132;
   for (let layer = 0; layer < layerPoints.length - 1; layer++) {
     const inner = layerPoints[layer], outer = layerPoints[layer + 1];
     if (!inner || !outer) continue;
-    for (let i = 0; i < 180; i += 12) {
-      const a = inner[i], b = outer[(i + (layer % 2 ? 5 : 0)) % 180];
-      if (a && b) links.push(`M ${a[0].toFixed(1)} ${a[1].toFixed(1)} L ${b[0].toFixed(1)} ${b[1].toFixed(1)}`);
+    for (let i = 0; i < 180; i += 5) {
+      const a = inner[i], b = outer[(i + (layer % 2 ? 3 : 0)) % 180];
+      if (!a || !b) continue;
+      const midX = (a[0] + b[0]) * .5;
+      const midY = (a[1] + b[1]) * .5;
+      /* Reject any connector that would touch or cross the orb's protected area. */
+      if (Math.hypot(midX - 200, midY - 200) < orbClearRadius) continue;
+      if (Math.hypot(a[0] - 200, a[1] - 200) < orbClearRadius ||
+          Math.hypot(b[0] - 200, b[1] - 200) < orbClearRadius) continue;
+      links.push(`M ${a[0].toFixed(1)} ${a[1].toFixed(1)} L ${b[0].toFixed(1)} ${b[1].toFixed(1)}`);
     }
   }
   const connectionPath = document.getElementById('filamentConnections');
