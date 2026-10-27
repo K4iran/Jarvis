@@ -104,8 +104,8 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,
 #center{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
 .core{position:relative;width:min(100%,58dvh,540px);aspect-ratio:1;margin:0 auto}
 .core canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
-/* Keep the audio filaments/rings full-size while the particle orb sits inside them. */
-#core>#gl{inset:8%;width:84%;height:84%;}
+/* The WebGL canvas stays full-size so its coordinates still align with the overlay.
+   The 3D orb itself is scaled in its Three.js group, independently of the audio waves. */
     /* Audio-reactive energy filaments */
 .filaments {
   position: absolute;
@@ -1665,10 +1665,10 @@ function setParticleColour(mesh,i,z,seed,inner,radialDistance){
   const depth=clamp((z+1.05)/2.1,0,1);
   if(depth<.68)particleColour.copy(deepBlue).lerp(electricBlue,depth/.68);
   else particleColour.copy(electricBlue).lerp(iceBlue,(depth-.68)/.32);
-  /* Radial proximity controls luminosity: particles nearer the core glow brighter. */
+  /* Strong inner/outer contrast: the inner particle layer is the luminous core. */
   const proximity=clamp(1-radialDistance/1.05,0,1);
-  particleColour.multiplyScalar(.72+proximity*1.55+seed*.12+Math.max(0,z)*.06);
-  if(inner)particleColour.lerp(iceBlue,.18);
+  particleColour.multiplyScalar((inner?1.32:.68)+proximity*1.55+seed*.10+Math.max(0,z)*.04);
+  if(inner)particleColour.lerp(iceBlue,.30);
   mesh.setColorAt(i,particleColour);
 }
 
@@ -1707,6 +1707,8 @@ function createLines(pairs,opacity){
   return {geometry,material,object,positionAttribute,colourAttribute};
 }
 const tilt=new T.Group();
+/* Shrink the entire 3D particle mass while leaving the surrounding SVG sound waves untouched. */
+tilt.scale.setScalar(.78);
 tilt.add(glow,outerMesh,innerMesh);
 
 // Occasional foreground motes peel off the orb and travel toward the viewer.
