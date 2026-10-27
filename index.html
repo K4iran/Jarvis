@@ -1662,18 +1662,14 @@ const iceBlue=new T.Color('#d8fbff');
 const particleColour=new T.Color();
 const dummy=new T.Object3D();
 function setParticleColour(mesh,i,z,seed,inner){
-  /* The particles sit on two spherical shells, so radius alone cannot create
-     a smooth centre gradient. Use shell identity plus front-facing depth:
-     keep the outer shell dark and reserve icy highlights for the inner core. */
+  /* Smooth continuous blue ramp across both particle layers, avoiding a
+     sudden colour jump between the inner core and the outer shell. */
   const depth=clamp((z+1)/2,0,1);
-  const front=Math.pow(depth,1.7);
-  if(inner){
-    particleColour.copy(electricBlue).lerp(iceBlue,.24+front*.52);
-    particleColour.multiplyScalar(1.00+front*.42+seed*.08);
-  }else{
-    particleColour.copy(deepBlue).lerp(electricBlue,.10+front*.43);
-    particleColour.multiplyScalar(.62+front*.25+seed*.06);
-  }
+  const front=depth*depth*(3-2*depth);
+  const shellBias=inner ? .10 : -.055;
+  const shade=clamp(.035+front*.73+shellBias+(seed-.5)*.025,0,1);
+  particleColour.copy(deepBlue).lerp(iceBlue,shade);
+  particleColour.multiplyScalar(.80+front*.25+(inner ? .035 : 0)+(seed-.5)*.025);
   mesh.setColorAt(i,particleColour);
 }
 
