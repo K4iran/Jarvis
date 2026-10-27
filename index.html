@@ -130,6 +130,14 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,
   filter: drop-shadow(0 0 3px rgba(54,74,255,.32))
           drop-shadow(0 0 10px rgba(20,18,74,.72));
 }
+.filament-connections {
+  fill: none;
+  stroke: rgba(151,224,255,.22);
+  stroke-width: .55;
+  stroke-linecap: round;
+  opacity: var(--voice-links,0);
+  transition: opacity .45s ease;
+}
 
 .filament-cyan {
   stroke: #9DEBFF;
@@ -337,6 +345,7 @@ h1{margin:0;padding-left:.32em;font-weight:200;letter-spacing:.32em;font-size:cl
     </filter>
   </defs>
 
+  <path id="filamentConnections" class="filament-connections" d=""/>
   <g filter="url(#filamentGlow)">
     <path class="filament filament-cyan" id="filament1" d=""/>
     <path class="filament filament-blue" id="filament2" d=""/>
@@ -839,11 +848,12 @@ function drawFilamentFrame(now) {
   const amplitude = 2.2 + filamentLevel * 18;
   const detailAmplitude = 1.2 + filamentLevel * 5;
 
+  const layerPoints = [];
   filamentIds.forEach((id, layer) => {
     const path = document.getElementById(id);
     if (!path) return;
 
-    const points = [];
+    const points = [], coords = [];
     const count = 180;
     for (let i = 0; i <= count; i++) {
       const angle = (i / count) * Math.PI * 2;
@@ -862,9 +872,11 @@ function drawFilamentFrame(now) {
         wave * amplitude + detail * detailAmplitude + ripple;
       const x = 200 + Math.cos(drift) * radius;
       const y = 200 + Math.sin(drift) * radius;
+      coords.push([x,y]);
       points.push((i === 0 ? 'M ' : 'L ') +
         x.toFixed(2) + ' ' + y.toFixed(2));
     }
+    layerPoints[layer] = coords;
 
     path.setAttribute('d', points.join(' ') + ' Z');
     path.style.opacity = Math.min(
@@ -875,6 +887,19 @@ function drawFilamentFrame(now) {
       + filamentLevel * 0.9
     ).toFixed(2);
   });
+
+  /* Sparse, very faint bridges between neighbouring wave rings, visible while voice is active. */
+  const links = [];
+  for (let layer = 0; layer < layerPoints.length - 1; layer++) {
+    const inner = layerPoints[layer], outer = layerPoints[layer + 1];
+    if (!inner || !outer) continue;
+    for (let i = 0; i < 180; i += 12) {
+      const a = inner[i], b = outer[(i + (layer % 2 ? 5 : 0)) % 180];
+      if (a && b) links.push(`M ${a[0].toFixed(1)} ${a[1].toFixed(1)} L ${b[0].toFixed(1)} ${b[1].toFixed(1)}`);
+    }
+  }
+  const connectionPath = document.getElementById('filamentConnections');
+  if (connectionPath) connectionPath.setAttribute('d', links.join(' '));
 }
 
 function startFilamentAnimation() {
@@ -1963,15 +1988,16 @@ function frame(now){
     if(dt>.034)slow++;else slow=Math.max(0,slow-1);
     if(slow>90&&dpr>1){dpr=Math.max(1,dpr*.85);fit();slow=0;}
     const motionAllowed=S.rm?0:1;
-    const activeVoice=state==='listening'||state==='responding';
+    const activeVoice=state==='listening'||state==='processing'||state==='responding';
     const targetWaveSpeed=activeVoice?Math.PI*2/.62:0;
-    /* Ease the wave speed rather than toggling an animation off on state changes. */
+    /* Keep the liquid wave animation alive; only add a smooth rotation layer. */
     const spinEase=1-Math.exp(-dt*(activeVoice?5.5:1.15));
     waveAngularVelocity+=(targetWaveSpeed-waveAngularVelocity)*spinEase;
     waveRotation+=waveAngularVelocity*dt*motionAllowed;
-    if(filamentLayer)filamentLayer.style.transform=`rotate(${waveRotation}rad)`;
-    /* The orb follows the same easing curve in the opposite direction, at 78% speed. */
-    tilt.rotation.z=-waveRotation*.78;
+    if(filamentLayer){
+      filamentLayer.style.transform=`rotate(${waveRotation}rad)`;
+      filamentLayer.style.setProperty('--voice-links',activeVoice?'1':'0');
+    }
     const targetSpeaking=state==='responding'?1:(state==='processing'?.42:(state==='listening'?.12:0));
     const blendRate=targetSpeaking>speakingBlend?3.2:1.65;
     speakingBlend+=(targetSpeaking-speakingBlend)*(1-Math.exp(-dt*blendRate));
