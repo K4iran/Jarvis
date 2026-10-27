@@ -983,6 +983,218 @@ async function speakReply(text, fast = false) {
   }
 }
 
+
+async function fetchJarvisSpeechBlob(text) {
+  const response = await fetch(
+    'https://jtzlljxurhqvybkoygll.supabase.co/functions/v1/Jarvis-speech',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df'
+      },
+      body: JSON.stringify({ text })
+    }
+  );
+  const data = await response.json();
+  if (!response.ok || !data?.audio) {
+    throw new Error(data?.error || data?.message || 'Speech request failed');
+  }
+  const binary = atob(data.audio);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: data.mimeType || 'audio/mpeg' });
+}
+
+async function playJarvisStreamChunk(text) {
+  let audioUrl = null;
+  try {
+    const blob = await fetchJarvisSpeechBlob(text);
+    audioUrl = URL.createObjectURL(blob);
+    jarvisSpeaking = true;
+    jarvisAudio = new Audio(audioUrl);
+    connectFilamentSpeech(jarvisAudio);
+    setState('responding');
+    await new Promise((resolve, reject) => {
+      const audio = jarvisAudio;
+      audio.onended = resolve;
+      audio.onerror = () => reject(new Error('Audio playback failed'));
+      const playback = audio.play();
+      if (playback?.catch) playback.catch(reject);
+    });
+  } catch (error) {
+    console.warn('Streaming speech chunk failed; using browser speech if available.', error);
+    if ('speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined') {
+      await new Promise(resolve => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-GB';
+        utterance.onend = resolve;
+        utterance.onerror = resolve;
+        window.speechSynthesis.speak(utterance);
+      });
+    }
+  } finally {
+    if (jarvisAudio) {
+      jarvisAudio.onended = null;
+      jarvisAudio.onerror = null;
+      try { jarvisAudio.pause(); } catch (e) {}
+    }
+    jarvisAudio = null;
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+  }
+}
+
+async function streamJarvisReply(message) {
+  const response = await fetch(
+    'https://jtzlljxurhqvybkoygll.supabase.co/functions/v1/jarvis-chat',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df'
+      },
+      body: JSON.stringify({ message })
+    }
+  );
+
+  if (!response.ok) {
+    let detail = {};
+    try { detail = await response.json(); } catch (e) {}
+    throw new Error(detail.error || detail.message || `Request failed (${response.status})`);
+  }
+  if (!response.body) throw new Error('Your browser could not read the response stream.');
+
+  let fullReply = '';
+  let pendingText = '';
+  let eventBuffer = '';
+  const audioTasks = [];
+  let audioIndex = 0;
+  let streamDone = false;
+  let wakePlayer;
+  const notifyPlayer = () => { if (wakePlayer) { const wake = wakePlayer; wakePlayer = null; wake(); } };
+  const waitForPlayer = () => new Promise(resolve => { wakePlayer = resolve; });
+  let playerPromise = Promise.resolve();
+
+  const queueSentence = sentence => {
+    const clean = sentence.trim();
+    if (!clean) return;
+    if (wakeEnabled) {
+      audioTasks.push(fetchJarvisSpeechBlob(clean));
+      notifyPlayer();
+    }
+  };
+
+  if (wakeEnabled) {
+    playerPromise = (async () => {
+      while (!streamDone || audioIndex < audioTasks.length) {
+        if (audioIndex >= audioTasks.length) {
+          await waitForPlayer();
+          continue;
+        }
+        const task = audioTasks[audioIndex++];
+        try {
+          const blob = await task;
+          await playJarvisStreamBlob(blob);
+        } catch (error) {
+          console.warn('A streamed speech segment could not be played.', error);
+        }
+      }
+    })();
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const updateVisibleText = () => {
+    const message = $('#msg');
+    if (!message) return;
+    messageTypingRun++;
+    clearTimeout(messageTypingTimer);
+    messageTypingTimer = 0;
+    message.dataset.persistent = 'true';
+    message.dataset.typing = 'false';
+    message.classList.remove('msg-out');
+    message.classList.add('msg-in');
+    message.textContent = fullReply;
+    const panel = $('#arcReplyText');
+    if (panel) panel.textContent = fullReply.length > 26 ? fullReply.slice(0, 25) + '…' : fullReply;
+  };
+
+  const processEvent = eventText => {
+    const dataLines = eventText.split('\n').filter(line => line.startsWith('data:'));
+    for (const line of dataLines) {
+      const raw = line.slice(5).trim();
+      if (!raw || raw === '[DONE]') continue;
+      let event;
+      try { event = JSON.parse(raw); } catch (error) { continue; }
+      const parts = event.candidates?.[0]?.content?.parts || [];
+      for (const part of parts) {
+        if (typeof part.text !== 'string' || !part.text) continue;
+        fullReply += part.text;
+        pendingText += part.text;
+        updateVisibleText();
+        const match = pendingText.match(/^([\s\S]*?[.!?](?:[\s]+|$))/);
+        if (match) {
+          queueSentence(match[1]);
+          pendingText = pendingText.slice(match[1].length);
+          // Catch any additional complete sentences in the same Gemini chunk.
+          let next = pendingText.match(/^([\s\S]*?[.!?](?:[\s]+|$))/);
+          while (next) {
+            queueSentence(next[1]);
+            pendingText = pendingText.slice(next[1].length);
+            next = pendingText.match(/^([\s\S]*?[.!?](?:[\s]+|$))/);
+          }
+        }
+      }
+    }
+  };
+
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      eventBuffer += decoder.decode(value, { stream: true });
+      const events = eventBuffer.split(/\r?\n\r?\n/);
+      eventBuffer = events.pop() || '';
+      for (const eventText of events) processEvent(eventText);
+    }
+    eventBuffer += decoder.decode();
+    if (eventBuffer.trim()) processEvent(eventBuffer);
+    if (pendingText.trim()) queueSentence(pendingText);
+    if (!fullReply.trim()) throw new Error('Jarvis returned an empty response.');
+  } finally {
+    streamDone = true;
+    notifyPlayer();
+  }
+
+  if (wakeEnabled) await playerPromise;
+  return fullReply;
+}
+
+async function playJarvisStreamBlob(blob) {
+  const audioUrl = URL.createObjectURL(blob);
+  try {
+    jarvisSpeaking = true;
+    jarvisAudio = new Audio(audioUrl);
+    connectFilamentSpeech(jarvisAudio);
+    setState('responding');
+    await new Promise((resolve, reject) => {
+      const audio = jarvisAudio;
+      audio.onended = resolve;
+      audio.onerror = () => reject(new Error('Audio playback failed'));
+      const playback = audio.play();
+      if (playback?.catch) playback.catch(reject);
+    });
+  } finally {
+    if (jarvisAudio) {
+      jarvisAudio.onended = null;
+      jarvisAudio.onerror = null;
+      try { jarvisAudio.pause(); } catch (e) {}
+    }
+    jarvisAudio = null;
+    URL.revokeObjectURL(audioUrl);
+  }
+}
+
 function renderDisp(){const p=P[view];$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
 function setView(v){view=v;renderDisp()}
 $('#dx').onclick=()=>setView('idle');
@@ -1260,29 +1472,12 @@ async function run(t) {
   window.startBurstCharge();
 
   try {
-    const response = await fetch(
-      
-      'https://jtzlljxurhqvybkoygll.supabase.co/functions/v1/jarvis-chat',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'sb_publishable_fuO9On8KrFFWCc7LUxtv_g_Ywx912df'
-        },
-        body: JSON.stringify({ message: t + JarvisMemory.context() })
-      }
-    );
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || data.message || `Request failed (${response.status})`);
-    }
-
-    $('#msg').dataset.persistent = 'true';
-    const reply = data.reply || 'Jarvis returned an empty response.';
-    say(reply);
+    const reply = await streamJarvisReply(t + JarvisMemory.context());
     if (wakeEnabled) {
-      await speakReply(reply);
+      jarvisSpeaking = false;
+      busy = false;
+      setState('standby');
+      restartRecognition();
     } else {
       busy = false;
       setState('standby');
