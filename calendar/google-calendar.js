@@ -158,11 +158,20 @@
     if ("title" in changes) safeChanges.summary = String(changes.title).trim();
     if ("description" in changes) safeChanges.description = String(changes.description || "");
     if ("location" in changes) safeChanges.location = String(changes.location || "");
-    if ("start" in changes) safeChanges.start = changes.start;
-    if ("end" in changes) safeChanges.end = changes.end;
+    const timeZone = changes.timeZone || "Europe/London";
+    if ("start" in changes) {
+      safeChanges.start = typeof changes.start === "string"
+        ? { dateTime: new Date(changes.start).toISOString(), timeZone }
+        : changes.start;
+    }
+    if ("end" in changes) {
+      safeChanges.end = typeof changes.end === "string"
+        ? { dateTime: new Date(changes.end).toISOString(), timeZone }
+        : changes.end;
+    }
     if ("timeZone" in changes) {
-      if (safeChanges.start) safeChanges.start.timeZone = changes.timeZone;
-      if (safeChanges.end) safeChanges.end.timeZone = changes.timeZone;
+      if (safeChanges.start && safeChanges.start.dateTime) safeChanges.start.timeZone = timeZone;
+      if (safeChanges.end && safeChanges.end.dateTime) safeChanges.end.timeZone = timeZone;
     }
     if (!Object.keys(safeChanges).length) throw new Error("No supported event changes were supplied.");
     const result = await request("/calendars/primary/events/" + encode(eventId), {
@@ -217,10 +226,11 @@
   }
 
   function disconnect() {
+    const tokenToRevoke = accessToken;
     accessToken = "";
     tokenExpiresAt = 0;
-    if (window.google && window.google.accounts && window.google.accounts.oauth2 && accessToken) {
-      window.google.accounts.oauth2.revoke(accessToken, () => {});
+    if (tokenToRevoke && window.google && window.google.accounts && window.google.accounts.oauth2) {
+      window.google.accounts.oauth2.revoke(tokenToRevoke, () => {});
     }
   }
 
