@@ -1,10 +1,12 @@
 # JARVIS Google Calendar adapter (staged integration)
 
+**Chosen direction: Google Calendar is the single source of truth.** JARVIS will read and manage events in the Google account's primary calendar. Use the Google Calendar app as the main calendar interface; Samsung Calendar is optional and not part of the integration target.
+
 This folder contains a calendar API adapter for the existing JARVIS site. It is intentionally staged separately: **it does not modify `index.html`, the orb, voice code, Gemini model, Supabase functions, or any existing secrets.** It is not live-integrated until the main page is wired to it.
 
-## Why Google Calendar?
+## Calendar choice
 
-Samsung Calendar can display calendars synced from Google. Use the **Google** destination for events that JARVIS should manage; those events should then sync back into Samsung Calendar. Events stored only under "My phone" or a Samsung-only calendar are not accessible through this Google connection.
+Google Calendar is the one calendar JARVIS will use. Create and manage events in the Google Calendar app or through JARVIS. This avoids splitting events between Google, Samsung account, and phone-only calendars. Existing birthdays may appear as a separate Google birthday calendar; ordinary events created in the primary Google calendar are managed by this adapter.
 
 ## 1. Enable Google Calendar API and create a browser OAuth client
 
