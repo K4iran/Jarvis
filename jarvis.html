@@ -1770,11 +1770,11 @@ for(let i=0;i<M;i+=2){
 }
 
 const sphereGeometry=new T.SphereGeometry(1,lo?7:9,lo?5:7);
-const outerMaterial=new T.MeshPhongMaterial({
-  color:0xffffff,emissive:0x020817,specular:0x17365c,shininess:24
+const outerMaterial=new T.MeshBasicMaterial({
+  color:0xffffff
 });
-const innerMaterial=new T.MeshPhongMaterial({
-  color:0xffffff,emissive:0x163956,specular:0xd8f7ff,shininess:52
+const innerMaterial=new T.MeshBasicMaterial({
+  color:0xffffff
 });
 const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
 const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
@@ -1794,16 +1794,12 @@ function setParticleColour(mesh,i,z,seed,inner,waveGlow=0){
      briefly lift each particle toward icy white before it softly fades. */
   const depth=clamp((z+1)/2,0,1);
   const front=depth*depth*(3-2*depth);
-  /* Keep the spheres near-white at all angles, with only a faint cool-blue tint. */
-  const whiteAmount=clamp(.22+front*.48+(seed-.5)*.035,0,1);
-  particleColour.copy(iceBlue).lerp(nearWhite,whiteAmount);
-  if(inner)particleColour.lerp(nearWhite,.22);
+  /* Near-white spheres: tiny cool-blue variation only; BasicMaterial avoids blue lighting tint. */
+  const tint=clamp(.035+front*.055+(seed-.5)*.018,0,.11);
+  particleColour.setRGB(1-tint*.12,1-tint*.035,1);
+  if(inner)particleColour.setRGB(1,1,1);
   const waveStrength=clamp(waveGlow,0,1);
-  if(waveStrength>0){
-    particleColour.lerp(nearWhite,waveStrength*.72);
-    particleColour.multiplyScalar(1+waveStrength*.55);
-  }
-  particleColour.multiplyScalar(inner ? .94+front*.08+(seed-.5)*.012 : .91+front*.09+(seed-.5)*.015);
+  if(waveStrength>0)particleColour.lerp(nearWhite,waveStrength*.35);
   mesh.setColorAt(i,particleColour);
 }
 
@@ -2161,7 +2157,7 @@ function frame(now){
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
     glow.material.opacity=Math.min(.62,cur.core*.58*(.94+.06*Math.sin(tt*.8))+
       pulseStrength*.12+chargeLevel*.12);
-    glow.scale.setScalar(1.48+cur.proc*.045+chargeLevel*.18);
+    glow.scale.setScalar(3.35+cur.proc*.10+chargeLevel*.24);
     pulseStrength*=Math.exp(-dt*1.6);
     host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
     rd.render(sc,cam);
