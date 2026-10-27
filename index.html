@@ -967,9 +967,12 @@ function drawFilamentFrame(now) {
   const connectionPath = document.getElementById('filamentConnections');
   if (connectionPath) {
     connectionPath.setAttribute('d', links.join(' '));
-    connectionPath.style.opacity = (0.14 + filamentLevel * 0.42).toFixed(3);
-    connectionPath.style.filter = filamentLevel > 0.025
-      ? 'drop-shadow(0 0 ' + (2 + filamentLevel * 4).toFixed(1) + 'px rgba(111,235,255,.65))'
+    /* Keep the bridges delicate at rest, but let them clearly illuminate
+       with either live microphone input or JARVIS's own speech. */
+    connectionPath.style.opacity = (0.10 + filamentLevel * 0.76).toFixed(3);
+    connectionPath.style.strokeWidth = (0.55 + filamentLevel * 1.15).toFixed(2);
+    connectionPath.style.filter = filamentLevel > 0.018
+      ? 'drop-shadow(0 0 ' + (1.5 + filamentLevel * 7).toFixed(1) + 'px rgba(111,235,255,' + (0.24 + filamentLevel * 0.72).toFixed(2) + '))'
       : '';
   }
 
