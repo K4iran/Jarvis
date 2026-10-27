@@ -1645,7 +1645,7 @@ window.__jarvisCoreInitialized = true;
 (function(){try{
 const T=THREE,host=$('#core'),canvas=$('#gl');
 const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
-const N=lo?6500:6800,M=lo?2000:2200,TAU=Math.PI*2;
+const N=1200,M=180,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 // Use a lighter renderer setup for broad desktop/laptop GPU compatibility.
@@ -1682,10 +1682,10 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(255,255,255,1)');
-glowGradient.addColorStop(.16,'rgba(244,253,255,.98)');
-glowGradient.addColorStop(.34,'rgba(178,239,255,.72)');
-glowGradient.addColorStop(.58,'rgba(39,141,255,.24)');
+glowGradient.addColorStop(0,'rgba(50,140,255,.62)');
+glowGradient.addColorStop(.18,'rgba(50,140,255,.48)');
+glowGradient.addColorStop(.38,'rgba(50,140,255,.26)');
+glowGradient.addColorStop(.68,'rgba(39,141,255,.09)');
 glowGradient.addColorStop(1,'rgba(39,141,255,0)');
 glowContext.fillStyle=glowGradient;
 glowContext.fillRect(0,0,128,128);
@@ -1783,10 +1783,10 @@ outerMesh.renderOrder=1;innerMesh.renderOrder=1;
 outerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 innerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 
-const deepBlue=new T.Color('#041545');
+const deepBlue=new T.Color('#315f9b');
 const electricBlue=new T.Color('#176dff');
-const iceBlue=new T.Color('#d8fbff');
-const nearWhite=new T.Color('#f4fdff');
+const iceBlue=new T.Color('#e8f8ff');
+const nearWhite=new T.Color('#f8fdff');
 const particleColour=new T.Color();
 const dummy=new T.Object3D();
 function setParticleColour(mesh,i,z,seed,inner,waveGlow=0){
@@ -1795,7 +1795,7 @@ function setParticleColour(mesh,i,z,seed,inner,waveGlow=0){
   const depth=clamp((z+1)/2,0,1);
   const front=depth*depth*(3-2*depth);
   const shellBias=inner ? .10 : -.055;
-  const shade=clamp(.035+front*.73+shellBias+(seed-.5)*.025,0,1);
+  const shade=clamp(.13+front*.78+shellBias+(seed-.5)*.025,0,1);
   particleColour.copy(deepBlue).lerp(iceBlue,shade);
   if(inner){
     const whiteCore=clamp((front-.72)/.28,0,1);
@@ -1851,7 +1851,7 @@ tilt.scale.setScalar(.78);
 tilt.add(glow,outerMesh,innerMesh);
 
 // Occasional foreground motes peel off the orb and travel toward the viewer.
-const flyCount=9;
+const flyCount=0;
 const flyPositions=new Float32Array(flyCount*3);
 const flyColours=new Float32Array(flyCount*3);
 const flyState=Array.from({length:flyCount},()=>({age:10,duration:1.25,x:0,y:0,z:.65,vx:0,vy:0}));
@@ -2051,7 +2051,7 @@ function updateMesh(mesh,base,positions,seeds,count,inner){
     const waveDistance=Math.exp(-Math.pow((radialDistance-easedPhase)/.085,2));
     const waveGlow=waveDistance*orbWaveActive;
     // Slightly larger, brighter particles make the liquid mass feel denser.
-    const size=(inner?.0048:.0033)+seed*(inner?.0017:.0015);
+    const size=(inner?.0045:.0038)+seed*(inner?.0018:.0016);
     const frontScale=.84+depth*.34;
     dummy.position.set(x,y,z);
     dummy.scale.setScalar(size*frontScale*(1+waveGlow*.16));
