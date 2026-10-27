@@ -20,19 +20,14 @@ Google's official guide: https://developers.google.com/workspace/calendar/api/qu
 
 ## 2. Load and initialize the adapter
 
-Include this script on the JARVIS page (only after the main page is safely patched):
+Include these scripts on the JARVIS page (only after the main page is safely patched), in this order:
 
 ```html
+<script src="./calendar/config.js"></script>
 <script src="./calendar/google-calendar.js"></script>
 ```
 
-Before initializing, set the public OAuth client ID:
-
-```html
-<script>
-  window.JARVIS_GOOGLE_CLIENT_ID = "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com";
-</script>
-```
+`config.js` now contains the public OAuth Client ID you created. It is okay for this browser client ID to be visible in the website source; never add a client secret or access token there.
 
 Then initialize it once:
 
