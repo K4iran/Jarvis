@@ -138,12 +138,12 @@ button,input{font:inherit;color:inherit}
 body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,9,24,.78) 28%,#02030a 68%,#010207 100%)}
 @media(prefers-reduced-motion:reduce){#cosmos{opacity:.8}}
 #app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:var(--h)}
-#bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 14px;border-bottom:1px solid var(--ln);background:linear-gradient(rgba(9,19,33,.7),transparent)}
-.br,.rt{display:flex;align-items:center;gap:10px}.br b{font-weight:300;letter-spacing:.3em;font-size:13px}.br svg{width:24px;height:24px}.brand-copy{display:flex;flex-direction:column;align-items:flex-start;gap:3px}.brand-copy .hs{display:block;text-transform:none;letter-spacing:.04em;font-size:10px;color:#9CB6CA;line-height:1.3}.tabs{display:flex;align-items:center;gap:5px;margin-left:auto;margin-right:12px}.tab{background:transparent;border:1px solid var(--ln);border-radius:4px;color:var(--m);font:500 10px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.08em;padding:9px 12px;cursor:pointer;white-space:nowrap}.tab.active{color:#D8F7FF;border-color:rgba(88,223,255,.55);background:rgba(88,223,255,.08)}.tab:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+#bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 12px;border-bottom:1px solid var(--ln);background:linear-gradient(rgba(9,19,33,.7),transparent)}
+.br,.rt{display:flex;align-items:center;gap:8px}.br b{font-weight:300;letter-spacing:.3em;font-size:13px}.br svg{width:25px;height:25px;flex:none}.br svg.helmet-mark{width:30px;height:30px;filter:drop-shadow(0 0 4px rgba(88,223,255,.35))}.brand-copy{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}.brand-copy .hs{display:block;text-transform:none;letter-spacing:.04em;font-size:10px;color:#9CB6CA;line-height:1.3}.tabs{display:flex;align-items:center;gap:3px;margin-left:auto;margin-right:4px;flex:none}.tab{background:transparent;border:1px solid var(--ln);border-radius:3px;color:var(--m);font:500 9px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.04em;padding:5px 7px;cursor:pointer;white-space:nowrap}.tab.active{color:#D8F7FF;border-color:rgba(88,223,255,.55);background:rgba(88,223,255,.08)}.tab:focus-visible{outline:2px solid var(--c);outline-offset:2px}
 .stat{display:flex;align-items:center;gap:7px;font:400 10px "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--m)}
 .stat i{width:7px;height:7px;border-radius:50%;background:var(--b);box-shadow:0 0 8px var(--b)}.stat[data-s=listening] i,.stat[data-s=responding] i{background:var(--c);box-shadow:0 0 10px var(--c)}.stat[data-s=processing] i{background:#fff;box-shadow:0 0 10px #fff}
-#clk{font-size:11px;color:var(--m)}
-@media(max-width:699px){.brand-copy .hs{display:block;max-width:75vw;font-size:9px}}@media(max-width:560px){#bar{flex-wrap:wrap}.tabs{order:3;width:100%;margin:2px 0 0;justify-content:center}.tab{flex:1;max-width:220px;padding:8px 10px}.rt{margin-left:auto}}
+#clk{display:none!important}
+@media(max-width:699px){.brand-copy .hs{display:none}}@media(max-width:560px){#bar{flex-wrap:nowrap;gap:5px;padding:5px 8px}.br{gap:5px}.br b{font-size:11px;letter-spacing:.18em}.br svg.helmet-mark{width:26px;height:26px}.tabs{order:0;width:auto;margin:0 2px 0 auto;gap:2px}.tab{flex:none;padding:5px 6px;font-size:8px;letter-spacing:0}.rt{margin-left:0;gap:2px}.rt .stat{display:none}.ib{width:34px;height:38px}}
 .ib{width:44px;height:44px;display:grid;place-items:center;background:none;border:1px solid transparent;border-radius:50%;cursor:pointer;transition:.25s;flex:none}.ib:hover{border-color:var(--ln2);background:rgba(88,223,255,.08)}.ib:active{transform:scale(.93)}
 .ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;color:var(--c);flex:none}
 #stage{flex:1;display:grid;gap:14px;padding:10px 14px 22px;align-content:start}
@@ -331,8 +331,8 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 </defs></svg>
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
-<header id="bar"><div class="br"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#58DFFF" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><path d="M12 5l6 10H6z"/><circle cx="12" cy="12" r="2" fill="#58DFFF"/></g></svg><div class="brand-copy"><b>J.A.R.V.I.S.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
-<nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><time id="clk" class="mono hs"></time><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
+<header id="bar"><div class="br"><svg class="helmet-mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="helmetGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C7FAFF"/><stop offset=".48" stop-color="#58DFFF"/><stop offset="1" stop-color="#2879D8"/></linearGradient></defs><g fill="none" stroke="url(#helmetGlow)" stroke-linecap="round" stroke-linejoin="round"><path d="M24 3.5 10 9 5.5 20l3 15 8.5 8h14l8.5-8 3-15L38 9 24 3.5Z" stroke-width="1.5"/><path d="M10 14 16 8l8-2 8 2 6 6-3 13-6 8-5 3-5-3-6-8-3-13Z" stroke-width="1.15"/><path d="m10 17 7 1 5 4-3 5-7-2M38 17l-7 1-5 4 3 5 7-2M17 34l7-3 7 3M20 10l4 2 4-2" stroke-width="1.4"/><path d="m17 18 5 3m9-3-5 3" stroke-width="2.2"/><path d="M20 25h8" stroke-width=".9" opacity=".7"/></g><path d="m12 18 7 1 3 4-3 3-6-2ZM36 18l-7 1-3 4 3 3 6-2Z" fill="#58DFFF" opacity=".18"/></svg><div class="brand-copy"><b>J.A.R.V.I.S.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
+<nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
 <main id="stage">
 <section id="center">
 <div class="core" id="core"><div class="halo" id="halo"></div><canvas id="gl" aria-label="Holographic particle orb" role="img"></canvas>
@@ -855,8 +855,8 @@ function drawFilamentFrame(now) {
   const time = now / 1000;
   /* Keep contours nearly circular and calm without sound. Only voice energy
      creates the larger liquid bends and ripples. */
-  const amplitude = 0.8 + filamentLevel * 29;
-  const detailAmplitude = 0.35 + filamentLevel * 10;
+  const amplitude = 0.95 + filamentLevel * 29;
+  const detailAmplitude = 0.45 + filamentLevel * 10;
 
   const layerPoints = [];
   filamentIds.forEach((id, layer) => {
@@ -877,7 +877,7 @@ function drawFilamentFrame(now) {
         + filamentPhases[layer] * 1.7
       );
       const ripple = Math.sin(angle * 7 + time * (0.72 + layer * 0.05) + layer) *
-        (0.12 + filamentLevel * 5.5);
+        (0.28 + filamentLevel * 5.5);
       const radius = filamentRadii[layer] +
         wave * amplitude + detail * detailAmplitude + ripple;
       const x = 200 + Math.cos(drift) * radius;
@@ -1629,7 +1629,7 @@ setInterval(() => {
     say(IDLE[++ii % IDLE.length], false);
   }
 }, 9000);
-const tick=()=>$('#clk').textContent=new Date().toLocaleTimeString([],{hour12:false});tick();setInterval(tick,1000);
+
 apply();renderDisp();
 window.__jarvisCoreInitialized = true;
 
