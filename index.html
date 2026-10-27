@@ -1789,9 +1789,9 @@ const iceBlue=new T.Color('#d8fbff');
 const nearWhite=new T.Color('#f4fdff');
 const particleColour=new T.Color();
 const dummy=new T.Object3D();
-function setParticleColour(mesh,i,z,seed,inner){
-  /* Preserve the blue gradient across the orb. Only the small forward-facing
-     core fades toward white; particles progressively return to blue outward. */
+function setParticleColour(mesh,i,z,seed,inner,waveGlow=0){
+  /* Preserve the blue depth gradient, then let the travelling light wave
+     briefly lift each particle toward icy white before it softly fades. */
   const depth=clamp((z+1)/2,0,1);
   const front=depth*depth*(3-2*depth);
   const shellBias=inner ? .10 : -.055;
@@ -1801,6 +1801,11 @@ function setParticleColour(mesh,i,z,seed,inner){
     const whiteCore=clamp((front-.72)/.28,0,1);
     const whiteFade=whiteCore*whiteCore*(3-2*whiteCore);
     particleColour.lerp(nearWhite,whiteFade*.82);
+  }
+  const waveStrength=clamp(waveGlow,0,1);
+  if(waveStrength>0){
+    particleColour.lerp(nearWhite,waveStrength*.94);
+    particleColour.multiplyScalar(1+waveStrength*.85);
   }
   particleColour.multiplyScalar(inner ? .88+front*.20+(seed-.5)*.018 : .80+front*.25+(seed-.5)*.025);
   mesh.setColorAt(i,particleColour);
@@ -1986,10 +1991,10 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     const centreTug=Math.sin(centrePhase)*centrePull*.055;
     const centreRecoil=Math.sin(centrePhase-.85)*centrePull*.028;
     tendrilShape+=centreTug+centreRecoil;
-        const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*.018;
+        const activeWave=Math.exp(-Math.pow(((x*Math.sin(time*.2)+y*Math.cos(time*.13)+z*.4)-Math.sin(time*.7)*.8)*3.5,2))*cur.wave*(.018+orbWaveActive*.026);
     const radial=radius*(1+localShape+fineShape+motionShape+tendrilShape+activeWave);
     // Each particle has its own pace and 3D route; neighbours need not move in unison.
-    const move=.022+amplitude*.38;
+    const move=.022+amplitude*(.38+orbWaveActive*.34);
     const orbitA=time*(.43+seed*.95)+p*1.73;
     const orbitB=time*(.37+seed*1.02)+p*2.31;
     const orbitC=time*(.46+seed*.88)+p*1.19;
@@ -2032,17 +2037,27 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
   }
 }
 function updateMesh(mesh,base,positions,seeds,count,inner){
+  const shellRadius=inner?.66:1;
   for(let i=0;i<count;i++){
     const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
     const depth=clamp((z+1)/2,0,1);
+    // The wave travels across each shell from core to edge, then reverses.
+    // A soft Gaussian band lights each particle briefly and leaves no hard edge.
+    const radialDistance=clamp(Math.sqrt(x*x+y*y+z*z)/shellRadius,0,1.25);
+    const phase=(orbWaveClock%2)/2;
+    const easedPhase=phase<.5
+      ? .5-.5*Math.cos(Math.PI*phase*2)
+      : .5+.5*Math.cos(Math.PI*(phase-.5)*2);
+    const waveDistance=Math.exp(-Math.pow((radialDistance-easedPhase)/.085,2));
+    const waveGlow=waveDistance*orbWaveActive;
     // Slightly larger, brighter particles make the liquid mass feel denser.
     const size=(inner?.0048:.0033)+seed*(inner?.0017:.0015);
     const frontScale=.84+depth*.34;
     dummy.position.set(x,y,z);
-    dummy.scale.setScalar(size*frontScale);
+    dummy.scale.setScalar(size*frontScale*(1+waveGlow*.16));
     dummy.updateMatrix();
     mesh.setMatrixAt(i,dummy.matrix);
-    setParticleColour(mesh,i,z,seed,inner);
+    setParticleColour(mesh,i,z,seed,inner,waveGlow);
   }
   mesh.instanceMatrix.needsUpdate=true;
   if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
@@ -2071,6 +2086,7 @@ function updateLines(bundle,pairs,a,b,time=0){
 }
 const sm=(a,b,v)=>clamp((v-a)/(b-a),0,1);
 let speakingBlend=0,orbInfo=`WebGL · ${N+M} particles`;
+let orbWaveClock=0,orbWaveActive=0;
 let waveRotation=0,waveAngularVelocity=0;
 const filamentLayer=document.getElementById('filaments');
 refresh();
@@ -2084,7 +2100,10 @@ function frame(now){
     if(dt>.034)slow++;else slow=Math.max(0,slow-1);
     if(slow>90&&dpr>1){dpr=Math.max(1,dpr*.85);fit();slow=0;}
     const motionAllowed=S.rm?0:1;
-    const activeVoice=state==='listening'||state==='processing'||state==='responding';
+    const activeVoice=state==='listening'||state==='responding';
+    const targetOrbWave=activeVoice?1:0;
+    orbWaveActive+=(targetOrbWave-orbWaveActive)*(1-Math.exp(-dt*(activeVoice?3.8:2.0)));
+    if(activeVoice)orbWaveClock+=dt*motionAllowed;
     const targetWaveSpeed=activeVoice?Math.PI*2/1.55:0;
     /* Keep the liquid wave animation alive; only add a smooth rotation layer. */
     const spinEase=1-Math.exp(-dt*(activeVoice?5.5:1.15));
