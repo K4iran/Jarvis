@@ -756,14 +756,15 @@ let filamentAnimationStarted = false;
 let filamentLevel = 0;
 let filamentLastFrame = 0;
 
+/* Three layered filaments: one fewer contour for a cleaner silhouette. */
 const filamentIds = [
-  'filament1', 'filament2', 'filament3', 'filament4'
+  'filament1', 'filament2', 'filament4'
 ];
-const filamentRadii = [158, 176, 194, 212];
-const filamentWaves = [3, 5, 4, 6];
-const filamentPhases = [0.2, 2.5, 4.4, 5.4];
-const filamentSpeeds = [0.18, 0.11, 0.15, -0.09];
-const filamentBaseOpacity = [0.72, 0.4, 0.48, 0.36];
+const filamentRadii = [162, 188, 214];
+const filamentWaves = [3, 4, 6];
+const filamentPhases = [0.2, 4.4, 5.4];
+const filamentSpeeds = [0.18, 0.15, -0.09];
+const filamentBaseOpacity = [0.72, 0.46, 0.34];
 
 function getFilamentAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -885,17 +886,21 @@ function drawFilamentFrame(now) {
     rms = filamentRms(filamentMicAnalyser, filamentMicData);
   }
 
-  /* A short, gentle audio-reactive glow: sound lifts the level quickly,
-     then it eases back down between syllables instead of staying lit. */
-  const target = Math.max(0, Math.min(1, (rms - 0.012) * 24));
+  /* Ignore background noise while idle; only an active voice state and
+     a real sound peak can exaggerate the contours. */
+  const audioActive = jarvisSpeaking || wakeEnabled;
+  const noiseGate = audioActive ? 0.028 : 1;
+  const target = audioActive
+    ? Math.max(0, Math.min(1, (rms - noiseGate) * 20))
+    : 0;
   filamentLevel += (target - filamentLevel) *
     (target > filamentLevel ? 0.42 : 0.075);
 
   const time = now / 1000;
-  /* Make the actual contours visibly flow, not just rotate. Keep a strong
-     idle deformation and let live voice energy push the waves further. */
-  const amplitude = 8 + filamentLevel * 26;
-  const detailAmplitude = 3.5 + filamentLevel * 9;
+  /* Keep contours nearly circular and calm without sound. Only voice energy
+     creates the larger liquid bends and ripples. */
+  const amplitude = 0.8 + filamentLevel * 29;
+  const detailAmplitude = 0.35 + filamentLevel * 10;
 
   const layerPoints = [];
   filamentIds.forEach((id, layer) => {
@@ -916,7 +921,7 @@ function drawFilamentFrame(now) {
         + filamentPhases[layer] * 1.7
       );
       const ripple = Math.sin(angle * 7 + time * (0.72 + layer * 0.05) + layer) *
-        (1.4 + filamentLevel * 5.5);
+        (0.12 + filamentLevel * 5.5);
       const radius = filamentRadii[layer] +
         wave * amplitude + detail * detailAmplitude + ripple;
       const x = 200 + Math.cos(drift) * radius;
@@ -2075,7 +2080,7 @@ function frame(now){
     if(slow>90&&dpr>1){dpr=Math.max(1,dpr*.85);fit();slow=0;}
     const motionAllowed=S.rm?0:1;
     const activeVoice=state==='listening'||state==='processing'||state==='responding';
-    const targetWaveSpeed=activeVoice?Math.PI*2/1.22:0;
+    const targetWaveSpeed=activeVoice?Math.PI*2/1.55:0;
     /* Keep the liquid wave animation alive; only add a smooth rotation layer. */
     const spinEase=1-Math.exp(-dt*(activeVoice?5.5:1.15));
     waveAngularVelocity+=(targetWaveSpeed-waveAngularVelocity)*spinEase;
