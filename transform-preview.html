@@ -198,7 +198,7 @@ footer span:last-child{text-align:right}
     if(transitionCanvas)transitionCanvas.remove();
     if(transitionCaption)transitionCaption.remove();
 
-    /* A simple energy burst from the orb, followed by the real interface emerging from its core. */
+    /* Phase 1: the orb's particles pull inward. Phase 2: particles and interface burst outward together. */
     var orbRect=orb.getBoundingClientRect();
     var cx=orbRect.left+orbRect.width/2, cy=orbRect.top+orbRect.height/2;
     transitionCanvas=document.createElement("canvas");
@@ -206,7 +206,7 @@ footer span:last-child{text-align:right}
     document.body.appendChild(transitionCanvas);
     transitionCaption=document.createElement("div");
     transitionCaption.className="transition-caption on";
-    transitionCaption.textContent="RELEASING INTERFACE";
+    transitionCaption.textContent="GATHERING ENERGY";
     document.body.appendChild(transitionCaption);
 
     var canvas=transitionCanvas,ctx=canvas.getContext("2d");
@@ -215,56 +215,86 @@ footer span:last-child{text-align:right}
     canvas.width=Math.round(vw*dpr);canvas.height=Math.round(vh*dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
 
+    /* Existing orb particles visibly converge on the core before the burst. */
+    particleNodes.forEach(function(item){
+      item.node.style.transition="none";
+      item.node.style.opacity="1";
+      item.node.style.left=item.x+"%";
+      item.node.style.top=item.y+"%";
+    });
+    void orb.offsetWidth;
+    particleNodes.forEach(function(item){
+      item.node.style.transition="left 380ms cubic-bezier(.2,.75,.15,1),top 380ms cubic-bezier(.2,.75,.15,1),opacity 220ms ease";
+      item.node.style.left="50%";
+      item.node.style.top="50%";
+      item.node.style.opacity=".98";
+    });
+    orb.querySelector(".orb-core").style.filter="brightness(2.5)";
+    orb.querySelector(".orb-core").style.transform="scale(1.25)";
+    orb.querySelector(".orb-core").style.transition="filter 380ms ease,transform 380ms ease";
+
     var dots=[];
     var palette=["#8bd7ff","#5bb8ff","#d0f1ff","#319bff","#a5e5ff"];
     for(var i=0;i<190;i++){
       var angle=Math.random()*Math.PI*2;
-      var speed=90+Math.random()*Math.max(vw,vh)*.78;
+      var radius=orbRect.width*(.16+Math.random()*.3);
+      var speed=140+Math.random()*Math.max(vw,vh)*.72;
       dots.push({
-        x:cx+(Math.random()-.5)*orbRect.width*.36,
-        y:cy+(Math.random()-.5)*orbRect.height*.36,
-        vx:Math.cos(angle)*speed,
-        vy:Math.sin(angle)*speed,
-        size:.6+Math.random()*1.8,
+        x:cx+Math.cos(angle)*radius,
+        y:cy+Math.sin(angle)*radius,
+        angle:angle,
+        speed:speed,
+        size:.7+Math.random()*1.9,
         color:palette[Math.floor(Math.random()*palette.length)],
-        delay:Math.random()*130,
+        delay:Math.random()*65,
         twinkle:Math.random()*Math.PI*2
       });
     }
     var started=performance.now();
     var revealed=false;
-    var duration=1120;
+    var collapseDuration=400;
+    var burstDuration=1450;
 
     function draw(now){
       var elapsed=now-started;
       ctx.clearRect(0,0,vw,vh);
       dots.forEach(function(p){
-        var t=Math.max(0,elapsed-p.delay);
-        var seconds=t/1000;
-        var fade=Math.max(0,1-t/(duration-p.delay));
+        var local=Math.max(0,elapsed-p.delay);
+        var px,py,fade;
+        if(elapsed<collapseDuration){
+          var t=Math.min(1,local/collapseDuration);
+          var ease=t*t*(3-2*t);
+          px=p.x+(cx-p.x)*ease;
+          py=p.y+(cy-p.y)*ease;
+          fade=.35+.65*t;
+        }else{
+          var burstMs=elapsed-collapseDuration;
+          var seconds=Math.max(0,burstMs-p.delay)/1000;
+          var burstEase=seconds*(1+seconds*.2);
+          px=cx+Math.cos(p.angle)*p.speed*burstEase;
+          py=cy+Math.sin(p.angle)*p.speed*burstEase;
+          fade=Math.max(0,1-burstMs/burstDuration);
+        }
         if(fade<=0)return;
-        var drift=1+seconds*.16;
-        var px=p.x+p.vx*seconds*drift;
-        var py=p.y+p.vy*seconds*drift;
         ctx.globalAlpha=fade;
         ctx.fillStyle=p.color;
         ctx.shadowColor="#48adff";
-        ctx.shadowBlur=5+Math.sin(seconds*7+p.twinkle)*3;
+        ctx.shadowBlur=7+Math.sin(elapsed/90+p.twinkle)*4;
         ctx.beginPath();ctx.arc(px,py,p.size,0,Math.PI*2);ctx.fill();
       });
       ctx.globalAlpha=1;ctx.shadowBlur=0;
 
-      if(!revealed && elapsed>360){
+      if(!revealed && elapsed>=collapseDuration){
         revealed=true;
-        transitionCaption.textContent=mode==="schedule"?"REVEALING CALENDAR":mode==="basketball"?"REVEALING CHECKLIST":"REVEALING DAILY PLAN";
+        transitionCaption.textContent=mode==="schedule"?"CALENDAR RELEASE":"INTERFACE RELEASE";
+        /* The panel starts expanding from the core on the exact frame the particles explode outward. */
         switchTo(mode);
-        /* Animate the real panel frame-by-frame; don't rely on CSS animation classes. */
         var finalRect=workspace.getBoundingClientRect();
         var panelCx=finalRect.left+finalRect.width/2;
         var panelCy=finalRect.top+finalRect.height/2;
         var fromX=cx-panelCx;
         var fromY=cy-panelCy;
-        var panelStart=performance.now();
+        var panelStart=now;
         var panelDuration=2200;
         workspace.style.transformOrigin="50% 45%";
         workspace.style.willChange="transform,opacity,clip-path,filter";
@@ -272,8 +302,8 @@ footer span:last-child{text-align:right}
         workspace.style.transform="translate("+fromX+"px,"+fromY+"px) scale(.025)";
         workspace.style.clipPath="circle(0% at 50% 45%)";
         workspace.style.filter="brightness(4) blur(12px)";
-        function animatePanel(now){
-          var raw=Math.min(1,(now-panelStart)/panelDuration);
+        function animatePanel(frameNow){
+          var raw=Math.min(1,(frameNow-panelStart)/panelDuration);
           var eased=1-Math.pow(1-raw,3);
           var scale=raw<.82 ? .025+1.005*eased : 1.03-(.03*((raw-.82)/.18));
           workspace.style.opacity=String(Math.min(1,raw*5));
@@ -293,7 +323,7 @@ footer span:last-child{text-align:right}
         }
         requestAnimationFrame(animatePanel);
       }
-      if(elapsed<duration){
+      if(elapsed<collapseDuration+burstDuration){
         transitionFrame=requestAnimationFrame(draw);
       }else{
         canvas.remove();transitionCaption.remove();
