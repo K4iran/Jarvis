@@ -1307,7 +1307,7 @@ async function playJarvisStreamBlob(blob, sentence = '') {
 function renderDisp(){const p=P[view];$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
 function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-tab',data);$('#homeTab').classList.toggle('active',!data);$('#dataTab').classList.toggle('active',data);$('#homeTab').setAttribute('aria-pressed',String(!data));$('#dataTab').setAttribute('aria-pressed',String(data));if(data)renderDisp()}
 function setView(v){view=v;renderDisp();setTab(v==='idle'?'home':'data')}
-$('#bar [data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+$$('#bar [data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 $('#dx').onclick=()=>setView('idle');
 const settings=()=>[['rm','Reduce motion'],['cosmos','Cosmic background']].map(([k,n])=>`<div class="r" style="align-items:center"><span style="color:var(--t)">${n}</span><button class="sw" role="switch" data-t="${k}" aria-label="${n}" aria-checked="${S[k]}"></button></div>`).join('');
 function renderOv(){const p=P[openId];$('#ot').textContent=openId==='set'?'SETTINGS':p.l;$('#ob').innerHTML=openId==='set'?settings():`<p class="mut" style="margin:6px 0">${p.d}</p>${p.v()}<button class="btn" data-show="${openId}">SHOW IN VISUALISATION CHANNEL</button>`}
