@@ -317,12 +317,12 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 }
 @media(min-width:900px){#bar{padding:8px 28px}#stage{grid-template-columns:250px minmax(0,1fr) 330px;grid-template-areas:"r c d";gap:28px;padding:0 28px 26px;align-items:center}#center{grid-area:c}#rail{grid-area:r;flex-direction:column;overflow:visible}.pn{min-width:0}#disp{grid-area:d;min-height:380px}}
 
-/* Home layout: lower the orb slightly and keep the mic near, but not against, the bottom edge. */
-#app:not(.data-tab) #stage{align-content:stretch;padding-top:clamp(22px,4vh,42px);padding-bottom:clamp(28px,5vh,52px)}
+/* Home layout: keep the orb slightly lower and place the mic closer to the bottom with a clear gap. */
+#app:not(.data-tab) #stage{align-content:stretch;padding-top:clamp(22px,4vh,42px);padding-bottom:clamp(10px,1.5vh,18px)}
 #app:not(.data-tab) #center{justify-content:space-between;min-height:0}
 #app:not(.data-tab) .core{margin-top:clamp(8px,2vh,22px)}
-#app:not(.data-tab) .ctl{margin-top:auto;padding-top:clamp(12px,2.5vh,26px);padding-bottom:clamp(12px,2vh,22px)}
-@media(min-width:900px){#app:not(.data-tab) #stage{padding-top:clamp(22px,4vh,42px);padding-bottom:clamp(28px,5vh,52px)}}
+#app:not(.data-tab) .ctl{margin-top:auto;padding-top:clamp(12px,2.5vh,26px);padding-bottom:clamp(6px,1vh,12px)}
+@media(min-width:900px){#app:not(.data-tab) #stage{padding-top:clamp(22px,4vh,42px);padding-bottom:clamp(10px,1.5vh,18px)}}
 
 #app:not(.data-tab) #rail,#app:not(.data-tab) #disp{display:none!important}#app:not(.data-tab) #stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"c"}#app.data-tab #center{display:none!important}#app.data-tab #stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"r" "d";align-content:start;gap:12px}#app.data-tab #rail{grid-area:r;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity}#app.data-tab #disp{grid-area:d;min-height:180px}@media(min-width:900px){#app:not(.data-tab) #stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"c"}#app.data-tab #stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"r" "d"}#app.data-tab #rail{flex-direction:row;overflow-x:auto;overflow-y:hidden}}
 </style></head><body>
