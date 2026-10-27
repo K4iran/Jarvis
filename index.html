@@ -1520,7 +1520,7 @@ window.__jarvisCoreInitialized = true;
 (function(){try{
 const T=THREE,host=$('#core'),canvas=$('#gl');
 const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
-const N=lo?6500:6800,M=lo?1500:1600,TAU=Math.PI*2;
+const N=lo?6500:6800,M=lo?2000:2200,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 // Use a lighter renderer setup for broad desktop/laptop GPU compatibility.
@@ -1647,7 +1647,7 @@ const outerMaterial=new T.MeshPhongMaterial({
   color:0xffffff,emissive:0x020817,specular:0x17365c,shininess:24
 });
 const innerMaterial=new T.MeshPhongMaterial({
-  color:0xffffff,emissive:0x04152b,specular:0x477da8,shininess:32
+  color:0xffffff,emissive:0x0b3768,specular:0x82dfff,shininess:48
 });
 const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
 const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
@@ -1668,8 +1668,8 @@ function setParticleColour(mesh,i,z,seed,inner){
   const depth=clamp((z+1)/2,0,1);
   const front=Math.pow(depth,1.7);
   if(inner){
-    particleColour.copy(electricBlue).lerp(iceBlue,.10+front*.34);
-    particleColour.multiplyScalar(.72+front*.36+seed*.05);
+    particleColour.copy(electricBlue).lerp(iceBlue,.24+front*.52);
+    particleColour.multiplyScalar(1.00+front*.42+seed*.08);
   }else{
     particleColour.copy(deepBlue).lerp(electricBlue,.10+front*.43);
     particleColour.multiplyScalar(.62+front*.25+seed*.06);
@@ -1907,7 +1907,7 @@ function updateMesh(mesh,base,positions,seeds,count,inner){
     const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
     const depth=clamp((z+1)/2,0,1);
     // Slightly larger, brighter particles make the liquid mass feel denser.
-    const size=(inner?.0040:.0033)+seed*(inner?.0013:.0015);
+    const size=(inner?.0048:.0033)+seed*(inner?.0017:.0015);
     const frontScale=.84+depth*.34;
     dummy.position.set(x,y,z);
     dummy.scale.setScalar(size*frontScale);
@@ -1982,11 +1982,11 @@ function frame(now){
     const burstExpansion=burstPhase==='explode'
       ? .045*Math.min(1,burstElapsed/BURST_OUT)
       : 0;
-    tilt.scale.setScalar((1-.10*chargeLevel)*(1+burstExpansion));
+    tilt.scale.setScalar(.78*(1-.10*chargeLevel)*(1+burstExpansion));
     const visualTime=tt*(state==='processing'?1.45:1);
     const waveTime=waveElapsed>=0?waveElapsed:-1;
     deform(outerBase.positions,outerBase.seeds,N,1,visualTime,amplitude,0,0,outerPositions);
-    deform(innerBase.positions,innerBase.seeds,M,.55,visualTime,amplitude*.86,2.2,1,innerPositions);
+    deform(innerBase.positions,innerBase.seeds,M,.66,visualTime,amplitude*.86,2.2,1,innerPositions);
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
     updateFlyMotes(dt*motionAllowed);
@@ -2005,7 +2005,7 @@ function frame(now){
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
     glow.material.opacity=Math.min(.62,cur.core*.58*(.94+.06*Math.sin(tt*.8))+
       pulseStrength*.12+chargeLevel*.12);
-    glow.scale.setScalar(1.14+cur.proc*.035+chargeLevel*.15);
+    glow.scale.setScalar(1.28+cur.proc*.045+chargeLevel*.18);
     pulseStrength*=Math.exp(-dt*1.6);
     host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
     rd.render(sc,cam);
