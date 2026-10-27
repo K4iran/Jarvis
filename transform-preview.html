@@ -22,7 +22,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-o
 .status:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 9px #8ce5c0aa}
 main{flex:1;display:flex;flex-direction:column}
 .view{animation:arrive .48s cubic-bezier(.2,.75,.2,1) both}
-@keyframes arrive{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes core-emerge{0%{opacity:0;transform:translateY(8vh) scale(.08);filter:brightness(2.5);transform-origin:50% 45%}45%{opacity:1;filter:brightness(1.65)}100%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}\n.panel.view.emerging{animation:core-emerge 1.25s cubic-bezier(.18,.78,.18,1) both;position:relative;z-index:2}
+@keyframes arrive{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes core-emerge{0%{opacity:0;transform:translateY(24vh) scale(.06);clip-path:circle(0% at 50% 45%);filter:brightness(3) blur(12px)}22%{opacity:1;filter:brightness(2.2) blur(5px)}58%{clip-path:circle(72% at 50% 45%);filter:brightness(1.45) blur(1px)}100%{opacity:1;transform:translateY(0) scale(1);clip-path:circle(150% at 50% 45%);filter:brightness(1) blur(0)}}
+.panel.view.emerging{animation:core-emerge 1.8s cubic-bezier(.16,.78,.18,1) both!important;transform-origin:50% 45%;position:relative;z-index:1002;will-change:transform,opacity,clip-path,filter}
 .home{display:flex;flex-direction:column;align-items:center;text-align:center;padding:clamp(32px,8vh,72px) 0 20px}
 .eyebrow{font-size:10px;letter-spacing:.24em;color:#80b8db;text-transform:uppercase}
 h1{font-size:clamp(28px,5vw,45px);font-weight:450;letter-spacing:-.045em;line-height:1.12;margin:16px 0 10px}
@@ -257,8 +258,11 @@ footer span:last-child{text-align:right}
         revealed=true;
         transitionCaption.textContent=mode==="schedule"?"REVEALING CALENDAR":mode==="basketball"?"REVEALING CHECKLIST":"REVEALING DAILY PLAN";
         switchTo(mode);
+        workspace.classList.remove("emerging");
+        void workspace.offsetWidth;
         workspace.classList.add("emerging");
-        workspace.addEventListener("animationend",function handler(){
+        workspace.addEventListener("animationend",function handler(event){
+          if(event.target!==workspace)return;
           workspace.classList.remove("emerging");
           workspace.removeEventListener("animationend",handler);
         });
