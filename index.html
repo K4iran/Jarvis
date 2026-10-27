@@ -845,8 +845,10 @@ function drawFilamentFrame(now) {
     (target > filamentLevel ? 0.28 : 0.095);
 
   const time = now / 1000;
-  const amplitude = 2.2 + filamentLevel * 18;
-  const detailAmplitude = 1.2 + filamentLevel * 5;
+  /* Make the actual contours visibly flow, not just rotate. Keep a strong
+     idle deformation and let live voice energy push the waves further. */
+  const amplitude = 8 + filamentLevel * 26;
+  const detailAmplitude = 3.5 + filamentLevel * 9;
 
   const layerPoints = [];
   filamentIds.forEach((id, layer) => {
@@ -863,11 +865,11 @@ function drawFilamentFrame(now) {
         + filamentPhases[layer]
       );
       const detail = Math.sin(
-        angle * (filamentWaves[layer] + 2) - time * 0.63
+        angle * (filamentWaves[layer] + 2) - time * (1.05 + layer * 0.08)
         + filamentPhases[layer] * 1.7
       );
-      const ripple = Math.sin(angle * 7 + time * 0.42 + layer) *
-        filamentLevel * 2.2;
+      const ripple = Math.sin(angle * 7 + time * (0.72 + layer * 0.05) + layer) *
+        (1.4 + filamentLevel * 5.5);
       const radius = filamentRadii[layer] +
         wave * amplitude + detail * detailAmplitude + ripple;
       const x = 200 + Math.cos(drift) * radius;
