@@ -36,8 +36,8 @@ h1{font-size:clamp(28px,5vw,45px);font-weight:450;letter-spacing:-.045em;line-he
 @keyframes orb-breathe{0%,100%{transform:scale(.97);filter:brightness(.94)}50%{transform:scale(1.025);filter:brightness(1.2)}}
 @keyframes liquid{from{transform:rotate(0deg) scale(.96)}to{transform:rotate(360deg) scale(1.04)}}
 .particle{position:absolute;width:var(--s);height:var(--s);border-radius:50%;left:var(--x);top:var(--y);background:var(--c);opacity:var(--o);box-shadow:0 0 8px color-mix(in srgb,var(--c),transparent 40%);animation:particle-drift var(--d) ease-in-out infinite alternate;animation-delay:var(--delay)}
-@keyframes particle-drift{from{transform:translate3d(0,0,0);opacity:var(--o)}to{transform:translate3d(var(--dx),var(--dy),0);opacity:calc(var(--o) * .55)}}
-.orb-core{position:absolute;width:28%;height:28%;border-radius:50%;background:radial-gradient(circle at 42% 34%,#d9f7ff42,#3d9dff12 53%,transparent 72%);filter:blur(4px)}
+@keyframes particle-drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(var(--dx),var(--dy),0)}}
+.orb-core{position:absolute;width:34%;height:34%;border-radius:50%;background:radial-gradient(circle at 42% 34%,#f2fcffff 0%,#c4f0ffdd 17%,#8bd7ff99 36%,#3d9dff3d 60%,transparent 78%);filter:blur(3px);box-shadow:0 0 18px #75d4ff77,0 0 42px #329dff55,0 0 70px #2589ff22}
 .quick-actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;max-width:650px;margin:8px auto 22px}
 .chip{border:1px solid var(--line);background:#0a1b2bb8;border-radius:999px;padding:11px 14px;color:#c1d9e9;font-size:12px;transition:all .2s}
 .chip:hover{border-color:#76ccff88;background:#102b41;transform:translateY(-1px)}
@@ -175,7 +175,11 @@ footer span:last-child{text-align:right}
       p.style.setProperty("--y",y+"%");
       p.style.setProperty("--s",(Math.random()*1.5+.6)+"px");
       p.style.setProperty("--c",palette[Math.floor(Math.random()*palette.length)]);
-      p.style.setProperty("--o",(Math.random()*.62+.23).toFixed(2));
+      var distance=Math.sqrt(Math.pow(x-50,2)+Math.pow(y-50,2));
+      var brightness=Math.max(0.22,Math.min(0.98,0.98-(distance/52)*0.76));
+      p.style.setProperty("--o",brightness.toFixed(2));
+      if(distance<17){p.style.setProperty("--c",palette[(i%3===0)?2:0]);}
+      else if(distance>34){p.style.setProperty("--c",palette[(i%2===0)?3:1]);}
       p.style.setProperty("--d",(2.2+Math.random()*5)+"s");
       p.style.setProperty("--delay",(-Math.random()*6)+"s");
       p.style.setProperty("--dx",((Math.random()-.5)*9)+"px");
