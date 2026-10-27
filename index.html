@@ -3,6 +3,8 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050914">
+<meta name="description" content="A voice-first interface for commands and personal tools.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23050914'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%2358DFFF' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2358DFFF' fill-opacity='.15'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%23D8F7FF'/%3E%3C/svg%3E">
 <title>J.A.R.V.I.S.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
@@ -30,7 +32,7 @@
   text-align: left;
   border: 1px solid rgba(88,223,255,.16);
   clip-path: polygon(0 12px, 12px 0, calc(100% - 22px) 0, 100% 22px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 22px 100%, 0 calc(100% - 22px));
-  background: linear-gradient(118deg,rgba(8,30,53,.46),rgba(7,14,34,.66) 56%,rgba(20,18,53,.42));
+  background: linear-gradient(118deg,rgba(8,30,53,.46),rgba(7,14,34,.66) 56%,rgba(7,14,34,.42));
   box-shadow: inset 0 0 28px rgba(44,164,255,.075), 0 0 24px rgba(22,117,255,.08);
 }
 .response-holo::before {
@@ -99,7 +101,7 @@
 }
 
 .arcWave.violet {
-  stroke: #B8A8FF;
+  stroke: #58DFFF;
   filter: drop-shadow(0 0 2px rgba(169, 156, 255, .7));
 }
 
@@ -107,7 +109,7 @@
   opacity: 1;
   filter:
     drop-shadow(0 0 4px rgba(88, 223, 255, .34))
-    drop-shadow(0 0 8px rgba(135, 117, 255, .15));
+    drop-shadow(0 0 8px rgba(39, 141, 255, .15));
 }
 
 #core[data-s="responding"] .arcPanel {
@@ -173,7 +175,7 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,
   stroke-width: 1.45;
   opacity: .48;
   filter: drop-shadow(0 0 3px rgba(54,74,255,.32))
-          drop-shadow(0 0 10px rgba(20,18,74,.72));
+          drop-shadow(0 0 10px rgba(5,22,54,.72));
 }
 .filament-connections {
   fill: none;
@@ -194,8 +196,8 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,
   opacity: .6;
 }
 
-.filament-violet {
-  stroke: #A18BFF;
+.filament-cyan-soft {
+  stroke: #69C9FF;
   stroke-width: 1;
   opacity: .48;
 }
@@ -228,7 +230,7 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,
   opacity: 1;
   filter:
     drop-shadow(0 0 3px rgba(87,225,255,.48))
-    drop-shadow(0 0 6px rgba(135,117,255,.18));
+    drop-shadow(0 0 6px rgba(39,141,255,.18));
 }
 
 #core[data-s="responding"] .ring .energyTrace {
@@ -250,7 +252,7 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,
 .core.nogl::before{content:"";position:absolute;inset:17%;z-index:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 36% 30%,rgba(205,244,255,.95) 0%,rgba(83,180,255,.78) 20%,rgba(24,102,205,.48) 46%,rgba(4,24,58,.2) 68%,transparent 74%);box-shadow:0 0 38px rgba(88,223,255,.38),inset -10px -14px 26px rgba(0,9,35,.58)}
 #gl{z-index:1}
 h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:clamp(21px,3.5vw,30px);color:#D8F7FF;text-shadow:0 0 14px rgba(88,223,255,.42),0 0 30px rgba(88,223,255,.12)}
-#id{display:grid;gap:3px}
+#id{display:grid;gap:3px}#id>.lbl{text-transform:none;letter-spacing:.04em;font-size:12px;color:#9CB6CA}
 #cs{display:none!important}
 #msg{
   display:block;
@@ -351,7 +353,7 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
                          yChannelSelector="G" result="distortedEnergy"/>
       <feGaussianBlur in="distortedEnergy" stdDeviation="5.5" result="wideMist"/>
       <feGaussianBlur in="distortedEnergy" stdDeviation="1.7" result="softGlow"/>
-      <feFlood flood-color="#17143f" flood-opacity=".9" result="darkTint"/>
+      <feFlood flood-color="#07192b" flood-opacity=".9" result="darkTint"/>
       <feComposite in="darkTint" in2="wideMist" operator="in" result="shadowEnergy"/>
       <feMerge>
         <feMergeNode in="shadowEnergy"/>
@@ -366,7 +368,7 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
   <g filter="url(#filamentGlow)">
     <path class="filament filament-cyan" id="filament1" d=""/>
     <path class="filament filament-blue" id="filament2" d=""/>
-    <path class="filament filament-violet" id="filament3" d=""/>
+    <path class="filament filament-cyan-soft" id="filament3" d=""/>
     <path class="filament filament-cyan" id="filament4" d=""/>
   </g>
 </svg>
@@ -378,7 +380,7 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 
 </div>
 <p id="cs" class="lbl mono">STANDBY</p>
-<div id="id"><h1>J.A.R.V.I.S.</h1><p class="lbl">Personal intelligence system</p><p id="msg" aria-live="polite">Awaiting your command.</p></div>
+<div id="id"><h1>J.A.R.V.I.S.</h1><p class="lbl">Voice commands and personal tools, in one place.</p><p id="msg" aria-live="polite">Speak or type a command to get started.</p></div>
 <div class="ctl"><div class="mc"><button class="mic" id="mic" aria-pressed="false" aria-label="Activate voice interface (simulated)"><svg class="rg rot" style="--d:16s" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" stroke-dasharray="3 7"/></svg><svg class="ic"><use href="#i-mic"/></svg></button><p class="lbl" id="ml">Activate voice interface</p></div>
 <button class="ib" id="kb" aria-label="Open command input" aria-expanded="false"><svg class="ic"><use href="#i-kbd"/></svg></button></div>
 <form id="cmd" hidden><div class="row2"><input id="ci" type="text" autocomplete="off" placeholder="Enter a command…" aria-label="Command"><button class="ib" aria-label="Submit command"><svg class="ic"><use href="#i-go"/></svg></button><button class="ib" type="button" id="cc" aria-label="Close command input"><svg class="ic"><use href="#i-x"/></svg></button></div>
@@ -460,9 +462,9 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
     base.addColorStop(.58,'rgba(3,8,19,.13)');
     base.addColorStop(1,'rgba(0,1,5,.48)');
     x.fillStyle = base; x.fillRect(0,0,w,h);
-    // A restrained blue-violet haze adds depth without competing with the orb.
+    // A restrained cool-blue haze adds depth without competing with the orb.
     nebula(w*.18,h*.25,Math.max(w,h)*.32,'48,108,210',.085);
-    nebula(w*.83,h*.68,Math.max(w,h)*.28,'91,62,176',.065);
+    nebula(w*.83,h*.68,Math.max(w,h)*.28,'34,108,190',.055);
     nebula(w*.76,h*.12,Math.max(w,h)*.19,'43,151,206',.045);
     for (const q of stars){
       if (!reduced) q.p += dt*q.v;
@@ -561,7 +563,7 @@ const JarvisMemory = (() => {
 })();
   
 const IDLE=['Awaiting your command.','All systems standing by.','Ready when you are.','Awaiting input.'];
-const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING — SIMULATED',responding:'RESPONDING — SIMULATED'};
+const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING / SIMULATED',responding:'RESPONDING / SIMULATED'};
 const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:12,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
 const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
@@ -1341,7 +1343,7 @@ function setState(s){
   $('#mic').setAttribute('aria-label',wakeEnabled?'Disable Hey Jarvis':'Enable Hey Jarvis');
   if (s !== 'listening') {
   $('#ml').textContent = wakeEnabled
-    ? 'Wake word active — say Hey Jarvis'
+    ? 'Wake word active: say Hey Jarvis'
     : 'Tap to enable Hey Jarvis';
   }
   if(s==='responding'){pulse(1);cur.flash=1}
