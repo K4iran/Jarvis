@@ -118,15 +118,8 @@ body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,
   transform-origin: 50% 50%;
 }
 
-/* Keep the existing liquid filament deformation running while the whole
-   sound-wave layer spins rapidly during both listening and speech output. */
-#core[data-s="listening"] .filaments,
-#core[data-s="responding"] .filaments {
-  animation: filamentFastSpin .62s linear infinite;
-}
-@keyframes filamentFastSpin {
-  to { transform: rotate(360deg); }
-}
+/* The wave layer's rotation is driven by the main animation loop so it
+   can smoothly accelerate and decelerate without interrupting liquid motion. */
 
 .filament {
   fill: none;
@@ -1957,6 +1950,8 @@ function updateLines(bundle,pairs,a,b,time=0){
 }
 const sm=(a,b,v)=>clamp((v-a)/(b-a),0,1);
 let speakingBlend=0,orbInfo=`WebGL · ${N+M} particles`;
+let waveRotation=0,waveAngularVelocity=0;
+const filamentLayer=document.getElementById('filaments');
 refresh();
 
 function frame(now){
@@ -1968,6 +1963,15 @@ function frame(now){
     if(dt>.034)slow++;else slow=Math.max(0,slow-1);
     if(slow>90&&dpr>1){dpr=Math.max(1,dpr*.85);fit();slow=0;}
     const motionAllowed=S.rm?0:1;
+    const activeVoice=state==='listening'||state==='responding';
+    const targetWaveSpeed=activeVoice?Math.PI*2/.62:0;
+    /* Ease the wave speed rather than toggling an animation off on state changes. */
+    const spinEase=1-Math.exp(-dt*(activeVoice?5.5:1.15));
+    waveAngularVelocity+=(targetWaveSpeed-waveAngularVelocity)*spinEase;
+    waveRotation+=waveAngularVelocity*dt*motionAllowed;
+    if(filamentLayer)filamentLayer.style.transform=`rotate(${waveRotation}rad)`;
+    /* The orb follows the same easing curve in the opposite direction, at 78% speed. */
+    tilt.rotation.z=-waveRotation*.78;
     const targetSpeaking=state==='responding'?1:(state==='processing'?.42:(state==='listening'?.12:0));
     const blendRate=targetSpeaking>speakingBlend?3.2:1.65;
     speakingBlend+=(targetSpeaking-speakingBlend)*(1-Math.exp(-dt*blendRate));
