@@ -135,7 +135,7 @@ button,input{font:inherit;color:inherit}
  body{isolation:isolate;background:#010207}
 #cosmos{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:0;opacity:1}
 #app{position:relative;z-index:1;isolation:isolate}
-body{background:radial-gradient(ellipse at 50% 42%,rgba(13,23,54,.42) 0%,rgba(5,9,24,.78) 28%,#02030a 68%,#010207 100%)}
+body{background:radial-gradient(ellipse at 50% 42%,rgba(8,17,36,.22) 0%,rgba(3,6,16,.88) 28%,#010207 68%,#000104 100%)}
 @media(prefers-reduced-motion:reduce){#cosmos{opacity:.8}}
 #app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:var(--h)}
 #bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 12px;border-bottom:1px solid var(--ln);background:linear-gradient(rgba(9,19,33,.7),transparent)}
@@ -1682,10 +1682,10 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(50,140,255,.88)');
-glowGradient.addColorStop(.18,'rgba(50,140,255,.70)');
-glowGradient.addColorStop(.38,'rgba(50,140,255,.42)');
-glowGradient.addColorStop(.68,'rgba(39,141,255,.16)');
+glowGradient.addColorStop(0,'rgba(70,160,255,1)');
+glowGradient.addColorStop(.18,'rgba(50,140,255,.88)');
+glowGradient.addColorStop(.38,'rgba(50,140,255,.58)');
+glowGradient.addColorStop(.68,'rgba(39,141,255,.24)');
 glowGradient.addColorStop(1,'rgba(39,141,255,0)');
 glowContext.fillStyle=glowGradient;
 glowContext.fillRect(0,0,128,128);
@@ -2025,6 +2025,10 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
       const scale=1+ring;
       ox*=scale;oy*=scale;oz*=scale;
     }
+    /* Keep a coherent shell: allow subtle changing peaks, but cap all particles close to the main outline. */
+    const maxRadius=radius*1.045;
+    const finalLength=Math.hypot(ox,oy,oz)||1;
+    if(finalLength>maxRadius){const cap=maxRadius/finalLength;ox*=cap;oy*=cap;oz*=cap;}
     output[at]=ox;output[at+1]=oy;output[at+2]=oz;
   }
 }
@@ -2155,9 +2159,9 @@ function frame(now){
     }
 
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
-    glow.material.opacity=Math.min(.62,cur.core*.58*(.94+.06*Math.sin(tt*.8))+
-      pulseStrength*.12+chargeLevel*.12);
-    glow.scale.setScalar(3.35+cur.proc*.10+chargeLevel*.24);
+    glow.material.opacity=Math.min(1,cur.core*.92*(.94+.06*Math.sin(tt*.8))+
+      pulseStrength*.16+chargeLevel*.16);
+    glow.scale.setScalar(3.85+cur.proc*.10+chargeLevel*.24);
     pulseStrength*=Math.exp(-dt*1.6);
     host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
     rd.render(sc,cam);
