@@ -754,6 +754,7 @@ let filamentSpeechAnalyser = null;
 let filamentSpeechData = null;
 let filamentAnimationStarted = false;
 let filamentLevel = 0;
+let filamentVoiceActivity = 0;
 let filamentLastFrame = 0;
 
 /* Three layered filaments: one fewer contour for a cleaner silhouette. */
@@ -879,22 +880,21 @@ function drawFilamentFrame(now) {
   requestAnimationFrame(drawFilamentFrame);
   filamentLastFrame = now;
 
-  let rms = 0;
+  let target = 0;
   if (jarvisSpeaking && filamentSpeechAnalyser) {
-    rms = filamentRms(filamentSpeechAnalyser, filamentSpeechData);
+    const rms = filamentRms(filamentSpeechAnalyser, filamentSpeechData);
+    target = Math.max(0, Math.min(1, (rms - 0.018) * 24));
   } else if (wakeEnabled && filamentMicAnalyser) {
-    rms = filamentRms(filamentMicAnalyser, filamentMicData);
+    const rms = filamentRms(filamentMicAnalyser, filamentMicData);
+    target = Math.max(0, Math.min(1, (rms - 0.028) * 24));
+  } else if (wakeEnabled) {
+    // Android speech recognition owns the mic, so use its live speech events
+    // instead of opening a second mic stream that can break recognition.
+    target = filamentVoiceActivity;
   }
-
-  /* Ignore background noise while idle; only an active voice state and
-     a real sound peak can exaggerate the contours. */
-  const audioActive = jarvisSpeaking || wakeEnabled;
-  const noiseGate = audioActive ? 0.028 : 1;
-  const target = audioActive
-    ? Math.max(0, Math.min(1, (rms - noiseGate) * 20))
-    : 0;
+  filamentVoiceActivity *= 0.985;
   filamentLevel += (target - filamentLevel) *
-    (target > filamentLevel ? 0.42 : 0.075);
+    (target > filamentLevel ? 0.48 : 0.075);
 
   const time = now / 1000;
   /* Keep contours nearly circular and calm without sound. Only voice energy
@@ -1398,7 +1398,7 @@ $('#mic').onclick=()=>{
   recognition.lang='en-GB';
   // A single speech session per utterance avoids repeated Android Chrome mic beeps.
   recognition.continuous=false;
-  recognition.interimResults=false;
+  recognition.interimResults=true;
   recognition.maxAlternatives=1;
   wakeEnabled=true;
   wakeArmed=false;
@@ -1412,7 +1412,12 @@ recognition.onstart=()=>{
     say('Listening. Go ahead.', false);
   };
   recognition.onspeechstart=()=>{
+    filamentVoiceActivity = 1;
     if(wakeEnabled&&!busy&&!jarvisSpeaking)say('I can hear you.', false);
+  };
+  recognition.onspeechend=()=>{
+    // Let the shape settle naturally after the user stops speaking.
+    filamentVoiceActivity = Math.max(filamentVoiceActivity, 0.35);
   };
   recognition.onnomatch=()=>{
     if(wakeEnabled&&!busy&&!jarvisSpeaking)say('I didn’t catch that. Please try again.', false);
@@ -1421,9 +1426,12 @@ recognition.onstart=()=>{
 
   recognition.onresult=(event)=>{
     for(let i=event.resultIndex;i<event.results.length;i++){
-      if(!event.results[i].isFinal)continue;
-
       const transcript=event.results[i][0].transcript.trim();
+      if(!event.results[i].isFinal){
+        if(transcript) filamentVoiceActivity = Math.min(1, 0.45 + transcript.length * 0.035);
+        continue;
+      }
+      if(transcript) filamentVoiceActivity = 1;
       if(!transcript || jarvisSpeaking || busy)continue;
 
       // The mic button activates conversation mode: speak naturally, with or
