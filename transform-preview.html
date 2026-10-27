@@ -258,22 +258,40 @@ footer span:last-child{text-align:right}
         revealed=true;
         transitionCaption.textContent=mode==="schedule"?"REVEALING CALENDAR":mode==="basketball"?"REVEALING CHECKLIST":"REVEALING DAILY PLAN";
         switchTo(mode);
-        /* Start the panel at the orb's actual screen position, not a guessed offset. */
+        /* Animate the real panel frame-by-frame; don't rely on CSS animation classes. */
         var finalRect=workspace.getBoundingClientRect();
         var panelCx=finalRect.left+finalRect.width/2;
         var panelCy=finalRect.top+finalRect.height/2;
-        workspace.style.setProperty("--core-x",(cx-panelCx)+"px");
-        workspace.style.setProperty("--core-y",(cy-panelCy)+"px");
-        workspace.classList.remove("emerging");
-        void workspace.offsetWidth;
-        workspace.classList.add("emerging");
-        workspace.addEventListener("animationend",function handler(event){
-          if(event.target!==workspace)return;
-          workspace.classList.remove("emerging");
-          workspace.style.removeProperty("--core-x");
-          workspace.style.removeProperty("--core-y");
-          workspace.removeEventListener("animationend",handler);
-        });
+        var fromX=cx-panelCx;
+        var fromY=cy-panelCy;
+        var panelStart=performance.now();
+        var panelDuration=2200;
+        workspace.style.transformOrigin="50% 45%";
+        workspace.style.willChange="transform,opacity,clip-path,filter";
+        workspace.style.opacity="0";
+        workspace.style.transform="translate("+fromX+"px,"+fromY+"px) scale(.025)";
+        workspace.style.clipPath="circle(0% at 50% 45%)";
+        workspace.style.filter="brightness(4) blur(12px)";
+        function animatePanel(now){
+          var raw=Math.min(1,(now-panelStart)/panelDuration);
+          var eased=1-Math.pow(1-raw,3);
+          var scale=raw<.82 ? .025+1.005*eased : 1.03-(.03*((raw-.82)/.18));
+          workspace.style.opacity=String(Math.min(1,raw*5));
+          workspace.style.transform="translate("+(fromX*(1-eased))+"px,"+(fromY*(1-eased))+"px) scale("+scale+")";
+          workspace.style.clipPath="circle("+(150*eased)+"% at 50% 45%)";
+          workspace.style.filter="brightness("+(4-3*eased)+") blur("+(12*(1-eased))+"px)";
+          if(raw<1){
+            requestAnimationFrame(animatePanel);
+          }else{
+            workspace.style.opacity="";
+            workspace.style.transform="";
+            workspace.style.clipPath="";
+            workspace.style.filter="";
+            workspace.style.transformOrigin="";
+            workspace.style.willChange="";
+          }
+        }
+        requestAnimationFrame(animatePanel);
       }
       if(elapsed<duration){
         transitionFrame=requestAnimationFrame(draw);
