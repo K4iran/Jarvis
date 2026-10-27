@@ -22,8 +22,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-o
 .status:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 9px #8ce5c0aa}
 main{flex:1;display:flex;flex-direction:column}
 .view{animation:arrive .48s cubic-bezier(.2,.75,.2,1) both}
-@keyframes arrive{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes core-emerge{0%{opacity:0;transform:translateY(24vh) scale(.06);clip-path:circle(0% at 50% 45%);filter:brightness(3) blur(12px)}22%{opacity:1;filter:brightness(2.2) blur(5px)}58%{clip-path:circle(72% at 50% 45%);filter:brightness(1.45) blur(1px)}100%{opacity:1;transform:translateY(0) scale(1);clip-path:circle(150% at 50% 45%);filter:brightness(1) blur(0)}}
-.panel.view.emerging{animation:core-emerge 1.8s cubic-bezier(.16,.78,.18,1) both!important;transform-origin:50% 45%;position:relative;z-index:1002;will-change:transform,opacity,clip-path,filter}
+@keyframes arrive{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes core-emerge{0%{opacity:0;transform:translate(var(--core-x,0px),var(--core-y,0px)) scale(.035);clip-path:circle(0% at 50% 45%);filter:brightness(4) blur(14px)}18%{opacity:1;filter:brightness(3) blur(7px)}48%{clip-path:circle(58% at 50% 45%);filter:brightness(1.8) blur(2px)}76%{transform:translate(0,0) scale(1.025);clip-path:circle(115% at 50% 45%);filter:brightness(1.25) blur(0)}100%{opacity:1;transform:translate(0,0) scale(1);clip-path:circle(150% at 50% 45%);filter:brightness(1) blur(0)}}
+.panel.view.emerging{animation:core-emerge 2.15s cubic-bezier(.16,.78,.18,1) both!important;transform-origin:50% 45%;position:relative;z-index:1002;will-change:transform,opacity,clip-path,filter}
 .home{display:flex;flex-direction:column;align-items:center;text-align:center;padding:clamp(32px,8vh,72px) 0 20px}
 .eyebrow{font-size:10px;letter-spacing:.24em;color:#80b8db;text-transform:uppercase}
 h1{font-size:clamp(28px,5vw,45px);font-weight:450;letter-spacing:-.045em;line-height:1.12;margin:16px 0 10px}
@@ -258,12 +258,20 @@ footer span:last-child{text-align:right}
         revealed=true;
         transitionCaption.textContent=mode==="schedule"?"REVEALING CALENDAR":mode==="basketball"?"REVEALING CHECKLIST":"REVEALING DAILY PLAN";
         switchTo(mode);
+        /* Start the panel at the orb's actual screen position, not a guessed offset. */
+        var finalRect=workspace.getBoundingClientRect();
+        var panelCx=finalRect.left+finalRect.width/2;
+        var panelCy=finalRect.top+finalRect.height/2;
+        workspace.style.setProperty("--core-x",(cx-panelCx)+"px");
+        workspace.style.setProperty("--core-y",(cy-panelCy)+"px");
         workspace.classList.remove("emerging");
         void workspace.offsetWidth;
         workspace.classList.add("emerging");
         workspace.addEventListener("animationend",function handler(event){
           if(event.target!==workspace)return;
           workspace.classList.remove("emerging");
+          workspace.style.removeProperty("--core-x");
+          workspace.style.removeProperty("--core-y");
           workspace.removeEventListener("animationend",handler);
         });
       }
