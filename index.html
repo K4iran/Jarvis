@@ -1544,11 +1544,11 @@ if(resizeObserver)resizeObserver.observe(host);
 addEventListener('resize',fit,{passive:true});
 fit();
 
-sc.add(new T.AmbientLight(0x4777ce,.72));
-const keyLight=new T.DirectionalLight(0xcaf7ff,2.05);
+sc.add(new T.AmbientLight(0x244a85,.34));
+const keyLight=new T.DirectionalLight(0x9bcfff,.72);
 keyLight.position.set(-3.2,4.2,5);
 sc.add(keyLight);
-const fillLight=new T.DirectionalLight(0x176eff,.72);
+const fillLight=new T.DirectionalLight(0x176eff,.22);
 fillLight.position.set(3,-2,-4);
 sc.add(fillLight);
 
@@ -1644,10 +1644,10 @@ for(let i=0;i<M;i+=2){
 
 const sphereGeometry=new T.SphereGeometry(1,lo?7:9,lo?5:7);
 const outerMaterial=new T.MeshPhongMaterial({
-  color:0xffffff,emissive:0x071b39,specular:0xe5fcff,shininess:115
+  color:0xffffff,emissive:0x020817,specular:0x17365c,shininess:24
 });
 const innerMaterial=new T.MeshPhongMaterial({
-  color:0xffffff,emissive:0x061a3a,specular:0xbff8ff,shininess:105
+  color:0xffffff,emissive:0x04152b,specular:0x477da8,shininess:32
 });
 const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
 const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
@@ -1662,13 +1662,18 @@ const iceBlue=new T.Color('#d8fbff');
 const particleColour=new T.Color();
 const dummy=new T.Object3D();
 function setParticleColour(mesh,i,z,seed,inner,radialDistance){
-  const depth=clamp((z+1.05)/2.1,0,1);
-  if(depth<.68)particleColour.copy(deepBlue).lerp(electricBlue,depth/.68);
-  else particleColour.copy(electricBlue).lerp(iceBlue,(depth-.68)/.32);
-  /* Strong inner/outer contrast: the inner particle layer is the luminous core. */
-  const proximity=clamp(1-radialDistance/1.05,0,1);
-  particleColour.multiplyScalar((inner?1.32:.68)+proximity*1.55+seed*.10+Math.max(0,z)*.04);
-  if(inner)particleColour.lerp(iceBlue,.30);
+  /* The particles sit on two spherical shells, so radius alone cannot create
+     a smooth centre gradient. Use shell identity plus front-facing depth:
+     keep the outer shell dark and reserve icy highlights for the inner core. */
+  const depth=clamp((z+1)/2,0,1);
+  const front=Math.pow(depth,1.7);
+  if(inner){
+    particleColour.copy(electricBlue).lerp(iceBlue,.10+front*.34);
+    particleColour.multiplyScalar(.72+front*.36+seed*.05);
+  }else{
+    particleColour.copy(deepBlue).lerp(electricBlue,.10+front*.43);
+    particleColour.multiplyScalar(.62+front*.25+seed*.06);
+  }
   mesh.setColorAt(i,particleColour);
 }
 
