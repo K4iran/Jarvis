@@ -2025,10 +2025,11 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
       const scale=1+ring;
       ox*=scale;oy*=scale;oz*=scale;
     }
-    /* Keep a coherent shell: allow subtle changing peaks, but cap all particles close to the main outline. */
-    const maxRadius=radius*1.045;
+    /* The deforming radial field defines the silhouette. Constrain each particle to
+       its own current directional contour, not to a fixed circular boundary. */
+    const contourLimit=Math.max(.01,radial*1.012);
     const finalLength=Math.hypot(ox,oy,oz)||1;
-    if(finalLength>maxRadius){const cap=maxRadius/finalLength;ox*=cap;oy*=cap;oz*=cap;}
+    if(finalLength>contourLimit){const cap=contourLimit/finalLength;ox*=cap;oy*=cap;oz*=cap;}
     output[at]=ox;output[at+1]=oy;output[at+2]=oz;
   }
 }
