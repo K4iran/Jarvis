@@ -46,6 +46,24 @@ svg{width:100%;height:auto;display:block}
 @keyframes stamp{0%{opacity:0;transform:scale(3.2) rotate(-10deg)}55%{opacity:1;transform:scale(.9)}75%{transform:scale(1.06)}100%{transform:none}}@keyframes glide{from{opacity:0;transform:translateX(-120%) skewX(-20deg)}to{transform:none}}@keyframes boom{0%{opacity:0;transform:scale(0)}55%{opacity:1;transform:scale(1.35)}100%{transform:scale(1)}}@keyframes ember{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-105vh) translateX(var(--dx))}}@keyframes sweep{from{transform:translateX(-100vw) skewX(-25deg)}to{transform:translateX(110vw) skewX(-25deg)}}@keyframes ring{from{opacity:.9;transform:scale(.2)}to{opacity:0;transform:scale(5)}}@keyframes flash{from{opacity:1}to{opacity:0}}@keyframes fall{from{transform:translateY(0) rotate(0)}to{transform:translateY(112vh) rotate(720deg)}}@media(prefers-reduced-motion:reduce){#tu i{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head><body><nav id="nav"></nav><main id="app"></main><div id="modal"><div id="mb"></div></div><div id="toast"></div><div id="lu"></div><div id="tu"></div>
 <script>
+/* Temporary startup diagnostics: show the actual runtime error instead of a silent blank screen. */
+(function(){
+  function showLifeOSError(message){
+    try{
+      let box=document.getElementById('lifeos-runtime-error');
+      if(!box){
+        box=document.createElement('pre');
+        box.id='lifeos-runtime-error';
+        box.style.cssText='position:fixed;z-index:2147483647;inset:12px;padding:16px;overflow:auto;white-space:pre-wrap;background:#190f16;color:#ffd6df;border:1px solid #ff5478;border-radius:8px;font:13px/1.5 monospace';
+        (document.body||document.documentElement).appendChild(box);
+      }
+      box.textContent='LifeOS could not start. Please send this error:\n'+message;
+    }catch(_){}
+  }
+  window.addEventListener('error',function(e){showLifeOSError((e.message||'Script error')+'\n'+(e.filename||'')+':'+(e.lineno||'?')+':'+(e.colno||'?'));});
+  window.addEventListener('unhandledrejection',function(e){showLifeOSError('Unhandled promise rejection: '+(e.reason&&e.reason.stack||e.reason||'Unknown error'));});
+})();
+
 const K='lifeos.v1',$=s=>document.querySelector(s);
 const CATS={sc:{n:'Self-Care',d:'Routine and daily wellbeing',i:'✨'},in:{n:'Intelligence',d:'Learning and knowledge',i:'🧠'},bb:{n:'Basketball',d:'Game performance',i:'🏀'},ph:{n:'Physical',d:'Athletic capabilities',i:'⚡'}};
 const ATTR={sc:['Hygiene','Style','Routine','Consistency'],in:['Academics','Learning','Knowledge','Problem-Solving'],bb:['Scoring','Playmaking','Defense','Rebounding','Efficiency'],ph:['Speed','Agility','Vertical','Stamina','Strength']};
