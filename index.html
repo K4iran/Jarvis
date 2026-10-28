@@ -2043,7 +2043,7 @@ window.__jarvisCoreInitialized = true;
 (function(){try{
 const T=THREE,host=$('#core'),canvas=$('#gl');
 const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
-const N=220,M=12,TAU=Math.PI*2;
+const N=1200,M=180,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 // Use a lighter renderer setup for broad desktop/laptop GPU compatibility.
@@ -2080,12 +2080,11 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(255,255,255,.16)');
-glowGradient.addColorStop(.08,'rgba(205,248,255,.22)');
-glowGradient.addColorStop(.18,'rgba(105,220,255,.28)');
-glowGradient.addColorStop(.30,'rgba(35,155,255,.32)');
-glowGradient.addColorStop(.48,'rgba(20,112,255,.20)');
-glowGradient.addColorStop(.68,'rgba(20,95,245,.06)');
+glowGradient.addColorStop(0,'rgba(215,247,255,1)');
+glowGradient.addColorStop(.12,'rgba(100,205,255,1)');
+glowGradient.addColorStop(.28,'rgba(35,145,255,.92)');
+glowGradient.addColorStop(.48,'rgba(20,112,255,.54)');
+glowGradient.addColorStop(.68,'rgba(20,95,245,.18)');
 glowGradient.addColorStop(1,'rgba(20,95,245,0)');
 glowContext.fillStyle=glowGradient;
 glowContext.fillRect(0,0,128,128);
@@ -2131,31 +2130,8 @@ function makeSphere(count){
   return {positions,seeds};
 }
 const outerBase=makeSphere(N),innerBase=makeSphere(M);
-// Sparse outer halo follows the same liquid deformation, clearly separated from the lighter inner body.
-// A real broken halo: particles are distributed along separated arcs, not over a second sphere.
-const ringCount=84;
-function makeBrokenHalo(count){
-  const positions=new Float32Array(count*3),seeds=new Float32Array(count);
-  const arcs=[[0,.92],[1.13,2.25],[2.48,3.63],[3.91,5.02],[5.32,TAU]];
-  const spans=arcs.reduce((sum,a)=>sum+a[1]-a[0],0);
-  for(let i=0;i<count;i++){
-    let distance=(i+.5)/count*spans,angle=0;
-    for(const arc of arcs){
-      const span=arc[1]-arc[0];
-      if(distance<=span){angle=arc[0]+distance;break;}
-      distance-=span;
-    }
-    const depth=.12*Math.sin(angle*2.0)+.045*Math.sin(angle*5.0);
-    const radial=Math.sqrt(1-depth*depth);
-    positions[i*3]=Math.cos(angle)*radial;
-    positions[i*3+1]=Math.sin(angle)*radial;
-    positions[i*3+2]=depth;
-    const raw=Math.sin((i+1)*78.233)*43758.5453;
-    seeds[i]=raw-Math.floor(raw);
-  }
-  return {positions,seeds};
-}
-const ringBase=makeBrokenHalo(ringCount);
+// Sparse outer shell follows the same live deformation, but stays beyond the dense body.
+const ringCount=96,ringBase=makeSphere(ringCount);
 
 function nearestEdges(points,count,k){
   const edges=[],seen=new Set();
@@ -2203,10 +2179,10 @@ const innerMaterial=new T.MeshBasicMaterial({
 });
 const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
 const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
-const ringMaterial=new T.MeshBasicMaterial({color:0xffffff,depthTest:false,depthWrite:false,toneMapped:false});
+const ringMaterial=new T.MeshBasicMaterial({color:0xffffff});
 const ringMesh=new T.InstancedMesh(sphereGeometry,ringMaterial,ringCount);
 outerMesh.frustumCulled=innerMesh.frustumCulled=ringMesh.frustumCulled=false;
-outerMesh.renderOrder=1;innerMesh.renderOrder=1;ringMesh.renderOrder=4;
+outerMesh.renderOrder=1;innerMesh.renderOrder=1;ringMesh.renderOrder=2;
 outerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 innerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 ringMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
@@ -2462,8 +2438,8 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     output[at]=ox;output[at+1]=oy;output[at+2]=oz;
   }
 }
-function updateMesh(mesh,base,positions,seeds,count,inner,outerRing=false){
-  const shellRadius=inner?.66:(outerRing?1.5:1);
+function updateMesh(mesh,base,positions,seeds,count,inner){
+  const shellRadius=inner?.66:1;
   for(let i=0;i<count;i++){
     const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
     const depth=clamp((z+1)/2,0,1);
@@ -2477,21 +2453,13 @@ function updateMesh(mesh,base,positions,seeds,count,inner,outerRing=false){
     const waveDistance=Math.exp(-Math.pow((radialDistance-easedPhase)/.085,2));
     const waveGlow=waveDistance*orbWaveActive;
     // Slightly larger, brighter particles make the liquid mass feel denser.
-    const size=outerRing?(.014+seed*.006):((inner?.0045:.0038)+seed*(inner?.0018:.0016));
+    const size=(inner?.0045:.0038)+seed*(inner?.0018:.0016);
     const frontScale=.84+depth*.34;
     dummy.position.set(x,y,z);
     dummy.scale.setScalar(size*frontScale*(1+waveGlow*.16));
     dummy.updateMatrix();
     mesh.setMatrixAt(i,dummy.matrix);
-    if(outerRing){
-      // The halo must read as a separate icy-blue boundary, not more white liquid-body particles.
-      const tint=seed>.76?nearWhite:electricBlue;
-      particleColour.copy(tint);
-      if(seed>.76)particleColour.lerp(iceBlue,.28);
-      mesh.setColorAt(i,particleColour);
-    }else{
-      setParticleColour(mesh,i,z,seed,inner,waveGlow);
-    }
+    setParticleColour(mesh,i,z,seed,inner,waveGlow);
   }
   mesh.instanceMatrix.needsUpdate=true;
   if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
@@ -2584,18 +2552,8 @@ function frame(now){
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
      // Keep the sparse ring furthest from the core while preserving the orb's existing shape motion.
-     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.86,2.2,1,ringPositions);
-     // Enforce a true outer shell every frame: sparse ring particles stay beyond
-     // every dense-body particle, while their directions keep the organic motion.
-     let outermost=0;
-     for(let i=0;i<N;i++){const at=i*3;outermost=Math.max(outermost,Math.hypot(outerPositions[at],outerPositions[at+1],outerPositions[at+2]));}
-     const ringFloor=outermost+.18;
-     for(let i=0;i<ringCount;i++){
-       const at=i*3,rr=Math.hypot(ringPositions[at],ringPositions[at+1],ringPositions[at+2])||1;
-       const target=ringFloor+Math.max(0,rr-1.22)*.035,scale=target/rr;
-       ringPositions[at]*=scale;ringPositions[at+1]*=scale;ringPositions[at+2]*=scale;
-     }
-     updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false,true);
+     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.72,0,2,ringPositions);
+     updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false);
     updateFlyMotes(dt*motionAllowed);
     if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
     else pa=0;
@@ -2610,8 +2568,8 @@ function frame(now){
     }
 
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
-    glow.material.opacity=Math.min(.30,Math.max(.16,cur.core*.35)*(.98+.02*Math.sin(tt*.8))+
-       pulseStrength*.018+chargeLevel*.018);
+    glow.material.opacity=Math.min(1,Math.max(.96,cur.core*1.35)*(.98+.02*Math.sin(tt*.8))+
+       pulseStrength*.08+chargeLevel*.08);
     glow.scale.setScalar(2.8+cur.proc*.08+chargeLevel*.12);
     pulseStrength*=Math.exp(-dt*1.6);
     host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
