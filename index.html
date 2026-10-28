@@ -165,6 +165,11 @@ body{background:#010207}
 .rr-empty span{display:block;margin-top:8px;font-size:10px;line-height:1.6;color:#83AFC9}
 .rr-overall{position:absolute;left:0;right:0;bottom:3.5%;text-align:center;font-size:13px;letter-spacing:.08em;color:#B7F5FF;text-shadow:0 0 10px rgba(88,223,255,.45);pointer-events:none}
 .rr-overall span{font-size:9px;color:#739EB5;letter-spacing:.04em}
+/* LifeOS is embedded as a same-origin module so it keeps its current storage. */
+.lifeos-embed-wrap{width:100%;min-width:0;min-height:620px;grid-column:1/-1}
+.lifeos-embed{display:block;width:100%;height:min(78dvh,980px);min-height:620px;border:1px solid rgba(88,223,255,.22);border-radius:3px;background:#0d0e11}
+@media(max-width:560px){.lifeos-embed{height:78vh;min-height:620px}}
+
 @media(prefers-reduced-motion:reduce){.rating-radar-view,.core.radar-active>:not(#ratingRadarView){transition:none!important}}
 
 .core canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
@@ -671,7 +676,7 @@ const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
 const P={
 profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'PERSONAL DETAILS',d:'',v:()=>`<p class="mut" style="margin:8px 0">Details you ask JARVIS to remember are kept in this browser.</p>`},
-lifeos:{l:'LIFEOS',i:'#i-life',s:'PERSONAL ATTRIBUTES',d:'',v:()=>`<div class="kp">${['BASKETBALL','PHYSICAL','INTELLIGENCE','SELF CARE'].map(k=>`<div><span class="lbl">${k}</span></div>`).join('')}</div>`},
+lifeos:{l:'LIFEOS',i:'#i-life',s:'PERSONAL PROGRESSION',d:'Your LifeOS app, embedded inside JARVIS and using its existing saved data.',v:()=>'<div class="lifeos-embed-wrap"><iframe id="lifeosFrame" class="lifeos-embed" src="./LifeOS.html" title="LifeOS personal progression tracker" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'},
 hoop:{l:'HOOP CENTRAL',i:'#i-hoop',s:'BASKETBALL STATS',d:'',v:()=>`<div class="kp">${['PPG','AST','STL','FG%'].map(k=>`<div><span class="lbl">${k}</span></div>`).join('')}</div>`},
 status:{l:'SYSTEM STATUS',i:'#i-stat',s:'LIVE INTERFACE',d:'',v:()=>[row('Interface','Loaded',1),row('Animation system',S.rm?'Reduced':'Active',1),row('Orb renderer',orbInfo,orbInfo!=='Unavailable'),row('Viewport',innerWidth+' × '+innerHeight+' px'),row('Interface mode',state.toUpperCase())].join('')}};
 const idleHTML=`<div class="idle"><p class="lbl" style="color:var(--t)">Choose a panel</p></div>`;
