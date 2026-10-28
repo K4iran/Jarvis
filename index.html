@@ -2043,7 +2043,7 @@ window.__jarvisCoreInitialized = true;
 (function(){try{
 const T=THREE,host=$('#core'),canvas=$('#gl');
 const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
-const N=360,M=28,TAU=Math.PI*2;
+const N=220,M=12,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 // Use a lighter renderer setup for broad desktop/laptop GPU compatibility.
@@ -2131,8 +2131,8 @@ function makeSphere(count){
   return {positions,seeds};
 }
 const outerBase=makeSphere(N),innerBase=makeSphere(M);
-// Sparse outer shell follows the same live deformation, but stays beyond the dense body.
-const ringCount=88,ringBase=makeSphere(ringCount);
+// Sparse outer halo follows the same liquid deformation, clearly separated from the lighter inner body.
+const ringCount=104,ringBase=makeSphere(ringCount);
 
 function nearestEdges(points,count,k){
   const edges=[],seen=new Set();
