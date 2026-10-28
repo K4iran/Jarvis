@@ -2203,10 +2203,10 @@ const innerMaterial=new T.MeshBasicMaterial({
 });
 const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
 const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
-const ringMaterial=new T.MeshBasicMaterial({color:0xffffff});
+const ringMaterial=new T.MeshBasicMaterial({color:0xffffff,depthTest:false,depthWrite:false,toneMapped:false});
 const ringMesh=new T.InstancedMesh(sphereGeometry,ringMaterial,ringCount);
 outerMesh.frustumCulled=innerMesh.frustumCulled=ringMesh.frustumCulled=false;
-outerMesh.renderOrder=1;innerMesh.renderOrder=1;ringMesh.renderOrder=2;
+outerMesh.renderOrder=1;innerMesh.renderOrder=1;ringMesh.renderOrder=4;
 outerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 innerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 ringMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
@@ -2477,13 +2477,21 @@ function updateMesh(mesh,base,positions,seeds,count,inner,outerRing=false){
     const waveDistance=Math.exp(-Math.pow((radialDistance-easedPhase)/.085,2));
     const waveGlow=waveDistance*orbWaveActive;
     // Slightly larger, brighter particles make the liquid mass feel denser.
-    const size=outerRing?(.0062+seed*.0020):((inner?.0045:.0038)+seed*(inner?.0018:.0016));
+    const size=outerRing?(.014+seed*.006):((inner?.0045:.0038)+seed*(inner?.0018:.0016));
     const frontScale=.84+depth*.34;
     dummy.position.set(x,y,z);
     dummy.scale.setScalar(size*frontScale*(1+waveGlow*.16));
     dummy.updateMatrix();
     mesh.setMatrixAt(i,dummy.matrix);
-    setParticleColour(mesh,i,z,seed,inner,waveGlow);
+    if(outerRing){
+      // The halo must read as a separate icy-blue boundary, not more white liquid-body particles.
+      const tint=seed>.76?nearWhite:electricBlue;
+      particleColour.copy(tint);
+      if(seed>.76)particleColour.lerp(iceBlue,.28);
+      mesh.setColorAt(i,particleColour);
+    }else{
+      setParticleColour(mesh,i,z,seed,inner,waveGlow);
+    }
   }
   mesh.instanceMatrix.needsUpdate=true;
   if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
@@ -2581,7 +2589,7 @@ function frame(now){
      // every dense-body particle, while their directions keep the organic motion.
      let outermost=0;
      for(let i=0;i<N;i++){const at=i*3;outermost=Math.max(outermost,Math.hypot(outerPositions[at],outerPositions[at+1],outerPositions[at+2]));}
-     const ringFloor=outermost+.001;
+     const ringFloor=outermost+.18;
      for(let i=0;i<ringCount;i++){
        const at=i*3,rr=Math.hypot(ringPositions[at],ringPositions[at+1],ringPositions[at+2])||1;
        const target=ringFloor+Math.max(0,rr-1.22)*.035,scale=target/rr;
