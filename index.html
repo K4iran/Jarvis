@@ -149,6 +149,24 @@ body{background:#010207}
 #stage{flex:1;display:grid;gap:14px;padding:10px 14px 22px;align-content:start}
 #center{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
 .core{position:relative;width:min(100%,58dvh,540px);aspect-ratio:1;margin:0 auto}
+/* A LifeOS rating radar temporarily occupies the orb's existing footprint. */
+.rating-radar-view{position:absolute;inset:0;z-index:8;overflow:visible;border-radius:50%;color:#EAF8FF;background:radial-gradient(ellipse at 50% 48%,rgba(7,32,61,.90) 0%,rgba(3,12,27,.86) 57%,rgba(1,5,14,.68) 78%,transparent 100%);opacity:0;transform:scale(.965);transition:opacity .32s ease,transform .42s ease;isolation:isolate}
+.rating-radar-view:not([hidden]){opacity:1;transform:scale(1)}
+.core.radar-active>:not(#ratingRadarView){opacity:0!important;visibility:hidden;transition:opacity .3s ease,visibility .3s ease}
+.rr-head{position:absolute;z-index:2;top:4.5%;left:13%;right:13%;text-align:center;pointer-events:none;text-shadow:0 0 12px rgba(88,223,255,.24)}
+.rr-kicker{display:block;font:9px "JetBrains Mono",monospace;letter-spacing:.22em;color:#6CBCD7}
+.rr-title{display:block;margin-top:3px;font-size:clamp(12px,2.5vw,17px);font-weight:300;letter-spacing:.12em;text-transform:uppercase;color:#EAFBFF}
+.rr-subtitle{display:block;margin-top:2px;font-size:9px;letter-spacing:.05em;color:#76A9C5}
+.rr-close{position:absolute;z-index:4;top:2.5%;right:3%;width:30px;height:30px;border:1px solid rgba(88,223,255,.35);border-radius:50%;background:rgba(4,18,37,.84);color:#BDEEFF;font-size:20px;line-height:1;cursor:pointer}
+.rr-close:focus-visible{outline:2px solid #58DFFF;outline-offset:2px}
+.rr-graph{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+.rr-empty{position:absolute;left:12%;right:12%;top:43%;transform:translateY(-50%);text-align:center}
+.rr-empty strong{display:block;font-size:12px;font-weight:400;letter-spacing:.12em;color:#DFF8FF}
+.rr-empty span{display:block;margin-top:8px;font-size:10px;line-height:1.6;color:#83AFC9}
+.rr-overall{position:absolute;left:0;right:0;bottom:3.5%;text-align:center;font-size:13px;letter-spacing:.08em;color:#B7F5FF;text-shadow:0 0 10px rgba(88,223,255,.45);pointer-events:none}
+.rr-overall span{font-size:9px;color:#739EB5;letter-spacing:.04em}
+@media(prefers-reduced-motion:reduce){.rating-radar-view,.core.radar-active>:not(#ratingRadarView){transition:none!important}}
+
 .core canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
 /* The WebGL canvas stays full-size so its coordinates still align with the overlay.
    The 3D orb itself is scaled in its Three.js group, independently of the audio waves. */
@@ -435,6 +453,7 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 
 
 
+<div id="ratingRadarView" class="rating-radar-view" hidden role="region" aria-label="LifeOS rating radar"></div>
 </div>
 <p id="cs" class="lbl mono">STANDBY</p>
 <div id="id"><p id="msg" aria-live="polite">Speak or type a command to get started.</p></div>
@@ -1863,6 +1882,230 @@ document.getElementById('hmInputForm').addEventListener('submit', event => {
 document.getElementById('hmExit').addEventListener('click', () => run('exit'));
 
 
+
+/* LifeOS rating radars: reads the same browser storage used by LifeOS.html. */
+const RATING_RADAR_FIELDS = {
+  sc: { title: 'Self-Care', fields: ['Hygiene', 'Style', 'Routine', 'Consistency'] },
+  in: { title: 'Intelligence', fields: ['Academics', 'Learning', 'Knowledge', 'Problem-Solving'] },
+  bb: { title: 'Basketball', fields: ['Scoring', 'Playmaking', 'Defense', 'Rebounding', 'Efficiency'] },
+  ph: { title: 'Physical', fields: ['Speed', 'Agility', 'Vertical', 'Stamina', 'Strength'] }
+};
+let activeRatingRadar = null;
+
+function readLifeOSRatingStore() {
+  try {
+    const raw = localStorage.getItem('lifeos.v1');
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== 'object' || !data.rat || typeof data.rat !== 'object') return null;
+    return data;
+  } catch (error) {
+    console.warn('LifeOS ratings could not be read.', error);
+    return null;
+  }
+}
+
+function radarEscape(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
+function ratingRadarCategoryFields(data, category) {
+  const definition = RATING_RADAR_FIELDS[category];
+  if (!definition) return [];
+  const ratings = data.rat || {};
+  let fields = definition.fields.slice();
+  let prefix = category + '.';
+
+  if (category === 'bb') {
+    const sport = data.sport || 'bb';
+    prefix = sport !== 'bb' ? 'bb:' + sport + '.' : 'bb.';
+    if (sport !== 'bb') {
+      const keys = new Set(Object.keys(ratings));
+      (Array.isArray(data.rh) ? data.rh : []).forEach(entry => {
+        if (entry && typeof entry.k === 'string') keys.add(entry.k);
+      });
+      const dynamic = Array.from(keys)
+        .filter(key => key.startsWith(prefix))
+        .map(key => key.slice(prefix.length))
+        .filter(Boolean);
+      if (dynamic.length) fields = Array.from(new Set(dynamic));
+    }
+  }
+
+  return fields.map(name => {
+    const raw = ratings[prefix + name];
+    const value = raw !== null && raw !== undefined && raw !== '' &&
+      Number.isFinite(Number(raw)) && Number(raw) >= 0 && Number(raw) <= 99
+      ? Math.round(Number(raw)) : null;
+    return { name, value };
+  });
+}
+
+function ratingRadarData(data, mode) {
+  if (!data) return { title: mode === 'overall' ? 'Overall Ratings' : ((RATING_RADAR_FIELDS[mode] || {}).title || 'Ratings'), fields: [], rated: 0, total: 0 };
+  const sportNames = { bb: 'Basketball', soccer: 'Football', football: 'Football', tennis: 'Tennis', baseball: 'Baseball', hockey: 'Hockey' };
+  if (mode === 'overall') {
+    const fields = Object.keys(RATING_RADAR_FIELDS).map(category => {
+      const definition = RATING_RADAR_FIELDS[category];
+      const categoryFields = ratingRadarCategoryFields(data, category);
+      const ratedFields = categoryFields.filter(item => item.value !== null);
+      const rawWeight = data.w && Number(data.w[category]);
+      const weight = Number.isFinite(rawWeight) && rawWeight > 0 ? rawWeight : 1;
+      const value = ratedFields.length
+        ? Math.round(ratedFields.reduce((sum, item) => sum + item.value, 0) / ratedFields.length)
+        : null;
+      return { name: definition.title, value, weight };
+    });
+    const ratedFields = fields.filter(field => field.value !== null);
+    const weighted = ratedFields.reduce((sum, field) => sum + field.value * field.weight, 0);
+    const weights = ratedFields.reduce((sum, field) => sum + field.weight, 0);
+    return {
+      title: 'Overall Ratings',
+      fields: fields.map(({ name, value }) => ({ name, value })),
+      rated: ratedFields.length,
+      total: fields.length,
+      overall: weights ? Math.round(weighted / weights) : null
+    };
+  }
+
+  const fields = ratingRadarCategoryFields(data, mode);
+  let title = (RATING_RADAR_FIELDS[mode] || {}).title || 'Ratings';
+  if (mode === 'bb') title = sportNames[data.sport || 'bb'] || String(data.sport || 'Basketball').replace(/[-_]/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  return { title, fields, rated: fields.filter(field => field.value !== null).length, total: fields.length };
+}
+
+function renderRatingRadar(mode) {
+  const host = document.getElementById('ratingRadarView');
+  const core = document.getElementById('core');
+  if (!host || !core) return { rated: 0, total: 0, title: 'Ratings', hasRatings: false };
+
+  const data = readLifeOSRatingStore();
+  const radar = ratingRadarData(data, mode);
+  const fieldCount = radar.fields.length;
+  const hasRatings = radar.fields.some(field => field.value !== null);
+  const subtitle = mode === 'overall' ? 'CATEGORY RATINGS · 0–99' : 'ATTRIBUTE RATINGS · 0–99';
+  let body = '';
+
+  if (!data || !hasRatings || fieldCount < 3) {
+    const message = !data
+      ? 'No saved LifeOS ratings were found in this browser.'
+      : !hasRatings
+        ? 'No ratings have been saved for this radar yet.'
+        : 'Not enough rated attributes to draw this radar yet.';
+    body = '<div class="rr-empty"><strong>' + radarEscape(message) +
+      '</strong><span>Open LifeOS, add ratings, then ask JARVIS to show this radar again.</span></div>';
+  } else {
+    const cx = 250, cy = 258, radius = 119, count = radar.fields.length;
+    const xy = (index, factor) => {
+      const angle = -Math.PI / 2 + index * Math.PI * 2 / count;
+      return [cx + Math.cos(angle) * radius * factor, cy + Math.sin(angle) * radius * factor];
+    };
+    const grid = [0.25, 0.5, 0.75, 1].map(scale => {
+      const points = radar.fields.map((field, index) => xy(index, scale).map(n => n.toFixed(2)).join(',')).join(' ');
+      return '<polygon points="' + points + '" fill="none" stroke="' +
+        (scale === 1 ? 'rgba(88,223,255,.42)' : 'rgba(103,173,210,.17)') +
+        '" stroke-width="' + (scale === 1 ? 1.1 : .8) + '"/>';
+    }).join('');
+    const spokes = radar.fields.map((field, index) => {
+      const point = xy(index, 1);
+      return '<line x1="' + cx + '" y1="' + cy + '" x2="' + point[0].toFixed(2) +
+        '" y2="' + point[1].toFixed(2) +
+        '" stroke="rgba(111,196,228,.23)" stroke-width=".8"/>';
+    }).join('');
+    const rated = radar.fields.filter(field => field.value !== null).length;
+    const plotted = radar.fields.map((field, index) => {
+      const point = xy(index, field.value === null ? 0 : field.value / 99);
+      return point[0].toFixed(2) + ',' + point[1].toFixed(2);
+    }).join(' ');
+    const polygon = rated >= 3
+      ? '<polygon points="' + plotted + '" fill="rgba(88,223,255,.17)" stroke="#58DFFF" stroke-width="2.2" stroke-linejoin="round" filter="url(#ratingRadarGlow)"/>'
+      : '';
+    const dots = radar.fields.map((field, index) => {
+      const point = xy(index, field.value === null ? 0 : field.value / 99);
+      return '<circle cx="' + point[0].toFixed(2) + '" cy="' + point[1].toFixed(2) +
+        '" r="' + (field.value === null ? 2.2 : 4) + '" fill="' +
+        (field.value === null ? '#557B92' : '#D8FAFF') + '" stroke="' +
+        (field.value === null ? '#557B92' : '#58DFFF') + '" stroke-width="1.2" opacity="' +
+        (field.value === null ? '.42' : '1') + '"/>';
+    }).join('');
+    const labels = radar.fields.map((field, index) => {
+      const angle = -Math.PI / 2 + index * Math.PI * 2 / count;
+      const ux = Math.cos(angle), uy = Math.sin(angle);
+      const x = cx + ux * 158, y = cy + uy * 158;
+      const anchor = ux > .28 ? 'start' : ux < -.28 ? 'end' : 'middle';
+      const labelY = y + (uy < -.65 ? -2 : uy > .65 ? 2 : 4);
+      return '<text x="' + x.toFixed(2) + '" y="' + labelY.toFixed(2) +
+        '" text-anchor="' + anchor + '" font-family="Sora,Arial,sans-serif" font-size="11" fill="#B8DDEB">' +
+        '<tspan x="' + x.toFixed(2) + '">' + radarEscape(field.name) + '</tspan>' +
+        '<tspan x="' + x.toFixed(2) + '" dy="13" fill="' +
+        (field.value === null ? '#66889B' : '#58DFFF') +
+        '" font-family="JetBrains Mono,monospace" font-size="10">' +
+        (field.value === null ? '—' : field.value) + '</tspan></text>';
+    }).join('');
+    body = '<svg class="rr-graph" viewBox="0 0 500 500" role="img" aria-label="' +
+      radarEscape(radar.title) + ' rating radar. ' + radar.rated + ' of ' + radar.total +
+      ' ratings available."><defs><filter id="ratingRadarGlow" x="-40%" y="-40%" width="180%" height="180%">' +
+      '<feGaussianBlur stdDeviation="2.8" result="blur"/><feMerge><feMergeNode in="blur"/>' +
+      '<feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' + grid + spokes + polygon + dots + labels +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="2.5" fill="#E7FCFF"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="none" stroke="rgba(88,223,255,.45)" stroke-width=".8"/></svg>';
+    if (mode === 'overall' && radar.overall !== null) {
+      body += '<div class="rr-overall mono" aria-label="Overall rating">' + radar.overall + '<span> / 99</span></div>';
+    }
+  }
+
+  host.innerHTML = '<div class="rr-head"><span class="rr-kicker">LIFEOS / LIVE RATINGS</span><strong class="rr-title">' +
+    radarEscape(radar.title) + '</strong><span class="rr-subtitle">' + subtitle +
+    '</span></div><button id="ratingRadarClose" class="rr-close" type="button" aria-label="Return to particle orb" title="Return to particle orb">×</button>' + body;
+  const closeButton = document.getElementById('ratingRadarClose');
+  if (closeButton) closeButton.addEventListener('click', hideRatingRadar);
+  core.classList.add('radar-active');
+  host.hidden = false;
+  activeRatingRadar = mode;
+  return { rated: radar.rated, total: radar.total, title: radar.title, hasRatings };
+}
+
+function hideRatingRadar() {
+  const host = document.getElementById('ratingRadarView');
+  const core = document.getElementById('core');
+  if (host) host.hidden = true;
+  if (core) core.classList.remove('radar-active');
+  activeRatingRadar = null;
+}
+
+function ratingRadarIntent(text) {
+  const q = String(text || '').toLowerCase().replace(/[\u2019']/g, '');
+  if (/\b(?:back to|return to|restore|bring back|show)\s+(?:the\s+)?orb\b|\b(?:close|hide|exit)\s+(?:the\s+)?radar\b/.test(q)) {
+    return { action: 'close' };
+  }
+  if (!/\b(?:radar|rating chart)\b/.test(q)) return null;
+  if (/\b(?:overall|all categories|general|summary)\b/.test(q)) return { action: 'show', mode: 'overall' };
+  if (/\b(?:self[- ]?care|hygiene|daily routine|consistency|personal care)\b/.test(q)) return { action: 'show', mode: 'sc' };
+  if (/\b(?:intelligence|academics?|learning|knowledge|problem[- ]?solving|mind)\b/.test(q)) return { action: 'show', mode: 'in' };
+  if (/\b(?:physical|fitness|athletic|speed|agility|vertical|stamina|strength|body)\b/.test(q)) return { action: 'show', mode: 'ph' };
+  if (/\b(?:basketball|hoops|scoring|playmaking|defen[cs]e|rebounding|efficiency|shooting|sport)\b/.test(q)) return { action: 'show', mode: 'bb' };
+  return { action: 'show', mode: 'overall' };
+}
+
+function handleRatingRadarCommand(text) {
+  const intent = ratingRadarIntent(text);
+  if (!intent) return null;
+  if (intent.action === 'close') {
+    if (!activeRatingRadar) return /\b(?:orb|radar)\b/i.test(text) ? 'The particle orb is already active.' : null;
+    hideRatingRadar();
+    return 'Returning to the particle orb.';
+  }
+  const result = renderRatingRadar(intent.mode);
+  if (!result.hasRatings) return 'Opening your ' + result.title + ' radar. I could not find saved ratings for it yet.';
+  return 'Opening your ' + result.title + ' rating radar.';
+}
+
+window.addEventListener('storage', event => {
+  if (event.key === 'lifeos.v1' && activeRatingRadar) renderRatingRadar(activeRatingRadar);
+});
+
 async function run(t) {
   const q = t.trim().toLowerCase();
   $('#msg').dataset.persistent = '';
@@ -1888,6 +2131,13 @@ async function run(t) {
       setState('standby');
     }
   };
+
+  // Keep rating radar requests local so they never depend on model interpretation.
+  const radarReply = handleRatingRadarCommand(t);
+  if (radarReply) {
+    await respond(radarReply);
+    return;
+  }
 
   // Handle Hangman locally before the general AI fallback, so game turns never depend on model memory.
   const hangmanResult = handleHangmanCommand(t);
