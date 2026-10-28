@@ -1568,6 +1568,8 @@ function addConversationTurn(role, text) {
   const clean = String(text || '').trim().slice(0, 1800);
   if (!clean) return;
   jarvisConversation.push({ role, text: clean, time: Date.now() });
+  // Bound the session history so repeated voice turns cannot grow storage indefinitely.
+  if (jarvisConversation.length > 40) jarvisConversation = jarvisConversation.slice(-40);
   try { sessionStorage.setItem(JARVIS_TURNS_KEY, JSON.stringify(jarvisConversation)); } catch (e) {}
 }
 function conversationContext() {
@@ -1793,17 +1795,27 @@ function submitHangmanGuess(raw) {
 }
 function handleHangmanCommand(text) {
   const raw = String(text || '').trim();
-  const q = raw.toLowerCase().replace(/[.!?]+$/,'').trim();
-  const launch = /\bhangman\b/i.test(q) &&
-    (/\b(can we|could we|let'?s|start|play|game|hey jarvis|jarvis)\b/i.test(q) || /^hangman$/i.test(q));
+  // Speech recognition may preserve or remove the wake phrase, so normalize both forms.
+  const q = raw.toLowerCase()
+    .replace(/^\s*(?:hey[\s,]+)?jarvis[\s,:-]*/i, '')
+    .replace(/[.!?]+$/,'').trim();
+  const asksToPlay = /\b(?:can we|could we|let'?s|start|play|launch|open)\b/.test(q);
+  const mentionsHangman = /\bhangman\b/.test(q);
+  const asksForWord = /\b(?:pick|choose|select)\s+(?:a\s+)?word\b/.test(q);
+  const launch = (mentionsHangman && (asksToPlay || /\bgame\b/.test(q) || q === 'hangman')) ||
+    (asksForWord && (!hangman.active || hangman.phase !== 'playing'));
   if (launch) {
     if (hangman.active && hangman.phase === 'playing') {
-      return { handled:true, reply:'We are already playing. The word is selected — guess a letter.' };
+      showHangman();
+      return { handled:true, reply:'We are already playing. I have selected the word. Guess a letter.' };
     }
     startHangmanRound();
+    showHangman();
     return { handled:true, reply:'Certainly. I have selected a word. Guess a letter whenever you are ready.' };
   }
   if (!hangman.active) return { handled:false };
+  // A follow-up can arrive after the UI was dismissed by a browser layout or animation.
+  showHangman();
   if (/^(quit|exit|exit game|stop game|end game|close hangman|leave game)$/.test(q)) {
     hangman.active = false;
     hangman.phase = 'closed';
@@ -1813,6 +1825,7 @@ function handleHangmanCommand(text) {
   if (hangman.phase === 'offer') {
     if (/^(yes|yeah|yep|sure|another|play again|one more|go on|of course|please)$/.test(q) || /\b(another round|play again|one more round)\b/.test(q)) {
       startHangmanRound();
+      showHangman();
       return { handled:true, reply:'New round. I have selected another word.' };
     }
     if (/^(no|nope|nah|not now|finish|done|stop|exit)$/.test(q) || /\b(no thanks|finish the game|stop playing)\b/.test(q)) {
@@ -1823,8 +1836,8 @@ function handleHangmanCommand(text) {
     }
     return { handled:true, reply:'Would you like another round? Say yes or no.' };
   }
-  if (/\b(pick|choose|select) (a )?word\b/.test(q) || /^(pick a word|choose a word|select a word)$/.test(q)) {
-    return { handled:true, reply:'I have already selected one. The spaces are on the screen — guess a letter.' };
+  if (asksForWord) {
+    return { handled:true, reply:'I have already selected one. The word slots are on the screen — guess a letter.' };
   }
   if (/\b(harder|easier|change difficulty|make it harder|make it easier)\b/.test(q)) {
     return { handled:true, reply:'Difficulty adapts between rounds using your results over several games, so I will keep this round fair.' };
