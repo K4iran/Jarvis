@@ -135,7 +135,7 @@ button,input{font:inherit;color:inherit}
  body{isolation:isolate;background:#010207}
 #cosmos{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:0;opacity:1}
 #app{position:relative;z-index:1;isolation:isolate}
-body{background:radial-gradient(ellipse at 50% 42%,rgba(8,17,36,.22) 0%,rgba(3,6,16,.88) 28%,#010207 68%,#000104 100%)}
+body{background:#010207}
 @media(prefers-reduced-motion:reduce){#cosmos{opacity:.8}}
 #app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:var(--h)}
 #bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 12px;border-bottom:1px solid var(--ln);background:linear-gradient(rgba(9,19,33,.7),transparent)}
@@ -431,66 +431,53 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
 
-/* Minimal digital-cosmos backdrop: subtle atmosphere, clear foreground. */
+/* Subtle binary rain backdrop: dim green digits moving quickly behind the interface. */
 (function initCosmos(){
   const c = $('#cosmos');
   if (!c) return;
   const x = c.getContext('2d', { alpha: true });
   if (!x) return;
-  let w = 0, h = 0, d = 1, last = 0, raf = 0;
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const rand = (a,b) => a + Math.random() * (b-a);
-  const stars = Array.from({length: 190}, () => ({
-    x: Math.random(), y: Math.random(), r: rand(.25, 1.05),
-    a: rand(.16, .62), p: rand(0, 6.28), v: rand(.15, .7),
-    bright: Math.random() < .09
-  }));
+  let w=0,h=0,d=1,last=0,raf=0;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  let streams=[];
   function size(){
-    w = innerWidth; h = innerHeight;
-    d = Math.min(devicePixelRatio || 1, 1.5);
-    c.width = Math.round(w*d); c.height = Math.round(h*d);
-    c.style.width = w + 'px'; c.style.height = h + 'px';
+    w=innerWidth; h=innerHeight;
+    d=Math.min(devicePixelRatio||1,1.5);
+    c.width=Math.round(w*d); c.height=Math.round(h*d);
+    c.style.width=w+'px'; c.style.height=h+'px';
     x.setTransform(d,0,0,d,0,0);
-  }
-  function nebula(cx,cy,r,col,alpha){
-    const g = x.createRadialGradient(cx,cy,0,cx,cy,r);
-    g.addColorStop(0, 'rgba('+col+','+alpha+')');
-    g.addColorStop(.38, 'rgba('+col+','+(alpha*.48)+')');
-    g.addColorStop(1, 'rgba('+col+',0)');
-    x.fillStyle = g;
-    x.fillRect(cx-r,cy-r,r*2,r*2);
+    const gap=w<600?24:30;
+    const count=Math.ceil(w/gap);
+    streams=Array.from({length:count},(_,i)=>({
+      x:i*gap+rand(-4,4), y:rand(-h,h), speed:rand(105,205),
+      length:Math.floor(rand(4,10))
+    }));
   }
   function frame(t){
-    raf = requestAnimationFrame(frame);
-    const dt = last ? Math.min((t-last)/1000,.04) : 0;
-    last = t;
+    raf=requestAnimationFrame(frame);
+    const dt=last?Math.min((t-last)/1000,.04):0;
+    last=t;
     x.clearRect(0,0,w,h);
-    const base = x.createRadialGradient(w*.5,h*.38,0,w*.5,h*.48,Math.max(w,h)*.78);
-    base.addColorStop(0,'rgba(7,17,35,.22)');
-    base.addColorStop(.58,'rgba(3,8,19,.13)');
-    base.addColorStop(1,'rgba(0,1,5,.48)');
-    x.fillStyle = base; x.fillRect(0,0,w,h);
-    // A restrained cool-blue haze adds depth without competing with the orb.
-    nebula(w*.18,h*.25,Math.max(w,h)*.32,'48,108,210',.085);
-    nebula(w*.83,h*.68,Math.max(w,h)*.28,'34,108,190',.055);
-    nebula(w*.76,h*.12,Math.max(w,h)*.19,'43,151,206',.045);
-    for (const q of stars){
-      if (!reduced) q.p += dt*q.v;
-      const alpha = q.a * (.78 + .22*Math.sin(q.p));
-      const px = q.x*w, py = q.y*h;
-      x.beginPath(); x.arc(px,py,q.r,0,Math.PI*2);
-      x.fillStyle = 'rgba('+(q.bright?'194,225,255':'143,178,220')+','+alpha+')';
-      x.fill();
-      if (q.bright){
-        x.strokeStyle = 'rgba(171,218,255,'+(alpha*.26)+')';
-        x.lineWidth = .45;
-        x.beginPath(); x.moveTo(px-3.5,py); x.lineTo(px+3.5,py);
-        x.moveTo(px,py-3.5); x.lineTo(px,py+3.5); x.stroke();
+    x.font='11px "JetBrains Mono", ui-monospace, monospace';
+    x.textAlign='center';
+    for(const q of streams){
+      if(!reduced) q.y+=q.speed*dt;
+      if(q.y-q.length*17>h){
+        q.y=rand(-h*.5,-20); q.speed=rand(105,205); q.length=Math.floor(rand(4,10));
+      }
+      for(let j=0;j<q.length;j++){
+        const yy=q.y-j*17;
+        if(yy < -14 || yy > h+14) continue;
+        const head=j===0;
+        const alpha=head?.13:Math.max(.025,.085*(1-j/q.length));
+        x.fillStyle=head?'rgba(104,190,119,'+alpha+')':'rgba(49,132,70,'+alpha+')';
+        x.fillText(Math.random()<.5?'0':'1',q.x,yy);
       }
     }
   }
   addEventListener('resize',size,{passive:true});
-  size(); raf = requestAnimationFrame(frame);
+  size(); raf=requestAnimationFrame(frame);
   addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
 })();
 let state='standby',view='idle',openId=null,last=null,ct=0,busy=false,timers=[],ii=0,orbInfo='Unavailable',pulse=()=>{},ripple=()=>{},burst=()=>Promise.resolve();
@@ -1317,7 +1304,7 @@ function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-ta
 function setView(v){view=v;renderDisp();setTab(v==='idle'?'home':'data')}
 $$('#bar [data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 $('#dx').onclick=()=>setView('idle');
-const settings=()=>[['rm','Reduce motion'],['cosmos','Cosmic background']].map(([k,n])=>`<div class="r" style="align-items:center"><span style="color:var(--t)">${n}</span><button class="sw" role="switch" data-t="${k}" aria-label="${n}" aria-checked="${S[k]}"></button></div>`).join('');
+const settings=()=>[['rm','Reduce motion'],['cosmos','Binary rain background']].map(([k,n])=>`<div class="r" style="align-items:center"><span style="color:var(--t)">${n}</span><button class="sw" role="switch" data-t="${k}" aria-label="${n}" aria-checked="${S[k]}"></button></div>`).join('');
 function renderOv(){const p=P[openId];$('#ot').textContent=openId==='set'?'SETTINGS':p.l;$('#ob').innerHTML=openId==='set'?settings():`<p class="mut" style="margin:6px 0">${p.d}</p>${p.v()}<button class="btn" data-show="${openId}">SHOW IN VISUALISATION CHANNEL</button>`}
 function openOv(id){last=document.activeElement;openId=id;clearTimeout(ct);renderOv();const o=$('#ov');o.hidden=false;requestAnimationFrame(()=>{o.classList.add('on');$('#oc').focus()})}
 function closeOv(){if(!openId)return;openId=null;const o=$('#ov');o.classList.remove('on');ct=setTimeout(()=>o.hidden=true,260);last&&last.focus&&last.focus()}
