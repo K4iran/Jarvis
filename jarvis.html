@@ -2080,10 +2080,11 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(95,190,255,1)');
-glowGradient.addColorStop(.18,'rgba(35,135,255,.96)');
-glowGradient.addColorStop(.38,'rgba(25,115,255,.68)');
-glowGradient.addColorStop(.68,'rgba(20,95,245,.27)');
+glowGradient.addColorStop(0,'rgba(215,247,255,1)');
+glowGradient.addColorStop(.12,'rgba(100,205,255,1)');
+glowGradient.addColorStop(.28,'rgba(35,145,255,.92)');
+glowGradient.addColorStop(.48,'rgba(20,112,255,.54)');
+glowGradient.addColorStop(.68,'rgba(20,95,245,.18)');
 glowGradient.addColorStop(1,'rgba(20,95,245,0)');
 glowContext.fillStyle=glowGradient;
 glowContext.fillRect(0,0,128,128);
@@ -2129,6 +2130,8 @@ function makeSphere(count){
   return {positions,seeds};
 }
 const outerBase=makeSphere(N),innerBase=makeSphere(M);
+// Sparse outer shell follows the same live deformation, but stays beyond the dense body.
+const ringCount=96,ringBase=makeSphere(ringCount);
 
 function nearestEdges(points,count,k){
   const edges=[],seen=new Set();
@@ -2176,10 +2179,13 @@ const innerMaterial=new T.MeshBasicMaterial({
 });
 const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
 const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
-outerMesh.frustumCulled=innerMesh.frustumCulled=false;
-outerMesh.renderOrder=1;innerMesh.renderOrder=1;
+const ringMaterial=new T.MeshBasicMaterial({color:0xffffff});
+const ringMesh=new T.InstancedMesh(sphereGeometry,ringMaterial,ringCount);
+outerMesh.frustumCulled=innerMesh.frustumCulled=ringMesh.frustumCulled=false;
+outerMesh.renderOrder=1;innerMesh.renderOrder=1;ringMesh.renderOrder=2;
 outerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 innerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
+ringMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
 
 const deepBlue=new T.Color('#315f9b');
 const electricBlue=new T.Color('#176dff');
@@ -2238,7 +2244,7 @@ function createLines(pairs,opacity){
 const tilt=new T.Group();
 /* Shrink the entire 3D particle mass while leaving the surrounding SVG sound waves untouched. */
 tilt.scale.setScalar(.78);
-tilt.add(glow,outerMesh,innerMesh);
+tilt.add(glow,outerMesh,innerMesh,ringMesh);
 
 // Occasional foreground motes peel off the orb and travel toward the viewer.
 const flyCount=0;
@@ -2293,6 +2299,7 @@ sc.add(tilt);
 
 const outerPositions=new Float32Array(N*3);
 const innerPositions=new Float32Array(M*3);
+const ringPositions=new Float32Array(ringCount*3);
 let px=0,py=0,pt=2,pa=0,tp=2,tt=0,slow=0,t0=performance.now();
 let idleT=10,waveElapsed=-1,pulseAge=2,pulseStrength=0;
 const pulseDirection=V3(0,0,1),touchDirection=V3(0,0,1);
@@ -2544,6 +2551,9 @@ function frame(now){
     deform(innerBase.positions,innerBase.seeds,M,.66,visualTime,amplitude*.86,2.2,1,innerPositions);
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
+     // Keep the sparse ring furthest from the core while preserving the orb's existing shape motion.
+     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.72,0,2,ringPositions);
+     updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false);
     updateFlyMotes(dt*motionAllowed);
     if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
     else pa=0;
@@ -2558,8 +2568,8 @@ function frame(now){
     }
 
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
-    glow.material.opacity=Math.min(1,cur.core*.92*(.94+.06*Math.sin(tt*.8))+
-      pulseStrength*.16+chargeLevel*.16);
+    glow.material.opacity=Math.min(1,Math.max(.96,cur.core*1.35)*(.98+.02*Math.sin(tt*.8))+
+       pulseStrength*.08+chargeLevel*.08);
     glow.scale.setScalar(2.8+cur.proc*.08+chargeLevel*.12);
     pulseStrength*=Math.exp(-dt*1.6);
     host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
