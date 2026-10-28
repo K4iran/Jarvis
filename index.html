@@ -676,7 +676,7 @@ const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
 const P={
 profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'PERSONAL DETAILS',d:'',v:()=>`<p class="mut" style="margin:8px 0">Details you ask JARVIS to remember are kept in this browser.</p>`},
-lifeos:{l:'LIFEOS',i:'#i-life',s:'PERSONAL PROGRESSION',d:'Your LifeOS app, embedded inside JARVIS and using its existing saved data.',v:()=>'<div class="lifeos-embed-wrap"><iframe id="lifeosFrame" class="lifeos-embed" src="./LifeOS.html" title="LifeOS personal progression tracker" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'},
+lifeos:{l:'LIFEOS',i:'#i-life',s:'PERSONAL PROGRESSION',d:'Your LifeOS app, embedded inside JARVIS and using its existing saved data.',v:()=>'<div class="lifeos-embed-wrap"><iframe id="lifeosFrame" class="lifeos-embed" src="https://k4iran.github.io/Jarvis/LifeOS.html" title="LifeOS personal progression tracker" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'},
 hoop:{l:'HOOP CENTRAL',i:'#i-hoop',s:'BASKETBALL STATS',d:'',v:()=>`<div class="kp">${['PPG','AST','STL','FG%'].map(k=>`<div><span class="lbl">${k}</span></div>`).join('')}</div>`},
 status:{l:'SYSTEM STATUS',i:'#i-stat',s:'LIVE INTERFACE',d:'',v:()=>[row('Interface','Loaded',1),row('Animation system',S.rm?'Reduced':'Active',1),row('Orb renderer',orbInfo,orbInfo!=='Unavailable'),row('Viewport',innerWidth+' × '+innerHeight+' px'),row('Interface mode',state.toUpperCase())].join('')}};
 const idleHTML=`<div class="idle"><p class="lbl" style="color:var(--t)">Choose a panel</p></div>`;
