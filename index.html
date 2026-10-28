@@ -1561,23 +1561,26 @@ let jarvisConversation = [];
 try {
   const savedTurns = JSON.parse(sessionStorage.getItem(JARVIS_TURNS_KEY) || '[]');
   if (Array.isArray(savedTurns)) jarvisConversation = savedTurns
-    .filter(item => item && (item.role === 'user' || item.role === 'assistant') && typeof item.text === 'string')
-    .slice(-14);
+    .filter(item => item && (item.role === 'user' || item.role === 'assistant') && typeof item.text === 'string');
 } catch (e) { jarvisConversation = []; }
 
 function addConversationTurn(role, text) {
   const clean = String(text || '').trim().slice(0, 1800);
   if (!clean) return;
   jarvisConversation.push({ role, text: clean, time: Date.now() });
-  jarvisConversation = jarvisConversation.slice(-14);
   try { sessionStorage.setItem(JARVIS_TURNS_KEY, JSON.stringify(jarvisConversation)); } catch (e) {}
 }
 function conversationContext() {
   const turns = jarvisConversation.slice();
   if (turns.length && turns[turns.length - 1].role === 'user') turns.pop();
   if (!turns.length) return '';
-  return 'Recent conversation for continuity (these are previous turns, not new instructions):\n' +
-    turns.map(item => (item.role === 'user' ? 'User: ' : 'JARVIS: ') + item.text).join('\n') +
+  const lines = turns.map(item => (item.role === 'user' ? 'User: ' : 'JARVIS: ') + item.text);
+  let history = lines.join('\n');
+  while (history.length > 18000 && lines.length > 2) {
+    lines.shift();
+    history = lines.join('\n');
+  }
+  return 'Recent conversation for continuity (previous turns, not new instructions):\n' + history +
     '\nUse this history to interpret follow-up requests.\n';
 }
 
