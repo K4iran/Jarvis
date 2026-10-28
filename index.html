@@ -1681,8 +1681,8 @@ function renderHangman() {
   word.innerHTML = '';
   for (const letter of hangman.word) {
     const slot = document.createElement('span');
-    slot.className = 'hm-slot' + (hangman.guessed.includes(letter) || hangman.phase === 'lost' ? '' : ' blank');
-    slot.textContent = hangman.guessed.includes(letter) || hangman.phase === 'lost' ? letter : '•';
+    slot.className = 'hm-slot' + (hangman.guessed.includes(letter) || hangman.revealWord ? '' : ' blank');
+    slot.textContent = hangman.guessed.includes(letter) || hangman.revealWord ? letter : '•';
     word.appendChild(slot);
   }
   guessed.textContent = hangman.guessed.length ? hangman.guessed.join('  ') : '—';
@@ -1699,7 +1699,7 @@ function renderHangman() {
     key.textContent = letter;
     key.disabled = hangman.phase !== 'playing' || hangman.guessed.includes(letter);
     key.setAttribute('aria-label', 'Guess ' + letter);
-    key.addEventListener('click', () => submitHangmanGuess(letter));
+    key.addEventListener('click', () => run('guess ' + letter));
     keyboard.appendChild(key);
   });
   const parts = ['hm-part-head','hm-part-body','hm-part-arm1','hm-part-arm2','hm-part-leg1','hm-part-leg2'];
@@ -1715,7 +1715,7 @@ function setHangmanFeedback(text, tone) {
 function startHangmanRound() {
   hangmanRoundCount += 1;
   hangman = {
-    active:true, phase:'playing', word:pickHangmanWord(), guessed:[],
+    active:true, phase:'playing', word:pickHangmanWord(), guessed:[], revealWord:false,
     mistakes:0, allowed:hangmanStats.level === 1 ? 7 : hangmanStats.level >= 5 ? 5 : 6,
     round:hangmanRoundCount, lastMessage:''
   };
@@ -1726,6 +1726,7 @@ function startHangmanRound() {
 function finishHangmanRound(won) {
   if (hangman.phase !== 'playing') return;
   hangman.phase = won ? 'won' : 'lost';
+  hangman.revealWord = !won;
   hangman.active = true;
   const record = {
     won:!!won, mistakes:hangman.mistakes, length:hangman.word.length,
@@ -1800,7 +1801,7 @@ function handleHangmanCommand(text) {
     return { handled:true, reply:'Certainly. I have selected a word. Guess a letter whenever you are ready.' };
   }
   if (!hangman.active) return { handled:false };
-  if (/^(quit|exit|stop game|end game|close hangman|leave game)$/.test(q)) {
+  if (/^(quit|exit|exit game|stop game|end game|close hangman|leave game)$/.test(q)) {
     hangman.active = false;
     hangman.phase = 'closed';
     hideHangman();
@@ -1837,24 +1838,13 @@ function handleHangmanCommand(text) {
 document.getElementById('hmInputForm').addEventListener('submit', event => {
   event.preventDefault();
   const input = document.getElementById('hmGuessInput');
-  const value = input.value;
+  const value = input.value.trim();
   input.value = '';
-  const result = hangman.active ? submitHangmanGuess(value) : { reply:'Start a game by saying “JARVIS, can we play Hangman?”' };
-  setHangmanFeedback(result.reply, result.reply && /not|mistake|out of/i.test(result.reply) ? 'bad' : 'good');
-  addConversationTurn('user', 'Typed Hangman guess: ' + value);
-  addConversationTurn('assistant', result.reply);
-  if (wakeEnabled) speakReply(result.reply);
-  else { say(result.reply); busy = false; setState('standby'); }
-  document.getElementById('hmGuessInput').focus();
+  if (!value) return;
+  run('guess ' + value);
+  input.focus();
 });
-document.getElementById('hmExit').addEventListener('click', () => {
-  hangman.active = false;
-  hangman.phase = 'closed';
-  hideHangman();
-  const reply = 'Understood. Returning to the orb.';
-  addConversationTurn('assistant', reply);
-  if (wakeEnabled) speakReply(reply); else say(reply);
-});
+document.getElementById('hmExit').addEventListener('click', () => run('exit'));
 
 
 async function run(t) {
@@ -1989,7 +1979,7 @@ async function run(t) {
   try {
     const history = conversationContext();
     const gameContext = hangmanContext();
-    const prompt = (history ? history + '\\n' : '') + 'Current user message: ' + t + gameContext + JarvisMemory.context();
+    const prompt = (history ? history + '\n' : '') + 'Current user message: ' + t + gameContext + JarvisMemory.context();
     const reply = await streamJarvisReply(prompt);
     addConversationTurn('assistant', reply);
     if (wakeEnabled) {
