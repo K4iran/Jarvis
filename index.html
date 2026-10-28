@@ -2160,8 +2160,6 @@ function nearestEdges(points,count,k){
 }
 const outerEdges=nearestEdges(outerBase.positions,N,3);
 const innerEdges=nearestEdges(innerBase.positions,M,3);
-// The halo's own short-lived links connect only nearby outer-ring particles.
-const ringEdges=nearestEdges(ringBase.positions,ringCount,2);
 const spokes=[];
 for(let i=0;i<M;i+=2){
   const ix=innerBase.positions[i*3],iy=innerBase.positions[i*3+1],iz=innerBase.positions[i*3+2];
@@ -2248,10 +2246,6 @@ const tilt=new T.Group();
 /* Shrink the entire 3D particle mass while leaving the surrounding SVG sound waves untouched. */
 tilt.scale.setScalar(.78);
 tilt.add(glow,outerMesh,innerMesh,ringMesh);
-// Keep connecting filaments on the halo itself; existing SVG voice waves remain untouched.
-const ringLines=createLines(ringEdges,.08);
-ringLines.object.renderOrder=3;
-tilt.add(ringLines.object);
 
 // Occasional foreground motes peel off the orb and travel toward the viewer.
 const flyCount=0;
@@ -2571,10 +2565,6 @@ function frame(now){
        ringPositions[at]*=scale;ringPositions[at+1]*=scale;ringPositions[at+2]*=scale;
      }
      updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false,true);
-      // Links stay subtle at rest, then brighten and shimmer with live listening/speech state.
-      ringLines.material.opacity=.045+orbWaveActive*(state==='responding'?.30:(state==='listening'?.17:.06))+
-        (state==='processing'?.025:0)+speakingBlend*.045;
-      updateLines(ringLines,ringEdges,ringPositions,ringPositions,visualTime);
     updateFlyMotes(dt*motionAllowed);
     if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
     else pa=0;
