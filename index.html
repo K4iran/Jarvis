@@ -2132,7 +2132,30 @@ function makeSphere(count){
 }
 const outerBase=makeSphere(N),innerBase=makeSphere(M);
 // Sparse outer halo follows the same liquid deformation, clearly separated from the lighter inner body.
-const ringCount=104,ringBase=makeSphere(ringCount);
+// A real broken halo: particles are distributed along separated arcs, not over a second sphere.
+const ringCount=84;
+function makeBrokenHalo(count){
+  const positions=new Float32Array(count*3),seeds=new Float32Array(count);
+  const arcs=[[0,.92],[1.13,2.25],[2.48,3.63],[3.91,5.02],[5.32,TAU]];
+  const spans=arcs.reduce((sum,a)=>sum+a[1]-a[0],0);
+  for(let i=0;i<count;i++){
+    let distance=(i+.5)/count*spans,angle=0;
+    for(const arc of arcs){
+      const span=arc[1]-arc[0];
+      if(distance<=span){angle=arc[0]+distance;break;}
+      distance-=span;
+    }
+    const depth=.12*Math.sin(angle*2.0)+.045*Math.sin(angle*5.0);
+    const radial=Math.sqrt(1-depth*depth);
+    positions[i*3]=Math.cos(angle)*radial;
+    positions[i*3+1]=Math.sin(angle)*radial;
+    positions[i*3+2]=depth;
+    const raw=Math.sin((i+1)*78.233)*43758.5453;
+    seeds[i]=raw-Math.floor(raw);
+  }
+  return {positions,seeds};
+}
+const ringBase=makeBrokenHalo(ringCount);
 
 function nearestEdges(points,count,k){
   const edges=[],seen=new Set();
