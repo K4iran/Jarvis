@@ -2043,7 +2043,7 @@ window.__jarvisCoreInitialized = true;
 (function(){try{
 const T=THREE,host=$('#core'),canvas=$('#gl');
 const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
-const N=480,M=64,TAU=Math.PI*2;
+const N=360,M=28,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 // Use a lighter renderer setup for broad desktop/laptop GPU compatibility.
@@ -2080,12 +2080,12 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(255,255,255,.48)');
-glowGradient.addColorStop(.08,'rgba(205,248,255,.52)');
-glowGradient.addColorStop(.18,'rgba(105,220,255,.58)');
-glowGradient.addColorStop(.30,'rgba(35,155,255,.68)');
-glowGradient.addColorStop(.48,'rgba(20,112,255,.38)');
-glowGradient.addColorStop(.68,'rgba(20,95,245,.12)');
+glowGradient.addColorStop(0,'rgba(255,255,255,.16)');
+glowGradient.addColorStop(.08,'rgba(205,248,255,.22)');
+glowGradient.addColorStop(.18,'rgba(105,220,255,.28)');
+glowGradient.addColorStop(.30,'rgba(35,155,255,.32)');
+glowGradient.addColorStop(.48,'rgba(20,112,255,.20)');
+glowGradient.addColorStop(.68,'rgba(20,95,245,.06)');
 glowGradient.addColorStop(1,'rgba(20,95,245,0)');
 glowContext.fillStyle=glowGradient;
 glowContext.fillRect(0,0,128,128);
@@ -2160,6 +2160,8 @@ function nearestEdges(points,count,k){
 }
 const outerEdges=nearestEdges(outerBase.positions,N,3);
 const innerEdges=nearestEdges(innerBase.positions,M,3);
+// The halo's own short-lived links connect only nearby outer-ring particles.
+const ringEdges=nearestEdges(ringBase.positions,ringCount,2);
 const spokes=[];
 for(let i=0;i<M;i+=2){
   const ix=innerBase.positions[i*3],iy=innerBase.positions[i*3+1],iz=innerBase.positions[i*3+2];
@@ -2246,6 +2248,10 @@ const tilt=new T.Group();
 /* Shrink the entire 3D particle mass while leaving the surrounding SVG sound waves untouched. */
 tilt.scale.setScalar(.78);
 tilt.add(glow,outerMesh,innerMesh,ringMesh);
+// Keep connecting filaments on the halo itself; existing SVG voice waves remain untouched.
+const ringLines=createLines(ringEdges,.08);
+ringLines.object.renderOrder=3;
+tilt.add(ringLines.object);
 
 // Occasional foreground motes peel off the orb and travel toward the viewer.
 const flyCount=0;
@@ -2565,6 +2571,10 @@ function frame(now){
        ringPositions[at]*=scale;ringPositions[at+1]*=scale;ringPositions[at+2]*=scale;
      }
      updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false,true);
+      // Links stay subtle at rest, then brighten and shimmer with live listening/speech state.
+      ringLines.material.opacity=.045+orbWaveActive*(state==='responding'?.30:(state==='listening'?.17:.06))+
+        (state==='processing'?.025:0)+speakingBlend*.045;
+      updateLines(ringLines,ringEdges,ringPositions,ringPositions,visualTime);
     updateFlyMotes(dt*motionAllowed);
     if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
     else pa=0;
@@ -2579,8 +2589,8 @@ function frame(now){
     }
 
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
-    glow.material.opacity=Math.min(.58,Math.max(.38,cur.core*.72)*(.98+.02*Math.sin(tt*.8))+
-       pulseStrength*.025+chargeLevel*.025);
+    glow.material.opacity=Math.min(.30,Math.max(.16,cur.core*.35)*(.98+.02*Math.sin(tt*.8))+
+       pulseStrength*.018+chargeLevel*.018);
     glow.scale.setScalar(2.8+cur.proc*.08+chargeLevel*.12);
     pulseStrength*=Math.exp(-dt*1.6);
     host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
