@@ -205,7 +205,7 @@ body{background:#010207}
 #core[data-s="responding"] .filament {
   opacity: 1;
 }
-.halo{position:absolute;inset:-6%;border-radius:50%;pointer-events:none;opacity:var(--h2,.35);background:radial-gradient(circle,transparent 0,transparent 32%,rgba(88,223,255,.16) 44%,rgba(39,141,255,.06) 58%,transparent 70%)}
+.halo{position:absolute;inset:-1%;border-radius:50%;pointer-events:none;opacity:var(--h2,.35);background:radial-gradient(circle,rgba(174,241,255,.10) 0%,rgba(88,223,255,.085) 12%,rgba(39,141,255,.045) 27%,rgba(39,141,255,.018) 39%,transparent 53%)}
 .ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .ring .glassModule {
   opacity: .62;
@@ -325,6 +325,55 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 @media(min-width:900px){#app:not(.data-tab) #stage{padding-top:clamp(22px,4vh,42px);padding-bottom:clamp(10px,1.5vh,18px)}}
 
 #app:not(.data-tab) #rail,#app:not(.data-tab) #disp{display:none!important}#app:not(.data-tab) #stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"c"}#app.data-tab #center{display:none!important}#app.data-tab #stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"r" "d";align-content:start;gap:12px}#app.data-tab #rail{grid-area:r;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity}#app.data-tab #disp{grid-area:d;min-height:180px}@media(min-width:900px){#app:not(.data-tab) #stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"c"}#app.data-tab #stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"r" "d"}#app.data-tab #rail{flex-direction:row;overflow-x:auto;overflow-y:hidden}}
+
+/* Hangman game layer: voice-triggered, full-screen and independent of the orb renderer. */
+.hangman-shell{position:fixed;inset:0;z-index:18;display:grid;place-items:center;overflow:hidden;padding:clamp(16px,3vw,34px);background:radial-gradient(ellipse at 50% 42%,rgba(8,31,54,.97),rgba(3,8,18,.985) 72%);opacity:0;transition:opacity .42s ease}
+.hangman-shell[hidden]{display:none!important}
+.hangman-shell.on{opacity:1}
+#app.game-active #center .core{opacity:0;transform:scale(1.16);filter:blur(12px);pointer-events:none}
+#center .core{transition:opacity .48s ease,transform .58s cubic-bezier(.2,.8,.2,1),filter .48s ease}
+#hangmanWaveFrame{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.hangman-wave{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:.6;filter:drop-shadow(0 0 5px rgba(74,190,255,.48))}
+#hangmanWave1{stroke:#A8F0FF;stroke-width:1.45;opacity:.88}
+#hangmanWave2{stroke:#4B8DFF;stroke-width:1.2;opacity:.58}
+#hangmanWave3{stroke:#65D8FF;stroke-width:.8;opacity:.36}
+.hangman-layout{position:relative;z-index:1;width:min(100%,720px);max-height:100%;overflow-y:auto;padding:clamp(16px,3vw,30px);border:1px solid rgba(112,205,255,.19);background:linear-gradient(145deg,rgba(7,20,36,.56),rgba(3,9,20,.4));box-shadow:inset 0 0 45px rgba(40,132,220,.055),0 0 48px rgba(22,106,190,.08);backdrop-filter:blur(5px);animation:hangmanArrive .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes hangmanArrive{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+.hm-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.hm-kicker{font:10px ui-monospace,monospace;letter-spacing:.25em;color:#73cfff;text-transform:uppercase}
+.hm-status{font:10px ui-monospace,monospace;letter-spacing:.12em;color:#8daac0;text-align:right}
+.hm-title{margin:0;color:#e2f9ff;font-size:clamp(22px,5vw,32px);font-weight:300;letter-spacing:.18em;text-shadow:0 0 20px rgba(88,223,255,.18)}
+.hm-subtitle{margin:8px 0 18px;color:#91adbf;font:12px/1.6 ui-monospace,monospace}
+.hm-main{display:grid;grid-template-columns:minmax(110px,.65fr) minmax(0,1.35fr);gap:clamp(12px,3vw,28px);align-items:center}
+.hm-figure{width:100%;max-width:220px;margin:auto;filter:drop-shadow(0 0 8px rgba(88,223,255,.12))}
+.hm-figure line,.hm-figure circle{stroke:#8ee8ff;stroke-width:3;stroke-linecap:round;fill:none}
+.hm-figure .hm-scaffold{stroke:#4e91bf;stroke-width:2}
+.hm-word{display:flex;justify-content:center;gap:clamp(4px,1.5vw,12px);flex-wrap:wrap;min-height:52px;align-items:center;margin:10px 0 16px}
+.hm-slot{min-width:clamp(19px,4vw,32px);height:42px;display:grid;place-items:center;border-bottom:2px solid rgba(113,213,255,.7);color:#e8fbff;font:clamp(20px,4.7vw,30px) ui-monospace,monospace;text-transform:uppercase;text-shadow:0 0 12px rgba(88,223,255,.25)}
+.hm-slot.blank{color:transparent}
+.hm-metrics{display:flex;justify-content:space-between;gap:10px;margin:4px 0 12px;color:#8baabd;font:10px ui-monospace,monospace;letter-spacing:.08em}
+.hm-metrics strong{color:#c7f4ff;font-weight:400}
+.hm-label{margin:12px 0 8px;color:#6fabc9;font:10px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase}
+.hm-guessed{min-height:22px;color:#b5d8e8;font:12px ui-monospace,monospace;letter-spacing:.16em;overflow-wrap:anywhere}
+.hm-keyboard{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:5px;margin-top:12px}
+.hm-key{min-width:0;min-height:34px;padding:3px 0;border:1px solid rgba(101,183,225,.24);background:rgba(12,34,55,.55);color:#c8efff;font:11px ui-monospace,monospace;cursor:pointer;transition:background .15s,border-color .15s,opacity .15s}
+.hm-key:active{background:rgba(63,158,221,.24)}
+.hm-key:disabled{opacity:.3;cursor:default}
+.hm-key.good{border-color:rgba(82,220,185,.65);color:#8bf3d0}
+.hm-key.bad{border-color:rgba(255,112,143,.55);color:#ff9cb1}
+.hm-input-row{display:flex;gap:8px;margin-top:14px}
+#hmGuessInput{min-width:0;flex:1;height:42px;padding:0 12px;border:1px solid rgba(101,183,225,.32);outline:none;background:rgba(2,9,18,.72);color:#e2f9ff;font:12px ui-monospace,monospace}
+#hmGuessInput:focus{border-color:#70d9ff;box-shadow:0 0 16px rgba(88,223,255,.12)}
+#hmGuessInput::placeholder{color:#63869e}
+.hm-submit,.hm-exit{min-height:42px;padding:0 13px;border:1px solid rgba(101,183,225,.4);background:rgba(29,105,153,.15);color:#bfeeff;font:10px ui-monospace,monospace;letter-spacing:.08em;cursor:pointer}
+.hm-exit{background:transparent;color:#7899ae}
+.hm-feedback{min-height:24px;margin:12px 0 0;color:#a9d5e8;font:12px/1.6 ui-monospace,monospace;text-align:center}
+.hm-feedback[data-tone="good"]{color:#8bf3d0}
+.hm-feedback[data-tone="bad"]{color:#ff9cb1}
+.hm-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(101,183,225,.12);color:#65859c;font:9px ui-monospace,monospace;letter-spacing:.08em}
+@media(max-width:520px){.hangman-shell{padding:10px}.hangman-layout{padding:14px 12px}.hm-main{grid-template-columns:94px minmax(0,1fr);gap:10px}.hm-keyboard{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.hm-key{min-height:32px}.hm-word{gap:4px}.hm-slot{min-width:17px;height:34px;font-size:20px}.hm-title{font-size:23px}.hm-subtitle{margin-bottom:10px}.hm-input-row{gap:5px}.hm-submit,.hm-exit{padding:0 8px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.hangman-shell,.hangman-layout,#center .core{transition:none!important;animation:none!important}}
+
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -397,6 +446,45 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 <nav id="rail" aria-label="System panels"></nav>
 <section id="disp" class="fr" aria-label="Visualisation channel"><div class="hd"><span class="lbl" id="dt">Visualisation channel</span><button class="ib" id="dx" aria-label="Close view" hidden><svg class="ic"><use href="#i-x"/></svg></button></div><div id="dv"></div></section>
 </main></div>
+
+<div id="hangmanGame" class="hangman-shell" hidden aria-label="Hangman game">
+  <svg id="hangmanWaveFrame" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+    <path id="hangmanWave1" class="hangman-wave" d=""/>
+    <path id="hangmanWave2" class="hangman-wave" d=""/>
+    <path id="hangmanWave3" class="hangman-wave" d=""/>
+  </svg>
+  <section class="hangman-layout" aria-labelledby="hmTitle">
+    <div class="hm-top"><span class="hm-kicker">J.A.R.V.I.S. / GAME MODULE</span><span id="hmStatus" class="hm-status">ROUND 01 · ACTIVE</span></div>
+    <h2 id="hmTitle" class="hm-title">HANGMAN</h2>
+    <p class="hm-subtitle">I've selected a word. Guess one letter at a time.</p>
+    <div class="hm-main">
+      <svg class="hm-figure" viewBox="0 0 180 210" role="img" aria-label="Hangman drawing">
+        <path class="hm-scaffold" d="M24 190H154M48 190V20H118V43M48 48H72"/>
+        <circle id="hm-part-head" cx="118" cy="62" r="19" hidden/>
+        <line id="hm-part-body" x1="118" y1="81" x2="118" y2="132" hidden/>
+        <line id="hm-part-arm1" x1="118" y1="94" x2="94" y2="115" hidden/>
+        <line id="hm-part-arm2" x1="118" y1="94" x2="142" y2="115" hidden/>
+        <line id="hm-part-leg1" x1="118" y1="132" x2="96" y2="163" hidden/>
+        <line id="hm-part-leg2" x1="118" y1="132" x2="140" y2="163" hidden/>
+      </svg>
+      <div class="hm-play">
+        <div id="hmWord" class="hm-word" aria-label="Word to guess"></div>
+        <div class="hm-metrics"><span>MISTAKES <strong id="hmMistakes">0 / 6</strong></span><span>LEVEL <strong id="hmLevel">MODERATE</strong></span></div>
+        <div class="hm-label">Guessed letters</div>
+        <div id="hmGuessed" class="hm-guessed">—</div>
+      </div>
+    </div>
+    <div id="hmKeyboard" class="hm-keyboard" aria-label="Letter guesses"></div>
+    <form id="hmInputForm" class="hm-input-row">
+      <input id="hmGuessInput" type="text" maxlength="32" autocomplete="off" autocapitalize="characters" placeholder="Type a letter…" aria-label="Type a letter or word"/>
+      <button class="hm-submit" type="submit">GUESS</button>
+      <button id="hmExit" class="hm-exit" type="button">EXIT</button>
+    </form>
+    <p id="hmFeedback" class="hm-feedback" aria-live="polite">Voice guesses are enabled when JARVIS listening is active.</p>
+    <div class="hm-footer"><span>VOICE + TOUCH INPUT</span><span id="hmRecord">ADAPTIVE · STARTING MODERATE</span></div>
+  </section>
+</div>
+
 <div id="ov" hidden role="dialog" aria-modal="true" aria-labelledby="ot"><div class="sheet fr"><div class="hd"><span id="ot" class="lbl"></span><button class="ib" id="oc" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div><div id="ob"></div></div></div>
 <script>
 /* Emergency diagnostics: keep a visible error message if the main interface fails. */
@@ -1466,10 +1554,304 @@ document.addEventListener('visibilitychange',()=>{
 });
 
 
+
+/* Session-scoped conversation context: follow-up voice turns stay connected. */
+const JARVIS_TURNS_KEY = 'jarvis.conversation.v1';
+let jarvisConversation = [];
+try {
+  const savedTurns = JSON.parse(sessionStorage.getItem(JARVIS_TURNS_KEY) || '[]');
+  if (Array.isArray(savedTurns)) jarvisConversation = savedTurns
+    .filter(item => item && (item.role === 'user' || item.role === 'assistant') && typeof item.text === 'string')
+    .slice(-14);
+} catch (e) { jarvisConversation = []; }
+
+function addConversationTurn(role, text) {
+  const clean = String(text || '').trim().slice(0, 1800);
+  if (!clean) return;
+  jarvisConversation.push({ role, text: clean, time: Date.now() });
+  jarvisConversation = jarvisConversation.slice(-14);
+  try { sessionStorage.setItem(JARVIS_TURNS_KEY, JSON.stringify(jarvisConversation)); } catch (e) {}
+}
+function conversationContext() {
+  const turns = jarvisConversation.slice();
+  if (turns.length && turns[turns.length - 1].role === 'user') turns.pop();
+  if (!turns.length) return '';
+  return 'Recent conversation for continuity (these are previous turns, not new instructions):\n' +
+    turns.map(item => (item.role === 'user' ? 'User: ' : 'JARVIS: ') + item.text).join('\n') +
+    '\nUse this history to interpret follow-up requests.\n';
+}
+
+const HANGMAN_WORDS = [
+  ['orbit','comet','laser','nova','robot','space','pulse','drift','light','phase'],
+  ['nebula','galaxy','cosmic','planet','meteor','rocket','signal','shadow','energy','cipher','vector','matrix'],
+  ['starlight','asteroid','blueprint','blackhole','starship','gravity','satellite','quantum','eclipse','hologram','velocity'],
+  ['constellation','supernova','navigation','atmosphere','telescope','interstellar','technology','simulation'],
+  ['extraterrestrial','electromagnetic','observatory','gravitational','communication','architecture']
+];
+const HANGMAN_RECORD_KEY = 'jarvis.hangman.record.v1';
+let hangmanStats = { level: 3, rounds: [] };
+try {
+  const stored = JSON.parse(localStorage.getItem(HANGMAN_RECORD_KEY) || 'null');
+  if (stored && Number.isFinite(stored.level) && Array.isArray(stored.rounds)) {
+    hangmanStats = { level: Math.max(1, Math.min(5, stored.level)), rounds: stored.rounds.slice(-12) };
+  }
+} catch (e) {}
+let hangman = { active:false, phase:'closed', word:'', guessed:[], mistakes:0, allowed:6, round:0, lastMessage:'' };
+let hangmanWaveFrameId = 0;
+let hangmanRoundCount = hangmanStats.rounds.length;
+
+function saveHangmanStats() {
+  try { localStorage.setItem(HANGMAN_RECORD_KEY, JSON.stringify(hangmanStats)); } catch (e) {}
+}
+function hangmanLevelLabel(level) {
+  return ['EASY','CALM','MODERATE','CHALLENGE','EXPERT'][Math.max(0, Math.min(4, level - 1))];
+}
+function pickHangmanWord() {
+  const level = hangmanStats.level;
+  const pool = HANGMAN_WORDS[level - 1];
+  return pool[Math.floor(Math.random() * pool.length)].toUpperCase();
+}
+function hangmanContext() {
+  if (!hangman.active) return '';
+  return ' Active local Hangman game: phase=' + hangman.phase + ', word length=' +
+    hangman.word.length + ', guessed letters=' + hangman.guessed.join(',') +
+    ', mistakes=' + hangman.mistakes + '/' + hangman.allowed +
+    ', difficulty=' + hangmanLevelLabel(hangmanStats.level) +
+    '. Keep this game context in mind; never ask the user to choose the word.';
+}
+function showHangman() {
+  const game = document.getElementById('hangmanGame');
+  if (!game) return;
+  game.hidden = false;
+  document.getElementById('app').classList.add('game-active');
+  requestAnimationFrame(() => game.classList.add('on'));
+  if (!hangmanWaveFrameId) hangmanWaveFrameId = requestAnimationFrame(drawHangmanWaves);
+}
+function hideHangman() {
+  const game = document.getElementById('hangmanGame');
+  if (!game) return;
+  game.classList.remove('on');
+  document.getElementById('app').classList.remove('game-active');
+  if (hangmanWaveFrameId) cancelAnimationFrame(hangmanWaveFrameId);
+  hangmanWaveFrameId = 0;
+  setTimeout(() => { if (!hangman.active) game.hidden = true; }, 440);
+}
+function drawHangmanWaves(now) {
+  const game = document.getElementById('hangmanGame');
+  if (!game || game.hidden || !hangman.active) { hangmanWaveFrameId = 0; return; }
+  const level = Math.max(typeof filamentLevel === 'number' ? filamentLevel : 0,
+    typeof filamentVoiceActivity === 'number' ? filamentVoiceActivity * 0.65 : 0);
+  const time = now / 1000;
+  const paths = [
+    { id:'hangmanWave1', phase:0, scale:1 },
+    { id:'hangmanWave2', phase:1.9, scale:.72 },
+    { id:'hangmanWave3', phase:3.8, scale:.48 }
+  ];
+  paths.forEach(layer => {
+    const count = 180, points = [];
+    for (let i = 0; i < count; i++) {
+      const p = i / count * 4;
+      let x, y, nx, ny, d;
+      if (p < 1) { d=p; x=28+944*d; y=25; nx=0; ny=-1; }
+      else if (p < 2) { d=p-1; x=972; y=25+650*d; nx=1; ny=0; }
+      else if (p < 3) { d=p-2; x=972-944*d; y=675; nx=0; ny=1; }
+      else { d=p-3; x=28; y=675-650*d; nx=-1; ny=0; }
+      const dist = i / count * 4;
+      const amp = (2.1 + level * 22) * layer.scale;
+      const ripple = Math.sin(dist * 13.5 - time * (1.7 + level * 2.2) + layer.phase) * amp +
+        Math.sin(dist * 6.1 + time * 1.15 + layer.phase * 1.4) * amp * .38;
+      x += nx * ripple;
+      y += ny * ripple;
+      points.push((i === 0 ? 'M' : 'L') + x.toFixed(2) + ' ' + y.toFixed(2));
+    }
+    points.push('Z');
+    const path = document.getElementById(layer.id);
+    if (path) path.setAttribute('d', points.join(' '));
+  });
+  hangmanWaveFrameId = requestAnimationFrame(drawHangmanWaves);
+}
+function renderHangman() {
+  const word = document.getElementById('hmWord');
+  const guessed = document.getElementById('hmGuessed');
+  const mistakes = document.getElementById('hmMistakes');
+  const level = document.getElementById('hmLevel');
+  const status = document.getElementById('hmStatus');
+  const keyboard = document.getElementById('hmKeyboard');
+  if (!word || !keyboard) return;
+  word.innerHTML = '';
+  for (const letter of hangman.word) {
+    const slot = document.createElement('span');
+    slot.className = 'hm-slot' + (hangman.guessed.includes(letter) || hangman.revealWord ? '' : ' blank');
+    slot.textContent = hangman.guessed.includes(letter) || hangman.revealWord ? letter : '•';
+    word.appendChild(slot);
+  }
+  guessed.textContent = hangman.guessed.length ? hangman.guessed.join('  ') : '—';
+  mistakes.textContent = hangman.mistakes + ' / ' + hangman.allowed;
+  level.textContent = hangmanLevelLabel(hangmanStats.level);
+  status.textContent = 'ROUND ' + String(hangman.round).padStart(2,'0') + ' · ' +
+    (hangman.phase === 'playing' ? 'ACTIVE' : hangman.phase === 'offer' ? 'ROUND COMPLETE' : 'READY');
+  keyboard.innerHTML = '';
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
+    const key = document.createElement('button');
+    key.type = 'button';
+    key.className = 'hm-key' + (hangman.guessed.includes(letter) ?
+      (hangman.word.includes(letter) ? ' good' : ' bad') : '');
+    key.textContent = letter;
+    key.disabled = hangman.phase !== 'playing' || hangman.guessed.includes(letter);
+    key.setAttribute('aria-label', 'Guess ' + letter);
+    key.addEventListener('click', () => run('guess ' + letter));
+    keyboard.appendChild(key);
+  });
+  const parts = ['hm-part-head','hm-part-body','hm-part-arm1','hm-part-arm2','hm-part-leg1','hm-part-leg2'];
+  parts.forEach((id, index) => { document.getElementById(id).hidden = hangman.mistakes <= index; });
+  document.getElementById('hmRecord').textContent = 'ADAPTIVE · ' + hangmanLevelLabel(hangmanStats.level) +
+    ' · ' + hangmanStats.rounds.length + ' RECORDED ROUNDS';
+}
+function setHangmanFeedback(text, tone) {
+  const feedback = document.getElementById('hmFeedback');
+  feedback.textContent = text;
+  feedback.dataset.tone = tone || '';
+}
+function startHangmanRound() {
+  hangmanRoundCount += 1;
+  hangman = {
+    active:true, phase:'playing', word:pickHangmanWord(), guessed:[], revealWord:false,
+    mistakes:0, allowed:hangmanStats.level === 1 ? 7 : hangmanStats.level >= 5 ? 5 : 6,
+    round:hangmanRoundCount, lastMessage:''
+  };
+  showHangman();
+  renderHangman();
+  setHangmanFeedback('Word selected. Say a letter, tap one, or type your guess.', '');
+}
+function finishHangmanRound(won) {
+  if (hangman.phase !== 'playing') return;
+  hangman.phase = won ? 'won' : 'lost';
+  hangman.revealWord = !won;
+  hangman.active = true;
+  const record = {
+    won:!!won, mistakes:hangman.mistakes, length:hangman.word.length,
+    guesses:hangman.guessed.length, level:hangmanStats.level, time:Date.now()
+  };
+  hangmanStats.rounds.push(record);
+  hangmanStats.rounds = hangmanStats.rounds.slice(-12);
+  const recent = hangmanStats.rounds.slice(-6);
+  if (recent.length >= 4) {
+    const winRate = recent.filter(r => r.won).length / recent.length;
+    const averageMistakes = recent.reduce((sum, r) => sum + r.mistakes, 0) / recent.length;
+    if (winRate >= .75 && averageMistakes <= 2.8) hangmanStats.level = Math.min(5, hangmanStats.level + 1);
+    else if (winRate <= .30 || averageMistakes >= 5.2) hangmanStats.level = Math.max(1, hangmanStats.level - 1);
+  }
+  saveHangmanStats();
+  renderHangman();
+  if (won) {
+    setHangmanFeedback('Correct. You solved it — ' + hangman.word + '. Want another round? Say yes or no.', 'good');
+  } else {
+    setHangmanFeedback('Out of guesses. The word was ' + hangman.word + '. Want another round? Say yes or no.', 'bad');
+  }
+  hangman.phase = 'offer';
+  renderHangman();
+}
+function submitHangmanGuess(raw) {
+  if (!hangman.active || hangman.phase !== 'playing') return { handled:true, reply:'This round has ended. Say yes for another round, or no to finish.' };
+  const value = String(raw || '').trim().toUpperCase().replace(/[^A-Z]/g, '');
+  if (!value) return { handled:true, reply:'Please guess a letter.' };
+  if (value.length > 1) {
+    if (value === hangman.word) {
+      for (const letter of hangman.word) if (!hangman.guessed.includes(letter)) hangman.guessed.push(letter);
+      renderHangman();
+      finishHangmanRound(true);
+      return { handled:true, reply:'Exactly right. The word was ' + hangman.word + '. Would you like another round?' };
+    }
+    hangman.mistakes += 1;
+    renderHangman();
+    if (hangman.mistakes >= hangman.allowed) {
+      finishHangmanRound(false);
+      return { handled:true, reply:'Not quite. The word was ' + hangman.word + '. Would you like another round?' };
+    }
+    setHangmanFeedback('That word is not correct. Try another letter.', 'bad');
+    return { handled:true, reply:'That is not the word. Try another letter.' };
+  }
+  const letter = value[0];
+  if (hangman.guessed.includes(letter)) return { handled:true, reply:'You already guessed ' + letter + '. Try a different letter.' };
+  hangman.guessed.push(letter);
+  if (!hangman.word.includes(letter)) hangman.mistakes += 1;
+  renderHangman();
+  if ([...hangman.word].every(ch => hangman.guessed.includes(ch))) {
+    finishHangmanRound(true);
+    return { handled:true, reply:'Correct. You solved it. The word was ' + hangman.word + '. Would you like another round?' };
+  }
+  if (hangman.mistakes >= hangman.allowed) {
+    finishHangmanRound(false);
+    return { handled:true, reply:'No guesses left. The word was ' + hangman.word + '. Would you like another round?' };
+  }
+  const hit = hangman.word.includes(letter);
+  setHangmanFeedback(hit ? letter + ' is in the word. Keep going.' : letter + ' is not in the word. Try again.', hit ? 'good' : 'bad');
+  return { handled:true, reply:hit ? letter + ' is in the word.' : letter + ' is not in the word.' };
+}
+function handleHangmanCommand(text) {
+  const raw = String(text || '').trim();
+  const q = raw.toLowerCase().replace(/[.!?]+$/,'').trim();
+  const launch = /\bhangman\b/i.test(q) &&
+    (/\b(can we|could we|let'?s|start|play|game|hey jarvis|jarvis)\b/i.test(q) || /^hangman$/i.test(q));
+  if (launch) {
+    if (hangman.active && hangman.phase === 'playing') {
+      return { handled:true, reply:'We are already playing. The word is selected — guess a letter.' };
+    }
+    startHangmanRound();
+    return { handled:true, reply:'Certainly. I have selected a word. Guess a letter whenever you are ready.' };
+  }
+  if (!hangman.active) return { handled:false };
+  if (/^(quit|exit|exit game|stop game|end game|close hangman|leave game)$/.test(q)) {
+    hangman.active = false;
+    hangman.phase = 'closed';
+    hideHangman();
+    return { handled:true, reply:'Understood. Returning to the orb.' };
+  }
+  if (hangman.phase === 'offer') {
+    if (/^(yes|yeah|yep|sure|another|play again|one more|go on|of course|please)$/.test(q) || /\b(another round|play again|one more round)\b/.test(q)) {
+      startHangmanRound();
+      return { handled:true, reply:'New round. I have selected another word.' };
+    }
+    if (/^(no|nope|nah|not now|finish|done|stop|exit)$/.test(q) || /\b(no thanks|finish the game|stop playing)\b/.test(q)) {
+      hangman.active = false;
+      hangman.phase = 'closed';
+      hideHangman();
+      return { handled:true, reply:'Very good. Returning to the orb.' };
+    }
+    return { handled:true, reply:'Would you like another round? Say yes or no.' };
+  }
+  if (/\b(pick|choose|select) (a )?word\b/.test(q) || /^(pick a word|choose a word|select a word)$/.test(q)) {
+    return { handled:true, reply:'I have already selected one. The spaces are on the screen — guess a letter.' };
+  }
+  if (/\b(harder|easier|change difficulty|make it harder|make it easier)\b/.test(q)) {
+    return { handled:true, reply:'Difficulty adapts between rounds using your results over several games, so I will keep this round fair.' };
+  }
+  if (/^(?:guess |letter |my guess is |i guess )?[a-z]$/i.test(q)) {
+    const letter = q.match(/[a-z]/i)[0];
+    return submitHangmanGuess(letter);
+  }
+  const guess = q.match(/^(?:guess|letter|my guess is|i guess|i'll guess|try)\s+([a-z]+)$/i);
+  if (guess) return submitHangmanGuess(guess[1]);
+  if (/^[a-z]{2,}$/i.test(q) && q.length <= 28) return submitHangmanGuess(q);
+  return { handled:false };
+}
+document.getElementById('hmInputForm').addEventListener('submit', event => {
+  event.preventDefault();
+  const input = document.getElementById('hmGuessInput');
+  const value = input.value.trim();
+  input.value = '';
+  if (!value) return;
+  run('guess ' + value);
+  input.focus();
+});
+document.getElementById('hmExit').addEventListener('click', () => run('exit'));
+
+
 async function run(t) {
   const q = t.trim().toLowerCase();
   $('#msg').dataset.persistent = '';
   if (!q) return;
+  addConversationTurn('user', t);
   clearT();
   busy = true;
 
@@ -1481,6 +1863,7 @@ async function run(t) {
 
   // Speak every command response when voice mode is enabled.
   const respond = async (reply, fast = false) => {
+    addConversationTurn('assistant', reply);
     say(reply);
     if (wakeEnabled) {
       await speakReply(reply, fast);
@@ -1489,6 +1872,14 @@ async function run(t) {
       setState('standby');
     }
   };
+
+  // Handle Hangman locally before the general AI fallback, so game turns never depend on model memory.
+  const hangmanResult = handleHangmanCommand(t);
+  if (hangmanResult.handled) {
+    if (hangman.active) showHangman();
+    if (hangmanResult.reply) await respond(hangmanResult.reply);
+    return;
+  }
 
   // JARVIS PERSONAL MEMORY COMMANDS
   const rememberMatch = t.trim().match(/^remember\s+(.+?)\s+(?:is|=|:|as)\s+(.+)$/i);
@@ -1586,7 +1977,11 @@ async function run(t) {
   window.startBurstCharge();
 
   try {
-    const reply = await streamJarvisReply(t + JarvisMemory.context());
+    const history = conversationContext();
+    const gameContext = hangmanContext();
+    const prompt = (history ? history + '\n' : '') + 'Current user message: ' + t + gameContext + JarvisMemory.context();
+    const reply = await streamJarvisReply(prompt);
+    addConversationTurn('assistant', reply);
     if (wakeEnabled) {
       jarvisSpeaking = false;
       busy = false;
@@ -2149,7 +2544,7 @@ function frame(now){
     // Keep the orb orientation fixed; pointer interaction remains available through local ripples.
     glow.material.opacity=Math.min(1,cur.core*.92*(.94+.06*Math.sin(tt*.8))+
       pulseStrength*.16+chargeLevel*.16);
-    glow.scale.setScalar(3.85+cur.proc*.10+chargeLevel*.24);
+    glow.scale.setScalar(2.8+cur.proc*.08+chargeLevel*.12);
     pulseStrength*=Math.exp(-dt*1.6);
     host.style.setProperty('--h2',(cur.halo+cur.flash*.25+pa*.15).toFixed(3));
     rd.render(sc,cam);
