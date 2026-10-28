@@ -2043,13 +2043,14 @@ window.__jarvisCoreInitialized = true;
 (function(){try{
 const T=THREE,host=$('#core'),canvas=$('#gl');
 const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
-const N=1200,M=180,TAU=Math.PI*2;
+const PARTICLE_BUDGET=lo?9000:15000,N=Math.round(PARTICLE_BUDGET*.9),M=PARTICLE_BUDGET-N,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 // Use a lighter renderer setup for broad desktop/laptop GPU compatibility.
 const rd=new T.WebGLRenderer({canvas,alpha:true,antialias:!lo,powerPreference:'default',failIfMajorPerformanceCaveat:false});
 rd.setClearColor(0x000000,0);
-let dpr=Math.min(window.devicePixelRatio||1,lo?1.5:1.5);
+let dpr=Math.min(window.devicePixelRatio||1,1.5);
+const particleUniforms={uProjectionScale:{value:1},uPixelRatio:{value:dpr}};
 const sc=new T.Scene();
 const cam=new T.PerspectiveCamera(36,1,.1,50);
 cam.position.set(0,0,4.2);
@@ -2060,6 +2061,8 @@ const fit=()=>{
   rd.setSize(w,h,false);
   cam.aspect=w/h;
   cam.updateProjectionMatrix();
+  particleUniforms.uProjectionScale.value=h/(2*Math.tan(cam.fov*Math.PI/360));
+  particleUniforms.uPixelRatio.value=dpr;
 };
 // ResizeObserver is not available in every embedded/older browser; keep a resize fallback.
 const resizeObserver=typeof ResizeObserver!=='undefined'?new ResizeObserver(fit):null;
@@ -2080,11 +2083,12 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(215,247,255,1)');
-glowGradient.addColorStop(.12,'rgba(100,205,255,1)');
-glowGradient.addColorStop(.28,'rgba(35,145,255,.92)');
-glowGradient.addColorStop(.48,'rgba(20,112,255,.54)');
-glowGradient.addColorStop(.68,'rgba(20,95,245,.18)');
+glowGradient.addColorStop(0,'rgba(255,255,255,1)');
+glowGradient.addColorStop(.075,'rgba(210,246,255,1)');
+glowGradient.addColorStop(.20,'rgba(104,205,255,.98)');
+glowGradient.addColorStop(.36,'rgba(36,143,255,.78)');
+glowGradient.addColorStop(.54,'rgba(20,104,255,.30)');
+glowGradient.addColorStop(.72,'rgba(14,82,235,.07)');
 glowGradient.addColorStop(1,'rgba(20,95,245,0)');
 glowContext.fillStyle=glowGradient;
 glowContext.fillRect(0,0,128,128);
@@ -2131,120 +2135,75 @@ function makeSphere(count){
 }
 const outerBase=makeSphere(N),innerBase=makeSphere(M);
 // Sparse outer shell follows the same live deformation, but stays beyond the dense body.
-const ringCount=96,ringBase=makeSphere(ringCount);
+const ringCount=180,ringBase=makeSphere(ringCount);
 
-function nearestEdges(points,count,k){
-  const edges=[],seen=new Set();
-  for(let i=0;i<count;i++){
-    const bestScores=new Float32Array(k);
-    const bestIndices=new Int32Array(k);
-    bestScores.fill(-Infinity);
-    bestIndices.fill(-1);
-    const ax=points[i*3],ay=points[i*3+1],az=points[i*3+2];
-    for(let j=0;j<count;j++){
-      if(i===j)continue;
-      const score=ax*points[j*3]+ay*points[j*3+1]+az*points[j*3+2];
-      let minSlot=0;
-      for(let q=1;q<k;q++)if(bestScores[q]<bestScores[minSlot])minSlot=q;
-      if(score>bestScores[minSlot]){bestScores[minSlot]=score;bestIndices[minSlot]=j;}
+const particleMaterial=new T.ShaderMaterial({
+  uniforms:particleUniforms,
+  transparent:true,
+  depthTest:true,
+  depthWrite:false,
+  blending:T.AdditiveBlending,
+  toneMapped:false,
+  vertexShader:`
+    attribute vec3 color;
+    attribute float aSize;
+    attribute float aAlpha;
+    varying vec3 vColor;
+    varying float vAlpha;
+    uniform float uProjectionScale;
+    uniform float uPixelRatio;
+    void main(){
+      vec4 mvPosition=modelViewMatrix*vec4(position,1.0);
+      vColor=color;
+      vAlpha=aAlpha;
+      gl_PointSize=clamp(aSize*uProjectionScale*uPixelRatio/max(.1,-mvPosition.z),1.0,4.0);
+      gl_Position=projectionMatrix*mvPosition;
     }
-    for(let q=0;q<k;q++){
-      const j=bestIndices[q];
-      if(j<0)continue;
-      const a=Math.min(i,j),b=Math.max(i,j),key=a*count+b;
-      if(!seen.has(key)){seen.add(key);edges.push([a,b]);}
+  `,
+  fragmentShader:`
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main(){
+      float radius=length(gl_PointCoord-vec2(.5))*2.0;
+      float edge=1.0-smoothstep(.48,1.0,radius);
+      float nucleus=exp(-radius*radius*5.0);
+      float alpha=edge*vAlpha;
+      if(alpha<.015) discard;
+      gl_FragColor=vec4(vColor*(.88+nucleus*.72),alpha);
     }
-  }
-  return edges;
-}
-const outerEdges=nearestEdges(outerBase.positions,N,3);
-const innerEdges=nearestEdges(innerBase.positions,M,3);
-const spokes=[];
-for(let i=0;i<M;i+=2){
-  const ix=innerBase.positions[i*3],iy=innerBase.positions[i*3+1],iz=innerBase.positions[i*3+2];
-  let best=0,bestDot=-Infinity;
-  for(let j=0;j<N;j++){
-    const dot=ix*outerBase.positions[j*3]+iy*outerBase.positions[j*3+1]+iz*outerBase.positions[j*3+2];
-    if(dot>bestDot){bestDot=dot;best=j;}
-  }
-  spokes.push([i,best]);
-}
-
-const sphereGeometry=new T.SphereGeometry(1,lo?7:9,lo?5:7);
-const outerMaterial=new T.MeshBasicMaterial({
-  color:0xffffff
+  `
 });
-const innerMaterial=new T.MeshBasicMaterial({
-  color:0xffffff
-});
-const outerMesh=new T.InstancedMesh(sphereGeometry,outerMaterial,N);
-const innerMesh=new T.InstancedMesh(sphereGeometry,innerMaterial,M);
-const ringMaterial=new T.MeshBasicMaterial({color:0xffffff});
-const ringMesh=new T.InstancedMesh(sphereGeometry,ringMaterial,ringCount);
-outerMesh.frustumCulled=innerMesh.frustumCulled=ringMesh.frustumCulled=false;
-outerMesh.renderOrder=1;innerMesh.renderOrder=1;ringMesh.renderOrder=2;
-outerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
-innerMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
-ringMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
-
-const deepBlue=new T.Color('#315f9b');
-const electricBlue=new T.Color('#176dff');
-const iceBlue=new T.Color('#e8f8ff');
-const nearWhite=new T.Color('#f8fdff');
-const particleColour=new T.Color();
-const dummy=new T.Object3D();
-function setParticleColour(mesh,i,z,seed,inner,waveGlow=0){
-  /* Preserve the blue depth gradient, then let the travelling light wave
-     briefly lift each particle toward icy white before it softly fades. */
-  const depth=clamp((z+1)/2,0,1);
-  const front=depth*depth*(3-2*depth);
-  /* Near-white spheres: tiny cool-blue variation only; BasicMaterial avoids blue lighting tint. */
-  const tint=clamp(.035+front*.055+(seed-.5)*.018,0,.11);
-  particleColour.setRGB(1-tint*.12,1-tint*.035,1);
-  if(inner)particleColour.setRGB(1,1,1);
-  const waveStrength=clamp(waveGlow,0,1);
-  if(waveStrength>0)particleColour.lerp(nearWhite,waveStrength*.35);
-  mesh.setColorAt(i,particleColour);
-}
-
-const tierColours=[
-  [0.012,.035,.16],
-  [.024,.13,.40],
-  [.045,.32,.70],
-  [.20,.62,.92],
-  [.62,.91,1]
-];
-function lineColour(z,out,at){
-  const d=clamp((z+1)/2,0,.9999)*4;
-  const tier=Math.floor(d),mix=d-tier;
-  const a=tierColours[tier],b=tierColours[tier+1];
-  out[at]=lerp(a[0],b[0],mix);
-  out[at+1]=lerp(a[1],b[1],mix);
-  out[at+2]=lerp(a[2],b[2],mix);
-}
-function createLines(pairs,opacity){
+function makeParticleCloud(count,renderOrder){
   const geometry=new T.BufferGeometry();
-  const positions=new Float32Array(pairs.length*6);
-  const colours=new Float32Array(pairs.length*6);
+  const positions=new Float32Array(count*3);
+  const colours=new Float32Array(count*3);
+  const sizes=new Float32Array(count);
+  const alphas=new Float32Array(count);
   const positionAttribute=new T.BufferAttribute(positions,3);
   const colourAttribute=new T.BufferAttribute(colours,3);
+  const sizeAttribute=new T.BufferAttribute(sizes,1);
+  const alphaAttribute=new T.BufferAttribute(alphas,1);
   positionAttribute.setUsage(T.DynamicDrawUsage);
   colourAttribute.setUsage(T.DynamicDrawUsage);
+  sizeAttribute.setUsage(T.DynamicDrawUsage);
+  alphaAttribute.setUsage(T.DynamicDrawUsage);
   geometry.setAttribute('position',positionAttribute);
   geometry.setAttribute('color',colourAttribute);
-  const material=new T.LineBasicMaterial({
-    color:0xffffff,vertexColors:true,transparent:true,opacity,
-    depthTest:true,depthWrite:false,blending:T.AdditiveBlending,toneMapped:false
-  });
-  const object=new T.LineSegments(geometry,material);
-  object.frustumCulled=false;
-  object.renderOrder=2;
-  return {geometry,material,object,positionAttribute,colourAttribute};
+  geometry.setAttribute('aSize',sizeAttribute);
+  geometry.setAttribute('aAlpha',alphaAttribute);
+  const points=new T.Points(geometry,particleMaterial);
+  points.frustumCulled=false;
+  points.renderOrder=renderOrder;
+  return {geometry,points,positions,colours,sizes,alphas,count};
 }
+const outerCloud=makeParticleCloud(N,1);
+const innerCloud=makeParticleCloud(M,2);
+const ringCloud=makeParticleCloud(ringCount,3);
+const outerParticles=outerCloud.points,innerParticles=innerCloud.points,ringParticles=ringCloud.points;
 const tilt=new T.Group();
-/* Shrink the entire 3D particle mass while leaving the surrounding SVG sound waves untouched. */
+/* Scale only the orb; background, waves, controls and surrounding interface stay unchanged. */
 tilt.scale.setScalar(.78);
-tilt.add(glow,outerMesh,innerMesh,ringMesh);
+tilt.add(glow,outerParticles,innerParticles,ringParticles);
 
 // Occasional foreground motes peel off the orb and travel toward the viewer.
 const flyCount=0;
@@ -2297,9 +2256,9 @@ const updateFlyMotes=(dt)=>{
 }; 
 sc.add(tilt);
 
-const outerPositions=new Float32Array(N*3);
-const innerPositions=new Float32Array(M*3);
-const ringPositions=new Float32Array(ringCount*3);
+const outerPositions=outerCloud.positions;
+const innerPositions=innerCloud.positions;
+const ringPositions=ringCloud.positions;
 let px=0,py=0,pt=2,pa=0,tp=2,tt=0,slow=0,t0=performance.now();
 let idleT=10,waveElapsed=-1,pulseAge=2,pulseStrength=0;
 const pulseDirection=V3(0,0,1),touchDirection=V3(0,0,1);
@@ -2438,13 +2397,13 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     output[at]=ox;output[at+1]=oy;output[at+2]=oz;
   }
 }
-function updateMesh(mesh,base,positions,seeds,count,inner){
+function updateParticles(cloud,seeds,inner,isRing,time){
+  const colours=cloud.colours,sizes=cloud.sizes,alphas=cloud.alphas;
+  const count=cloud.count,positions=cloud.positions;
   const shellRadius=inner?.66:1;
   for(let i=0;i<count;i++){
     const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
-    const depth=clamp((z+1)/2,0,1);
-    // The wave travels across each shell from core to edge, then reverses.
-    // A soft Gaussian band lights each particle briefly and leaves no hard edge.
+    const depth=clamp((z+1.15)/2.3,0,1);
     const radialDistance=clamp(Math.sqrt(x*x+y*y+z*z)/shellRadius,0,1.25);
     const phase=(orbWaveClock%2)/2;
     const easedPhase=phase<.5
@@ -2452,39 +2411,38 @@ function updateMesh(mesh,base,positions,seeds,count,inner){
       : .5+.5*Math.cos(Math.PI*(phase-.5)*2);
     const waveDistance=Math.exp(-Math.pow((radialDistance-easedPhase)/.085,2));
     const waveGlow=waveDistance*orbWaveActive;
-    // Slightly larger, brighter particles make the liquid mass feel denser.
-    const size=(inner?.0045:.0038)+seed*(inner?.0018:.0016);
-    const frontScale=.84+depth*.34;
-    dummy.position.set(x,y,z);
-    dummy.scale.setScalar(size*frontScale*(1+waveGlow*.16));
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i,dummy.matrix);
-    setParticleColour(mesh,i,z,seed,inner,waveGlow);
+    let r,g,b;
+    if(inner){
+      r=.46+seed*.30;
+      g=.76+seed*.19;
+      b=1;
+      if(seed>.78){const k=(seed-.78)/.22*.70;r+=(1-r)*k;g+=(1-g)*k;}
+      sizes[i]=.0052+seed*.0030+waveGlow*.0010;
+      alphas[i]=clamp(.76+seed*.20+waveGlow*.12,0,1);
+    }else if(isRing){
+      r=.20+seed*.30;
+      g=.52+seed*.39;
+      b=1;
+      if(seed>.86){const k=(seed-.86)/.14*.65;r+=(1-r)*k;g+=(1-g)*k;}
+      sizes[i]=.0044+seed*.0016+waveGlow*.0005;
+      alphas[i]=clamp(.64+seed*.30+waveGlow*.08,0,1);
+    }else{
+      r=.17+depth*.58;
+      g=.43+depth*.48;
+      b=1;
+      if(seed>.79){const k=(seed-.79)/.21*.78;r+=(1-r)*k;g+=(1-g)*k;}
+      sizes[i]=.0038+seed*.0021+waveGlow*.0009;
+      alphas[i]=clamp(.60+seed*.29+waveGlow*.17,0,1);
+    }
+    const frontScale=.91+depth*.17;
+    colours[at]=clamp(r*frontScale,0,1);
+    colours[at+1]=clamp(g*frontScale,0,1);
+    colours[at+2]=clamp(b,0,1);
   }
-  mesh.instanceMatrix.needsUpdate=true;
-  if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
-}
-function updateLines(bundle,pairs,a,b,time=0){
-  const p=bundle.positionAttribute.array,c=bundle.colourAttribute.array;
-  for(let i=0;i<pairs.length;i++){
-    const ai=pairs[i][0]*3,bi=pairs[i][1]*3,o=i*6;
-    const ax=a[ai],ay=a[ai+1],az=a[ai+2];
-    const bx=b[bi],by=b[bi+1],bz=b[bi+2];
-    p[o]=ax;p[o+1]=ay;p[o+2]=az;
-    p[o+3]=bx;p[o+4]=by;p[o+5]=bz;
-    const z=(az+bz)*.5,d=clamp((z+1)/2,0,.9999)*4,tier=Math.floor(d),mix=d-tier;
-    const ca=tierColours[tier],cb=tierColours[tier+1];
-    const r=lerp(ca[0],cb[0],mix),g=lerp(ca[1],cb[1],mix),bl=lerp(ca[2],cb[2],mix);
-    // Bright accents, medium strands, and faint near-invisible filaments.
-    const slot=(i*7+Math.floor(i/3))%12;
-    const level=slot<2?1.18:(slot<7?.68:.19);
-    const shimmer=.88+.12*(.5+.5*Math.sin(time*.55+i*.37));
-    const brightness=level*shimmer;
-    c[o]=r*brightness;c[o+1]=g*brightness;c[o+2]=bl*brightness;
-    c[o+3]=r*brightness;c[o+4]=g*brightness;c[o+5]=bl*brightness;
-  }
-  bundle.positionAttribute.needsUpdate=true;
-  bundle.colourAttribute.needsUpdate=true;
+  cloud.geometry.attributes.position.needsUpdate=true;
+  cloud.geometry.attributes.color.needsUpdate=true;
+  cloud.geometry.attributes.aSize.needsUpdate=true;
+  cloud.geometry.attributes.aAlpha.needsUpdate=true;
 }
 const sm=(a,b,v)=>clamp((v-a)/(b-a),0,1);
 let speakingBlend=0,orbInfo=`WebGL · ${N+M} particles`;
@@ -2545,15 +2503,30 @@ function frame(now){
       ? .045*Math.min(1,burstElapsed/BURST_OUT)
       : 0;
     tilt.scale.setScalar(.78*(1-.10*chargeLevel)*(1+burstExpansion));
+    tilt.rotation.y+=dt*motionAllowed*(state==='responding'?.34:.105);
+    tilt.rotation.x=Math.sin(tt*.115)*.035;
     const visualTime=tt*(state==='processing'?1.45:1);
     const waveTime=waveElapsed>=0?waveElapsed:-1;
     deform(outerBase.positions,outerBase.seeds,N,1,visualTime,amplitude,0,0,outerPositions);
     deform(innerBase.positions,innerBase.seeds,M,.66,visualTime,amplitude*.86,2.2,1,innerPositions);
-    updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
-    updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
+    updateParticles(outerCloud,outerBase.seeds,false,false,visualTime);
+    updateParticles(innerCloud,innerBase.seeds,true,false,visualTime);
      // Keep the sparse ring furthest from the core while preserving the orb's existing shape motion.
-     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.72,0,2,ringPositions);
-     updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false);
+     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.42,0,2,ringPositions);
+    let maxBodyRadius=0;
+    for(let i=0;i<N;i++){
+      const at=i*3;
+      const radius=Math.hypot(outerPositions[at],outerPositions[at+1],outerPositions[at+2]);
+      if(radius>maxBodyRadius)maxBodyRadius=radius;
+    }
+    for(let i=0;i<ringCount;i++){
+      const at=i*3,x=ringPositions[at],y=ringPositions[at+1],z=ringPositions[at+2];
+      const radius=Math.hypot(x,y,z)||1;
+      const targetRadius=maxBodyRadius+.055+ringBase.seeds[i]*.12;
+      const scale=targetRadius/radius;
+      ringPositions[at]=x*scale;ringPositions[at+1]=y*scale;ringPositions[at+2]=z*scale;
+    }
+    updateParticles(ringCloud,ringBase.seeds,false,true,visualTime);
     updateFlyMotes(dt*motionAllowed);
     if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
     else pa=0;
@@ -2585,8 +2558,8 @@ requestAnimationFrame(frame);
 
 addEventListener('pagehide',()=>{
   if(resizeObserver)resizeObserver.disconnect();
-  sphereGeometry.dispose();outerMaterial.dispose();innerMaterial.dispose();
-  glow.material.map.dispose();glow.material.dispose();rd.dispose();
+  outerCloud.geometry.dispose();innerCloud.geometry.dispose();ringCloud.geometry.dispose();
+  particleMaterial.dispose();glow.material.map.dispose();glow.material.dispose();rd.dispose();
 });
 }catch(err){console.error(err);$('#core').classList.add('nogl');orbInfo='Unavailable'}})();
 </script></body></html>
