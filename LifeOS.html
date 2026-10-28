@@ -86,7 +86,7 @@ function modal(h){$('#mb').innerHTML=h;$('#modal').classList.add('on')}function 
 $('#modal').onclick=e=>{if(e.target.id=='modal'&&S)closeM()};
 function ask(msg,fn){modal(`<h3>Confirm</h3><p>${msg}</p><div class=row><button class=b onclick="closeM();ASK()">Yes</button><button class="b g" onclick=closeM()>Cancel</button></div>`);window.ASK=fn}
 /* ratings */
-const rk=(c,i)=>(c=='bb'&&S.sport&&S.sport!='bb'?'bb:'+S.sport:c)+'.'+ATTR[c][i],RV=(c,i)=>S.rat[rk(c,i)];
+const rk=(c,i)=>(c=='bb'&&S&&S.sport&&S.sport!='bb'?'bb:'+S.sport:c)+'.'+ATTR[c][i],RV=(c,i)=>S&&S.rat?S.rat[rk(c,i)]:null;
 function catR(c){const v=ATTR[c].map((_,i)=>RV(c,i)).filter(x=>x!=null);return v.length?Math.round(mean(v)):null}
 function overall(){let s=0,w=0;for(const c in CATS){const v=catR(c);if(v!=null){s+=v*S.w[c];w+=S.w[c]}}return w?Math.round(s/w):null} // weighted mean of category ratings (weights in S.w, default equal)
 function setRat(k,v,src){v=Math.round(Number(v));if(!(v>=0&&v<=99))return false;const o=S.rat[k];if(o===v)return true;S.rat[k]=v;S.rh.push({k,f:o??null,t:v,d:new Date().toISOString(),s:src});return true}
