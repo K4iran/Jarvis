@@ -2080,9 +2080,10 @@ const glowCanvas=document.createElement('canvas');
 glowCanvas.width=glowCanvas.height=128;
 const glowContext=glowCanvas.getContext('2d');
 const glowGradient=glowContext.createRadialGradient(64,64,0,64,64,64);
-glowGradient.addColorStop(0,'rgba(215,247,255,1)');
-glowGradient.addColorStop(.12,'rgba(100,205,255,1)');
-glowGradient.addColorStop(.28,'rgba(35,145,255,.92)');
+glowGradient.addColorStop(0,'rgba(255,255,255,1)');
+glowGradient.addColorStop(.08,'rgba(205,248,255,1)');
+glowGradient.addColorStop(.18,'rgba(105,220,255,1)');
+glowGradient.addColorStop(.30,'rgba(35,155,255,.94)');
 glowGradient.addColorStop(.48,'rgba(20,112,255,.54)');
 glowGradient.addColorStop(.68,'rgba(20,95,245,.18)');
 glowGradient.addColorStop(1,'rgba(20,95,245,0)');
@@ -2131,7 +2132,7 @@ function makeSphere(count){
 }
 const outerBase=makeSphere(N),innerBase=makeSphere(M);
 // Sparse outer shell follows the same live deformation, but stays beyond the dense body.
-const ringCount=96,ringBase=makeSphere(ringCount);
+const ringCount=128,ringBase=makeSphere(ringCount);
 
 function nearestEdges(points,count,k){
   const edges=[],seen=new Set();
@@ -2438,8 +2439,8 @@ function deform(points,seeds,count,radius,time,amplitude,phase,layer,output){
     output[at]=ox;output[at+1]=oy;output[at+2]=oz;
   }
 }
-function updateMesh(mesh,base,positions,seeds,count,inner){
-  const shellRadius=inner?.66:1;
+function updateMesh(mesh,base,positions,seeds,count,inner,outerRing=false){
+  const shellRadius=inner?.66:(outerRing?1.5:1);
   for(let i=0;i<count;i++){
     const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
     const depth=clamp((z+1)/2,0,1);
@@ -2453,7 +2454,7 @@ function updateMesh(mesh,base,positions,seeds,count,inner){
     const waveDistance=Math.exp(-Math.pow((radialDistance-easedPhase)/.085,2));
     const waveGlow=waveDistance*orbWaveActive;
     // Slightly larger, brighter particles make the liquid mass feel denser.
-    const size=(inner?.0045:.0038)+seed*(inner?.0018:.0016);
+    const size=outerRing?(.0062+seed*.0020):((inner?.0045:.0038)+seed*(inner?.0018:.0016));
     const frontScale=.84+depth*.34;
     dummy.position.set(x,y,z);
     dummy.scale.setScalar(size*frontScale*(1+waveGlow*.16));
@@ -2552,8 +2553,18 @@ function frame(now){
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
      // Keep the sparse ring furthest from the core while preserving the orb's existing shape motion.
-     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.72,0,2,ringPositions);
-     updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false);
+     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.46,0,2,ringPositions);
+     // Enforce a true outer shell every frame: sparse ring particles stay beyond
+     // every dense-body particle, while their directions keep the organic motion.
+     let outermost=0;
+     for(let i=0;i<N;i++){const at=i*3;outermost=Math.max(outermost,Math.hypot(outerPositions[at],outerPositions[at+1],outerPositions[at+2]));}
+     const ringFloor=outermost+.13;
+     for(let i=0;i<ringCount;i++){
+       const at=i*3,rr=Math.hypot(ringPositions[at],ringPositions[at+1],ringPositions[at+2])||1;
+       const target=ringFloor+Math.max(0,rr-1.22)*.22,scale=target/rr;
+       ringPositions[at]*=scale;ringPositions[at+1]*=scale;ringPositions[at+2]*=scale;
+     }
+     updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false,true);
     updateFlyMotes(dt*motionAllowed);
     if(pt<1.15){pt+=dt/3.2*motionAllowed;pa=Math.max(0,pa-dt*.7);}
     else pa=0;
