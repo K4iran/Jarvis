@@ -2043,7 +2043,7 @@ window.__jarvisCoreInitialized = true;
 (function(){try{
 const T=THREE,host=$('#core'),canvas=$('#gl');
 const lo=/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)||(navigator.hardwareConcurrency||4)<=4;
-const N=1200,M=100,TAU=Math.PI*2;
+const N=480,M=64,TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 // Use a lighter renderer setup for broad desktop/laptop GPU compatibility.
@@ -2132,7 +2132,7 @@ function makeSphere(count){
 }
 const outerBase=makeSphere(N),innerBase=makeSphere(M);
 // Sparse outer shell follows the same live deformation, but stays beyond the dense body.
-const ringCount=128,ringBase=makeSphere(ringCount);
+const ringCount=88,ringBase=makeSphere(ringCount);
 
 function nearestEdges(points,count,k){
   const edges=[],seen=new Set();
@@ -2553,15 +2553,15 @@ function frame(now){
     updateMesh(outerMesh,outerBase,outerPositions,outerBase.seeds,N,false);
     updateMesh(innerMesh,innerBase,innerPositions,innerBase.seeds,M,true);
      // Keep the sparse ring furthest from the core while preserving the orb's existing shape motion.
-     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.46,0,2,ringPositions);
+     deform(ringBase.positions,ringBase.seeds,ringCount,1.22,visualTime,amplitude*.86,2.2,1,ringPositions);
      // Enforce a true outer shell every frame: sparse ring particles stay beyond
      // every dense-body particle, while their directions keep the organic motion.
      let outermost=0;
      for(let i=0;i<N;i++){const at=i*3;outermost=Math.max(outermost,Math.hypot(outerPositions[at],outerPositions[at+1],outerPositions[at+2]));}
-     const ringFloor=outermost+.002;
+     const ringFloor=outermost+.001;
      for(let i=0;i<ringCount;i++){
        const at=i*3,rr=Math.hypot(ringPositions[at],ringPositions[at+1],ringPositions[at+2])||1;
-       const target=ringFloor+Math.max(0,rr-1.22)*.10,scale=target/rr;
+       const target=ringFloor+Math.max(0,rr-1.22)*.035,scale=target/rr;
        ringPositions[at]*=scale;ringPositions[at+1]*=scale;ringPositions[at+2]*=scale;
      }
      updateMesh(ringMesh,ringBase,ringPositions,ringBase.seeds,ringCount,false,true);
