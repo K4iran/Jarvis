@@ -399,6 +399,72 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 
 
 /* Zen / Spirit Tree — independent immersive layer; keep the JARVIS orb renderer unchanged. */
+
+/* Spiritual Spirit Tree refinements — the dashboard transitions into the living tree. */
+#zenRoot{background:radial-gradient(ellipse at 50% 44%,rgba(19,65,50,.94) 0%,rgba(8,28,28,.97) 32%,rgba(5,12,25,.985) 62%,rgba(1,3,9,.995) 100%)}
+#zenRoot.zen-morph-in{animation:zenDashboardMorph .95s cubic-bezier(.2,.8,.2,1) both}
+@keyframes zenDashboardMorph{0%{opacity:0;filter:blur(4px);transform:scale(1.025)}45%{opacity:1;filter:blur(1px);transform:scale(1.008)}100%{opacity:1;filter:blur(0);transform:scale(1)}}
+.zen-tree-stage{width:min(100%,780px);height:min(72dvh,760px);min-height:340px;max-height:820px}
+.zen-tree-stage:before{content:"";position:absolute;z-index:0;inset:4% 8% 1%;border-radius:50%;background:radial-gradient(ellipse,rgba(83,227,163,.16),rgba(68,187,194,.09) 36%,rgba(133,107,227,.05) 58%,transparent 73%);filter:blur(20px);transform-origin:50% 62%;animation:zenTreeBreath 8s ease-in-out infinite}
+.zen-tree-svg{z-index:1;filter:drop-shadow(0 0 12px rgba(90,232,167,.18)) drop-shadow(0 0 30px rgba(68,202,202,.1));animation:zenTreeBreath 8s cubic-bezier(.37,0,.63,1) infinite}
+.zen-tree-svg .zen-trunk{stroke-width:9.5;filter:drop-shadow(0 0 3px rgba(155,255,187,.52))}
+.zen-tree-svg .zen-branch{stroke-width:5.2;opacity:.98;filter:drop-shadow(0 0 3px rgba(112,244,181,.3))}
+.zen-tree-svg .zen-twig{stroke:#80e4a2;stroke-width:1.9;opacity:.9;filter:drop-shadow(0 0 2px rgba(113,240,174,.38))}
+.zen-tree-svg .zen-vein{stroke:#7de9d0;stroke-width:1.05;opacity:.5}
+.zen-sacred-halo{fill:none;stroke:url(#zenBark);stroke-width:.9;opacity:.19;transform-origin:300px 374px;animation:zenHaloTurn 80s linear infinite}
+.zen-sacred-halo circle:nth-child(2){stroke:#8ff5d4;stroke-dasharray:2 10;opacity:.8}
+.zen-sacred-halo circle:nth-child(3){stroke:#e4d38b;stroke-dasharray:1 7;opacity:.75}
+.zen-sacred-halo path{stroke:#8de8c6;stroke-dasharray:2 8;opacity:.7}
+.zen-leaf-cluster path{fill:#8ee6a0;fill-opacity:.48;stroke:#c8ffd0;stroke-width:.7;stroke-opacity:.72;filter:drop-shadow(0 0 4px rgba(128,255,169,.48));transform-box:fill-box;transform-origin:center;animation:zenLeafPulse 5.6s ease-in-out infinite alternate}
+.zen-leaf-cluster path:nth-child(3n){fill:#58d8c8;fill-opacity:.55;stroke:#a1fff0;animation-delay:-2s}
+.zen-leaf-cluster path:nth-child(3n+1){fill:#e6d48a;fill-opacity:.46;stroke:#fff1b8;animation-delay:-3.5s}
+.zen-tree-stars{fill:#eaffc5;stroke:#c5ffe0;stroke-width:1;filter:drop-shadow(0 0 5px #8dffc2);opacity:.9;animation:zenStars 3.8s ease-in-out infinite alternate}
+@keyframes zenHaloTurn{to{transform:rotate(360deg)}}
+@keyframes zenLeafPulse{from{opacity:.58;filter:brightness(.85) drop-shadow(0 0 2px rgba(128,255,169,.24))}to{opacity:1;filter:brightness(1.5) drop-shadow(0 0 7px rgba(128,255,169,.7))}}
+@keyframes zenStars{from{opacity:.4}to{opacity:1}}
+@keyframes zenTreeBreath{0%,100%{transform:scale(.965);filter:brightness(.91) saturate(.95) drop-shadow(0 0 9px rgba(90,232,167,.12))}45%,55%{transform:scale(1.045);filter:brightness(1.3) saturate(1.25) drop-shadow(0 0 25px rgba(90,232,167,.28))}}
+.zen-wave-field{position:absolute;z-index:0;left:50%;top:48%;width:min(78%,590px);aspect-ratio:1/1;transform:translate(-50%,-50%);pointer-events:none;display:grid;place-items:center;opacity:.58}
+.zen-wave-field span{position:absolute;width:56%;height:56%;border:1px solid rgba(98,237,208,.42);border-radius:50%;box-shadow:0 0 18px rgba(72,218,207,.07),inset 0 0 14px rgba(92,222,199,.035);opacity:.35;transform:scale(.8)}
+.zen-wave-field span:nth-child(2){border-color:rgba(130,171,255,.38);width:70%;height:70%}
+.zen-wave-field span:nth-child(3){border-color:rgba(238,210,128,.3);width:84%;height:84%}
+#zenRoot.zen-soundwaves-live .zen-wave-field span{animation:zenSoundWave 4.2s ease-out infinite;opacity:.72}
+#zenRoot.zen-soundwaves-live .zen-wave-field span:nth-child(2){animation-delay:1.4s}
+#zenRoot.zen-soundwaves-live .zen-wave-field span:nth-child(3){animation-delay:2.8s}
+@keyframes zenSoundWave{0%{transform:scale(.72);opacity:.68}100%{transform:scale(1.16);opacity:0}}
+.zen-footer{display:flex;align-items:center;justify-content:center;gap:8px;color:#7daea0;letter-spacing:.15em}
+.zen-footer-dot{width:4px;height:4px;border-radius:50%;background:#b8ed9a;box-shadow:0 0 9px #7df1bd}
+.zen-node{transition:color .24s,filter .24s,transform .24s,background .24s}
+.zen-node .zen-node-icon{width:46px;height:46px;font-size:20px;color:#fff;background:radial-gradient(circle at 35% 25%,rgba(220,255,231,.24),rgba(29,94,79,.55) 36%,rgba(4,20,24,.94) 77%);border-color:rgba(175,255,211,.64);box-shadow:0 0 12px rgba(92,255,181,.25),0 0 28px rgba(76,217,206,.12),inset 0 0 16px rgba(125,255,204,.14);text-shadow:0 0 12px currentColor}
+.zen-node .zen-node-label{font-size:10px;color:#e9fff0;letter-spacing:.08em;text-shadow:0 0 8px rgba(0,0,0,.95),0 0 12px rgba(100,255,189,.3)}
+.zen-node .zen-ring{width:52px;height:52px;border-color:rgba(130,255,201,.48);opacity:.35}
+.zen-node .zen-ring:nth-child(2){width:64px;height:64px;border-color:rgba(106,222,255,.38)}
+.zen-node .zen-ring:nth-child(3){width:78px;height:78px;border-color:rgba(243,214,130,.3)}
+.zen-node[aria-pressed="true"] .zen-node-icon{transform:scale(1.12);background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.38),rgba(89,211,177,.72) 42%,rgba(10,32,36,.94) 78%);box-shadow:0 0 18px rgba(111,255,192,.48),0 0 38px rgba(70,216,220,.28),inset 0 0 18px rgba(211,255,227,.22)}
+.zen-node[data-branch="music"] .zen-node-icon{color:#9cf4ff;border-color:rgba(119,235,255,.82);box-shadow:0 0 17px rgba(81,216,255,.25),inset 0 0 15px rgba(81,216,255,.16)}
+.zen-node[data-branch="breathe"] .zen-node-icon{color:#a8ffcc;border-color:rgba(120,255,177,.82);box-shadow:0 0 17px rgba(81,255,163,.26),inset 0 0 15px rgba(81,255,163,.16)}
+.zen-node[data-branch="journal"] .zen-node-icon{color:#d4baff;border-color:rgba(199,156,255,.82);box-shadow:0 0 17px rgba(182,125,255,.26),inset 0 0 15px rgba(182,125,255,.16)}
+.zen-node[data-branch="ambient"] .zen-node-icon{color:#a7ddff;border-color:rgba(121,192,255,.82);box-shadow:0 0 17px rgba(89,163,255,.26),inset 0 0 15px rgba(89,163,255,.16)}
+.zen-node[data-branch="timer"] .zen-node-icon{color:#ffe7a1;border-color:rgba(255,218,129,.82);box-shadow:0 0 17px rgba(255,208,101,.26),inset 0 0 15px rgba(255,208,101,.16)}
+.zen-node[data-branch="nutrition"] .zen-node-icon{color:#ffc5b0;border-color:rgba(255,169,137,.82);box-shadow:0 0 17px rgba(255,143,107,.26),inset 0 0 15px rgba(255,143,107,.16)}
+.zen-node[data-branch="music"] .zen-node-label{color:#a9f4ff}
+.zen-node[data-branch="breathe"] .zen-node-label{color:#adffd0}
+.zen-node[data-branch="journal"] .zen-node-label{color:#ddc6ff}
+.zen-node[data-branch="ambient"] .zen-node-label{color:#b4ddff}
+.zen-node[data-branch="timer"] .zen-node-label{color:#ffe6a4}
+.zen-node[data-branch="nutrition"] .zen-node-label{color:#ffc5ad}
+.zen-branch-music .zen-btn.primary{background:linear-gradient(135deg,rgba(30,141,180,.76),rgba(24,63,119,.78));border-color:rgba(132,231,255,.8);box-shadow:0 0 18px rgba(74,193,255,.12)}
+.zen-branch-breathe .zen-btn.primary{background:linear-gradient(135deg,rgba(32,151,112,.8),rgba(20,79,74,.82));border-color:rgba(140,255,200,.8);box-shadow:0 0 18px rgba(75,255,170,.12)}
+.zen-branch-journal .zen-btn.primary{background:linear-gradient(135deg,rgba(120,76,177,.8),rgba(53,36,100,.82));border-color:rgba(214,179,255,.8);box-shadow:0 0 18px rgba(176,126,255,.12)}
+.zen-branch-ambient .zen-btn.primary{background:linear-gradient(135deg,rgba(35,107,183,.8),rgba(18,47,100,.82));border-color:rgba(152,203,255,.8);box-shadow:0 0 18px rgba(96,169,255,.12)}
+.zen-branch-timer .zen-btn.primary{background:linear-gradient(135deg,rgba(158,119,43,.8),rgba(87,59,22,.82));border-color:rgba(255,224,142,.8);box-shadow:0 0 18px rgba(255,209,104,.12)}
+.zen-branch-nutrition .zen-btn.primary{background:linear-gradient(135deg,rgba(166,81,57,.8),rgba(91,42,37,.82));border-color:rgba(255,190,164,.8);box-shadow:0 0 18px rgba(255,143,107,.12)}
+.zen-btn{transition:transform .18s,border-color .18s,background .18s,box-shadow .18s}
+.zen-btn:hover,.zen-back:hover,.zen-small-action:hover,.zen-close-panel:hover{transform:translateY(-1px);filter:brightness(1.2);border-color:rgba(211,255,226,.75);box-shadow:0 0 20px rgba(104,230,177,.12)}
+.zen-btn.primary{color:#fff!important;text-shadow:0 1px 10px rgba(255,255,255,.16)}
+.zen-back,.zen-small-action{border-color:rgba(133,229,199,.38);color:#e3fff0!important;background:linear-gradient(130deg,rgba(19,67,58,.76),rgba(18,32,48,.8));box-shadow:inset 0 1px rgba(255,255,255,.07),0 0 16px rgba(87,220,196,.08)}
+@media(max-width:520px){.zen-tree-stage{height:min(70dvh,650px);min-height:320px}.zen-node{width:84px}.zen-node .zen-node-icon{width:39px;height:39px}.zen-node .zen-ring{width:46px;height:46px}.zen-node .zen-ring:nth-child(2){width:56px;height:56px}.zen-node .zen-ring:nth-child(3){width:68px;height:68px}.zen-wave-field{width:min(94%,520px);top:47%}}
+@media(prefers-reduced-motion:reduce){#zenRoot.zen-morph-in{animation:none!important}.zen-tree-svg,.zen-sacred-halo,.zen-leaf-cluster path,.zen-tree-stars,.zen-wave-field span,.zen-tree-stage:before{animation:none!important}}
+
 #zenLaunch{position:fixed;top:calc(env(safe-area-inset-top,0px) + 70px);right:14px;z-index:16;display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1px solid rgba(116,199,143,.34);border-radius:999px;background:rgba(4,17,11,.84);color:#d9f6df;font:10px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 6px 28px rgba(0,0,0,.28);backdrop-filter:blur(12px);cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
 #zenLaunch:hover{background:rgba(21,57,34,.9);border-color:rgba(166,230,174,.6);transform:translateY(-1px)}
 #zenLaunch:before{content:'';width:7px;height:7px;border-radius:50%;background:#93dfa4;box-shadow:0 0 12px #70d78d}
@@ -2983,13 +3049,15 @@ addEventListener('pagehide',()=>{
   </header>
   <div class="zen-intro"><h1>Find your quiet.</h1><p>Choose a branch. Stay as long as you need.</p></div>
   <div class="zen-tree-stage" id="zenTreeStage">
+   <div class="zen-wave-field" aria-hidden="true"><span></span><span></span><span></span></div>
    <canvas id="zenTreeParticles" aria-hidden="true"></canvas>
    <svg class="zen-tree-svg" viewBox="0 0 600 760" preserveAspectRatio="none" role="img" aria-label="A living Spirit Tree with six interactive branches">
     <defs>
-     <linearGradient id="zenBark" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#245637"/><stop offset=".42" stop-color="#68aa70"/><stop offset=".72" stop-color="#4d9660"/><stop offset="1" stop-color="#a5c88c"/></linearGradient>
-     <radialGradient id="zenTreeGlow"><stop offset="0" stop-color="#7bcf88" stop-opacity=".35"/><stop offset="1" stop-color="#244b2c" stop-opacity="0"/></radialGradient>
+     <linearGradient id="zenBark" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1a432b"/><stop offset=".25" stop-color="#4a9d66"/><stop offset=".5" stop-color="#8edda2"/><stop offset=".68" stop-color="#5bc9c3"/><stop offset=".83" stop-color="#d9c47b"/><stop offset="1" stop-color="#e4f4c4"/></linearGradient>
+     <radialGradient id="zenTreeGlow"><stop offset="0" stop-color="#9dffc1" stop-opacity=".48"/><stop offset=".36" stop-color="#4bcbab" stop-opacity=".22"/><stop offset=".7" stop-color="#7b7ce8" stop-opacity=".08"/><stop offset="1" stop-color="#244b2c" stop-opacity="0"/></radialGradient>
      <filter id="zenBlur"><feGaussianBlur stdDeviation="20"/></filter>
     </defs>
+    <g class="zen-sacred-halo" aria-hidden="true"><circle cx="300" cy="374" r="235"/><circle cx="300" cy="374" r="216"/><circle cx="300" cy="374" r="192"/><path d="M300 116 L318 178 L382 142 L361 207 L427 211 L382 253 L439 292 L372 302 L391 365 L330 332 L300 395 L270 332 L209 365 L228 302 L161 292 L218 253 L173 211 L239 207 L218 142 L282 178 Z"/><path d="M300 142 C354 204 354 277 300 329 C246 277 246 204 300 142Z M300 416 C354 470 354 536 300 590 C246 536 246 470 300 416Z"/></g>
     <ellipse class="zen-canopy-glow" cx="300" cy="385" rx="200" ry="260"/>
     <g class="zen-roots"><path class="zen-rootline" d="M299 658 Q251 682 228 716 M303 658 Q347 689 384 714 M293 668 Q267 703 262 728 M310 669 Q332 701 329 730"/></g>
     <g id="zenTreeBranches">
@@ -3002,6 +3070,8 @@ addEventListener('pagehide',()=>{
      <path class="zen-branch" d="M300 512 C339 525 377 546 402 563 C425 579 448 595 477 610"/>
      <path class="zen-twig" d="M183 269 C169 239 174 212 158 190 M145 240 C119 235 105 216 98 195 M411 201 C405 172 412 148 430 130 M443 174 C469 182 487 174 505 160 M163 397 C148 371 149 344 132 326 M119 382 C91 386 75 371 59 353 M433 366 C438 336 458 314 480 302 M490 355 C514 333 536 334 555 325 M207 561 C180 550 157 551 137 538 M183 576 C176 605 156 624 134 640 M402 563 C426 545 451 548 474 535 M448 595 C457 619 480 633 503 638 M301 221 C277 200 264 177 265 154 M301 176 C323 153 328 136 323 116"/>
      <path class="zen-vein" d="M180 270 Q197 293 210 315 M411 201 Q389 227 378 255 M161 397 Q190 408 211 411 M433 366 Q407 388 385 397 M207 561 Q241 551 262 536 M402 563 Q366 548 345 537 M158 190 Q148 217 158 239 M430 130 Q422 151 435 169 M132 326 Q117 351 132 372 M480 302 Q470 326 480 342 M137 538 Q159 561 183 576 M474 535 Q452 559 448 595"/>
+     <g class="zen-leaf-cluster" aria-hidden="true"><path d="M159 237 Q126 205 119 177 Q151 187 159 237Z"/><path d="M172 251 Q184 215 211 205 Q207 236 172 251Z"/><path d="M98 195 Q70 177 66 150 Q91 163 98 195Z"/><path d="M430 169 Q430 132 453 112 Q464 144 430 169Z"/><path d="M446 176 Q477 143 508 147 Q489 176 446 176Z"/><path d="M505 160 Q520 129 549 126 Q536 155 505 160Z"/><path d="M132 372 Q102 348 101 321 Q126 336 132 372Z"/><path d="M119 382 Q87 393 61 375 Q89 361 119 382Z"/><path d="M480 342 Q495 311 523 306 Q510 336 480 342Z"/><path d="M490 355 Q523 340 549 353 Q522 373 490 355Z"/><path d="M183 576 Q148 563 137 538 Q167 544 183 576Z"/><path d="M176 601 Q142 611 119 593 Q146 581 176 601Z"/><path d="M448 595 Q480 575 507 592 Q482 610 448 595Z"/><path d="M458 619 Q489 616 508 638 Q478 645 458 619Z"/><path d="M265 154 Q237 137 238 111 Q263 126 265 154Z"/><path d="M323 116 Q344 91 370 96 Q353 119 323 116Z"/><path d="M284 187 Q263 165 270 143 Q290 160 284 187Z"/><path d="M318 202 Q337 181 360 187 Q345 207 318 202Z"/></g>
+     <g class="zen-tree-stars" aria-hidden="true"><circle cx="203" cy="237" r="2.3"/><circle cx="390" cy="181" r="2"/><circle cx="118" cy="335" r="2.2"/><circle cx="478" cy="323" r="2.4"/><circle cx="231" cy="527" r="2"/><circle cx="374" cy="534" r="2.5"/><path d="M300 94v12 M294 100h12 M224 198v8 M220 202h8 M396 273v8 M392 277h8 M150 451v10 M145 456h10 M450 475v10 M445 480h10"/></g>
     </g>
    </svg>
    <button class="zen-node" type="button" data-branch="music" aria-pressed="false" aria-label="Music branch"><span class="zen-node-icon">♫<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Music</span></button>
@@ -3011,7 +3081,7 @@ addEventListener('pagehide',()=>{
    <button class="zen-node" type="button" data-branch="timer" aria-pressed="false" aria-label="Quiet timer branch"><span class="zen-node-icon">◷<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Quiet timer</span></button>
    <button class="zen-node" type="button" data-branch="nutrition" aria-pressed="false" aria-label="Nutrition branch"><span class="zen-node-icon">❋<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Nutrition</span></button>
   </div>
-  <div class="zen-footer">LOCAL BY DEFAULT · NO AUDIO STARTS AUTOMATICALLY</div>
+  <div class="zen-footer"><span class="zen-footer-dot"></span> A QUIET PLACE TO RETURN TO YOURSELF <span class="zen-footer-dot"></span></div>
  </div>
  <div class="zen-panel-host" id="zenPanelHost" hidden><section class="zen-panel" id="zenPanelCard" aria-live="polite"></section></div>
  <div class="zen-modal-host" id="zenModalHost" hidden><section class="zen-dialog" id="zenDialog" role="dialog" aria-modal="true"></section></div>
@@ -3035,15 +3105,15 @@ try{const stored=JSON.parse(localStorage.getItem(ZEN_KEY)||'null');if(stored&&st
 const zenRoot=$z('#zenRoot'),zenLaunch=$z('#zenLaunch'),zenPanelHost=$z('#zenPanelHost'),zenPanel=$z('#zenPanelCard'),zenModalHost=$z('#zenModalHost'),zenDialog=$z('#zenDialog'),zenToast=$z('#zenToast');
 function zenSave(){try{localStorage.setItem(ZEN_KEY,JSON.stringify(zenData));return true}catch(e){zenToastShow('Zen could not save to this browser. Export a backup before leaving.');return false}}
 function zenToastShow(message){if(!message)return;zenToast.textContent=message;zenToast.hidden=false;clearTimeout(zenToastTimer);zenToastTimer=setTimeout(function(){zenToast.hidden=true},2800)}
-function zenOpenMode(){if(zenOpen)return;zenOpen=true;zenRoot.hidden=false;zenLaunch.hidden=true;zenModalHost.hidden=true;zenExitPending=false;zenSpotifyOpened=false;zenBranch='';zenPanelHost.hidden=true;zenUpdateRingState();zenInitCanvases();zenRenderBranches()}
+function zenOpenMode(){if(zenOpen)return;zenOpen=true;zenRoot.hidden=false;zenRoot.classList.remove("zen-morph-in");void zenRoot.offsetWidth;zenRoot.classList.add("zen-morph-in");zenLaunch.hidden=true;zenModalHost.hidden=true;zenExitPending=false;zenSpotifyOpened=false;zenBranch="";zenPanelHost.hidden=true;zenUpdateRingState();zenInitCanvases();zenRenderBranches();const mix=Array.isArray(zenData.preferences.lastMix)&&zenData.preferences.lastMix.length?zenData.preferences.lastMix.filter(function(k){return !!zenSounds[k]}):["rain"];mix.forEach(function(k){if(!zenSoundOn[k])zenStartSound(k)})}
 function zenRenderBranches(){zenRoot.querySelectorAll('[data-branch]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.branch===zenBranch))})}
 function zenHasAudio(){return Object.keys(zenPlayers).some(function(k){return zenPlayers[k]&&!zenPlayers[k].paused})}
 function zenIsActive(){return zenRoot&&!zenRoot.hidden}
-function zenOpenBranch(name){if(zenBranch==='journal')zenFlushJournal();zenOpenMode();zenBranch=name;zenData.preferences.lastBranch=name;zenSave();zenRenderBranches();const node=$z('[data-branch="'+name+'"]'),canvas=$z('#zenTreeParticles');if(node&&canvas){const cr=canvas.getBoundingClientRect(),nr=node.getBoundingClientRect();zenParticleTarget={x:nr.left+nr.width/2-cr.left,y:nr.top+nr.height/2-cr.top,until:performance.now()+850}}if(node){node.classList.remove('zen-ripple');void node.offsetWidth;node.classList.add('zen-ripple');setTimeout(function(){node.classList.remove('zen-ripple')},850)}zenRenderPanel(name)}
+function zenOpenBranch(name){if(zenBranch==='journal')zenFlushJournal();zenOpenMode();zenBranch=name;zenRoot.classList.remove('zen-branch-music','zen-branch-breathe','zen-branch-journal','zen-branch-ambient','zen-branch-timer','zen-branch-nutrition');zenRoot.classList.add('zen-branch-'+name);zenData.preferences.lastBranch=name;zenSave();zenRenderBranches();const node=$z('[data-branch="'+name+'"]'),canvas=$z('#zenTreeParticles');if(node&&canvas){const cr=canvas.getBoundingClientRect(),nr=node.getBoundingClientRect();zenParticleTarget={x:nr.left+nr.width/2-cr.left,y:nr.top+nr.height/2-cr.top,until:performance.now()+850}}if(node){node.classList.remove('zen-ripple');void node.offsetWidth;node.classList.add('zen-ripple');setTimeout(function(){node.classList.remove('zen-ripple')},850)}zenRenderPanel(name)}
 function zenClosePanel(){if(zenBranch==='journal')zenFlushJournal();zenBranch='';zenData.preferences.lastBranch='';zenSave();zenPanelHost.hidden=true;zenRenderBranches()}
 function zenShowDialog(title,message,buttons){zenDialog.innerHTML='<h3>'+ez(title)+'</h3><p>'+message+'</p><div class="zen-row">'+buttons+'</div>';zenModalHost.hidden=false}
 function zenHideDialog(){zenModalHost.hidden=true;zenPendingImport=null}
-function zenDoExit(stopSounds){if(zenBranch==='journal')zenFlushJournal();zenHideDialog();zenExitPending=false;if(stopSounds){zenStopAmbient(1400);zenTimerRunning=false;clearInterval(zenTimerInterval);zenTimerInterval=0}zenStopBreathing();zenOpen=false;zenRoot.hidden=true;zenLaunch.hidden=false;zenPanelHost.hidden=true;zenBranch='';zenModalHost.hidden=true;zenRenderBranches()}
+function zenDoExit(stopSounds){if(zenBranch==='journal')zenFlushJournal();zenHideDialog();zenExitPending=false;if(stopSounds){zenStopAmbient(1400);zenTimerRunning=false;clearInterval(zenTimerInterval);zenTimerInterval=0}zenStopBreathing();zenOpen=false;zenRoot.hidden=true;zenRoot.classList.remove('zen-morph-in','zen-branch-music','zen-branch-breathe','zen-branch-journal','zen-branch-ambient','zen-branch-timer','zen-branch-nutrition');zenLaunch.hidden=false;zenPanelHost.hidden=true;zenBranch='';zenModalHost.hidden=true;zenRenderBranches()}
 function zenExit(){if(!zenIsActive())return;if(zenHasAudio()||zenSpotifyOpened){zenExitPending=true;zenShowDialog('Leave Zen?','Would you like the active Zen audio to keep playing, or should I fade out the ambient sounds? Spotify playback is controlled in Spotify itself. <div class="zen-muted" style="margin-top:8px">You can also say “keep audio” or “stop audio”.</div>','<button class="zen-btn primary" data-zen-action="exit-keep">Keep audio</button><button class="zen-btn danger" data-zen-action="exit-stop">Fade ambient sounds</button><button class="zen-btn subtle" data-zen-action="exit-cancel">Stay here</button>');return}zenDoExit(false)}
 function zenOpenSpotify(){let url=zenData.preferences.spotifyLink||'https://open.spotify.com/';if(!/^https:\/\/open\.spotify\.com\//i.test(url))url='https://open.spotify.com/';const w=window.open(url,'_blank');if(w){try{w.opener=null}catch(e){}zenSpotifyOpened=true;return true}zenToastShow('Your browser blocked the automatic launch. Tap Open Spotify in this panel.');return false}
 const zenSounds={
@@ -3055,7 +3125,7 @@ function zenCreatePlayer(key){const cfg=zenSounds[key],audio=new Audio();audio.p
 async function zenStartSound(key){if(!zenPlayers[key])zenCreatePlayer(key);const a=zenPlayers[key];clearInterval(zenFadeJobs[key]);const vol=zenData.preferences.volumes[key]??.3;zenSoundOn[key]=true;zenUpdateRingState();for(let i=Math.max(0,zenActiveSoundSources[key]||0);i<zenSounds[key].srcs.length;i++){zenActiveSoundSources[key]=i;a.src=zenSounds[key].srcs[i];a.load();a.volume=vol;try{await a.play();zenData.preferences.lastMix=Object.keys(zenSoundOn).filter(function(k){return zenSoundOn[k]});zenSave();zenUpdateRingState();return true}catch(e){try{a.pause()}catch(ignore){}try{a.currentTime=0}catch(ignore){}}}zenSoundOn[key]=false;zenUpdateRingState();zenToastShow(zenSounds[key].name+' audio could not be played right now. Check your connection and try again.');if(zenOpen&&zenBranch==='ambient')zenRenderPanel('ambient');return false}
 function zenStopSound(key,fadeMs){const a=zenPlayers[key];if(!a){zenSoundOn[key]=false;zenUpdateRingState();return}clearInterval(zenFadeJobs[key]);if(a.paused){zenSoundOn[key]=false;zenUpdateRingState();return}const from=a.volume,steps=Math.max(1,Math.round((fadeMs||1200)/100));let n=0;zenFadeJobs[key]=setInterval(function(){n++;a.volume=Math.max(0,from*(1-n/steps));if(n>=steps){clearInterval(zenFadeJobs[key]);a.pause();try{a.currentTime=0}catch(e){}a.volume=zenData.preferences.volumes[key]??.3;zenSoundOn[key]=false;zenUpdateRingState();zenData.preferences.lastMix=Object.keys(zenSoundOn).filter(function(k){return zenSoundOn[k]});zenSave()}},100)}
 function zenStopAmbient(fadeMs){Object.keys(zenSounds).forEach(function(k){zenStopSound(k,fadeMs||1200)})}
-function zenUpdateRingState(){if(!zenRoot)return;const live=!zenRoot.hidden&&((typeof jarvisSpeaking!=='undefined'&&jarvisSpeaking)||(typeof filamentVoiceActivity!=='undefined'&&filamentVoiceActivity>.18));zenRoot.classList.toggle('zen-audio-live',!!live)}
+function zenUpdateRingState(){if(!zenRoot)return;const live=!zenRoot.hidden&&(zenHasAudio()||(typeof jarvisSpeaking!=='undefined'&&jarvisSpeaking)||(typeof filamentVoiceActivity!=='undefined'&&filamentVoiceActivity>.18));zenRoot.classList.toggle('zen-audio-live',!!live);zenRoot.classList.toggle('zen-soundwaves-live',live)}
 function zenBreathPhase(){return ((Date.now()-zenBreathStarted)%10000)<4000?'Breathe in':'Breathe out'}
 let zenBreathStarted=0;
 function zenStartBreathing(minutes){zenBreathing=true;zenBreathStarted=Date.now();zenBreathEnds=Date.now()+(minutes||3)*60000;zenRoot.classList.add('zen-breathe-active');clearInterval(zenBreathTimer);clearInterval(zenBreathCueTimer);zenBreathCueTimer=setInterval(function(){if(!zenBreathing)return;const cue=$z('#zenBreathCue');if(cue)cue.textContent=zenBreathPhase()},500);zenBreathTimer=setInterval(function(){if(Date.now()>=zenBreathEnds){zenStopBreathing();const cue=$z('#zenBreathCue');if(cue)cue.textContent='Session complete'}const remain=Math.max(0,Math.ceil((zenBreathEnds-Date.now())/1000));const el=$z('#zenBreathRemaining');if(el)el.textContent=zenFmtTime(remain)},250);const cue=$z('#zenBreathCue');if(cue)cue.textContent=zenBreathPhase()}
