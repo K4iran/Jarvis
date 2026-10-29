@@ -348,5 +348,6 @@ function render(){if(!S){onb(ONS);return}if(0){modal(`<h3>Welcome to LifeOS</h3>
  const m=matchMedia('(prefers-color-scheme: dark)').matches,t=S.theme=='system'?(m?'dark':'light'):S.theme;document.documentElement.dataset.theme=t;applySport();
  $('#nav').innerHTML=Object.entries(PAGES).filter(([k])=>LB[k]).map(([k,p])=>`<button class="${k==R?'on':''}" style="--c:var(--${CATS[k]?k:'tx'})" onclick="go('${k}')"><b>${p[1]}</b>${LB[k]}</button>`).join('');
  $('#app').innerHTML=`<div class=top><div><h1>LifeOS</h1><small>${new Date().toDateString()} · Your progression</small></div><span class=sp></span><span class=mu>Lv ${lvl(xpT())} · ${xpT()} XP</span><button class="b g s" aria-label=Settings onclick="go('set')">⚙️</button><div class=av>${esc(S.name[0]||'Y').toUpperCase()}</div></div>${CATS[R]?`<div class=catp style="--c:var(--${R})">${PAGES[R][2]()}</div>`:PAGES[R][2]()}`}
+window.addEventListener('storage',e=>{if(e.key!==K)return;try{S=e.newValue?JSON.parse(e.newValue):null}catch(err){S=null}render()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S)render()});render();
 </script></body></html>
