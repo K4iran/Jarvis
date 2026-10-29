@@ -643,6 +643,83 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
  #zenRoot *,#zenRoot *::before,#zenRoot *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
 }
 
+
+/* Zen design-system pass: one focal point, restrained controls, consistent type. */
+#zenRoot{
+ --zen-bg:#07130f;--zen-surface:#10231a;--zen-accent:#9be4b0;--zen-text:#edf6ef;
+ --zen-font:"Sora",system-ui,sans-serif;--zen-mono:"JetBrains Mono",ui-monospace,monospace;
+ --zen-space-1:4px;--zen-space-2:8px;--zen-space-3:12px;--zen-space-4:16px;--zen-space-5:24px;--zen-space-6:32px;
+ --zen-type-xs:10px;--zen-type-sm:12px;--zen-type-md:14px;--zen-type-lg:20px;--zen-type-xl:26px;
+ background:var(--zen-bg);color:var(--zen-text);font-family:var(--zen-font)
+}
+#zenRoot .zen-intro h1{font-family:var(--zen-font);font-size:var(--zen-type-xl);font-weight:300;letter-spacing:.02em;color:var(--zen-text);text-shadow:none}
+#zenRoot .zen-intro p{font:var(--zen-type-sm)/1.7 var(--zen-font);color:rgba(237,246,239,.68);letter-spacing:.01em}
+#zenRoot .zen-brand strong{color:var(--zen-text);font-family:var(--zen-font)}
+#zenRoot .zen-brand span,#zenRoot .zen-eyebrow,#zenRoot .zen-footer{font-family:var(--zen-mono);color:rgba(155,228,176,.72);letter-spacing:.14em}
+#zenRoot .zen-tree-stage{transform:scale(1);transform-origin:var(--zen-focus-x,50%) var(--zen-focus-y,50%);transition:transform .9s cubic-bezier(.2,.72,.2,1),filter .9s ease;will-change:transform}
+#zenRoot.zen-focus .zen-tree-stage{transform:scale(1.55);filter:none}
+#zenRoot .zen-tree-stage:before{opacity:.42;filter:blur(16px);background:radial-gradient(ellipse,rgba(155,228,176,.12),transparent 68%)}
+#zenRoot .zen-tree-svg{filter:drop-shadow(0 0 7px rgba(155,228,176,.12));}
+#zenRoot .zen-sacred-halo{opacity:.07;animation:none}
+#zenRoot .zen-sacred-halo circle:nth-child(2),#zenRoot .zen-sacred-halo circle:nth-child(3),#zenRoot .zen-sacred-halo path{opacity:.18}
+#zenRoot .zen-leaf-cluster path{filter:none;animation-duration:9s;fill:#9be4b0;stroke:#9be4b0;stroke-opacity:.38}
+#zenRoot .zen-leaf-cluster path:nth-child(3n),#zenRoot .zen-leaf-cluster path:nth-child(3n+1){fill:#9be4b0;stroke:#9be4b0;animation-delay:0s}
+#zenRoot .zen-tree-stars{opacity:.35;filter:none}
+#zenRoot .zen-wave-field{opacity:.08}
+#zenRoot .zen-wave-field span{border-color:rgba(155,228,176,.18);box-shadow:none}
+#zenRoot .zen-node{
+ width:78px;min-height:62px;padding:4px 2px;gap:4px;border:0;border-radius:8px;
+ background:rgba(7,19,15,.66);box-shadow:none;backdrop-filter:none;color:var(--zen-text)!important;
+ transform:translate(-50%,-50%);transition:opacity .35s ease,background .25s ease,color .25s ease;
+}
+#zenRoot .zen-node:hover{background:rgba(16,35,26,.9);box-shadow:none;filter:none}
+#zenRoot .zen-node .zen-node-icon{
+ width:34px;height:34px;font-size:17px;color:var(--zen-accent)!important;
+ border:1px solid rgba(155,228,176,.48);background:var(--zen-surface);
+ box-shadow:none;text-shadow:none;transition:background .25s ease,border-color .25s ease;
+}
+#zenRoot .zen-node .zen-node-label{
+ font:500 var(--zen-type-xs)/1.35 var(--zen-mono);letter-spacing:.12em;
+ color:var(--zen-text)!important;text-shadow:0 1px 4px rgba(0,0,0,.9)
+}
+#zenRoot .zen-node .zen-ring{display:none}
+#zenRoot .zen-node[aria-pressed="true"] .zen-node-icon{transform:none;background:var(--zen-accent);color:var(--zen-bg)!important;border-color:var(--zen-accent);box-shadow:none}
+#zenRoot .zen-node[data-branch] .zen-node-icon{color:var(--zen-accent)!important;border-color:rgba(155,228,176,.48);box-shadow:none}
+#zenRoot .zen-node.zen-ripple .zen-node-icon:after{animation:none;border-color:var(--zen-accent);opacity:.5}
+#zenRoot .zen-node[data-branch="music"]{left:13%;top:26%}
+#zenRoot .zen-node[data-branch="breathe"]{left:87%;top:21%}
+#zenRoot .zen-node[data-branch="journal"]{left:11%;top:46%}
+#zenRoot .zen-node[data-branch="ambient"]{left:89%;top:43%}
+#zenRoot .zen-node[data-branch="timer"]{left:19%;top:82%}
+#zenRoot .zen-node[data-branch="nutrition"]{left:81%;top:82%}
+#zenRoot .zen-panel-host{background:rgba(7,19,15,.18);transition:opacity .55s ease}
+#zenRoot .zen-panel{background:var(--zen-surface);border:1px solid rgba(155,228,176,.24);border-radius:18px;box-shadow:0 16px 48px rgba(0,0,0,.32);backdrop-filter:blur(12px);font-family:var(--zen-font)}
+#zenRoot .zen-panel h2{font:400 var(--zen-type-lg)/1.3 var(--zen-font);color:var(--zen-text);text-shadow:none}
+#zenRoot .zen-sub{font:400 var(--zen-type-sm)/1.7 var(--zen-font);color:rgba(237,246,239,.72)}
+#zenRoot .zen-btn,#zenRoot .zen-back,#zenRoot .zen-small-action,#zenRoot .zen-close-panel{
+ font:500 var(--zen-type-sm)/1.4 var(--zen-font);letter-spacing:.01em;
+ border:1px solid rgba(155,228,176,.34);border-radius:10px;
+ background:rgba(155,228,176,.08);color:var(--zen-text)!important;box-shadow:none;text-shadow:none
+}
+#zenRoot .zen-btn.primary{background:var(--zen-accent);border-color:var(--zen-accent);color:var(--zen-bg)!important}
+#zenRoot .zen-btn:hover,#zenRoot .zen-back:hover,#zenRoot .zen-small-action:hover,#zenRoot .zen-close-panel:hover{filter:none;box-shadow:none;border-color:var(--zen-accent)}
+#zenRoot :is(button,input,textarea,select):focus-visible{outline:2px solid var(--zen-accent);outline-offset:3px}
+#zenRoot.zen-focus .zen-intro,#zenRoot.zen-focus .zen-footer{opacity:0;pointer-events:none;transition:opacity .4s ease}
+@media(max-width:520px){
+ #zenRoot .zen-node{width:68px;min-height:56px;padding:3px 1px}
+ #zenRoot .zen-node .zen-node-icon{width:30px;height:30px;font-size:15px}
+ #zenRoot .zen-node .zen-node-label{font-size:9px;letter-spacing:.08em}
+ #zenRoot .zen-node[data-branch="music"]{left:13%;top:26%}
+ #zenRoot .zen-node[data-branch="breathe"]{left:87%;top:21%}
+ #zenRoot .zen-node[data-branch="journal"]{left:11%;top:46%}
+ #zenRoot .zen-node[data-branch="ambient"]{left:89%;top:43%}
+ #zenRoot .zen-node[data-branch="timer"]{left:19%;top:82%}
+ #zenRoot .zen-node[data-branch="nutrition"]{left:81%;top:82%}
+}
+@media(prefers-reduced-motion:reduce){
+ #zenRoot *,#zenRoot *:before,#zenRoot *:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}
+ #zenRoot .zen-tree-stage{transform:none!important;filter:none!important}
+}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
