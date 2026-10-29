@@ -422,7 +422,9 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 .zen-tree-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;transform-origin:50% 70%;animation:zenTreeRest 10s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(75,164,93,.08))}
 .zen-tree-svg path{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .zen-trunk{stroke:url(#zenBark);stroke-width:7.5;opacity:.92}
-.zen-branch{stroke:url(#zenBark);stroke-width:4.6;opacity:.86}
+.zen-branch{stroke:url(#zenBark);stroke-width:4.6;opacity:.86;transform-box:fill-box;transform-origin:50% 50%;animation:zenBranchSway 12s ease-in-out infinite alternate}
+.zen-branch:nth-of-type(2n){animation-duration:10.5s;animation-delay:-3s}
+.zen-branch:nth-of-type(2n+1){animation-duration:13s;animation-delay:-6s}
 .zen-twig{stroke:#4d9360;stroke-width:1.7;opacity:.72}
 .zen-vein{stroke:#6db77b;stroke-width:.8;opacity:.24}
 .zen-rootline{stroke:#39774b;stroke-width:2.1;opacity:.42;animation:zenRootDrift 7s ease-in-out infinite alternate}
@@ -499,6 +501,7 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 .zen-audio-credit{font-size:10px;line-height:1.6;color:#6f9274}
 .zen-audio-credit a{color:#a4cfac;text-decoration:underline;text-underline-offset:3px}
 @keyframes zenTreeRest{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
+@keyframes zenBranchSway{0%{transform:rotate(-.55deg) scaleX(.995)}100%{transform:rotate(.55deg) scaleX(1.008)}}
 @keyframes zenRootDrift{from{opacity:.3}to{opacity:.56}}
 @keyframes zenSoundRing{0%{transform:translate(-50%,-50%) scale(.8);opacity:.65}100%{transform:translate(-50%,-50%) scale(1.55);opacity:0}}
 @keyframes zenNodeBreath{0%,100%{filter:brightness(.96)}50%{filter:brightness(1.18)}}
@@ -2277,7 +2280,14 @@ async function run(t) {
   };
 
   // Zen commands are handled locally; unmatched requests continue through JARVIS's existing paths.
-  const zenHandled = window.zenHandleCommand ? await window.zenHandleCommand(t, respond) : false;
+  let zenHandled = false;
+  try {
+    zenHandled = window.zenHandleCommand ? await window.zenHandleCommand(t, respond) : false;
+  } catch (zenError) {
+    console.error('Zen command failed:', zenError);
+    await respond('I could not complete that Zen action. Please try again.');
+    return;
+  }
   if (zenHandled) return;
 
   // Keep rating radar requests local so they never depend on model interpretation.
@@ -3025,7 +3035,7 @@ try{const stored=JSON.parse(localStorage.getItem(ZEN_KEY)||'null');if(stored&&st
 const zenRoot=$z('#zenRoot'),zenLaunch=$z('#zenLaunch'),zenPanelHost=$z('#zenPanelHost'),zenPanel=$z('#zenPanelCard'),zenModalHost=$z('#zenModalHost'),zenDialog=$z('#zenDialog'),zenToast=$z('#zenToast');
 function zenSave(){try{localStorage.setItem(ZEN_KEY,JSON.stringify(zenData))}catch(e){zenToastShow('Browser storage is unavailable; export your journal if possible.')}}
 function zenToastShow(message){if(!message)return;zenToast.textContent=message;zenToast.hidden=false;clearTimeout(zenToastTimer);zenToastTimer=setTimeout(function(){zenToast.hidden=true},2800)}
-function zenOpenMode(){if(zenOpen)return;zenOpen=true;zenRoot.hidden=false;zenLaunch.hidden=true;zenModalHost.hidden=true;zenExitPending=false;zenBranch='';zenPanelHost.hidden=true;zenUpdateRingState();zenInitCanvases();zenRenderBranches()}
+function zenOpenMode(){if(zenOpen)return;zenOpen=true;zenRoot.hidden=false;zenLaunch.hidden=true;zenModalHost.hidden=true;zenExitPending=false;zenSpotifyOpened=false;zenBranch='';zenPanelHost.hidden=true;zenUpdateRingState();zenInitCanvases();zenRenderBranches()}
 function zenRenderBranches(){zenRoot.querySelectorAll('[data-branch]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.branch===zenBranch))})}
 function zenHasAudio(){return Object.keys(zenPlayers).some(function(k){return zenPlayers[k]&&!zenPlayers[k].paused})}
 function zenIsActive(){return zenRoot&&!zenRoot.hidden}
@@ -3042,7 +3052,7 @@ const zenSounds={
  water:{name:'Flowing water',srcs:['https://commons.wikimedia.org/wiki/Special:Redirect/file/Water%20flowing%20pouring%20trickling.ogg','https://commons.wikimedia.org/wiki/Special:Redirect/file/Flowing-water-100019.ogg'],credit:'Water flowing, pouring, trickling — public domain',page:'https://commons.wikimedia.org/wiki/File:Water_flowing_pouring_trickling.ogg'}
 };
 function zenCreatePlayer(key){const cfg=zenSounds[key],audio=new Audio();audio.preload='none';audio.loop=true;audio.volume=zenData.preferences.volumes[key]??.3;audio.src=cfg.srcs[zenActiveSoundSources[key]||0];audio.addEventListener('error',function(){if(zenActiveSoundSources[key]>=cfg.srcs.length-1&&zenSoundOn[key]){zenSoundOn[key]=false;zenUpdateRingState()}});zenPlayers[key]=audio;return audio}
-async function zenStartSound(key){if(!zenPlayers[key])zenCreatePlayer(key);const a=zenPlayers[key];clearInterval(zenFadeJobs[key]);const vol=zenData.preferences.volumes[key]??.3;zenSoundOn[key]=true;zenUpdateRingState();for(let i=Math.max(0,zenActiveSoundSources[key]||0);i<zenSounds[key].srcs.length;i++){zenActiveSoundSources[key]=i;a.src=zenSounds[key].srcs[i];a.load();a.volume=vol;try{await a.play();zenData.preferences.lastMix=Object.keys(zenSoundOn).filter(function(k){return zenSoundOn[k]});zenSave();zenUpdateRingState();return true}catch(e){try{a.pause()}catch(ignore){}try{a.currentTime=0}catch(ignore){}}}zenSoundOn[key]=false;zenUpdateRingState();zenToastShow(zenSounds[key].name+' audio could not be played right now. Check your connection and try again.');return false}
+async function zenStartSound(key){if(!zenPlayers[key])zenCreatePlayer(key);const a=zenPlayers[key];clearInterval(zenFadeJobs[key]);const vol=zenData.preferences.volumes[key]??.3;zenSoundOn[key]=true;zenUpdateRingState();for(let i=Math.max(0,zenActiveSoundSources[key]||0);i<zenSounds[key].srcs.length;i++){zenActiveSoundSources[key]=i;a.src=zenSounds[key].srcs[i];a.load();a.volume=vol;try{await a.play();zenData.preferences.lastMix=Object.keys(zenSoundOn).filter(function(k){return zenSoundOn[k]});zenSave();zenUpdateRingState();return true}catch(e){try{a.pause()}catch(ignore){}try{a.currentTime=0}catch(ignore){}}}zenSoundOn[key]=false;zenUpdateRingState();zenToastShow(zenSounds[key].name+' audio could not be played right now. Check your connection and try again.');if(zenOpen&&zenBranch==='ambient')zenRenderPanel('ambient');return false}
 function zenStopSound(key,fadeMs){const a=zenPlayers[key];if(!a){zenSoundOn[key]=false;zenUpdateRingState();return}clearInterval(zenFadeJobs[key]);if(a.paused){zenSoundOn[key]=false;zenUpdateRingState();return}const from=a.volume,steps=Math.max(1,Math.round((fadeMs||1200)/100));let n=0;zenFadeJobs[key]=setInterval(function(){n++;a.volume=Math.max(0,from*(1-n/steps));if(n>=steps){clearInterval(zenFadeJobs[key]);a.pause();try{a.currentTime=0}catch(e){}a.volume=zenData.preferences.volumes[key]??.3;zenSoundOn[key]=false;zenUpdateRingState();zenData.preferences.lastMix=Object.keys(zenSoundOn).filter(function(k){return zenSoundOn[k]});zenSave()}},100)}
 function zenStopAmbient(fadeMs){Object.keys(zenSounds).forEach(function(k){zenStopSound(k,fadeMs||1200)})}
 function zenUpdateRingState(){if(!zenRoot)return;const live=zenHasAudio()||(!zenRoot.hidden&&typeof jarvisSpeaking!=='undefined'&&jarvisSpeaking)||(!zenRoot.hidden&&typeof filamentVoiceActivity!=='undefined'&&filamentVoiceActivity>.18);zenRoot.classList.toggle('zen-audio-live',!!live)}
@@ -3108,7 +3118,28 @@ function zenJournalNew(){clearTimeout(zenJournalSaveTimer);zenJournalId='';zenRe
 function zenJournalSelect(id){clearTimeout(zenJournalSaveTimer);zenJournalId=id;zenRenderPanel('journal');const f=$z('#zenJournalText');if(f)f.focus()}
 function zenJournalDelete(){if(!zenJournalId){zenToastShow('Choose an entry to delete first.');return}zenShowDialog('Delete journal entry?','This entry will be removed from this browser. This cannot be undone unless you have a backup.','<button class="zen-btn danger" data-zen-action="journal-delete-confirm">Delete entry</button><button class="zen-btn subtle" data-zen-action="dialog-close">Cancel</button>')}
 function zenExport(){const life=zenReadLifeOS();const payload={format:'jarvis-zen-backup-v1',exportedAt:new Date().toISOString(),zen:zenData,lifeosNutrition:life?{food:life.food||{},water:life.water||{},wt:life.wt,cg:life.cg,pg:life.pg}:null};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='jarvis-zen-backup-'+zday()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000);zenToastShow('Zen backup exported to this device.')}
-function zenImportChosen(file){if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(String(reader.result||''));if(!data||data.format!=='jarvis-zen-backup-v1'||!data.zen||!Array.isArray(data.zen.journal)||!data.zen.preferences)throw new Error('This does not look like a Zen backup.');zenPendingImport=data;zenShowDialog('Import Zen backup?','This restores your Zen journal and preferences. If nutrition data is present, it replaces the shared LifeOS food and water logs, while leaving the rest of LifeOS unchanged. Make sure this is the backup you want.','<button class="zen-btn primary" data-zen-action="import-confirm">Import backup</button><button class="zen-btn subtle" data-zen-action="dialog-close">Cancel</button>')}catch(e){zenToastShow(e.message||'The backup file could not be read.')}};reader.readAsText(file)}
+function zenSanitizeBackup(data){
+ if(!data||data.format!=='jarvis-zen-backup-v1'||!data.zen||!Array.isArray(data.zen.journal)||!data.zen.preferences||typeof data.zen.preferences!=='object')throw new Error('This does not look like a Zen backup.');
+ const raw=data.zen,p=raw.preferences,keys=Object.keys(zenSounds),base=zenDefault().preferences,volumes={};
+ keys.forEach(function(k){const v=Number(p.volumes&&p.volumes[k]);volumes[k]=Number.isFinite(v)?Math.max(0,Math.min(1,v)):base.volumes[k]});
+ const journal=raw.journal.filter(function(e){return e&&typeof e==='object'&&!Array.isArray(e)&&typeof e.text==='string'}).map(function(e){return{id:typeof e.id==='string'?e.id.slice(0,80):zuid(),date:typeof e.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(e.date)?e.date:zday(),updated:typeof e.updated==='string'&&Number.isFinite(Date.parse(e.updated))?e.updated:new Date().toISOString(),text:e.text.slice(0,200000)}}).slice(-1000);
+ const presets=(Array.isArray(p.presets)?p.presets:[]).filter(function(x){return x&&typeof x==='object'&&!Array.isArray(x)&&typeof x.name==='string'}).slice(-100).map(function(x){const v={};keys.forEach(function(k){const n=Number(x.volumes&&x.volumes[k]);v[k]=Number.isFinite(n)?Math.max(0,Math.min(1,n)):volumes[k]});return{id:typeof x.id==='string'?x.id.slice(0,80):zuid(),name:x.name.slice(0,35),volumes:v,selected:Array.isArray(x.selected)?x.selected.filter(function(k){return keys.includes(k)}):[]}});
+ const link=typeof p.spotifyLink==='string'&&/^https:\/\/open\.spotify\.com\//i.test(p.spotifyLink)?p.spotifyLink.slice(0,2048):base.spotifyLink;
+ const allowed=['music','breathe','journal','ambient','timer','nutrition'];
+ const zen={version:1,journal:journal,preferences:{spotifyLink:link,lastBranch:allowed.includes(p.lastBranch)?p.lastBranch:'',lastMix:Array.isArray(p.lastMix)?p.lastMix.filter(function(k){return keys.includes(k)}):[],volumes:volumes,presets:presets}};
+ let nutrition=null;
+ if(data.lifeosNutrition!==null&&data.lifeosNutrition!==undefined){
+  const n=data.lifeosNutrition;if(!n||typeof n!=='object'||Array.isArray(n))throw new Error('The backup nutrition section is invalid.');
+  const food={},water={};
+  Object.keys(n.food&&typeof n.food==='object'&&!Array.isArray(n.food)?n.food:{}).forEach(function(day){if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Array.isArray(n.food[day]))return;food[day]=n.food[day].filter(function(f){return f&&typeof f==='object'&&!Array.isArray(f)}).map(function(f){const cal=Number(f.cal),pro=Number(f.pro),q=Number(f.q);return{id:typeof f.id==='string'?f.id.slice(0,80):zuid(),n:String(f.n||'Food').slice(0,160),z:String(f.z||'1 serving').slice(0,80),q:Number.isFinite(q)&&q>0&&q<10000?q:1,cal:Number.isFinite(cal)&&cal>=0?Math.min(cal,1000000):0,pro:Number.isFinite(pro)&&pro>=0?Math.min(pro,100000):0}})});
+  Object.keys(n.water&&typeof n.water==='object'&&!Array.isArray(n.water)?n.water:{}).forEach(function(day){if(!/^\d{4}-\d{2}-\d{2}$/.test(day))return;const v=Number(n.water[day]);if(Number.isFinite(v)&&v>=0)water[day]=Math.min(v,100000)});
+  const numeric=function(v,fallback,min,max){const n=Number(v);return Number.isFinite(n)&&n>=min&&n<=max?n:fallback};
+  nutrition={food:food,water:water,wt:numeric(n.wt,2000,100,20000),cg:numeric(n.cg,2200,100,100000),pg:numeric(n.pg,120,1,10000)};
+ }
+ return{format:'jarvis-zen-backup-v1',zen:zen,lifeosNutrition:nutrition};
+}
+
+function zenImportChosen(file){if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=zenSanitizeBackup(JSON.parse(String(reader.result||'')));zenPendingImport=data;zenShowDialog('Import Zen backup?','This restores your Zen journal and preferences. If nutrition data is present, it replaces the shared LifeOS food and water logs, while leaving the rest of LifeOS unchanged. Make sure this is the backup you want.','<button class="zen-btn primary" data-zen-action="import-confirm">Import backup</button><button class="zen-btn subtle" data-zen-action="dialog-close">Cancel</button>')}catch(e){zenToastShow(e.message||'The backup file could not be read.')}};reader.readAsText(file)}
 function zenConfirmImport(){if(!zenPendingImport)return;const d=zenPendingImport;zenData=d.zen;zenData.version=1;zenJournalId='';zenSave();if(d.lifeosNutrition){try{zenUpdateLifeOS(function(l){l.food=d.lifeosNutrition.food||{};l.water=d.lifeosNutrition.water||{};if(Number.isFinite(Number(d.lifeosNutrition.wt)))l.wt=d.lifeosNutrition.wt;if(Number.isFinite(Number(d.lifeosNutrition.cg)))l.cg=d.lifeosNutrition.cg;if(Number.isFinite(Number(d.lifeosNutrition.pg)))l.pg=d.lifeosNutrition.pg})}catch(e){zenToastShow('Zen backup imported, but LifeOS nutrition could not be restored: '+e.message);zenHideDialog();return}}zenHideDialog();zenRenderPanel(zenBranch||'journal');zenToastShow('Backup imported.')}
 function zenHandleAction(action,el){
  if(action==='exit'){zenExit();return}if(action==='exit-keep'){zenDoExit(false);return}if(action==='exit-stop'){zenDoExit(true);return}if(action==='exit-cancel'){zenExitPending=false;zenHideDialog();return}if(action==='dialog-close'){zenHideDialog();return}if(action==='backup'){zenShowDialog('Zen backup','Export your private journal and preferences, or import a previous Zen backup. Shared LifeOS nutrition is included in the backup.','<button class="zen-btn primary" data-zen-action="backup-export">Export backup</button><button class="zen-btn" data-zen-action="backup-import">Import backup</button><button class="zen-btn subtle" data-zen-action="dialog-close">Cancel</button>');return}if(action==='backup-export'){zenHideDialog();zenExport();return}if(action==='backup-import'){zenHideDialog();$z('#zenImportFile').click();return}if(action==='import-confirm'){zenConfirmImport();return}if(action==='panel-close'){zenClosePanel();return}if(action==='open-lifeos'){zenDoExit(false);try{setView('lifeos')}catch(e){}return}
