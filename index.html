@@ -720,6 +720,47 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
  #zenRoot *,#zenRoot *:before,#zenRoot *:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}
  #zenRoot .zen-tree-stage{transform:none!important;filter:none!important}
 }
+
+/* Spirit Tree interaction polish: stable energy, deliberate colour identities and audio rings. */
+#zenRoot .zen-tree-stage{transition:transform .9s cubic-bezier(.22,.72,.2,1),filter .9s ease}
+#zenRoot.zen-focus .zen-tree-stage{transform:scale(1.28);filter:brightness(1.055) saturate(1.06)}
+#zenRoot .zen-tree-svg,#zenRoot .zen-tree-stage:before{animation-duration:12s;animation-timing-function:ease-in-out}
+#zenRoot .zen-energy-flow{animation-timing-function:linear;filter:drop-shadow(0 0 2px rgba(94,226,211,.26));opacity:.78}
+#zenRoot .zen-energy-aura{animation-timing-function:linear;opacity:.28;filter:blur(4px)}
+#zenRoot.zen-audio-live .zen-energy-flow{opacity:.9;filter:drop-shadow(0 0 4px rgba(115,225,238,.42))}
+#zenRoot.zen-audio-live .zen-energy-aura{opacity:.38}
+#zenRoot .zen-node{ -webkit-tap-highlight-color:transparent;outline:none;transition:transform .42s cubic-bezier(.2,.75,.2,1),background .42s ease,border-color .42s ease,box-shadow .42s ease,filter .42s ease}
+#zenRoot .zen-node:hover{transform:translate(-50%,-50%) scale(1.035)}
+#zenRoot .zen-node:active{transform:translate(-50%,-50%) scale(.985)}
+#zenRoot .zen-node:focus-visible{outline:2px solid currentColor;outline-offset:5px;filter:drop-shadow(0 0 9px currentColor)}
+#zenRoot .zen-node[aria-pressed="true"]{filter:drop-shadow(0 0 8px currentColor)}
+#zenRoot .zen-node[aria-pressed="true"] .zen-node-icon{transform:scale(1.06);background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.22),color-mix(in srgb,currentColor 32%,#10202a) 46%,rgba(4,13,23,.97) 82%);box-shadow:0 0 16px color-mix(in srgb,currentColor 30%,transparent),inset 0 0 13px rgba(220,245,255,.1)}
+#zenRoot .zen-node .zen-node-icon{transition:color .4s ease,border-color .4s ease,background .4s ease,box-shadow .4s ease,transform .4s cubic-bezier(.2,.75,.2,1)}
+#zenRoot .zen-node .zen-ring{border-color:currentColor;opacity:.13;transition:opacity .35s ease,border-color .35s ease}
+#zenRoot.zen-audio-live .zen-node .zen-ring{animation:zenButtonSoundRing 2.7s ease-out infinite;opacity:.55}
+#zenRoot.zen-audio-live .zen-node .zen-ring:nth-child(2){animation-delay:.65s}
+#zenRoot.zen-audio-live .zen-node .zen-ring:nth-child(3){animation-delay:1.3s}
+@keyframes zenButtonSoundRing{0%{transform:translate(-50%,-50%) scale(.88);opacity:.58}100%{transform:translate(-50%,-50%) scale(1.72);opacity:0}}
+#zenRoot .zen-node[data-branch="music"]{color:#8cecff!important;border-color:rgba(91,213,245,.46);background:linear-gradient(145deg,rgba(12,49,65,.78),rgba(4,17,29,.9))}
+#zenRoot .zen-node[data-branch="breathe"]{color:#8cf2c2!important;border-color:rgba(89,222,165,.46);background:linear-gradient(145deg,rgba(11,57,43,.78),rgba(4,20,18,.9))}
+#zenRoot .zen-node[data-branch="journal"]{color:#c5a8ff!important;border-color:rgba(166,132,244,.48);background:linear-gradient(145deg,rgba(49,34,79,.78),rgba(17,13,34,.9))}
+#zenRoot .zen-node[data-branch="ambient"]{color:#86baff!important;border-color:rgba(94,153,239,.48);background:linear-gradient(145deg,rgba(21,43,82,.8),rgba(7,15,35,.92))}
+#zenRoot .zen-node[data-branch="timer"]{color:#70dfd2!important;border-color:rgba(74,205,190,.48);background:linear-gradient(145deg,rgba(12,58,61,.8),rgba(4,20,29,.92))}
+#zenRoot .zen-node[data-branch="nutrition"]{color:#9daeff!important;border-color:rgba(116,139,246,.48);background:linear-gradient(145deg,rgba(30,39,86,.8),rgba(8,13,36,.92))}
+#zenRoot .zen-node .zen-node-icon{color:inherit!important;border-color:currentColor!important;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.2),rgba(22,48,63,.78) 48%,rgba(3,13,23,.98) 82%)}
+#zenRoot .zen-node .zen-node-label{color:inherit!important;text-shadow:0 1px 8px #020604,0 0 10px currentColor}
+#zenRoot .zen-node[data-branch="music"] .zen-node-icon{box-shadow:0 0 16px rgba(91,213,245,.22),inset 0 0 13px rgba(91,213,245,.12)}
+#zenRoot .zen-node[data-branch="breathe"] .zen-node-icon{box-shadow:0 0 16px rgba(89,222,165,.22),inset 0 0 13px rgba(89,222,165,.12)}
+#zenRoot .zen-node[data-branch="journal"] .zen-node-icon{box-shadow:0 0 16px rgba(166,132,244,.22),inset 0 0 13px rgba(166,132,244,.12)}
+#zenRoot .zen-node[data-branch="ambient"] .zen-node-icon{box-shadow:0 0 16px rgba(94,153,239,.22),inset 0 0 13px rgba(94,153,239,.12)}
+#zenRoot .zen-node[data-branch="timer"] .zen-node-icon{box-shadow:0 0 16px rgba(74,205,190,.22),inset 0 0 13px rgba(74,205,190,.12)}
+#zenRoot .zen-node[data-branch="nutrition"] .zen-node-icon{box-shadow:0 0 16px rgba(116,139,246,.22),inset 0 0 13px rgba(116,139,246,.12)}
+#zenRoot .zen-node.zen-ripple .zen-node-icon:after{border-color:currentColor}
+#zenRoot .zen-panel-host{transition:opacity .48s cubic-bezier(.2,.7,.2,1),background .48s ease}
+#zenRoot .zen-panel{animation-duration:.68s;animation-timing-function:cubic-bezier(.2,.72,.2,1)}
+#zenRoot.zen-panel-closing .zen-panel{animation-duration:.58s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
+@media(prefers-reduced-motion:reduce){#zenRoot .zen-tree-stage,#zenRoot .zen-node,#zenRoot .zen-node .zen-node-icon,#zenRoot .zen-panel-host{transition:none!important}#zenRoot.zen-audio-live .zen-node .zen-ring{animation:none!important;opacity:.22}}
+
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -3173,7 +3214,7 @@ addEventListener('pagehide',()=>{
     <defs>
      <linearGradient id="zenBark" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1a432b"/><stop offset=".25" stop-color="#4a9d66"/><stop offset=".5" stop-color="#8edda2"/><stop offset=".68" stop-color="#5bc9c3"/><stop offset=".83" stop-color="#d9c47b"/><stop offset="1" stop-color="#e4f4c4"/></linearGradient>
      <linearGradient id="zenEnergyGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#35d9a1"/><stop offset=".28" stop-color="#78ffe0"/><stop offset=".52" stop-color="#4edcff"/><stop offset=".76" stop-color="#9bffce"/><stop offset="1" stop-color="#e8ffd0"/></linearGradient>
-     <filter id="zenEnergyFlowFilter" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".018 .045" numOctaves="2" seed="7" result="noise"><animate attributeName="baseFrequency" values=".014 .035;.025 .06;.014 .035" dur="7s" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="noise" scale="2.8" xChannelSelector="R" yChannelSelector="G" result="fluid"/><feGaussianBlur in="fluid" stdDeviation=".65" result="soft"/><feMerge><feMergeNode in="soft"/><feMergeNode in="fluid"/></feMerge></filter>
+     <filter id="zenEnergyFlowFilter" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation=".45" result="soft"/><feMerge><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
      <radialGradient id="zenTreeGlow"><stop offset="0" stop-color="#9dffc1" stop-opacity=".48"/><stop offset=".36" stop-color="#4bcbab" stop-opacity=".22"/><stop offset=".7" stop-color="#7b7ce8" stop-opacity=".08"/><stop offset="1" stop-color="#244b2c" stop-opacity="0"/></radialGradient>
      <filter id="zenBlur"><feGaussianBlur stdDeviation="20"/></filter>
     </defs>
