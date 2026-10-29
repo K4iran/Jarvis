@@ -580,6 +580,15 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 .zen-sound-card strong{display:block;font-size:12px;color:#d5e9d5;font-weight:500}
 .zen-sound-card small{display:block;color:#78977c;font-size:10px;margin-top:4px}
 .zen-sound-card .zen-btn{min-width:68px;min-height:34px;padding:7px 9px}
+.zen-mode-switch{display:flex;gap:8px;margin:4px 0 12px;padding-bottom:10px;border-bottom:1px solid rgba(133,191,140,.13)}
+.zen-mode-switch .zen-btn{flex:1;margin:0}
+.zen-sound-list .zen-sound-card{grid-template-columns:minmax(0,1fr) auto}
+.zen-frequency-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.zen-frequency-option{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:68px;padding:12px;border:1px solid rgba(133,191,140,.2);border-radius:12px;background:rgba(24,58,34,.22);color:#dff4df;text-align:left;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s}
+.zen-frequency-option strong{font:500 13px "JetBrains Mono",monospace;letter-spacing:.04em}
+.zen-frequency-option small{font-size:10px;color:#8eae92}
+.zen-frequency-option.active{border-color:rgba(132,239,190,.7);background:rgba(52,120,78,.32);box-shadow:inset 0 0 18px rgba(96,222,161,.09),0 0 14px rgba(96,222,161,.1)}
+@media(max-width:360px){.zen-frequency-list{grid-template-columns:1fr}}
 .zen-preset{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid rgba(133,191,140,.1);font-size:11px}
 .zen-modal-host{position:absolute;z-index:30;inset:0;display:grid;place-items:center;padding:18px;background:rgba(0,5,2,.68);backdrop-filter:blur(8px)}
 .zen-dialog{width:min(100%,410px);border:1px solid rgba(142,212,149,.27);border-radius:18px;background:#0a1c0e;padding:22px;box-shadow:0 20px 70px rgba(0,0,0,.55)}
