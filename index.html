@@ -397,6 +397,143 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 @media(max-width:520px){.hangman-shell{padding:10px}.hangman-layout{padding:14px 12px}.hm-main{grid-template-columns:94px minmax(0,1fr);gap:10px}.hm-keyboard{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.hm-key{min-height:32px}.hm-word{gap:4px}.hm-slot{min-width:17px;height:34px;font-size:20px}.hm-title{font-size:23px}.hm-subtitle{margin-bottom:10px}.hm-input-row{gap:5px}.hm-submit,.hm-exit{padding:0 8px;font-size:9px}}
 @media(prefers-reduced-motion:reduce){.hangman-shell,.hangman-layout,#center .core{transition:none!important;animation:none!important}}
 
+
+/* Zen / Spirit Tree — independent immersive layer; keep the JARVIS orb renderer unchanged. */
+#zenLaunch{position:fixed;top:calc(env(safe-area-inset-top,0px) + 70px);right:14px;z-index:16;display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1px solid rgba(116,199,143,.34);border-radius:999px;background:rgba(4,17,11,.84);color:#d9f6df;font:10px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 6px 28px rgba(0,0,0,.28);backdrop-filter:blur(12px);cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+#zenLaunch:hover{background:rgba(21,57,34,.9);border-color:rgba(166,230,174,.6);transform:translateY(-1px)}
+#zenLaunch:before{content:'';width:7px;height:7px;border-radius:50%;background:#93dfa4;box-shadow:0 0 12px #70d78d}
+#zenRoot{position:fixed;inset:0;z-index:80;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#102619 0%,#07150c 39%,#020805 76%,#010302 100%);color:#e5f4e6;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;isolation:isolate}
+#zenRoot[hidden],#zenRoot [hidden]{display:none!important}
+#zenRoot *{box-sizing:border-box}
+#zenRoot button,#zenRoot input,#zenRoot textarea,#zenRoot select{font:inherit}
+#zenRoot button{color:inherit}
+#zenParticles{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.8}
+.zen-shell{position:relative;z-index:1;display:flex;flex-direction:column;width:100%;height:100%;min-height:0;padding:calc(env(safe-area-inset-top,0px) + 12px) clamp(12px,3vw,34px) calc(env(safe-area-inset-bottom,0px) + 10px)}
+.zen-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:42px;z-index:8}
+.zen-back,.zen-small-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:0 12px;background:rgba(8,24,14,.72);border:1px solid rgba(148,205,155,.18);border-radius:999px;color:#b6d8bb!important;font-size:11px!important;cursor:pointer}
+.zen-brand{display:flex;flex-direction:column;text-align:center;gap:3px;min-width:0}
+.zen-brand strong{font-size:11px;font-weight:500;letter-spacing:.34em;color:#d9eed9}
+.zen-brand span{font:9px ui-monospace,monospace;letter-spacing:.18em;color:#6d9d78}
+.zen-intro{text-align:center;padding:clamp(10px,2vh,20px) 0 0;flex:0 0 auto}
+.zen-intro h1{font-size:clamp(19px,3.4vw,26px);font-weight:300;letter-spacing:.12em;margin:0;color:#e0f2df;text-shadow:0 0 24px rgba(95,190,116,.16)}
+.zen-intro p{margin:7px 0 0;color:#789b7b;font-size:11px;letter-spacing:.04em}
+.zen-tree-stage{position:relative;isolation:isolate;width:min(100%,640px);height:min(67dvh,690px);min-height:360px;flex:1 1 auto;margin:auto;max-height:760px}
+.zen-tree-stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.zen-tree-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;transform-origin:50% 70%;animation:zenTreeRest 10s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(75,164,93,.08))}
+.zen-tree-svg path{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.zen-trunk{stroke:url(#zenBark);stroke-width:7.5;opacity:.92}
+.zen-branch{stroke:url(#zenBark);stroke-width:4.6;opacity:.86}
+.zen-twig{stroke:#4d9360;stroke-width:1.7;opacity:.72}
+.zen-vein{stroke:#6db77b;stroke-width:.8;opacity:.24}
+.zen-rootline{stroke:#39774b;stroke-width:2.1;opacity:.42;animation:zenRootDrift 7s ease-in-out infinite alternate}
+.zen-canopy-glow{fill:url(#zenTreeGlow);stroke:none;opacity:.45;filter:url(#zenBlur)}
+.zen-node{position:absolute;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:clamp(78px,19vw,116px);min-height:68px;padding:7px 3px 5px;border:0;border-radius:18px;background:transparent;color:#bad9bd!important;cursor:pointer;transform:translate(-50%,-50%);transition:color .24s,filter .24s,transform .24s}
+.zen-node:hover,.zen-node:focus-visible{color:#f0fff0!important;filter:drop-shadow(0 0 14px rgba(126,216,141,.45));outline:none;transform:translate(-50%,-50%) scale(1.05)}
+.zen-node[aria-pressed="true"]{color:#f0ffe9!important;filter:drop-shadow(0 0 13px rgba(133,226,144,.42))}
+.zen-node .zen-node-icon{position:relative;display:grid;place-items:center;width:39px;height:39px;border-radius:50%;border:1px solid rgba(138,214,149,.32);background:radial-gradient(circle at 50% 38%,rgba(57,116,69,.45),rgba(8,26,13,.82) 74%);box-shadow:0 0 20px rgba(47,132,67,.1),inset 0 0 12px rgba(116,208,132,.05);font-size:17px}
+.zen-node .zen-node-label{font:9px ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;text-shadow:0 2px 6px #020604;white-space:nowrap}
+.zen-node .zen-ring{position:absolute;left:50%;top:24px;width:43px;height:43px;border:1px solid rgba(134,222,149,.14);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:.12}
+.zen-node .zen-ring:nth-child(2){width:51px;height:51px;border-color:rgba(131,220,160,.12)}
+.zen-node .zen-ring:nth-child(3){width:60px;height:60px;border-color:rgba(105,202,219,.10)}
+.zen-node[data-branch="music"]{left:14%;top:28%}
+.zen-node[data-branch="breathe"]{left:81%;top:23%}
+.zen-node[data-branch="journal"]{left:11%;top:48%}
+.zen-node[data-branch="ambient"]{left:88%;top:45%}
+.zen-node[data-branch="timer"]{left:24%;top:70%}
+.zen-node[data-branch="nutrition"]{left:76%;top:69%}
+#zenRoot.zen-audio-live .zen-ring{opacity:.65;animation:zenSoundRing 2.5s ease-out infinite}
+#zenRoot.zen-audio-live .zen-ring:nth-child(2){animation-delay:.55s}
+#zenRoot.zen-audio-live .zen-ring:nth-child(3){animation-delay:1.05s}
+#zenRoot.zen-breathe-active .zen-tree-svg{animation-duration:8s}
+#zenRoot.zen-breathe-active .zen-node-icon{animation:zenNodeBreath 8s ease-in-out infinite}
+.zen-footer{flex:0 0 auto;text-align:center;padding:2px 0 4px;color:#507259;font:9px ui-monospace,monospace;letter-spacing:.12em}
+.zen-panel-host{position:absolute;z-index:10;inset:0;display:flex;align-items:flex-end;justify-content:center;padding:12px;pointer-events:none;background:linear-gradient(0deg,rgba(0,4,2,.36),transparent 70%)}
+.zen-panel{width:min(100%,560px);max-height:min(74dvh,680px);overflow:auto;pointer-events:auto;border:1px solid rgba(126,196,139,.25);border-radius:24px 24px 18px 18px;background:linear-gradient(155deg,rgba(15,36,21,.97),rgba(3,13,7,.97));box-shadow:0 18px 70px rgba(0,0,0,.5),inset 0 1px rgba(231,255,230,.035);backdrop-filter:blur(20px);padding:18px clamp(14px,3vw,24px) 20px;animation:zenPanelIn .3s ease-out both}
+.zen-panel-head{display:flex;align-items:flex-start;gap:12px;justify-content:space-between;margin-bottom:15px}
+.zen-eyebrow{color:#83b88a;font:9px ui-monospace,monospace;letter-spacing:.2em;text-transform:uppercase}
+.zen-panel h2{margin:5px 0 0;font-size:20px;font-weight:400;letter-spacing:.035em;color:#e4f5e5}
+.zen-sub{font-size:12px;line-height:1.55;color:#8ead91;margin:7px 0 0}
+.zen-close-panel{width:34px;height:34px;flex:0 0 auto;border:1px solid rgba(142,202,148,.22);border-radius:50%;background:rgba(6,22,11,.8);cursor:pointer}
+.zen-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.zen-row>*{min-width:0}
+.zen-spacer{flex:1}
+.zen-btn{min-height:40px;border:1px solid rgba(130,203,143,.3);border-radius:12px;padding:9px 13px;background:rgba(43,91,51,.3);color:#e3f4e4!important;font-size:12px!important;cursor:pointer}
+.zen-btn.primary{background:linear-gradient(135deg,rgba(60,127,72,.62),rgba(25,74,37,.6));border-color:rgba(152,220,159,.52)}
+.zen-btn.subtle{background:rgba(3,15,7,.45);border-color:rgba(125,178,132,.18);color:#a9c7ad!important}
+.zen-btn.danger{border-color:rgba(215,139,121,.3);color:#e8baae!important;background:rgba(82,32,27,.25)}
+.zen-btn:disabled{opacity:.42;cursor:default}
+.zen-field{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1;color:#91b396;font-size:11px}
+.zen-field input,.zen-field textarea,.zen-field select,.zen-input{width:100%;min-height:40px;padding:10px 11px;border:1px solid rgba(126,188,138,.22);border-radius:10px;background:rgba(2,11,5,.68);color:#e4f4e4!important;outline:none;font-size:12px!important}
+.zen-field textarea{resize:vertical;min-height:120px;line-height:1.6}
+.zen-field input:focus,.zen-field textarea:focus,.zen-field select:focus,.zen-input:focus{border-color:rgba(135,224,151,.56);box-shadow:0 0 0 3px rgba(75,153,85,.1)}
+.zen-field input::placeholder,.zen-field textarea::placeholder{color:#587b5d}
+.zen-divider{height:1px;background:rgba(138,195,143,.12);margin:15px 0}
+.zen-muted{color:#78977c;font-size:11px;line-height:1.55}
+.zen-card{border:1px solid rgba(132,195,141,.15);border-radius:14px;background:rgba(1,12,5,.36);padding:12px;margin:10px 0}
+.zen-list{display:flex;flex-direction:column;gap:7px}
+.zen-list-row{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid rgba(133,191,140,.12);border-radius:10px;background:rgba(1,11,5,.28)}
+.zen-list-row .zen-item-title{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:#d1e7d3}
+.zen-list-row small{display:block;color:#78977c;font-size:10px;margin-top:4px}
+.zen-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.zen-stat{padding:12px 8px;border-radius:12px;border:1px solid rgba(132,195,141,.13);background:rgba(1,11,5,.28);text-align:center}
+.zen-stat strong{display:block;font-size:19px;font-weight:400;color:#e4f8e5}
+.zen-stat span{font-size:9px;letter-spacing:.08em;color:#83a987;text-transform:uppercase}
+.zen-range{width:100%;accent-color:#8cc995}
+.zen-breath-orbit{width:124px;height:124px;margin:16px auto;border:1px solid rgba(142,222,151,.37);border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(72,141,80,.2),rgba(5,23,10,.1));box-shadow:0 0 30px rgba(77,158,88,.12);animation:zenBreathCircle 10s ease-in-out infinite}
+.zen-breath-orbit span{font-size:12px;color:#cde9ce;letter-spacing:.08em}
+.zen-sound-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(84px,1.05fr) auto;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(133,191,140,.12)}
+.zen-sound-card:last-child{border-bottom:0}
+.zen-sound-card strong{display:block;font-size:12px;color:#d5e9d5;font-weight:500}
+.zen-sound-card small{display:block;color:#78977c;font-size:10px;margin-top:4px}
+.zen-sound-card .zen-btn{min-width:68px;min-height:34px;padding:7px 9px}
+.zen-preset{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid rgba(133,191,140,.1);font-size:11px}
+.zen-modal-host{position:absolute;z-index:30;inset:0;display:grid;place-items:center;padding:18px;background:rgba(0,5,2,.68);backdrop-filter:blur(8px)}
+.zen-dialog{width:min(100%,410px);border:1px solid rgba(142,212,149,.27);border-radius:18px;background:#0a1c0e;padding:22px;box-shadow:0 20px 70px rgba(0,0,0,.55)}
+.zen-dialog h3{margin:0;color:#e7f6e8;font-size:19px;font-weight:400}
+.zen-dialog p{font-size:12px;line-height:1.6;color:#a4c5a7}
+.zen-toast{position:absolute;z-index:35;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);transform:translateX(-50%);max-width:90%;padding:10px 15px;border:1px solid rgba(144,208,150,.24);border-radius:999px;background:rgba(8,24,12,.95);color:#d9f3dc;font-size:11px;box-shadow:0 6px 30px rgba(0,0,0,.3);text-align:center}
+.zen-pending-item{display:grid;grid-template-columns:minmax(0,1fr) 82px 82px;gap:7px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(133,191,140,.12)}
+.zen-pending-item input{min-width:0;width:100%;padding:8px;border-radius:8px;border:1px solid rgba(126,188,138,.22);background:#041108;color:#e4f4e4;font-size:11px}
+.zen-audio-credit{font-size:10px;line-height:1.6;color:#6f9274}
+.zen-audio-credit a{color:#a4cfac;text-decoration:underline;text-underline-offset:3px}
+@keyframes zenTreeRest{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
+@keyframes zenRootDrift{from{opacity:.3}to{opacity:.56}}
+@keyframes zenSoundRing{0%{transform:translate(-50%,-50%) scale(.8);opacity:.65}100%{transform:translate(-50%,-50%) scale(1.55);opacity:0}}
+@keyframes zenNodeBreath{0%,100%{filter:brightness(.96)}50%{filter:brightness(1.18)}}
+@keyframes zenBreathCircle{0%,100%{transform:scale(.84);box-shadow:0 0 19px rgba(77,158,88,.08)}40%{transform:scale(1.07);box-shadow:0 0 33px rgba(77,158,88,.22)}}
+@keyframes zenPanelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(max-width:520px){
+ #zenLaunch{top:calc(env(safe-area-inset-top,0px) + 64px);right:10px;min-height:34px;padding:0 11px;font-size:9px}
+ .zen-shell{padding-left:7px;padding-right:7px}
+ .zen-head{min-height:36px}
+ .zen-back,.zen-small-action{min-height:32px;padding:0 9px;font-size:10px!important}
+ .zen-brand strong{font-size:9px;letter-spacing:.24em}
+ .zen-brand span{font-size:8px}
+ .zen-intro{padding-top:8px}
+ .zen-intro h1{font-size:19px}
+ .zen-intro p{font-size:10px}
+ .zen-tree-stage{width:100%;height:min(64dvh,570px);min-height:340px}
+ .zen-node{width:82px;gap:4px;padding:5px 1px}
+ .zen-node .zen-node-icon{width:34px;height:34px;font-size:15px}
+ .zen-node .zen-node-label{font-size:8px;letter-spacing:.05em}
+ .zen-node .zen-ring{top:21px;width:38px;height:38px}
+ .zen-node .zen-ring:nth-child(2){width:45px;height:45px}
+ .zen-node .zen-ring:nth-child(3){width:52px;height:52px}
+ .zen-panel-host{padding:6px}
+ .zen-panel{max-height:79dvh;border-radius:20px 20px 14px 14px;padding:15px 13px 17px}
+ .zen-panel h2{font-size:18px}
+ .zen-sound-card{grid-template-columns:minmax(0,1fr) minmax(68px,.85fr) auto;gap:6px}
+ .zen-sound-card .zen-btn{min-width:55px;padding:6px}
+ .zen-pending-item{grid-template-columns:minmax(0,1fr) 62px 62px}
+ .zen-stat-grid{gap:5px}
+ .zen-stat{padding:10px 5px}
+ .zen-stat strong{font-size:17px}
+}
+@supports not (height:100dvh){.zen-tree-stage{height:min(64vh,640px)}.zen-panel{max-height:75vh}}
+@media(prefers-reduced-motion:reduce){
+ #zenRoot *,#zenRoot *::before,#zenRoot *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -2137,6 +2274,10 @@ async function run(t) {
     }
   };
 
+  // Zen commands are handled locally; unmatched requests continue through JARVIS's existing paths.
+  const zenHandled = window.zenHandleCommand ? await window.zenHandleCommand(t, respond) : false;
+  if (zenHandled) return;
+
   // Keep rating radar requests local so they never depend on model interpretation.
   const radarReply = handleRatingRadarCommand(t);
   if (radarReply) {
@@ -2817,4 +2958,227 @@ addEventListener('pagehide',()=>{
   particleMaterial.dispose();glow.material.map.dispose();glow.material.dispose();rd.dispose();
 });
 }catch(err){console.error(err);$('#core').classList.add('nogl');orbInfo='Unavailable'}})();
+</script>
+
+<button id="zenLaunch" type="button" aria-label="Enter Zen mode">Zen mode</button>
+<div id="zenRoot" hidden aria-label="Zen mode, Spirit Tree">
+ <canvas id="zenParticles" aria-hidden="true"></canvas>
+ <div class="zen-shell">
+  <header class="zen-head">
+   <button class="zen-back" type="button" data-zen-action="exit">← JARVIS</button>
+   <div class="zen-brand"><strong>ZEN</strong><span>SPIRIT TREE</span></div>
+   <button class="zen-small-action" type="button" data-zen-action="backup">BACKUP</button>
+  </header>
+  <div class="zen-intro"><h1>Find your quiet.</h1><p>Choose a branch. Stay as long as you need.</p></div>
+  <div class="zen-tree-stage" id="zenTreeStage">
+   <canvas id="zenTreeParticles" aria-hidden="true"></canvas>
+   <svg class="zen-tree-svg" viewBox="0 0 600 760" preserveAspectRatio="none" role="img" aria-label="A living Spirit Tree with six interactive branches">
+    <defs>
+     <linearGradient id="zenBark" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#245637"/><stop offset=".42" stop-color="#68aa70"/><stop offset=".72" stop-color="#4d9660"/><stop offset="1" stop-color="#a5c88c"/></linearGradient>
+     <radialGradient id="zenTreeGlow"><stop offset="0" stop-color="#7bcf88" stop-opacity=".35"/><stop offset="1" stop-color="#244b2c" stop-opacity="0"/></radialGradient>
+     <filter id="zenBlur"><feGaussianBlur stdDeviation="20"/></filter>
+    </defs>
+    <ellipse class="zen-canopy-glow" cx="300" cy="385" rx="200" ry="260"/>
+    <g class="zen-roots"><path class="zen-rootline" d="M299 658 Q251 682 228 716 M303 658 Q347 689 384 714 M293 668 Q267 703 262 728 M310 669 Q332 701 329 730"/></g>
+    <g id="zenTreeBranches">
+     <path class="zen-trunk" d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/>
+     <path class="zen-branch" d="M299 366 C253 341 223 294 183 269 C151 249 129 228 83 224"/>
+     <path class="zen-branch" d="M302 315 C351 286 379 233 411 201 C438 174 464 159 504 151"/>
+     <path class="zen-branch" d="M299 438 C245 423 204 410 163 397 C132 387 105 372 67 372"/>
+     <path class="zen-branch" d="M300 420 C351 407 390 379 433 366 C474 352 505 351 545 350"/>
+     <path class="zen-branch" d="M296 512 C263 520 233 544 207 561 C183 576 166 597 136 611"/>
+     <path class="zen-branch" d="M300 512 C339 525 377 546 402 563 C425 579 448 595 477 610"/>
+     <path class="zen-twig" d="M183 269 C169 239 174 212 158 190 M145 240 C119 235 105 216 98 195 M411 201 C405 172 412 148 430 130 M443 174 C469 182 487 174 505 160 M163 397 C148 371 149 344 132 326 M119 382 C91 386 75 371 59 353 M433 366 C438 336 458 314 480 302 M490 355 C514 333 536 334 555 325 M207 561 C180 550 157 551 137 538 M183 576 C176 605 156 624 134 640 M402 563 C426 545 451 548 474 535 M448 595 C457 619 480 633 503 638 M301 221 C277 200 264 177 265 154 M301 176 C323 153 328 136 323 116"/>
+     <path class="zen-vein" d="M180 270 Q197 293 210 315 M411 201 Q389 227 378 255 M161 397 Q190 408 211 411 M433 366 Q407 388 385 397 M207 561 Q241 551 262 536 M402 563 Q366 548 345 537 M158 190 Q148 217 158 239 M430 130 Q422 151 435 169 M132 326 Q117 351 132 372 M480 302 Q470 326 480 342 M137 538 Q159 561 183 576 M474 535 Q452 559 448 595"/>
+    </g>
+   </svg>
+   <button class="zen-node" type="button" data-branch="music" aria-pressed="false" aria-label="Music branch"><span class="zen-node-icon">♫<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Music</span></button>
+   <button class="zen-node" type="button" data-branch="breathe" aria-pressed="false" aria-label="Breathe branch"><span class="zen-node-icon">◌<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Breathe</span></button>
+   <button class="zen-node" type="button" data-branch="journal" aria-pressed="false" aria-label="Journal branch"><span class="zen-node-icon">✎<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Journal</span></button>
+   <button class="zen-node" type="button" data-branch="ambient" aria-pressed="false" aria-label="Ambient sounds branch"><span class="zen-node-icon">≈<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Ambience</span></button>
+   <button class="zen-node" type="button" data-branch="timer" aria-pressed="false" aria-label="Quiet timer branch"><span class="zen-node-icon">◷<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Quiet timer</span></button>
+   <button class="zen-node" type="button" data-branch="nutrition" aria-pressed="false" aria-label="Nutrition branch"><span class="zen-node-icon">❋<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Nutrition</span></button>
+  </div>
+  <div class="zen-footer">LOCAL BY DEFAULT · NO AUDIO STARTS AUTOMATICALLY</div>
+ </div>
+ <div class="zen-panel-host" id="zenPanelHost" hidden><section class="zen-panel" id="zenPanelCard" aria-live="polite"></section></div>
+ <div class="zen-modal-host" id="zenModalHost" hidden><section class="zen-dialog" id="zenDialog" role="dialog" aria-modal="true"></section></div>
+ <div class="zen-toast" id="zenToast" hidden role="status"></div>
+ <input id="zenImportFile" type="file" accept="application/json,.json" hidden>
+</div>
+
+<script>
+
+(function(){
+'use strict';
+const ZEN_KEY='jarvis.zen.v1', LIFE_KEY='lifeos.v1';
+const $z=function(sel,root){return (root||document).querySelector(sel)};
+const ez=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+const zday=function(d){const x=d||new Date();return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const zuid=function(){return 'z'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)};
+const zenDefault=function(){return {version:1,journal:[],preferences:{spotifyLink:'https://open.spotify.com/',lastBranch:'',lastMix:[],volumes:{rain:.34,forest:.3,water:.3},presets:[]}}};
+let zenData=zenDefault(),zenOpen=false,zenBranch='',zenJournalId='',zenJournalSaveTimer=0,zenToastTimer=0,zenSoundOn={rain:false,forest:false,water:false},zenPlayers={},zenFadeJobs={},zenSpotifyOpened=false,zenBreathing=false,zenBreathEnds=0,zenBreathTimer=0,zenBreathCueTimer=0,zenTimerRunning=false,zenTimerEnds=0,zenTimerInterval=0,zenTimerBreathing=false,zenTimerAmbient=false,zenPendingFoods=null,zenPendingImport=null,zenSelectedDate=zday(),zenActiveSoundSources={rain:0,forest:0,water:0};
+let zenCanvasState={};
+try{const stored=JSON.parse(localStorage.getItem(ZEN_KEY)||'null');if(stored&&stored.version===1&&stored.preferences&&Array.isArray(stored.journal)){zenData=stored;zenData.preferences.volumes=zenData.preferences.volumes||{};zenData.preferences.presets=Array.isArray(zenData.preferences.presets)?zenData.preferences.presets:[];zenData.preferences.lastMix=Array.isArray(zenData.preferences.lastMix)?zenData.preferences.lastMix:[]}}catch(e){}
+const zenRoot=$z('#zenRoot'),zenLaunch=$z('#zenLaunch'),zenPanelHost=$z('#zenPanelHost'),zenPanel=$z('#zenPanelCard'),zenModalHost=$z('#zenModalHost'),zenDialog=$z('#zenDialog'),zenToast=$z('#zenToast');
+function zenSave(){try{localStorage.setItem(ZEN_KEY,JSON.stringify(zenData))}catch(e){zenToastShow('Browser storage is unavailable; export your journal if possible.')}}
+function zenToastShow(message){if(!message)return;zenToast.textContent=message;zenToast.hidden=false;clearTimeout(zenToastTimer);zenToastTimer=setTimeout(function(){zenToast.hidden=true},2800)}
+function zenOpenMode(){if(zenOpen)return;zenOpen=true;zenRoot.hidden=false;zenLaunch.hidden=true;zenModalHost.hidden=true;zenUpdateRingState();zenInitCanvases();if(!zenBranch)zenBranch=zenData.preferences.lastBranch||'';zenRenderBranches();if(zenBranch)zenRenderPanel(zenBranch);else zenPanelHost.hidden=true}
+function zenRenderBranches(){zenRoot.querySelectorAll('[data-branch]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.branch===zenBranch))})}
+function zenHasAudio(){return Object.keys(zenPlayers).some(function(k){return zenPlayers[k]&&!zenPlayers[k].paused})}
+function zenIsActive(){return zenRoot&&!zenRoot.hidden}
+function zenOpenBranch(name){zenOpenMode();zenBranch=name;zenData.preferences.lastBranch=name;zenSave();zenRenderBranches();zenRenderPanel(name)}
+function zenClosePanel(){zenBranch='';zenData.preferences.lastBranch='';zenSave();zenPanelHost.hidden=true;zenRenderBranches()}
+function zenShowDialog(title,message,buttons){zenDialog.innerHTML='<h3>'+ez(title)+'</h3><p>'+message+'</p><div class="zen-row">'+buttons+'</div>';zenModalHost.hidden=false}
+function zenHideDialog(){zenModalHost.hidden=true;zenPendingImport=null}
+function zenDoExit(stopSounds){zenHideDialog();if(stopSounds){zenStopAmbient(1400);zenTimerRunning=false;clearInterval(zenTimerInterval);zenTimerInterval=0}zenStopBreathing();zenOpen=false;zenRoot.hidden=true;zenLaunch.hidden=false;zenPanelHost.hidden=true;zenBranch='';zenModalHost.hidden=true;zenRenderBranches()}
+function zenExit(){if(!zenIsActive())return;if(zenHasAudio()||zenSpotifyOpened){zenShowDialog('Leave Zen?','Would you like the active Zen audio to keep playing, or should I fade out the ambient sounds? Spotify playback is controlled in Spotify itself. <div class="zen-muted" style="margin-top:8px">You can also say “keep audio” or “stop audio”.</div>','<button class="zen-btn primary" data-zen-action="exit-keep">Keep audio</button><button class="zen-btn danger" data-zen-action="exit-stop">Stop Zen audio</button><button class="zen-btn subtle" data-zen-action="exit-cancel">Stay here</button>');return}zenDoExit(false)}
+function zenOpenSpotify(){let url=zenData.preferences.spotifyLink||'https://open.spotify.com/';if(!/^https:\/\/open\.spotify\.com\//i.test(url))url='https://open.spotify.com/';const w=window.open(url,'_blank','noopener,noreferrer');zenSpotifyOpened=true;if(!w)zenToastShow('Your browser blocked the new tab. Use the Spotify link shown in this panel.')}
+const zenSounds={
+ rain:{name:'Rain',srcs:['https://commons.wikimedia.org/wiki/Special:Redirect/file/Rain%20(1).ogg','https://commons.wikimedia.org/wiki/Special:Redirect/file/Rain.ogg'],credit:'Rain (1).ogg — public domain',page:'https://commons.wikimedia.org/wiki/File:Rain_(1).ogg'},
+ forest:{name:'Forest',srcs:['https://commons.wikimedia.org/wiki/Special:Redirect/file/20090610%200%20ambience.ogg','https://commons.wikimedia.org/wiki/Special:Redirect/file/Birds%20forest.ogg'],credit:'Forest ambience — public domain',page:'https://commons.wikimedia.org/wiki/File:20090610_0_ambience.ogg'},
+ water:{name:'Flowing water',srcs:['https://commons.wikimedia.org/wiki/Special:Redirect/file/Water%20flowing%20pouring%20trickling.ogg','https://commons.wikimedia.org/wiki/Special:Redirect/file/Flowing-water-100019.ogg'],credit:'Water flowing, pouring, trickling — public domain',page:'https://commons.wikimedia.org/wiki/File:Water_flowing_pouring_trickling.ogg'}
+};
+function zenCreatePlayer(key){const cfg=zenSounds[key],audio=new Audio();audio.preload='none';audio.loop=true;audio.volume=zenData.preferences.volumes[key]??.3;audio.src=cfg.srcs[zenActiveSoundSources[key]||0];audio.addEventListener('error',function(){if(!zenSoundOn[key])return;const next=(zenActiveSoundSources[key]||0)+1;if(next<cfg.srcs.length){zenActiveSoundSources[key]=next;audio.src=cfg.srcs[next];audio.load();audio.play().catch(function(){zenSoundOn[key]=false;zenUpdateRingState();zenToastShow(cfg.name+' could not be played. Check your connection and try again.')})}else{zenSoundOn[key]=false;zenUpdateRingState();zenToastShow(cfg.name+' audio is unavailable. Try again later.')}});zenPlayers[key]=audio;return audio}
+async function zenStartSound(key){if(!zenPlayers[key])zenCreatePlayer(key);const a=zenPlayers[key];clearInterval(zenFadeJobs[key]);a.volume=zenData.preferences.volumes[key]??.3;zenSoundOn[key]=true;zenData.preferences.lastMix=Object.keys(zenSoundOn).filter(function(k){return zenSoundOn[k]});zenSave();zenUpdateRingState();try{await a.play();return true}catch(e){zenSoundOn[key]=false;zenUpdateRingState();zenToastShow('Tap Play on the '+zenSounds[key].name+' card to allow audio playback.');return false}}
+function zenStopSound(key,fadeMs){const a=zenPlayers[key];if(!a){zenSoundOn[key]=false;zenUpdateRingState();return}clearInterval(zenFadeJobs[key]);if(a.paused){zenSoundOn[key]=false;zenUpdateRingState();return}const from=a.volume,steps=Math.max(1,Math.round((fadeMs||1200)/100));let n=0;zenFadeJobs[key]=setInterval(function(){n++;a.volume=Math.max(0,from*(1-n/steps));if(n>=steps){clearInterval(zenFadeJobs[key]);a.pause();try{a.currentTime=0}catch(e){}a.volume=zenData.preferences.volumes[key]??.3;zenSoundOn[key]=false;zenUpdateRingState();zenData.preferences.lastMix=Object.keys(zenSoundOn).filter(function(k){return zenSoundOn[k]});zenSave()}},100)}
+function zenStopAmbient(fadeMs){Object.keys(zenSounds).forEach(function(k){zenStopSound(k,fadeMs||1200)})}
+function zenUpdateRingState(){if(!zenRoot)return;const live=zenHasAudio()||(!zenRoot.hidden&&typeof jarvisSpeaking!=='undefined'&&jarvisSpeaking)||(!zenRoot.hidden&&typeof filamentVoiceActivity!=='undefined'&&filamentVoiceActivity>.18);zenRoot.classList.toggle('zen-audio-live',!!live)}
+function zenBreathPhase(){return ((Date.now()-zenBreathStarted)%10000)<4000?'Breathe in':'Breathe out'}
+let zenBreathStarted=0;
+function zenStartBreathing(minutes){zenBreathing=true;zenBreathStarted=Date.now();zenBreathEnds=Date.now()+(minutes||3)*60000;zenRoot.classList.add('zen-breathe-active');clearInterval(zenBreathTimer);clearInterval(zenBreathCueTimer);zenBreathCueTimer=setInterval(function(){if(!zenBreathing)return;const cue=$z('#zenBreathCue');if(cue)cue.textContent=zenBreathPhase()},500);zenBreathTimer=setInterval(function(){if(Date.now()>=zenBreathEnds){zenStopBreathing();const cue=$z('#zenBreathCue');if(cue)cue.textContent='Session complete'}const remain=Math.max(0,Math.ceil((zenBreathEnds-Date.now())/1000));const el=$z('#zenBreathRemaining');if(el)el.textContent=zenFmtTime(remain)},250);const cue=$z('#zenBreathCue');if(cue)cue.textContent=zenBreathPhase()}
+function zenStopBreathing(){zenBreathing=false;clearInterval(zenBreathTimer);clearInterval(zenBreathCueTimer);zenBreathTimer=0;zenBreathCueTimer=0;zenRoot.classList.remove('zen-breathe-active')}
+function zenFmtTime(seconds){const s=Math.max(0,Math.floor(seconds));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function zenTimerStart(minutes,withBreathing,withAmbient){zenTimerEnds=Date.now()+minutes*60000;zenTimerRunning=true;zenTimerBreathing=withBreathing;zenTimerAmbient=withAmbient;if(withBreathing)zenStartBreathing(minutes);if(withAmbient){let toStart=zenData.preferences.lastMix||[];if(!toStart.length)toStart=['rain'];toStart.forEach(function(k){if(zenSounds[k]&&!zenSoundOn[k])zenStartSound(k)})}clearInterval(zenTimerInterval);zenTimerInterval=setInterval(zenTimerTick,250);zenTimerTick()}
+function zenTimerTick(){if(!zenTimerRunning)return;const left=Math.max(0,Math.ceil((zenTimerEnds-Date.now())/1000));const output=$z('#zenTimerRemaining');if(output)output.textContent=zenFmtTime(left);if(left<=0){zenTimerRunning=false;clearInterval(zenTimerInterval);zenTimerInterval=0;zenStopBreathing();zenStopAmbient(1800);zenClosePanel();zenUpdateRingState()}}
+function zenTimerStop(){zenTimerRunning=false;clearInterval(zenTimerInterval);zenTimerInterval=0;zenStopBreathing()}
+function zenRenderPendingFoodPanel(){if(!zenPendingFoods||!zenPendingFoods.length)return '';return '<div class="zen-card"><div class="zen-eyebrow">Voice entry — review before saving</div><p class="zen-muted">JARVIS interpreted your speech below. Edit names and estimates, then confirm. Nothing is saved until you confirm.</p>'+zenPendingFoods.map(function(f,i){return '<div class="zen-pending-item" data-pending-index="'+i+'"><input aria-label="Food name" data-pending-name="1" value="'+ez(f.name)+'"><input aria-label="Calories" data-pending-cal="1" type="number" min="0" value="'+ez(f.cal)+'" placeholder="kcal"><input aria-label="Protein" data-pending-pro="1" type="number" min="0" value="'+ez(f.pro)+'" placeholder="protein"></div>'}).join('')+'<p class="zen-muted">'+(zenPendingFoods.some(function(f){return f.cal===''||f.pro===''})?'An estimate was not available for one or more items; enter values or 0 if unknown.':'These are approximate values. Check the portion and edit as needed.')+'</p><div class="zen-row"><button class="zen-btn primary" data-zen-action="food-voice-confirm">Confirm and save</button><button class="zen-btn subtle" data-zen-action="food-voice-cancel">Cancel</button></div></div>'}
+function zenRenderPanel(name){
+ zenBranch=name;zenPanelHost.hidden=false;zenRenderBranches();let title='',subtitle='',body='';
+ const header=function(t,s){return '<div class="zen-panel-head"><div><div class="zen-eyebrow">Spirit Tree / '+ez(t)+'</div><h2>'+ez(t)+'</h2><p class="zen-sub">'+s+'</p></div><button class="zen-close-panel" type="button" data-zen-action="panel-close" aria-label="Back to tree">×</button></div>'};
+ if(name==='music'){
+  title='Music';subtitle='Your music and ambient sounds are controlled separately.';
+  const link=zenData.preferences.spotifyLink||'https://open.spotify.com/';
+  body='<label class="zen-field">Spotify playlist or link<input id="zenSpotifyLink" value="'+ez(link)+'" placeholder="Paste a Spotify playlist link"></label><div class="zen-row" style="margin-top:12px"><button class="zen-btn primary" data-zen-action="spotify-save">Save playlist</button><button class="zen-btn" data-zen-action="spotify-open">Open Spotify ↗</button></div><p class="zen-muted" style="margin-top:11px">Spotify handles playback. Some playlists, accounts or browsers may require the Spotify app or a sign-in; Zen does not control Spotify playback.</p>';
+ }else if(name==='breathe'){
+  title='Breathe';subtitle='A gentle, natural rhythm follows the tree. No holds and no pressure — stop whenever you like.';
+  body='<div class="zen-breath-orbit"><span id="zenBreathCue">'+(zenBreathing?zenBreathPhase():'Breathe with the tree')+'</span></div><div class="zen-row" style="justify-content:center"><label class="zen-field" style="max-width:140px">Duration<select id="zenBreathDuration"><option value="1">1 minute</option><option value="3" selected>3 minutes</option><option value="5">5 minutes</option><option value="10">10 minutes</option></select></label></div><p class="zen-muted" style="text-align:center">Time remaining: <strong id="zenBreathRemaining">'+(zenBreathing?zenFmtTime(Math.ceil((zenBreathEnds-Date.now())/1000)):'—')+'</strong></p><div class="zen-row" style="justify-content:center"><button class="zen-btn primary" data-zen-action="breathe-start">'+(zenBreathing?'Restart session':'Start breathing')+'</button><button class="zen-btn subtle" data-zen-action="breathe-stop" '+(zenBreathing?'':'disabled')+'>Stop</button></div>';
+ }else if(name==='journal'){
+  title='Journal';subtitle='Private to this browser. Entries save as you type; no cloud sync is used.';
+  const entries=zenData.journal.slice().sort(function(a,b){return (b.updated||'').localeCompare(a.updated||'')});
+  const current=entries.find(function(e){return e.id===zenJournalId})||null;
+  body='<div class="zen-row"><button class="zen-btn primary" data-zen-action="journal-new">+ New entry</button><span class="zen-spacer"></span><span class="zen-muted" id="zenJournalSaveStatus">Saved locally</span></div><div class="zen-divider"></div><label class="zen-field">Your thoughts<textarea id="zenJournalText" placeholder="Write whatever you need to get out of your head...">'+ez(current?current.text:'')+'</textarea></label><p class="zen-muted">Autosaved on this device. Use Backup to export or import your journal and Zen preferences.</p><div class="zen-row"><button class="zen-btn subtle" data-zen-action="journal-delete" '+(current?'':'disabled')+'>Delete entry</button><span class="zen-spacer"></span><button class="zen-btn subtle" data-zen-action="panel-close">Back to tree</button></div><div class="zen-divider"></div><div class="zen-eyebrow">Previous entries</div><div class="zen-list" style="margin-top:8px">'+(entries.map(function(e){return '<button type="button" class="zen-list-row" data-zen-action="journal-select" data-id="'+ez(e.id)+'"><span class="zen-item-title">'+ez((e.text||'Untitled entry').trim().slice(0,68)||'Untitled entry')+'<small>'+ez(e.date||'')+' · '+ez((e.updated||'').replace('T',' ').slice(11,16))+'</small></span><span>›</span></button>'}).join('')||'<p class="zen-muted">No entries yet.</p>')+'</div>';
+ }else if(name==='ambient'){
+  title='Ambient sounds';subtitle='Mix any combination. These real recordings can play alongside Spotify.';
+  body=Object.keys(zenSounds).map(function(k){const cfg=zenSounds[k],vol=zenData.preferences.volumes[k]??.3;return '<div class="zen-sound-card"><div><strong>'+ez(cfg.name)+'</strong><small>'+(zenSoundOn[k]?'Playing':'Ready when you are')+'</small></div><input class="zen-range" type="range" min="0" max="1" step=".01" value="'+vol+'" data-zen-volume="'+k+'" aria-label="'+ez(cfg.name)+' volume"><button class="zen-btn '+(zenSoundOn[k]?'primary':'subtle')+'" data-zen-action="sound-toggle" data-sound="'+k+'">'+(zenSoundOn[k]?'Stop':'Play')+'</button></div>'}).join('')+'<div class="zen-card"><div class="zen-row"><label class="zen-field">Save this mix as<input id="zenPresetName" placeholder="e.g. Rainy evening" maxlength="35"></label><button class="zen-btn primary" style="align-self:flex-end" data-zen-action="preset-save">Save mix</button></div>'+(zenData.preferences.presets.length?'<div class="zen-divider"></div><div class="zen-eyebrow">Favourite mixes</div>'+zenData.preferences.presets.map(function(p,i){return '<div class="zen-preset"><span>'+ez(p.name)+'</span><span class="zen-row"><button class="zen-btn subtle" data-zen-action="preset-load" data-index="'+i+'">Use</button><button class="zen-btn subtle" data-zen-action="preset-delete" data-index="'+i+'" aria-label="Delete '+ez(p.name)+'">×</button></span></div>'}).join(''):'<p class="zen-muted">Save a favourite mix to reuse its sounds and volumes.</p>')+'</div><p class="zen-audio-credit">Public-domain recordings from Wikimedia Commons: <a href="'+zenSounds.rain.page+'" target="_blank" rel="noopener noreferrer">rain</a> · <a href="'+zenSounds.forest.page+'" target="_blank" rel="noopener noreferrer">forest ambience</a> · <a href="'+zenSounds.water.page+'" target="_blank" rel="noopener noreferrer">flowing water</a>. A connection is required to stream them.</p>';
+ }else if(name==='timer'){
+  title='Quiet timer';subtitle='Choose a quiet window. No alarm, chime or notification when it ends.';
+  body='<div class="zen-stat-grid"><div class="zen-stat"><strong id="zenTimerRemaining">'+(zenTimerRunning?zenFmtTime(Math.ceil((zenTimerEnds-Date.now())/1000)):'—:—')+'</strong><span>Remaining</span></div><div class="zen-stat"><strong>'+(zenTimerRunning?'Active':'Quiet')+'</strong><span>Session</span></div><div class="zen-stat"><strong>Soft</strong><span>Ending</span></div></div><div class="zen-divider"></div><label class="zen-field">Duration<select id="zenTimerDuration"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></label><div class="zen-card"><label class="zen-row"><input id="zenTimerWithBreathing" type="checkbox" style="accent-color:#8cc995" '+(zenTimerBreathing?'checked':'')+'> <span class="zen-muted">Pair with the tree’s breathing rhythm</span></label><label class="zen-row" style="margin-top:10px"><input id="zenTimerWithAmbient" type="checkbox" style="accent-color:#8cc995" '+(zenTimerAmbient?'checked':'')+'> <span class="zen-muted">Include my selected ambient mix</span></label></div><div class="zen-row"><button class="zen-btn primary" data-zen-action="timer-start">'+(zenTimerRunning?'Restart timer':'Start quiet timer')+'</button><button class="zen-btn subtle" data-zen-action="timer-stop" '+(zenTimerRunning?'':'disabled')+'>Stop timer</button></div><p class="zen-muted" style="margin-top:12px">When time is up, the tree returns to its normal idle rhythm and ambient sounds fade out. Spotify is controlled in its own app, so this timer cannot stop it.</p>';
+ }else if(name==='nutrition'){
+  title='Nutrition';subtitle='Shared with LifeOS using its existing browser data. Estimates are approximate; edit entries any time.';
+  body=zenRenderPendingFoodPanel()+zenRenderNutrition();
+ }
+ zenPanel.innerHTML=header(title,subtitle)+body;
+ if(name==='journal'){const field=$z('#zenJournalText');if(field)field.addEventListener('input',zenJournalOnInput)}
+ if(name==='nutrition')zenAttachNutritionInputs();
+}
+function zenRenderNutrition(){
+ const d=zenReadLifeOS();
+ if(!d)return '<div class="zen-card"><p class="zen-muted">No LifeOS profile has been saved in this browser yet. Open LifeOS and finish its initial setup; Zen will then use the same food and hydration data.</p><button class="zen-btn primary" data-zen-action="open-lifeos">Open LifeOS</button></div>';
+ const food=(d.food&&Array.isArray(d.food[zenSelectedDate]))?d.food[zenSelectedDate]:[];
+ const calories=food.reduce(function(s,x){return s+(Number(x.cal)||0)},0),protein=food.reduce(function(s,x){return s+(Number(x.pro)||0)},0),water=Math.max(0,Number((d.water||{})[zenSelectedDate])||0);
+ const today=zday(),cg=Number(d.cg)||0,pg=Number(d.pg)||0;
+ const foodRows=food.map(function(f){return '<div class="zen-list-row"><span class="zen-item-title">'+ez(f.n||'Food')+'<small>'+ez(f.z||'')+' · '+Math.round(Number(f.cal)||0)+' kcal · '+(Math.round((Number(f.pro)||0)*10)/10)+' g protein</small></span><button class="zen-btn subtle" data-zen-action="food-edit" data-id="'+ez(f.id||'')+'">Edit</button><button class="zen-btn subtle" data-zen-action="food-delete" data-id="'+ez(f.id||'')+'">×</button></div>'}).join('');
+ const quick=[['Egg (large)',72,6,'1 egg'],['Banana',105,1.3,'1 banana'],['Cereal',150,3,'1 serving'],['Bread / toast',80,3,'1 slice'],['Milk (250 ml)',120,8,'250 ml'],['Apple',95,.5,'1 apple']];
+ return '<div class="zen-row" style="justify-content:space-between;margin-bottom:12px"><button class="zen-btn subtle" data-zen-action="nutrition-day" data-delta="-1">← Previous</button><strong style="font-size:12px">'+(zenSelectedDate===today?'Today':ez(zenSelectedDate))+'</strong><button class="zen-btn subtle" data-zen-action="nutrition-day" data-delta="1" '+(zenSelectedDate>=today?'disabled':'')+'>Next →</button></div><div class="zen-stat-grid"><div class="zen-stat"><strong>'+Math.round(calories)+'</strong><span>kcal logged</span></div><div class="zen-stat"><strong>'+(Math.round(protein*10)/10)+'</strong><span>g protein</span></div><div class="zen-stat"><strong>'+Math.round(water)+'</strong><span>ml water</span></div></div><p class="zen-muted" style="margin:10px 0">Daily totals are shared. '+(cg&&pg?'LifeOS goals: '+cg+' kcal and '+pg+' g protein.':'You can keep your current LifeOS goals or set them there.')+'</p><div class="zen-divider"></div><div class="zen-eyebrow">Quick add · approximate values</div><div class="zen-row" style="margin-top:8px;gap:6px">'+quick.map(function(q,i){return '<button class="zen-btn subtle" data-zen-action="food-quick" data-index="'+i+'">'+ez(q[0])+'</button>'}).join('')+'</div><div class="zen-card" id="zenFoodFormCard"><div class="zen-eyebrow">'+(zenFoodEditingId?'Edit food log':'Add food')+'</div><div class="zen-row" style="margin-top:10px"><label class="zen-field">Food name<input id="zenFoodName" placeholder="Food or meal" value="'+ez(zenFoodForm.name)+'"></label><label class="zen-field" style="max-width:110px">Portion<input id="zenFoodPortion" placeholder="1 serving" value="'+ez(zenFoodForm.portion)+'"></label></div><div class="zen-row" style="margin-top:8px"><label class="zen-field">Calories (kcal)<input id="zenFoodCalories" type="number" min="0" step="any" placeholder="Check estimate" value="'+ez(zenFoodForm.cal)+'"></label><label class="zen-field">Protein (g)<input id="zenFoodProtein" type="number" min="0" step="any" placeholder="If known" value="'+ez(zenFoodForm.pro)+'"></label></div><div class="zen-row" style="margin-top:10px"><button class="zen-btn primary" data-zen-action="food-save">'+(zenFoodEditingId?'Save changes':'Save food')+'</button><button class="zen-btn subtle" data-zen-action="food-clear">Clear</button></div><p class="zen-muted" id="zenFoodStatus">Check the portion and estimates before saving.</p></div><div class="zen-divider"></div><div class="zen-row"><strong style="font-size:13px">Food logged</strong><span class="zen-spacer"></span><span class="zen-muted">'+food.length+' entries</span></div><div class="zen-list" style="margin-top:8px">'+(foodRows||'<p class="zen-muted">Nothing logged for this date.</p>')+'</div><div class="zen-divider"></div><div class="zen-row"><strong style="font-size:13px">Hydration</strong><span class="zen-spacer"></span><strong style="font-size:13px">'+Math.round(water)+' ml</strong></div><div class="zen-row" style="margin-top:10px"><button class="zen-btn" data-zen-action="water-add" data-ml="250">+250 ml</button><button class="zen-btn" data-zen-action="water-add" data-ml="500">+500 ml</button><button class="zen-btn subtle" data-zen-action="water-custom">Custom amount</button></div><p class="zen-muted" style="margin-top:8px">LifeOS currently stores water as a daily total rather than separate drink entries, so both interfaces share that total.</p>';
+}
+let zenFoodEditingId='',zenFoodForm={name:'',portion:'1 serving',cal:'',pro:''};
+function zenAttachNutritionInputs(){['zenFoodName','zenFoodPortion','zenFoodCalories','zenFoodProtein'].forEach(function(id){const el=$z('#'+id);if(el)el.addEventListener('input',function(){const k={'zenFoodName':'name','zenFoodPortion':'portion','zenFoodCalories':'cal','zenFoodProtein':'pro'}[id];zenFoodForm[k]=el.value})})}
+function zenReadLifeOS(){try{const raw=localStorage.getItem(LIFE_KEY);if(!raw)return null;const d=JSON.parse(raw);if(!d||typeof d!=='object'||Array.isArray(d))return null;return d}catch(e){return null}}
+function zenUpdateLifeOS(updater){const d=zenReadLifeOS();if(!d)throw new Error('LifeOS has not been set up in this browser');updater(d);try{localStorage.setItem(LIFE_KEY,JSON.stringify(d));return d}catch(e){throw new Error('LifeOS storage is unavailable')}}
+function zenFoodClear(){zenFoodEditingId='';zenFoodForm={name:'',portion:'1 serving',cal:'',pro:''};if(zenBranch==='nutrition')zenRenderPanel('nutrition')}
+function zenFoodEdit(id){const d=zenReadLifeOS(),list=d&&d.food&&d.food[zenSelectedDate]||[],f=list.find(function(x){return String(x.id||'')===String(id)});if(!f){zenToastShow('Food entry not found. Refreshing shared data.');zenRenderPanel('nutrition');return}zenFoodEditingId=id;zenFoodForm={name:f.n||'',portion:f.z||'1 serving',cal:String(f.cal??''),pro:String(f.pro??'')};zenRenderPanel('nutrition')}
+function zenFoodSave(){const name=zenFoodForm.name.trim(),portion=zenFoodForm.portion.trim()||'1 serving',cal=Number(zenFoodForm.cal),pro=Number(zenFoodForm.pro);if(!name||zenFoodForm.cal===''||!Number.isFinite(cal)||cal<0||zenFoodForm.pro===''||!Number.isFinite(pro)||pro<0){zenToastShow('Enter the food name, calories and protein estimate, or 0 if unknown.');return false}try{zenUpdateLifeOS(function(d){d.food=d.food||{};d.food[zenSelectedDate]=Array.isArray(d.food[zenSelectedDate])?d.food[zenSelectedDate]:[];if(zenFoodEditingId){const i=d.food[zenSelectedDate].findIndex(function(x){return String(x.id||'')===String(zenFoodEditingId)});if(i>=0)d.food[zenSelectedDate][i]={...d.food[zenSelectedDate][i],n:name,z:portion,q:1,cal:Math.round(cal),pro:Math.round(pro*10)/10};else d.food[zenSelectedDate].push({id:zuid(),n:name,z:portion,q:1,cal:Math.round(cal),pro:Math.round(pro*10)/10})}else d.food[zenSelectedDate].push({id:zuid(),n:name,z:portion,q:1,cal:Math.round(cal),pro:Math.round(pro*10)/10})});zenFoodClear();zenToastShow('Saved to shared LifeOS nutrition.');return true}catch(e){zenToastShow(e.message);return false}}
+function zenFoodDelete(id){zenShowDialog('Delete food entry?','This removes the selected food from the shared LifeOS log for '+ez(zenSelectedDate)+'.','<button class="zen-btn danger" data-zen-action="food-delete-confirm" data-id="'+ez(id)+'">Delete</button><button class="zen-btn subtle" data-zen-action="dialog-close">Cancel</button>')}
+function zenWaterAdd(amount){const n=Number(amount);if(!(n>0&&n<=5000)){zenToastShow('Enter a water amount between 1 and 5000 ml.');return}try{zenUpdateLifeOS(function(d){d.water=d.water||{};d.water[zenSelectedDate]=Math.max(0,Number(d.water[zenSelectedDate])||0)+Math.round(n)});zenRenderPanel('nutrition');zenToastShow('Water total updated in LifeOS.')}catch(e){zenToastShow(e.message)}}
+function zenJournalOnInput(){clearTimeout(zenJournalSaveTimer);const status=$z('#zenJournalSaveStatus');if(status)status.textContent='Saving…';zenJournalSaveTimer=setTimeout(function(){const field=$z('#zenJournalText');if(!field)return;const text=field.value;if(!text.trim()&&!zenJournalId){if(status)status.textContent='Nothing to save yet';return}let entry=zenData.journal.find(function(e){return e.id===zenJournalId});if(!entry){entry={id:zuid(),date:zday(),updated:new Date().toISOString(),text:''};zenJournalId=entry.id;zenData.journal.unshift(entry)}entry.text=text;entry.updated=new Date().toISOString();entry.date=entry.date||zday();zenSave();if(status)status.textContent='Saved locally'},360)}
+function zenJournalNew(){clearTimeout(zenJournalSaveTimer);zenJournalId='';zenRenderPanel('journal');const f=$z('#zenJournalText');if(f)f.focus()}
+function zenJournalSelect(id){clearTimeout(zenJournalSaveTimer);zenJournalId=id;zenRenderPanel('journal');const f=$z('#zenJournalText');if(f)f.focus()}
+function zenJournalDelete(){if(!zenJournalId){zenToastShow('Choose an entry to delete first.');return}zenShowDialog('Delete journal entry?','This entry will be removed from this browser. This cannot be undone unless you have a backup.','<button class="zen-btn danger" data-zen-action="journal-delete-confirm">Delete entry</button><button class="zen-btn subtle" data-zen-action="dialog-close">Cancel</button>')}
+function zenExport(){const life=zenReadLifeOS();const payload={format:'jarvis-zen-backup-v1',exportedAt:new Date().toISOString(),zen:zenData,lifeosNutrition:life?{food:life.food||{},water:life.water||{},wt:life.wt,cg:life.cg,pg:life.pg}:null};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='jarvis-zen-backup-'+zday()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000);zenToastShow('Zen backup exported to this device.')}
+function zenImportChosen(file){if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(String(reader.result||''));if(!data||data.format!=='jarvis-zen-backup-v1'||!data.zen||!Array.isArray(data.zen.journal)||!data.zen.preferences)throw new Error('This does not look like a Zen backup.');zenPendingImport=data;zenShowDialog('Import Zen backup?','This restores your Zen journal and preferences. If nutrition data is present, it replaces the shared LifeOS food and water logs, while leaving the rest of LifeOS unchanged. Make sure this is the backup you want.','<button class="zen-btn primary" data-zen-action="import-confirm">Import backup</button><button class="zen-btn subtle" data-zen-action="dialog-close">Cancel</button>')}catch(e){zenToastShow(e.message||'The backup file could not be read.')}};reader.readAsText(file)}
+function zenConfirmImport(){if(!zenPendingImport)return;const d=zenPendingImport;zenData=d.zen;zenData.version=1;zenJournalId='';zenSave();if(d.lifeosNutrition){try{zenUpdateLifeOS(function(l){l.food=d.lifeosNutrition.food||{};l.water=d.lifeosNutrition.water||{};if(Number.isFinite(Number(d.lifeosNutrition.wt)))l.wt=d.lifeosNutrition.wt;if(Number.isFinite(Number(d.lifeosNutrition.cg)))l.cg=d.lifeosNutrition.cg;if(Number.isFinite(Number(d.lifeosNutrition.pg)))l.pg=d.lifeosNutrition.pg})}catch(e){zenToastShow('Zen backup imported, but LifeOS nutrition could not be restored: '+e.message);zenHideDialog();return}}zenHideDialog();zenRenderPanel(zenBranch||'journal');zenToastShow('Backup imported.')}
+function zenHandleAction(action,el){
+ if(action==='exit'){zenExit();return}if(action==='exit-keep'){zenDoExit(false);return}if(action==='exit-stop'){zenDoExit(true);return}if(action==='exit-cancel'||action==='dialog-close'){zenHideDialog();return}if(action==='backup'){$z('#zenImportFile').click();return}if(action==='import-confirm'){zenConfirmImport();return}if(action==='panel-close'){zenClosePanel();return}if(action==='open-lifeos'){try{setView('lifeos')}catch(e){}return}
+ if(action==='spotify-save'){let link=$z('#zenSpotifyLink').value.trim();if(!/^https:\/\/open\.spotify\.com\//i.test(link))link='https://open.spotify.com/';zenData.preferences.spotifyLink=link;zenSave();zenToastShow('Spotify link saved on this device.');zenRenderPanel('music');return}if(action==='spotify-open'){zenOpenSpotify();return}
+ if(action==='breathe-start'){zenStartBreathing(Number($z('#zenBreathDuration').value)||3);zenToastShow('Breathing rhythm started.');return}if(action==='breathe-stop'){zenStopBreathing();const cue=$z('#zenBreathCue');if(cue)cue.textContent='Paused — breathe naturally';const remain=$z('#zenBreathRemaining');if(remain)remain.textContent='—';return}
+ if(action==='journal-new'){zenJournalNew();return}if(action==='journal-select'){zenJournalSelect(el.dataset.id);return}if(action==='journal-delete'){zenJournalDelete();return}if(action==='journal-delete-confirm'){zenData.journal=zenData.journal.filter(function(e){return e.id!==zenJournalId});zenJournalId='';zenSave();zenHideDialog();zenRenderPanel('journal');zenToastShow('Entry deleted.');return}
+ if(action==='sound-toggle'){const key=el.dataset.sound;if(zenSoundOn[key])zenStopSound(key,900);else zenStartSound(key);setTimeout(function(){if(zenBranch==='ambient')zenRenderPanel('ambient')},250);return}
+ if(action==='preset-save'){const name=($z('#zenPresetName').value||'').trim();if(!name){zenToastShow('Give your mix a name first.');return}zenData.preferences.presets.push({id:zuid(),name:name,volumes:{...zenData.preferences.volumes},selected:Object.keys(zenSoundOn).filter(function(k){return zenSoundOn[k]})});zenSave();zenRenderPanel('ambient');zenToastShow('Favourite mix saved.');return}
+ if(action==='preset-load'){const p=zenData.preferences.presets[Number(el.dataset.index)];if(!p)return;Object.assign(zenData.preferences.volumes,p.volumes||{});zenData.preferences.lastMix=Array.isArray(p.selected)?p.selected:[];Object.keys(zenSounds).forEach(function(k){if(zenSoundOn[k]&&!zenData.preferences.lastMix.includes(k))zenStopSound(k,700)});zenData.preferences.lastMix.forEach(function(k){if(zenSounds[k]&&!zenSoundOn[k])zenStartSound(k)});zenSave();zenRenderPanel('ambient');return}if(action==='preset-delete'){zenData.preferences.presets.splice(Number(el.dataset.index),1);zenSave();zenRenderPanel('ambient');return}
+ if(action==='timer-start'){const m=Number($z('#zenTimerDuration').value)||10;zenTimerStart(m,$z('#zenTimerWithBreathing').checked,$z('#zenTimerWithAmbient').checked);zenToastShow('Quiet timer started.');return}if(action==='timer-stop'){zenTimerStop();zenRenderPanel('timer');zenToastShow('Quiet timer stopped.');return}
+ if(action==='food-quick'){const list=[['Egg (large)',72,6,'1 egg'],['Banana',105,1.3,'1 banana'],['Cereal',150,3,'1 serving'],['Bread / toast',80,3,'1 slice'],['Milk (250 ml)',120,8,'250 ml'],['Apple',95,.5,'1 apple']];const q=list[Number(el.dataset.index)];if(q){zenFoodEditingId='';zenFoodForm={name:q[0],portion:q[3],cal:String(q[1]),pro:String(q[2])};if(zenFoodSave())zenRenderPanel('nutrition')}return}
+ if(action==='food-save'){if(zenFoodSave())zenRenderPanel('nutrition');return}if(action==='food-clear'){zenFoodClear();return}if(action==='food-edit'){zenFoodEdit(el.dataset.id);return}if(action==='food-delete'){zenFoodDelete(el.dataset.id);return}
+ if(action==='food-delete-confirm'){try{zenUpdateLifeOS(function(d){const list=(d.food&&d.food[zenSelectedDate])||[];d.food[zenSelectedDate]=list.filter(function(f){return String(f.id||'')!==String(el.dataset.id)})});zenHideDialog();zenRenderPanel('nutrition');zenToastShow('Food removed from shared LifeOS nutrition.')}catch(e){zenToastShow(e.message)}return}
+ if(action==='nutrition-day'){const d=new Date(zenSelectedDate+'T12:00:00');d.setDate(d.getDate()+Number(el.dataset.delta||0));if(zday(d)>zday())return;zenSelectedDate=zday(d);zenFoodClear();zenRenderPanel('nutrition');return}
+ if(action==='water-add'){zenWaterAdd(el.dataset.ml);return}
+ if(action==='water-custom'){zenShowDialog('Log water','Enter the amount in millilitres.','<label class="zen-field">Water (ml)<input class="zen-input" id="zenWaterAmount" type="number" min="1" max="5000" step="1" placeholder="300"></label><div class="zen-row" style="margin-top:14px"><button class="zen-btn primary" data-zen-action="water-custom-confirm">Add water</button><button class="zen-btn subtle" data-zen-action="dialog-close">Cancel</button></div>');return}
+ if(action==='water-custom-confirm'){const n=$z('#zenWaterAmount').value;zenHideDialog();zenWaterAdd(n);return}
+ if(action==='food-voice-confirm'){zenConfirmPendingFoods();return}if(action==='food-voice-cancel'){zenPendingFoods=null;zenRenderPanel('nutrition');zenToastShow('Food entry cancelled. Nothing was saved.');return}
+}
+function zenNormalizeVoice(t){return String(t||'').trim().replace(/^\s*(?:hey[\s,]+)?jarvis[\s,:-]*/i,'').replace(/[.!?]+$/,'').trim()}
+function zenParseAmount(text){const m=text.match(/\b(\d+(?:\.\d+)?)\s*(ml|millilitres?|milliliters?|litres?|liters?|l)\b/i);if(!m)return null;let amount=Number(m[1]);if(/^(l|litre|liter)/i.test(m[2]))amount*=1000;return Number.isFinite(amount)&&amount>0&&amount<=5000?Math.round(amount):null}
+function zenParseFood(text){
+ const prefix=text.replace(/^\s*(?:i\s+(?:just\s+)?(?:had|ate|drank)|i've\s+had|i have had|log food|add food|record food)\s*/i,'').trim(),defs=[
+  {re:/\b(?:eggs?|egg)\b/i,name:'Egg (large)',cal:72,pro:6,unit:'egg'},
+  {re:/\b(?:toast|bread)\b/i,name:'Bread / toast',cal:80,pro:3,unit:'slice'},
+  {re:/\bcereal\b/i,name:'Cereal',cal:150,pro:3,unit:'serving'},
+  {re:/\bmilk\b/i,name:'Milk (250 ml)',cal:120,pro:8,unit:'250 ml'},
+  {re:/\bbananas?\b/i,name:'Banana',cal:105,pro:1.3,unit:'banana'},
+  {re:/\bapples?\b/i,name:'Apple',cal:95,pro:.5,unit:'apple'},
+  {re:/\bpizza\b/i,name:'Pizza',cal:285,pro:12,unit:'slice'},
+  {re:/\b(?:yogurt|yoghurt)\b/i,name:'Yogurt',cal:150,pro:6,unit:'container'},
+  {re:/\bchicken sandwich\b/i,name:'Chicken sandwich',cal:380,pro:30,unit:'1 sandwich'},
+  {re:/\brice\b/i,name:'Cooked rice',cal:205,pro:4,unit:'cup'}
+ ];
+ const output=[];
+ defs.forEach(function(d){const match=prefix.match(d.re);if(!match)return;const before=prefix.slice(0,match.index+match[0].length).slice(-30),qm=before.match(/\b(\d+|one|two|three|four|five|six)\s+(?:large\s+)?(?:of\s+)?$/i),words={one:1,two:2,three:3,four:4,five:5,six:6},qty=qm?(Number(qm[1])||words[String(qm[1]).toLowerCase()]||1):1;output.push({name:d.name,portion:qty+' '+d.unit,cal:Math.round(d.cal*qty),pro:Math.round(d.pro*qty*10)/10,source:'approximate'})});
+ if(!output.length)output.push({name:prefix||text,portion:'1 serving',cal:'',pro:'',source:'needs estimate'});return output;
+}
+function zenConfirmPendingFoods(){if(!Array.isArray(zenPendingFoods)||!zenPendingFoods.length)return;const rows=zenPanel.querySelectorAll('[data-pending-index]');rows.forEach(function(row){const i=Number(row.dataset.pendingIndex),f=zenPendingFoods[i];if(!f)return;const n=$z('[data-pending-name]',row),c=$z('[data-pending-cal]',row),p=$z('[data-pending-pro]',row);if(n)f.name=n.value;if(c)f.cal=c.value;if(p)f.pro=p.value});if(zenPendingFoods.some(function(f){return !String(f.name||'').trim()||f.cal===''||!Number.isFinite(Number(f.cal))||Number(f.cal)<0||f.pro===''||!Number.isFinite(Number(f.pro))||Number(f.pro)<0})){zenToastShow('Check each food name, calorie estimate and protein amount before confirming.');return}try{zenUpdateLifeOS(function(d){d.food=d.food||{};d.food[zenSelectedDate]=Array.isArray(d.food[zenSelectedDate])?d.food[zenSelectedDate]:[];zenPendingFoods.forEach(function(f){d.food[zenSelectedDate].push({id:zuid(),n:String(f.name).trim(),z:f.portion||'1 serving',q:1,cal:Math.round(Number(f.cal)),pro:Math.round(Number(f.pro)*10)/10})})});zenPendingFoods=null;zenFoodClear();zenRenderPanel('nutrition');zenToastShow('Voice food entry confirmed and saved to LifeOS.')}catch(e){zenToastShow(e.message)}}
+async function zenHandleCommand(raw,respond){
+ const t=zenNormalizeVoice(raw),q=t.toLowerCase();
+ if(/^(?:confirm|save the food|confirm food|yes save it|save it)$/i.test(q)&&zenPendingFoods){zenConfirmPendingFoods();await respond('I have processed the food confirmation. Check the screen for any missing information.');return true}
+ if(/^(?:cancel|cancel food|discard food|no dont save|no don't save)$/i.test(q)&&zenPendingFoods){zenPendingFoods=null;zenRenderPanel('nutrition');await respond('Food entry cancelled. Nothing was saved.');return true}
+ if(/^(keep audio|keep it playing|keep playing|stop audio|stop sounds|stop zen audio|cancel|stay here)$/i.test(q)&&zenExitPending){if(/^keep|^keep it|^stay/i.test(q)){zenDoExit(false);await respond('Leaving Zen. Ambient sounds will keep playing.')}else if(/^stop/i.test(q)){zenDoExit(true);await respond('Leaving Zen. Zen audio is fading out. Spotify playback must be stopped in Spotify itself.')}else{zenExitPending=false;zenHideDialog();await respond('Staying in Zen.')}return true}
+ if(/^(?:enter|open|start|activate|switch to|go to)\s+(?:zen|zen mode|spirit tree|the spirit tree)$/.test(q)||/\b(?:enter|open|activate)\s+zen(?:\s+mode)?\b/.test(q)){zenOpenMode();await respond('Welcome to Zen. The Spirit Tree is ready.');return true}
+ if(/^(?:leave|exit|close|quit)\s+(?:zen|zen mode|the spirit tree)$/.test(q)||/^(?:back to jarvis|return to jarvis)$/.test(q)){zenExit();await respond(zenHasAudio()||zenSpotifyOpened?'Would you like me to keep the ambient sounds playing or fade them out?':'Returning to JARVIS.');return true}
+ if(/\b(?:log|add|record)\s+(?:\d+(?:\.\d+)?\s*(?:ml|millilitres?|milliliters?|litres?|liters?|l)\s+(?:of\s+)?water|water\s+\d+(?:\.\d+)?\s*(?:ml|millilitres?|milliliters?|litres?|liters?|l))\b/i.test(t)||/\bi drank \d+(?:\.\d+)?\s*(?:ml|millilitres?|milliliters?|litres?|liters?|l)\b/i.test(t)){const amount=zenParseAmount(t);if(amount){zenOpenBranch('nutrition');zenWaterAdd(amount);await respond('I understood '+amount+' millilitres of water and updated your shared LifeOS total. You can correct the total in Zen Nutrition.');return true}}
+ if(/\b(?:i\s+(?:just\s+)?(?:had|ate)|i've\s+had|i have had|log food|add food|record food)\b/i.test(t)&&!/\b(?:water|protein shake)\b/i.test(t)){zenPendingFoods=zenParseFood(t);zenOpenBranch('nutrition');zenRenderPanel('nutrition');await respond('I prepared a food entry for you to review. Check the items and estimates on screen, then confirm them before I save anything.');return true}
+ if(/\b(?:how much|what(?:'s| is)?|show|check).*(?:protein|calories|nutrition|water)|\b(?:today's nutrition|nutrition today|food log|hydration total)\b/i.test(q)){zenOpenBranch('nutrition');const d=zenReadLifeOS(),f=d&&d.food&&d.food[zday()]||[],c=f.reduce(function(s,x){return s+(Number(x.cal)||0)},0),p=f.reduce(function(s,x){return s+(Number(x.pro)||0)},0),w=d&&d.water?Number(d.water[zday()])||0:0;await respond(d?'Today you have logged about '+Math.round(c)+' kilocalories, '+(Math.round(p*10)/10)+' grams of protein and '+Math.round(w)+' millilitres of water. These are estimates and totals, not limits.':'Open LifeOS and finish setup first; Zen will then use its shared nutrition data.');return true}
+ if(/\b(?:open|show|go to|start)\s+(?:my\s+)?journal\b/i.test(q)){zenOpenBranch('journal');await respond('Your private journal is open. Entries autosave in this browser.');return true}
+ if(/\b(?:start|begin|do|open)\s+(?:a\s+)?(?:breathing|breathe|breath)\b|\bbreathe with the tree\b/i.test(q)){zenOpenBranch('breathe');zenStartBreathing(3);await respond('The tree is breathing with you. There are no holds; stop whenever you need to.');return true}
+ if(/\b(?:stop|end|pause)\s+(?:breathing|breathe|breath)\b/i.test(q)){zenStopBreathing();if(zenOpen)zenRenderPanel('breathe');await respond('Breathing session stopped. Take a natural breath at your own pace.');return true}
+ if(/\b(?:play|start|turn on)\s+(?:the\s+)?(?:rain|forest|water|ambient|ambience|ambient sounds|nature sounds)\b/i.test(q)){zenOpenBranch('ambient');const key=/\brain\b/i.test(q)?'rain':/\bforest\b/i.test(q)?'forest':/\bwater\b/i.test(q)?'water':null;if(key){const ok=await zenStartSound(key);await respond(ok?'The '+zenSounds[key].name.toLowerCase()+' recording is playing.':'The sound panel is open; tap Play if the browser blocks voice-started audio.')}else await respond('The ambient sound mixer is open. Choose any mix you like.');return true}
+ if(/\b(?:stop|turn off|pause)\s+(?:the\s+)?(?:rain|forest|water|ambient|ambience|ambient sounds|nature sounds)\b/i.test(q)){const key=/\brain\b/i.test(q)?'rain':/\bforest\b/i.test(q)?'forest':/\bwater\b/i.test(q)?'water':null;if(key)zenStopSound(key,1000);else zenStopAmbient(1000);await respond('The selected ambient sound is fading out.');return true}
+ if(/\b(?:open|show|go to|start)\s+(?:my\s+)?(?:nutrition|food log|hydration)\b/i.test(q)||/^(?:log water|add water|add a food|log food)$/.test(q)){zenOpenBranch('nutrition');await respond('Your shared LifeOS Nutrition panel is open.');return true}
+ if(/\b(?:open|start|play)\s+(?:my\s+)?(?:music|spotify|playlist)\b/i.test(q)){zenOpenBranch('music');await respond('The Music branch is open. Tap Open Spotify to launch your saved playlist or Spotify.');return true}
+ if(/\b(?:start|begin)\s+(?:a\s+)?quiet timer\b|\bquiet timer\b/i.test(q)){zenOpenBranch('timer');await respond('The Quiet Timer is open. Choose a duration and start when ready.');return true}
+ if(/^(?:keep audio|keep it playing|continue audio)$/i.test(q)&&zenHasAudio()){await respond('Keeping your Zen ambient sounds playing.');return true}
+ if(/^(?:stop audio|stop all sounds|stop zen audio)$/i.test(q)){zenStopAmbient(1000);await respond('Zen ambient sounds are fading out. Spotify playback is controlled in Spotify.');return true}
+ return false;
+}
+window.zenHandleCommand=zenHandleCommand;
+zenLaunch.addEventListener('click',zenOpenMode);
+zenRoot.addEventListener('click',function(e){const branchButton=e.target.closest('[data-branch]');if(branchButton){zenOpenBranch(branchButton.dataset.branch);return}const actionButton=e.target.closest('[data-zen-action]');if(actionButton){zenHandleAction(actionButton.dataset.zenAction,actionButton);return}});
+zenRoot.addEventListener('input',function(e){const key=e.target.dataset.zenVolume;if(key&&zenSounds[key]){const v=Math.max(0,Math.min(1,Number(e.target.value)));zenData.preferences.volumes[key]=v;if(zenPlayers[key]&&!zenPlayers[key].paused)zenPlayers[key].volume=v;zenSave()}const row=e.target.closest('[data-pending-index]');if(row&&zenPendingFoods){const i=Number(row.dataset.pendingIndex),f=zenPendingFoods[i];if(f){if(e.target.dataset.pendingName!==undefined)f.name=e.target.value;if(e.target.dataset.pendingCal!==undefined)f.cal=e.target.value;if(e.target.dataset.pendingPro!==undefined)f.pro=e.target.value}}});
+zenRoot.addEventListener('change',function(e){if(e.target.id==='zenImportFile'){zenImportChosen(e.target.files&&e.target.files[0]);e.target.value=''}});
+zenRoot.addEventListener('click',function(e){if(e.target===zenModalHost){zenHideDialog()}});
+window.addEventListener('storage',function(e){if(e.key===LIFE_KEY&&zenIsActive()&&zenBranch==='nutrition')zenRenderPanel('nutrition')});
+document.addEventListener('visibilitychange',function(){if(!document.hidden){zenUpdateRingState();if(zenIsActive()&&zenBranch==='nutrition')zenRenderPanel('nutrition')}});
+function zenInitCanvas(canvas){if(!canvas)return;if(canvas.__zenInit){canvas.__zenStart();return}const ctx=canvas.getContext('2d');if(!ctx)return;let w=0,h=0,dpr=1,pts=[],running=false;const resize=function(){const r=canvas.getBoundingClientRect();w=Math.max(1,r.width);h=Math.max(1,r.height);dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);pts=Array.from({length:canvas.id==='zenTreeParticles'?150:80},function(){return{x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+.25,phase:Math.random()*Math.PI*2,speed:Math.random()*.16+.025,fall:Math.random()*.22+.04,colour:Math.random()<.08?'gold':Math.random()<.14?'cyan':'green',alpha:Math.random()*.34+.1}})};resize();if(typeof ResizeObserver==='function'){const ro=new ResizeObserver(resize);ro.observe(canvas)}else window.addEventListener('resize',resize);const draw=function(){if(!zenRoot||zenRoot.hidden){running=false;return}if(!document.hidden){ctx.clearRect(0,0,w,h);const t=performance.now()*.001;for(let i=0;i<pts.length;i++){const p=pts[i];if(canvas.id==='zenTreeParticles'){p.y-=p.speed*.12;p.x+=Math.sin(t*.5+p.phase)*.08;if(p.y<0){p.y=h;p.x=Math.random()*w}}else{p.y+=p.fall*.5;p.x+=Math.sin(t*.35+p.phase)*.08;if(p.y>h){p.y=-3;p.x=Math.random()*w}}const alpha=p.alpha*(.65+.35*Math.sin(t*.7+p.phase));ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.colour==='gold'?'rgba(213,196,128,'+alpha+')':p.colour==='cyan'?'rgba(114,198,192,'+alpha+')':'rgba(116,185,123,'+alpha+')';ctx.fill()}}if(running)requestAnimationFrame(draw)};canvas.__zenStart=function(){if(running)return;running=true;requestAnimationFrame(draw)};canvas.__zenInit=true;canvas.__zenStart()}
+function zenInitCanvases(){zenInitCanvas($z('#zenTreeParticles'));zenInitCanvas($z('#zenParticles'))}
+setInterval(zenUpdateRingState,250);
+})();
+
 </script></body></html>
