@@ -423,16 +423,20 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 @keyframes zenLeafPulse{from{opacity:.58;filter:brightness(.85) drop-shadow(0 0 2px rgba(128,255,169,.24))}to{opacity:1;filter:brightness(1.5) drop-shadow(0 0 7px rgba(128,255,169,.7))}}
 @keyframes zenStars{from{opacity:.4}to{opacity:1}}
 @keyframes zenTreeBreath{0%,100%{transform:scale(.985);filter:brightness(.94) saturate(.98) drop-shadow(0 0 10px rgba(90,232,167,.14))}50%{transform:scale(1.025);filter:brightness(1.16) saturate(1.12) drop-shadow(0 0 23px rgba(90,232,167,.24))}}
-.zen-wave-field{position:absolute;z-index:0;left:50%;top:48%;width:min(78%,590px);aspect-ratio:1/1;transform:translate(-50%,-50%);pointer-events:none;display:grid;place-items:center;opacity:.58}
-.zen-wave-field span{position:absolute;width:56%;height:56%;border:1px solid rgba(98,237,208,.42);border-radius:50%;box-shadow:0 0 18px rgba(72,218,207,.07),inset 0 0 14px rgba(92,222,199,.035);opacity:.35;transform:scale(.8)}
-.zen-wave-field span:nth-child(2){border-color:rgba(130,171,255,.38);width:70%;height:70%}
-.zen-wave-field span:nth-child(3){border-color:rgba(238,210,128,.3);width:84%;height:84%}
-#zenRoot.zen-soundwaves-live .zen-wave-field span{animation:zenSoundWave 4.2s ease-out infinite;opacity:.72}
+.zen-wave-field{position:absolute;z-index:0;left:50%;top:48%;width:min(78%,590px);aspect-ratio:1/1;transform:translate(-50%,-50%);pointer-events:none;display:grid;place-items:center;opacity:.72}
+.zen-wave-field span{position:absolute;width:56%;height:56%;border:1px solid rgba(98,237,208,.55);border-radius:50%;box-shadow:0 0 18px rgba(72,218,207,.1),inset 0 0 14px rgba(92,222,199,.05);opacity:.52;transform:scale(.8)}
+.zen-wave-field span:nth-child(2){border-color:rgba(130,171,255,.5);width:70%;height:70%}
+.zen-wave-field span:nth-child(3){border-color:rgba(174,151,255,.42);width:84%;height:84%}
+#zenRoot.zen-soundwaves-live .zen-wave-field span{animation:zenSoundWave 4.2s ease-out infinite;opacity:.78}
 #zenRoot.zen-soundwaves-live .zen-wave-field span:nth-child(2){animation-delay:1.4s}
 #zenRoot.zen-soundwaves-live .zen-wave-field span:nth-child(3){animation-delay:2.8s}
-@keyframes zenSoundWave{0%{transform:scale(.72);opacity:.68}100%{transform:scale(1.16);opacity:0}}
+@keyframes zenSoundWave{0%{transform:scale(.72);opacity:.78}100%{transform:scale(1.16);opacity:.4}}
 .zen-footer{display:flex;align-items:center;justify-content:center;gap:8px;color:#7daea0;letter-spacing:.15em}
 .zen-footer-dot{width:4px;height:4px;border-radius:50%;background:#b8ed9a;box-shadow:0 0 9px #7df1bd}
+.zen-jarvis-mic{flex:0 0 auto;align-self:center;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:0 16px;margin:2px auto 0;border:1px solid rgba(105,205,255,.42);border-radius:999px;background:linear-gradient(135deg,rgba(17,53,78,.82),rgba(20,28,69,.82));color:#c9f2ff;box-shadow:0 0 18px rgba(75,180,255,.12),inset 0 0 14px rgba(90,190,255,.08);font:10px ui-monospace,monospace;letter-spacing:.18em;cursor:pointer;transition:background .2s,border-color .2s,box-shadow .2s,transform .2s}
+.zen-jarvis-mic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.zen-jarvis-mic:active{transform:scale(.96)}.zen-jarvis-mic:hover{border-color:rgba(133,220,255,.8);box-shadow:0 0 24px rgba(75,180,255,.24)}
+#zenRoot.zen-focus .zen-jarvis-mic{opacity:0;pointer-events:none;transition:opacity .3s ease}
 .zen-node{transition:color .24s,filter .24s,transform .24s,background .24s}
 .zen-node .zen-node-icon{width:46px;height:46px;font-size:20px;color:#fff;background:radial-gradient(circle at 35% 25%,rgba(220,255,231,.24),rgba(29,94,79,.55) 36%,rgba(4,20,24,.94) 77%);border-color:rgba(175,255,211,.64);box-shadow:0 0 12px rgba(92,255,181,.25),0 0 28px rgba(76,217,206,.12),inset 0 0 16px rgba(125,255,204,.14);text-shadow:0 0 12px currentColor}
 .zen-node .zen-node-label{font-size:10px;color:#e9fff0;letter-spacing:.08em;text-shadow:0 0 8px rgba(0,0,0,.95),0 0 12px rgba(100,255,189,.3)}
@@ -618,10 +622,7 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
  .zen-back,.zen-small-action{min-height:32px;padding:0 9px;font-size:10px!important}
  .zen-brand strong{font-size:9px;letter-spacing:.24em}
  .zen-brand span{font-size:8px}
- .zen-intro{padding-top:8px}
- .zen-intro h1{font-size:19px}
- .zen-intro p{font-size:10px}
- .zen-tree-stage{width:100%;height:min(64dvh,570px);min-height:340px}
+  .zen-tree-stage{width:100%;height:min(64dvh,570px);min-height:340px}
  .zen-node{width:82px;gap:4px;padding:5px 1px}
  .zen-node .zen-node-icon{width:34px;height:34px;font-size:15px}
  .zen-node .zen-node-label{font-size:8px;letter-spacing:.05em}
@@ -3203,11 +3204,10 @@ addEventListener('pagehide',()=>{
  <div class="zen-shell">
   <header class="zen-head">
    <button class="zen-back" type="button" data-zen-action="exit">← JARVIS</button>
-   <div class="zen-brand"><strong>ZEN</strong><span>SPIRIT TREE</span></div>
+   <div class="zen-brand"><strong>ZEN</strong></div>
    <button class="zen-small-action" type="button" data-zen-action="backup">BACKUP</button>
   </header>
-  <div class="zen-intro"><h1>Find your quiet.</h1><p>Choose a branch. Stay as long as you need.</p></div>
-  <div class="zen-tree-stage" id="zenTreeStage">
+    <div class="zen-tree-stage" id="zenTreeStage">
    <div class="zen-wave-field" aria-hidden="true"><span></span><span></span><span></span></div>
    <canvas id="zenTreeParticles" aria-hidden="true"></canvas>
    <svg class="zen-tree-svg" viewBox="0 0 600 760" preserveAspectRatio="none" role="img" aria-label="A living Spirit Tree with six interactive branches">
@@ -3218,9 +3218,9 @@ addEventListener('pagehide',()=>{
      <radialGradient id="zenTreeGlow"><stop offset="0" stop-color="#9dffc1" stop-opacity=".48"/><stop offset=".36" stop-color="#4bcbab" stop-opacity=".22"/><stop offset=".7" stop-color="#7b7ce8" stop-opacity=".08"/><stop offset="1" stop-color="#244b2c" stop-opacity="0"/></radialGradient>
      <filter id="zenBlur"><feGaussianBlur stdDeviation="20"/></filter>
     </defs>
-    <g class="zen-sacred-halo" aria-hidden="true"><circle cx="300" cy="374" r="235"/><circle cx="300" cy="374" r="216"/><circle cx="300" cy="374" r="192"/><path d="M300 116 L318 178 L382 142 L361 207 L427 211 L382 253 L439 292 L372 302 L391 365 L330 332 L300 395 L270 332 L209 365 L228 302 L161 292 L218 253 L173 211 L239 207 L218 142 L282 178 Z"/><path d="M300 142 C354 204 354 277 300 329 C246 277 246 204 300 142Z M300 416 C354 470 354 536 300 590 C246 536 246 470 300 416Z"/></g>
+    
     <ellipse class="zen-canopy-glow" cx="300" cy="385" rx="200" ry="260"/>
-    <g class="zen-roots"><path class="zen-rootline" d="M299 658 Q251 682 228 716 M303 658 Q347 689 384 714 M293 668 Q267 703 262 728 M310 669 Q332 701 329 730"/></g>
+    
     <g id="zenTreeBranches">
      <path class="zen-trunk" d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/>
      <path class="zen-branch" d="M299 366 C253 341 223 294 183 269 C151 249 129 228 83 224"/>
@@ -3233,12 +3233,6 @@ addEventListener('pagehide',()=>{
      <path class="zen-vein" d="M180 270 Q197 293 210 315 M411 201 Q389 227 378 255 M161 397 Q190 408 211 411 M433 366 Q407 388 385 397 M207 561 Q241 551 262 536 M402 563 Q366 548 345 537 M158 190 Q148 217 158 239 M430 130 Q422 151 435 169 M132 326 Q117 351 132 372 M480 302 Q470 326 480 342 M137 538 Q159 561 183 576 M474 535 Q452 559 448 595"/>
      <g class="zen-leaf-cluster" aria-hidden="true"><path d="M159 237 Q126 205 119 177 Q151 187 159 237Z"/><path d="M172 251 Q184 215 211 205 Q207 236 172 251Z"/><path d="M98 195 Q70 177 66 150 Q91 163 98 195Z"/><path d="M430 169 Q430 132 453 112 Q464 144 430 169Z"/><path d="M446 176 Q477 143 508 147 Q489 176 446 176Z"/><path d="M505 160 Q520 129 549 126 Q536 155 505 160Z"/><path d="M132 372 Q102 348 101 321 Q126 336 132 372Z"/><path d="M119 382 Q87 393 61 375 Q89 361 119 382Z"/><path d="M480 342 Q495 311 523 306 Q510 336 480 342Z"/><path d="M490 355 Q523 340 549 353 Q522 373 490 355Z"/><path d="M183 576 Q148 563 137 538 Q167 544 183 576Z"/><path d="M176 601 Q142 611 119 593 Q146 581 176 601Z"/><path d="M448 595 Q480 575 507 592 Q482 610 448 595Z"/><path d="M458 619 Q489 616 508 638 Q478 645 458 619Z"/><path d="M265 154 Q237 137 238 111 Q263 126 265 154Z"/><path d="M323 116 Q344 91 370 96 Q353 119 323 116Z"/><path d="M284 187 Q263 165 270 143 Q290 160 284 187Z"/><path d="M318 202 Q337 181 360 187 Q345 207 318 202Z"/></g>
      <g class="zen-tree-stars" aria-hidden="true"><circle cx="203" cy="237" r="2.3"/><circle cx="390" cy="181" r="2"/><circle cx="118" cy="335" r="2.2"/><circle cx="478" cy="323" r="2.4"/><circle cx="231" cy="527" r="2"/><circle cx="374" cy="534" r="2.5"/><path d="M300 94v12 M294 100h12 M224 198v8 M220 202h8 M396 273v8 M392 277h8 M150 451v10 M145 456h10 M450 475v10 M445 480h10"/></g>
-    </g>
-     <g class="zen-branch-detail" aria-hidden="true">
-     <path class="zen-fine-twig" d="M300 512 C276 478 265 451 246 431 C229 413 219 391 216 366 M246 431 C225 433 207 426 190 414 M216 366 C198 350 188 331 185 309 M185 309 C166 298 150 282 142 263 M301 438 C324 410 337 382 354 358 C369 338 380 312 381 286 M354 358 C377 354 394 341 408 325 M381 286 C399 269 410 248 412 224 M300 315 C278 293 263 271 257 245 M257 245 C238 235 224 219 217 199 M302 315 C325 292 341 269 346 244 M346 244 C365 229 378 210 382 190 M207 561 C220 575 228 594 229 615 M402 563 C390 580 382 598 381 617"/>
-     <path class="zen-bark-detail" d="M292 681 C306 638 289 600 304 559 C316 524 290 485 303 448 C314 414 291 378 302 342 C312 309 292 274 303 239 C311 207 295 171 304 137 M286 642 Q301 625 313 607 M287 572 Q301 555 315 539 M286 492 Q300 476 314 461 M287 405 Q300 390 314 375 M288 319 Q301 304 314 289 M289 235 Q302 220 315 205"/>
-     <path class="zen-bark-detail" d="M294 548 Q266 540 249 519 M306 548 Q336 535 354 515 M291 453 Q266 447 249 429 M308 453 Q334 442 352 423 M291 365 Q265 357 247 337 M309 365 Q335 354 353 333"/>
-     <circle class="zen-growth-node" cx="246" cy="431" r="2.2"/><circle class="zen-growth-node" cx="354" cy="358" r="2.1"/><circle class="zen-growth-node" cx="257" cy="245" r="1.8"/><circle class="zen-growth-node" cx="346" cy="244" r="1.8"/><circle class="zen-growth-node" cx="229" cy="615" r="1.7"/><circle class="zen-growth-node" cx="381" cy="617" r="1.7"/>
     </g>
     <g class="zen-energy-aura" aria-hidden="true"><path d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/><path d="M299 366 C253 341 223 294 183 269 C151 249 129 228 83 224 M302 315 C351 286 379 233 411 201 C438 174 464 159 504 151 M299 438 C245 423 204 410 163 397 C132 387 105 372 67 372 M300 420 C351 407 390 379 433 366 C474 352 505 351 545 350 M296 512 C263 520 233 544 207 561 C183 576 166 597 136 611 M300 512 C339 525 377 546 402 563 C425 579 448 595 477 610"/><path d="M183 269 C169 239 174 212 158 190 M145 240 C119 235 105 216 98 195 M411 201 C405 172 412 148 430 130 M443 174 C469 182 487 174 505 160 M163 397 C148 371 149 344 132 326 M119 382 C91 386 75 371 59 353 M433 366 C438 336 458 314 480 302 M490 355 C514 333 536 334 555 325 M207 561 C180 550 157 551 137 538 M183 576 C176 605 156 624 134 640 M402 563 C426 545 451 548 474 535 M448 595 C457 619 480 633 503 638 M301 221 C277 200 264 177 265 154 M301 176 C323 153 328 136 323 116"/></g>
     <g class="zen-energy-network" aria-hidden="true">
@@ -3257,7 +3251,7 @@ addEventListener('pagehide',()=>{
    <button class="zen-node" type="button" data-branch="timer" aria-pressed="false" aria-label="Quiet timer branch"><span class="zen-node-icon">◷<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Quiet timer</span></button>
    <button class="zen-node" type="button" data-branch="nutrition" aria-pressed="false" aria-label="Nutrition branch"><span class="zen-node-icon">❋<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Nutrition</span></button>
   </div>
-  <div class="zen-footer"><span class="zen-footer-dot"></span> A QUIET PLACE TO RETURN TO YOURSELF <span class="zen-footer-dot"></span></div>
+  <button class="zen-jarvis-mic" id="zenJarvisMic" type="button" aria-label="Activate JARVIS microphone"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-mic"/></svg><span>JARVIS</span></button>
  </div>
  <div class="zen-panel-host" id="zenPanelHost" hidden><section class="zen-panel" id="zenPanelCard" aria-live="polite"></section></div>
  <div class="zen-modal-host" id="zenModalHost" hidden><section class="zen-dialog" id="zenDialog" role="dialog" aria-modal="true"></section></div>
@@ -3478,7 +3472,7 @@ async function zenHandleCommand(raw,respond){
 }
 window.zenHandleCommand=zenHandleCommand;
 zenLaunch.addEventListener('click',zenOpenMode);
-zenRoot.addEventListener('click',function(e){const branchButton=e.target.closest('[data-branch]');if(branchButton){zenOpenBranch(branchButton.dataset.branch);return}const actionButton=e.target.closest('[data-zen-action]');if(actionButton){zenHandleAction(actionButton.dataset.zenAction,actionButton);return}});
+zenRoot.addEventListener('click',function(e){if(e.target.closest('#zenJarvisMic')){const dashboardMic=document.getElementById('mic');if(dashboardMic)dashboardMic.click();return}const branchButton=e.target.closest('[data-branch]');if(branchButton){zenOpenBranch(branchButton.dataset.branch);return}const actionButton=e.target.closest('[data-zen-action]');if(actionButton){zenHandleAction(actionButton.dataset.zenAction,actionButton);return}});
 zenRoot.addEventListener('input',function(e){const key=e.target.dataset.zenVolume;if(key&&zenSounds[key]){const v=Math.max(0,Math.min(1,Number(e.target.value)));zenData.preferences.volumes[key]=v;if(zenPlayers[key]&&!zenPlayers[key].paused)zenPlayers[key].volume=v;zenSave()}const row=e.target.closest('[data-pending-index]');if(row&&zenPendingFoods){const i=Number(row.dataset.pendingIndex),f=zenPendingFoods[i];if(f){if(e.target.dataset.pendingName!==undefined)f.name=e.target.value;if(e.target.dataset.pendingCal!==undefined)f.cal=e.target.value;if(e.target.dataset.pendingPro!==undefined)f.pro=e.target.value}}});
 zenRoot.addEventListener('change',function(e){if(e.target.id==='zenImportFile'){zenImportChosen(e.target.files&&e.target.files[0]);e.target.value=''}});
 zenRoot.addEventListener('click',function(e){if(e.target===zenModalHost){zenHideDialog();zenExitPending=false}});
