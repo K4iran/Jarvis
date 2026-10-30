@@ -438,22 +438,22 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 .zen-jarvis-mic:active{transform:scale(.96)}.zen-jarvis-mic:hover{border-color:rgba(133,220,255,.8);box-shadow:0 0 24px rgba(75,180,255,.24)}
 /* Zen gets its own miniature thinking orb; the full-size JARVIS orb remains unchanged and is hidden while Zen is open. */
 body.zen-mode-active #core{visibility:hidden!important}
-.zen-mini-orb{position:relative;display:inline-block;flex:0 0 30px;width:30px;height:30px;border-radius:50%;isolation:isolate;overflow:visible;filter:drop-shadow(0 0 7px rgba(76,193,255,.18));animation:zenMiniOrbFloat 4.6s ease-in-out infinite}
-.zen-mini-orb:before{content:"";position:absolute;inset:3px;border:1px solid rgba(110,221,255,.58);border-radius:50%;box-shadow:inset 0 0 8px rgba(76,193,255,.12),0 0 9px rgba(67,177,255,.16);animation:zenMiniOrbRing 8s linear infinite}
-.zen-mini-orb:after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,#fff 0%,#e9fcff 24%,#80e5ff 57%,#348bff 100%);box-shadow:0 0 5px #c9f7ff,0 0 12px rgba(63,187,255,.88),0 0 19px rgba(41,117,255,.36);animation:zenMiniOrbCore 2.8s ease-in-out infinite}
-.zen-mini-orb i{position:absolute;left:50%;top:50%;width:2.5px;height:2.5px;border-radius:50%;background:#dffaff;box-shadow:0 0 5px rgba(117,224,255,.95);transform:translate(-50%,-50%) rotate(0deg) translateX(var(--mini-radius,10px));animation:zenMiniOrbOrbit var(--mini-speed,4.2s) linear infinite;animation-delay:var(--mini-delay,0s)}
-.zen-mini-orb i:nth-child(1){--mini-radius:10px;--mini-speed:4.2s;--mini-delay:-.2s}
-.zen-mini-orb i:nth-child(2){--mini-radius:8px;--mini-speed:3.2s;--mini-delay:-1.4s;width:2px;height:2px;background:#82d9ff}
-.zen-mini-orb i:nth-child(3){--mini-radius:12px;--mini-speed:5.5s;--mini-delay:-2.7s;width:1.8px;height:1.8px}
-.zen-mini-orb i:nth-child(4){--mini-radius:6px;--mini-speed:3.7s;--mini-delay:-2s;background:#fff}
-.zen-mini-orb i:nth-child(5){--mini-radius:11px;--mini-speed:6.1s;--mini-delay:-4.1s;width:1.8px;height:1.8px;background:#69d8ff}
-.zen-mini-orb i:nth-child(6){--mini-radius:7px;--mini-speed:4.8s;--mini-delay:-3s;width:2px;height:2px}
-.zen-mini-orb i:nth-child(7){--mini-radius:13px;--mini-speed:6.8s;--mini-delay:-1.9s;width:1.7px;height:1.7px;background:#a5eeff}
-.zen-mini-orb i:nth-child(8){--mini-radius:9px;--mini-speed:3.8s;--mini-delay:-2.5s;width:1.8px;height:1.8px}
-@keyframes zenMiniOrbOrbit{from{transform:translate(-50%,-50%) rotate(0deg) translateX(var(--mini-radius,10px))}to{transform:translate(-50%,-50%) rotate(360deg) translateX(var(--mini-radius,10px))}}
-@keyframes zenMiniOrbRing{from{transform:rotate(0deg) scale(.96)}50%{transform:rotate(180deg) scale(1.04)}to{transform:rotate(360deg) scale(.96)}}
-@keyframes zenMiniOrbCore{0%,100%{transform:translate(-50%,-50%) scale(.86);filter:brightness(.92)}50%{transform:translate(-50%,-50%) scale(1.16);filter:brightness(1.3)}}
-@keyframes zenMiniOrbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+.zen-mini-orb{position:relative;display:inline-block;flex:0 0 30px;width:30px;height:30px;border:1px solid rgba(110,221,255,.48);border-radius:50%;isolation:isolate;overflow:hidden;background:radial-gradient(circle at 50% 48%,rgba(31,126,194,.42) 0%,rgba(9,48,91,.42) 42%,rgba(3,17,38,.82) 75%,rgba(2,9,22,.94) 100%);box-shadow:inset 0 0 9px rgba(82,197,255,.3),0 0 11px rgba(54,160,255,.24);animation:zenMiniOrbFloat 4.6s ease-in-out infinite}
+.zen-mini-orb:before{content:"";position:absolute;inset:2px;border:1px solid rgba(130,222,255,.2);border-radius:50%;background:radial-gradient(ellipse at 36% 28%,rgba(210,249,255,.22),transparent 35%),radial-gradient(circle at 50% 50%,rgba(73,181,255,.2),transparent 70%);box-shadow:inset 0 0 7px rgba(102,208,255,.2);animation:zenMiniOrbRing 5.5s ease-in-out infinite}
+.zen-mini-orb:after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,#fff 0%,#e9fcff 25%,#80e5ff 58%,#348bff 100%);box-shadow:0 0 5px #c9f7ff,0 0 11px rgba(63,187,255,.9),0 0 17px rgba(41,117,255,.48);animation:zenMiniOrbCore 2.8s ease-in-out infinite}
+.zen-mini-orb i{position:absolute;z-index:1;width:2px;height:2px;border-radius:50%;background:#dffaff;box-shadow:0 0 4px rgba(117,224,255,.9);transform:translate(-50%,-50%);animation:zenMiniOrbParticle 2.6s ease-in-out infinite alternate}
+.zen-mini-orb i:nth-child(1){left:25%;top:35%;animation-delay:-.4s}
+.zen-mini-orb i:nth-child(2){left:72%;top:29%;width:1.6px;height:1.6px;background:#82d9ff;animation-delay:-1.1s}
+.zen-mini-orb i:nth-child(3){left:20%;top:66%;width:1.7px;height:1.7px;animation-delay:-1.8s}
+.zen-mini-orb i:nth-child(4){left:78%;top:67%;width:1.8px;height:1.8px;background:#fff;animation-delay:-.8s}
+.zen-mini-orb i:nth-child(5){left:42%;top:17%;width:1.5px;height:1.5px;background:#69d8ff;animation-delay:-1.5s}
+.zen-mini-orb i:nth-child(6){left:59%;top:83%;width:1.7px;height:1.7px;animation-delay:-2.1s}
+.zen-mini-orb i:nth-child(7){left:84%;top:48%;width:1.5px;height:1.5px;background:#a5eeff;animation-delay:-.2s}
+.zen-mini-orb i:nth-child(8){left:13%;top:49%;width:1.5px;height:1.5px;animation-delay:-1.3s}
+@keyframes zenMiniOrbParticle{from{opacity:.35;filter:brightness(.8)}to{opacity:1;filter:brightness(1.45)}}
+@keyframes zenMiniOrbRing{0%,100%{transform:scale(.97);opacity:.72}50%{transform:scale(1.02);opacity:1}}
+@keyframes zenMiniOrbCore{0%,100%{transform:translate(-50%,-50%) scale(.88);filter:brightness(.92)}50%{transform:translate(-50%,-50%) scale(1.12);filter:brightness(1.3)}}
+@keyframes zenMiniOrbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
 @media(prefers-reduced-motion:reduce){.zen-mini-orb,.zen-mini-orb:before,.zen-mini-orb:after,.zen-mini-orb i{animation:none!important}}
 
 .zen-node{transition:color .24s,filter .24s,transform .24s,background .24s}
