@@ -52,11 +52,15 @@ export function createOrb(canvas, options = {}) {
   const lines = new THREE_NS.LineSegments(lineGeo, lineMat);
   scene.add(lines);
 
-  const electronCount = 3;
+  const electronCount = 10;
   const electronPositions = new Float32Array(electronCount * 3);
   const electronGeo = new THREE_NS.BufferGeometry();
   electronGeo.setAttribute("position", new THREE_NS.BufferAttribute(electronPositions, 3));
-  const electronMat = new THREE_NS.PointsMaterial({ color: 0xeaf8ff, size: 1.25, transparent: true, opacity: 0.95, blending: THREE_NS.AdditiveBlending, depthWrite: false });
+  const electronMat = new THREE_NS.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE_NS.AdditiveBlending,
+    vertexShader: `attribute float size; void main(){ vec4 mvPosition = modelViewMatrix * vec4(position,1.0); gl_PointSize = 5.0 * (80.0 / max(1.0,-mvPosition.z)); gl_Position = projectionMatrix * mvPosition; }`,
+    fragmentShader: `void main(){ vec2 p = gl_PointCoord - vec2(0.5); float d = length(p); float a = 1.0 - smoothstep(0.12,0.5,d); if(a < 0.02) discard; gl_FragColor = vec4(0.88,0.97,1.0,a); }`
+  });
   const electrons = new THREE_NS.Points(electronGeo, electronMat);
   scene.add(electrons);
 
@@ -97,9 +101,9 @@ export function createOrb(canvas, options = {}) {
         const dx = positions[ai] - positions[bj], dy = positions[ai + 1] - positions[bj + 1], dz = positions[ai + 2] - positions[bj + 2];
         // Connections breathe in and out: some links temporarily fade away,
         // then reconnect as the network flows through a slow travelling wave.
-        const phase = t * 0.72 + i * 0.037 + j * 0.019;
+        const phase = t * (target.electrons ? 2.1 : 1.25) + i * 0.037 + j * 0.019;
         const linkWave = Math.sin(phase);
-        const dynamicDistance = linkDistance * (0.84 + 0.16 * Math.sin(t * 0.48 + i * 0.011));
+        const detailBoost = target.electrons ? 1.10 : 1.0;\n        const dynamicDistance = linkDistance * detailBoost * (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
         if (linkWave > -0.30 && dx * dx + dy * dy + dz * dz < dynamicDistance * dynamicDistance) {
           links.push([i, j]);
           if (links.length >= maxLines) break;
@@ -116,7 +120,7 @@ export function createOrb(canvas, options = {}) {
     lineGeo.setDrawRange(0, links.length * 2);
     lineGeo.attributes.position.needsUpdate = true;
     lineGeo.computeBoundingSphere();
-    if (target.electrons && links.length && travellers.length < electronCount && Math.random() < 0.025) {
+    if ((target.electrons || isSpeaking) && links.length && travellers.length < electronCount && Math.random() < (target.electrons ? 0.11 : 0.075)) {
       const pair = links[Math.floor(Math.random() * links.length)];
       travellers.push({ a: pair[0], b: pair[1], t: 0, speed: 0.25 + Math.random() * 0.15 });
     }
@@ -141,7 +145,7 @@ export function createOrb(canvas, options = {}) {
     for (const key of ["radius", "speed", "brightness", "size", "links"]) current[key] += (target[key] - current[key]) * ease;
     pointMat.opacity += (current.brightness * 0.85 - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
-    const networkBreath = 0.78 + 0.22 * (0.5 + 0.5 * Math.sin(t * 0.75));
+    const networkBreath = 0.68 + 0.32 * (0.5 + 0.5 * Math.sin(t * (target.electrons ? 3.4 : 0.75)));
     lineMat.opacity += (current.links * 0.12 * networkBreath - lineMat.opacity) * ease;
     let bass = 0, mids = 0;
     if (analyser && audioData) {
@@ -150,12 +154,12 @@ export function createOrb(canvas, options = {}) {
       for (let i = 8; i < Math.min(24, audioData.length); i++) mids += audioData[i] / 255;
       bass /= 8; mids /= 16;
     }
-    const pulse = target === PROFILES.speaking || current.links > 0.7 ? mids : 0;
+    const isSpeaking = target.speed === PROFILES.speaking.speed && target.radius === PROFILES.speaking.radius;\n    const pulse = isSpeaking || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
       const j = i * 3, p = phases[i], wave = Math.sin(t * (0.55 + speeds[i]) + p);
       const expansion = 1 + 0.115 * Math.sin(t * 0.62) + 0.035 * Math.sin(t * 1.35 + p * 0.35);
       const breathe = expansion * (1 + 0.045 * wave + bass * 0.12 + pulse * 0.08);
-      const drift = current.speed * (0.35 + speeds[i]) * dt * 8;
+      const drift = current.speed * (0.35 + speeds[i]) * dt * (isSpeaking ? 17 : target.electrons ? 12 : 8);
       positions[j] += dirs[j] * drift;
       positions[j + 1] += dirs[j + 1] * drift;
       positions[j + 2] += dirs[j + 2] * drift;
@@ -172,11 +176,11 @@ export function createOrb(canvas, options = {}) {
     lines.rotation.copy(points.rotation);
     electrons.rotation.copy(points.rotation);
 
-    if (frame % 3 === 0) rebuildLinks(t);
+    if (frame % (isSpeaking || target.electrons ? 1 : 3) === 0) rebuildLinks(t);
     for (let k = travellers.length - 1; k >= 0; k--) {
       const e = travellers[k];
       e.t += dt * e.speed;
-      if (e.t >= 1 || !target.electrons) { travellers.splice(k, 1); continue; }
+      if (e.t >= 1 || (!target.electrons && !isSpeaking)) { travellers.splice(k, 1); continue; }
       const a = e.a * 3, b = e.b * 3, o = k * 3;
       electronPositions[o] = positions[a] + (positions[b] - positions[a]) * e.t;
       electronPositions[o + 1] = positions[a + 1] + (positions[b + 1] - positions[a + 1]) * e.t;
