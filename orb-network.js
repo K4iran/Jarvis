@@ -22,6 +22,7 @@ export function createOrb(canvas, options = {}) {
   renderer.setClearColor(0x050508, 1);
 
   const positions = new Float32Array(count * 3);
+  const pointColors = new Float32Array(count * 3);
   const base = new Float32Array(count * 3);
   const phases = new Float32Array(count);
   const speeds = new Float32Array(count);
@@ -34,6 +35,7 @@ export function createOrb(canvas, options = {}) {
     const x = Math.cos(a) * s * r, y = u * r, z = Math.sin(a) * s * r;
     const j = i * 3;
     base[j] = positions[j] = x; base[j + 1] = positions[j + 1] = y; base[j + 2] = positions[j + 2] = z;
+    pointColors[j] = pointColors[j + 1] = pointColors[j + 2] = 1;
     const du = Math.random() * 2 - 1, da = Math.random() * Math.PI * 2, ds = Math.sqrt(1 - du * du);
     dirs[j] = Math.cos(da) * ds; dirs[j + 1] = du; dirs[j + 2] = Math.sin(da) * ds;
     phases[i] = Math.random() * Math.PI * 2;
@@ -41,14 +43,17 @@ export function createOrb(canvas, options = {}) {
   }
   const pointGeo = new THREE_NS.BufferGeometry();
   pointGeo.setAttribute("position", new THREE_NS.BufferAttribute(positions, 3));
-  const pointMat = new THREE_NS.PointsMaterial({ color: 0x76c8ff, size: 0.42, transparent: true, opacity: 0.72, blending: THREE_NS.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
+  pointGeo.setAttribute("color", new THREE_NS.BufferAttribute(pointColors, 3));
+  const pointMat = new THREE_NS.PointsMaterial({ color: 0x76c8ff, vertexColors: true, size: 0.42, transparent: true, opacity: 0.72, blending: THREE_NS.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
   const points = new THREE_NS.Points(pointGeo, pointMat);
   scene.add(points);
 
   const linePositions = new Float32Array(maxLines * 6);
+  const lineColors = new Float32Array(maxLines * 6);
   const lineGeo = new THREE_NS.BufferGeometry();
   lineGeo.setAttribute("position", new THREE_NS.BufferAttribute(linePositions, 3));
-  const lineMat = new THREE_NS.LineBasicMaterial({ color: 0x55baff, transparent: true, opacity: 0.10, blending: THREE_NS.AdditiveBlending, depthWrite: false });
+  lineGeo.setAttribute("color", new THREE_NS.BufferAttribute(lineColors, 3));
+  const lineMat = new THREE_NS.LineBasicMaterial({ color: 0xffffff, vertexColors: true, transparent: true, opacity: 0.10, blending: THREE_NS.AdditiveBlending, depthWrite: false });
   const lines = new THREE_NS.LineSegments(lineGeo, lineMat);
   scene.add(lines);
 
@@ -98,7 +103,8 @@ export function createOrb(canvas, options = {}) {
     links.length = 0;
     connectionCounts.fill(0);
     const vocalMotion = activeState === "listening" || activeState === "speaking";
-    const outward = vocalMotion ? Math.max(0, Math.sin(t * (activeState === "speaking" ? 8.6 : 7.4))) : 0;
+    const speakingPulse = activeState === "speaking" ? speakingExpansion(t) : 0;
+    const outward = activeState === "speaking" ? speakingPulse : vocalMotion ? Math.max(0, Math.sin(t * 7.4)) : 0;
     const sampleStep = Math.max(1, Math.floor(count / 600));
     for (let i = 0; i < count; i += sampleStep) {
       const ai = i * 3;
@@ -130,14 +136,37 @@ export function createOrb(canvas, options = {}) {
       const [a, b] = links[k], ai = a * 3, bi = b * 3, o = k * 6;
       linePositions[o] = positions[ai]; linePositions[o + 1] = positions[ai + 1]; linePositions[o + 2] = positions[ai + 2];
       linePositions[o + 3] = positions[bi]; linePositions[o + 4] = positions[bi + 1]; linePositions[o + 5] = positions[bi + 2];
+      const edgeA = Math.hypot(positions[ai], positions[ai + 1], positions[ai + 2]) / 30;
+      const edgeB = Math.hypot(positions[bi], positions[bi + 1], positions[bi + 2]) / 30;
+      const edgeGlowA = activeState === "listening" ? 0.72 + Math.max(0, edgeA - 0.62) * 2.4 : 0.9;
+      const edgeGlowB = activeState === "listening" ? 0.72 + Math.max(0, edgeB - 0.62) * 2.4 : 0.9;
+      lineColors[o] = 0.62 * edgeGlowA; lineColors[o + 1] = 0.84 * edgeGlowA; lineColors[o + 2] = edgeGlowA;
+      lineColors[o + 3] = 0.62 * edgeGlowB; lineColors[o + 4] = 0.84 * edgeGlowB; lineColors[o + 5] = edgeGlowB;
     }
     lineGeo.setDrawRange(0, links.length * 2);
     lineGeo.attributes.position.needsUpdate = true;
+    lineGeo.attributes.color.needsUpdate = true;
     lineGeo.computeBoundingSphere();
     if ((target.electrons || isSpeaking) && links.length && travellers.length < electronCount && Math.random() < (target.electrons ? 0.11 : 0.075)) {
       const pair = links[Math.floor(Math.random() * links.length)];
       travellers.push({ a: pair[0], b: pair[1], t: 0, speed: 0.25 + Math.random() * 0.15 });
     }
+  }
+
+  function speakingExpansion(t) {
+    // Full compact / full expanded cycle with short endpoint holds.
+    const phase = (t % 1.9) / 1.9;
+    const hold = 0.12;
+    const travel = 0.38;
+    if (phase < hold) return 0;
+    if (phase < hold + travel) {
+      const x = (phase - hold) / travel;
+      return x * x * (3 - 2 * x);
+    }
+    if (phase < hold * 2 + travel) return 1;
+    const x = (phase - hold * 2 - travel) / travel;
+    const eased = x * x * (3 - 2 * x);
+    return 1 - eased;
   }
 
   function setState(state) {
@@ -170,17 +199,21 @@ export function createOrb(canvas, options = {}) {
       bass /= 8; mids /= 16;
     }
     const isVocal = activeState === "listening" || activeState === "speaking";
+    const isListening = activeState === "listening";
     isSpeaking = activeState === "speaking";
+    const speakingAmount = isSpeaking ? speakingExpansion(t) : 0;
     const pulse = isVocal || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
       const j = i * 3, p = phases[i], wave = Math.sin(t * (0.9 + speeds[i]) + p);
-      const vocalCycle = Math.sin(t * (isSpeaking ? 8.6 : 7.4));
-      const expandAmount = isVocal ? Math.max(0, vocalCycle) : 0;
+      const vocalCycle = Math.sin(t * 7.4);
+      const expandAmount = isSpeaking ? speakingAmount : isListening ? Math.max(0, vocalCycle) : 0;
       // A quicker, deeper inhale/exhale; each particle lags slightly so the
       // outline feels like a living cloud rather than a uniformly scaling ball.
-      const expansion = isVocal
-        ? 0.79 + 0.43 * (0.5 + 0.5 * vocalCycle) + 0.055 * Math.sin(t * 12.0 + p * 0.7)
-        : target.electrons
+      const expansion = isSpeaking
+        ? 0.78 + 0.48 * speakingAmount
+        : isListening
+          ? 0.79 + 0.43 * (0.5 + 0.5 * vocalCycle) + 0.055 * Math.sin(t * 12.0 + p * 0.7)
+          : target.electrons
           ? 1 + 0.09 * Math.sin(t * 1.8 + p * 0.2) + 0.045 * Math.sin(t * 3.1 + p)
           : 1 + 0.115 * Math.sin(t * 0.62) + 0.035 * Math.sin(t * 1.35 + p * 0.35);
       const breathe = expansion * (1 + (isVocal ? 0.11 : 0.045) * wave + bass * (isVocal ? 0.25 : 0.12) + pulse * (isVocal ? 0.20 : 0.08));
@@ -189,6 +222,17 @@ export function createOrb(canvas, options = {}) {
       const radialLen = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
       const nx = positions[j] / radialLen, ny = positions[j + 1] / radialLen, nz = positions[j + 2] / radialLen;
       const swirl = isVocal ? (1 - expandAmount) * (isSpeaking ? 5.8 : 4.8) : 0;
+      const edgeFactor = Math.max(0, (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) - 0.58) / 0.42;
+      if (isListening) {
+        const edgeMotion = 1 + edgeFactor * (0.9 + 0.55 * Math.sin(t * 5.2 + p * 1.8));
+        dirs[j] = Math.cos(p + t * 1.8) * edgeMotion * 0.45 + dirs[j] * 0.55;
+        dirs[j + 1] = Math.sin(p * 1.3 + t * 2.1) * edgeMotion * 0.45 + dirs[j + 1] * 0.55;
+        dirs[j + 2] = Math.cos(p * 0.8 - t * 1.6) * edgeMotion * 0.45 + dirs[j + 2] * 0.55;
+        const glow = 1 + edgeFactor * (0.65 + 0.35 * Math.sin(t * 6 + p * 2));
+        pointColors[j] = glow; pointColors[j + 1] = glow; pointColors[j + 2] = glow;
+      } else {
+        pointColors[j] = pointColors[j + 1] = pointColors[j + 2] = 1;
+      }
       const drift = current.speed * (0.35 + speeds[i]) * dt * (isVocal ? 20 : target.electrons ? 12 : 8);
       positions[j] += (dirs[j] + -ny * swirl * 0.12) * drift;
       positions[j + 1] += (dirs[j + 1] + (nx - nz) * swirl * 0.12) * drift;
@@ -205,6 +249,7 @@ export function createOrb(canvas, options = {}) {
       positions[j + 2] += positions[j + 2] / len * correction;
     }
     pointGeo.attributes.position.needsUpdate = true;
+    pointGeo.attributes.color.needsUpdate = true;
     points.rotation.y += dt * current.speed * 0.12;
     points.rotation.x = Math.sin(t * 0.13) * 0.10;
     lines.rotation.copy(points.rotation);
