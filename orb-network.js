@@ -103,7 +103,8 @@ export function createOrb(canvas, options = {}) {
         // then reconnect as the network flows through a slow travelling wave.
         const phase = t * (target.electrons ? 2.1 : 1.25) + i * 0.037 + j * 0.019;
         const linkWave = Math.sin(phase);
-        const detailBoost = target.electrons ? 1.10 : 1.0;\n        const dynamicDistance = linkDistance * detailBoost * (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
+        const detailBoost = target.electrons ? 1.10 : 1.0;
+        const dynamicDistance = linkDistance * detailBoost * (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
         if (linkWave > -0.30 && dx * dx + dy * dy + dz * dz < dynamicDistance * dynamicDistance) {
           links.push([i, j]);
           if (links.length >= maxLines) break;
