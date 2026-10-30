@@ -214,7 +214,7 @@ export function createOrb(canvas, options = {}) {
       // A quicker, deeper inhale/exhale; each particle lags slightly so the
       // outline feels like a living cloud rather than a uniformly scaling ball.
       const expansion = isSpeaking
-        ? 0.78 + 0.48 * speakingAmount
+        ? 0.12 + 1.50 * speakingAmount
         : isListening
           ? 0.79 + 0.43 * (0.5 + 0.5 * vocalCycle) + 0.055 * Math.sin(t * 12.0 + p * 0.7)
           : target.electrons
@@ -243,14 +243,20 @@ export function createOrb(canvas, options = {}) {
       const blackHole = activeState === "thinking";
       const blackHoleFlow = blackHole ? 1 : 0;
       const drift = current.speed * (0.35 + speeds[i]) * dt * (isVocal ? 20 : target.electrons ? 12 : 8);
-      const orbital = blackHoleFlow * (2.2 + 1.8 * (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25));
-      positions[j] += (dirs[j] + -ny * (swirl * 0.12 + orbital) + edgeX) * drift;
-      positions[j + 1] += (dirs[j + 1] + (nx - nz) * swirl * 0.12 + edgeY) * drift;
-      positions[j + 2] += (dirs[j + 2] + ny * (swirl * 0.12 + orbital) + edgeZ) * drift;
+      const baseRadius = Math.hypot(base[j], base[j + 1], base[j + 2]) / 25;
+      const orbital = blackHoleFlow * (5.0 + 4.2 * baseRadius);
+      const thinkingWarp = blackHoleFlow * (0.8 + baseRadius * 1.5) *
+        Math.sin(t * 2.7 + p * 2.1 + base[j] * 0.13);
+      positions[j] += (dirs[j] + -ny * (swirl * 0.12 + orbital) + edgeX +
+        thinkingWarp * Math.cos(t * 1.7 + p * 1.4)) * drift;
+      positions[j + 1] += (dirs[j + 1] + (nx - nz) * swirl * 0.12 + edgeY +
+        thinkingWarp * (0.75 * Math.sin(t * 3.1 + p * 2.8) + 0.35 * Math.sin(t * 1.2 + base[j] * 0.2))) * drift;
+      positions[j + 2] += (dirs[j + 2] + ny * (swirl * 0.12 + orbital) + edgeZ +
+        thinkingWarp * Math.sin(t * 2.0 - p * 1.8)) * drift;
       const len = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
       const shell = 0.55 + (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) * 0.45;
       const desired = current.radius * shell * breathe;
-      const correction = (desired - len) * (isVocal ? 0.022 : 0.012);
+      const correction = (desired - len) * (isSpeaking ? 0.055 : isVocal ? 0.022 : 0.012);
       positions[j] += positions[j] / len * correction;
       positions[j + 1] += positions[j + 1] / len * correction;
       positions[j + 2] += positions[j + 2] / len * correction;
@@ -258,11 +264,12 @@ export function createOrb(canvas, options = {}) {
         // Thinking alone gets a flattened, fast-orbiting accretion flow with
         // a darker central gap; all other states keep their familiar silhouette.
         const radiusNow = Math.hypot(positions[j], positions[j + 2]) || 1;
-        const innerGap = current.radius * 0.34;
-        const radialPush = Math.max(0, innerGap - radiusNow) * 0.045;
+        const innerGap = current.radius * (0.28 + 0.07 * Math.sin(t * 1.9 + p * 1.7));
+        const radialPush = Math.max(0, innerGap - radiusNow) * 0.075;
         positions[j] += positions[j] / radiusNow * radialPush;
         positions[j + 2] += positions[j + 2] / radiusNow * radialPush;
-        positions[j + 1] += (base[j + 1] * 0.28 - positions[j + 1]) * 0.012;
+        const warpedPlane = base[j + 1] * (0.20 + 0.12 * Math.sin(t * 2.3 + p * 2.0));
+        positions[j + 1] += (warpedPlane - positions[j + 1]) * 0.018;
       } else if (shapeRecovery > 0) {
         // When leaving Thinking, smoothly restore the normal particle layout
         // instead of letting the black-hole deformation leak into other states.
@@ -270,7 +277,9 @@ export function createOrb(canvas, options = {}) {
         const normalX = base[j] / baseLen * desired;
         const normalY = base[j + 1] / baseLen * desired;
         const normalZ = base[j + 2] / baseLen * desired;
-        const restore = (1 - Math.exp(-dt * 3.5)) * shapeRecovery;
+        // Strong per-frame convergence guarantees the normal silhouette is
+        // genuinely restored on every exit, including repeated Thinking visits.
+        const restore = (1 - Math.exp(-dt * 18)) * (0.8 + 0.2 * shapeRecovery);
         positions[j] += (normalX - positions[j]) * restore;
         positions[j + 1] += (normalY - positions[j + 1]) * restore;
         positions[j + 2] += (normalZ - positions[j + 2]) * restore;
