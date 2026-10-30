@@ -154,7 +154,8 @@ export function createOrb(canvas, options = {}) {
       for (let i = 8; i < Math.min(24, audioData.length); i++) mids += audioData[i] / 255;
       bass /= 8; mids /= 16;
     }
-    const isSpeaking = target.speed === PROFILES.speaking.speed && target.radius === PROFILES.speaking.radius;\n    const pulse = isSpeaking || current.links > 0.7 ? mids : 0;
+    const isSpeaking = target.speed === PROFILES.speaking.speed && target.radius === PROFILES.speaking.radius;
+    const pulse = isSpeaking || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
       const j = i * 3, p = phases[i], wave = Math.sin(t * (0.55 + speeds[i]) + p);
       const expansion = isSpeaking
