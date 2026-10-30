@@ -58,7 +58,7 @@ export function createOrb(canvas, options = {}) {
   electronGeo.setAttribute("position", new THREE_NS.BufferAttribute(electronPositions, 3));
   const electronMat = new THREE_NS.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE_NS.AdditiveBlending,
-    vertexShader: `attribute float size; void main(){ vec4 mvPosition = modelViewMatrix * vec4(position,1.0); gl_PointSize = 5.0 * (80.0 / max(1.0,-mvPosition.z)); gl_Position = projectionMatrix * mvPosition; }`,
+    vertexShader: `void main(){ vec4 mvPosition = modelViewMatrix * vec4(position,1.0); gl_PointSize = 5.0 * (80.0 / max(1.0,-mvPosition.z)); gl_Position = projectionMatrix * mvPosition; }`,
     fragmentShader: `void main(){ vec2 p = gl_PointCoord - vec2(0.5); float d = length(p); float a = 1.0 - smoothstep(0.12,0.5,d); if(a < 0.02) discard; gl_FragColor = vec4(0.88,0.97,1.0,a); }`
   });
   const electrons = new THREE_NS.Points(electronGeo, electronMat);
@@ -74,6 +74,7 @@ export function createOrb(canvas, options = {}) {
   let frame = 0;
   let destroyed = false;
   let resizeObserver = null;
+  let isSpeaking = false;
 
   function resize() {
     const w = Math.max(1, canvas.clientWidth || window.innerWidth);
@@ -155,7 +156,7 @@ export function createOrb(canvas, options = {}) {
       for (let i = 8; i < Math.min(24, audioData.length); i++) mids += audioData[i] / 255;
       bass /= 8; mids /= 16;
     }
-    const isSpeaking = target.speed === PROFILES.speaking.speed && target.radius === PROFILES.speaking.radius;
+    isSpeaking = target.speed === PROFILES.speaking.speed && target.radius === PROFILES.speaking.radius;
     const pulse = isSpeaking || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
       const j = i * 3, p = phases[i], wave = Math.sin(t * (0.55 + speeds[i]) + p);
