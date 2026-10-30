@@ -157,24 +157,18 @@ export function createOrb(canvas, options = {}) {
   }
 
   function speakingExpansion(t) {
-    // Brief singularity, smooth expansion, a deliberate full-size pause,
-    // then a smooth return to the compact state.
-    const cycle = 3.9;
+    // Five-second cycle: two seconds near maximum size with a very subtle
+    // living pulse, two seconds smoothly contracting, then one full second
+    // held in the singularity.
+    const cycle = 5.0;
     const phase = t % cycle;
-    const compactHold = 0.12;
-    const expandDuration = 1.0;
-    const expandedHold = 1.6;
-    const shrinkDuration = 1.0;
-    if (phase < compactHold) return 0;
-    if (phase < compactHold + expandDuration) {
-      const x = (phase - compactHold) / expandDuration;
-      return x * x * (3 - 2 * x);
+    if (phase < 2.0) {
+      // Keep the orb lively at full expansion: motion continues, but its
+      // amplitude is deliberately restrained rather than freezing at 1.
+      return 0.975 + 0.025 * (0.5 + 0.5 * Math.sin(phase * Math.PI * 2));
     }
-    const fullStart = compactHold + expandDuration;
-    if (phase < fullStart + expandedHold) return 1;
-    const shrinkStart = fullStart + expandedHold;
-    if (phase < shrinkStart + shrinkDuration) {
-      const x = (phase - shrinkStart) / shrinkDuration;
+    if (phase < 4.0) {
+      const x = (phase - 2.0) / 2.0;
       const eased = x * x * (3 - 2 * x);
       return 1 - eased;
     }
