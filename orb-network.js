@@ -69,6 +69,8 @@ export function createOrb(canvas, options = {}) {
   const clock = new THREE_NS.Clock();
   const target = { ...PROFILES.idle };
   let current = { ...target };
+  let activeState = "idle";
+  const connectionCounts = new Uint8Array(count);
   let analyser = null;
   let audioData = null;
   let frame = 0;
@@ -94,6 +96,9 @@ export function createOrb(canvas, options = {}) {
 
   function rebuildLinks(t) {
     links.length = 0;
+    connectionCounts.fill(0);
+    const vocalMotion = activeState === "listening" || activeState === "speaking";
+    const outward = vocalMotion ? Math.max(0, Math.sin(t * (activeState === "speaking" ? 8.6 : 7.4))) : 0;
     const sampleStep = Math.max(1, Math.floor(count / 600));
     for (let i = 0; i < count; i += sampleStep) {
       const ai = i * 3;
@@ -107,7 +112,14 @@ export function createOrb(canvas, options = {}) {
         const detailBoost = target.electrons ? 1.10 : 1.0;
         const dynamicDistance = linkDistance * detailBoost * (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
         if (linkWave > -0.30 && dx * dx + dy * dy + dz * dz < dynamicDistance * dynamicDistance) {
+          // On the outward surge, selected particles briefly shed most of
+          // their neighbours, retaining a single tether before reconnecting.
+          const looseA = vocalMotion && outward > 0.35 && Math.sin(t * 10.5 + phases[i] * 1.7) > 0.42;
+          const looseB = vocalMotion && outward > 0.35 && Math.sin(t * 10.5 + phases[j] * 1.7) > 0.42;
+          if ((looseA && connectionCounts[i] >= 1) || (looseB && connectionCounts[j] >= 1)) continue;
           links.push([i, j]);
+          connectionCounts[i]++;
+          connectionCounts[j]++;
           if (links.length >= maxLines) break;
         }
       }
@@ -130,6 +142,7 @@ export function createOrb(canvas, options = {}) {
 
   function setState(state) {
     if (!PROFILES[state]) return;
+    activeState = state;
     Object.assign(target, PROFILES[state]);
   }
 
@@ -143,7 +156,7 @@ export function createOrb(canvas, options = {}) {
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
     frame++;
-    const ease = 1 - Math.pow(0.98, dt * 60);
+    const ease = 1 - Math.pow(activeState === "listening" || activeState === "speaking" ? 0.88 : 0.96, dt * 60);
     for (const key of ["radius", "speed", "brightness", "size", "links"]) current[key] += (target[key] - current[key]) * ease;
     pointMat.opacity += (current.brightness * 0.85 - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
@@ -156,23 +169,37 @@ export function createOrb(canvas, options = {}) {
       for (let i = 8; i < Math.min(24, audioData.length); i++) mids += audioData[i] / 255;
       bass /= 8; mids /= 16;
     }
-    isSpeaking = target.speed === PROFILES.speaking.speed && target.radius === PROFILES.speaking.radius;
-    const pulse = isSpeaking || current.links > 0.7 ? mids : 0;
+    const isVocal = activeState === "listening" || activeState === "speaking";
+    isSpeaking = activeState === "speaking";
+    const pulse = isVocal || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
-      const j = i * 3, p = phases[i], wave = Math.sin(t * (0.55 + speeds[i]) + p);
-      const expansion = isSpeaking
-        ? 1 + 0.19 * Math.sin(t * 5.0) + 0.075 * Math.sin(t * 8.2 + p * 0.55)
+      const j = i * 3, p = phases[i], wave = Math.sin(t * (0.9 + speeds[i]) + p);
+      const vocalCycle = Math.sin(t * (isSpeaking ? 8.6 : 7.4));
+      const expandAmount = isVocal ? Math.max(0, vocalCycle) : 0;
+      // A quicker, deeper inhale/exhale; each particle lags slightly so the
+      // outline feels like a living cloud rather than a uniformly scaling ball.
+      const expansion = isVocal
+        ? 0.79 + 0.43 * (0.5 + 0.5 * vocalCycle) + 0.055 * Math.sin(t * 12.0 + p * 0.7)
         : target.electrons
           ? 1 + 0.09 * Math.sin(t * 1.8 + p * 0.2) + 0.045 * Math.sin(t * 3.1 + p)
           : 1 + 0.115 * Math.sin(t * 0.62) + 0.035 * Math.sin(t * 1.35 + p * 0.35);
-      const breathe = expansion * (1 + (isSpeaking ? 0.085 : 0.045) * wave + bass * (isSpeaking ? 0.22 : 0.12) + pulse * (isSpeaking ? 0.20 : 0.08));
-      const drift = current.speed * (0.35 + speeds[i]) * dt * (isSpeaking ? 17 : target.electrons ? 12 : 8);
-      positions[j] += dirs[j] * drift;
-      positions[j + 1] += dirs[j + 1] * drift;
-      positions[j + 2] += dirs[j + 2] * drift;
+      const breathe = expansion * (1 + (isVocal ? 0.11 : 0.045) * wave + bass * (isVocal ? 0.25 : 0.12) + pulse * (isVocal ? 0.20 : 0.08));
+      // During the compact half-cycle, particles slide tangentially in smooth,
+      // overlapping currents before the next outward pulse.
+      const radialLen = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
+      const nx = positions[j] / radialLen, ny = positions[j + 1] / radialLen, nz = positions[j + 2] / radialLen;
+      const swirl = isVocal ? (1 - expandAmount) * (isSpeaking ? 5.8 : 4.8) : 0;
+      const drift = current.speed * (0.35 + speeds[i]) * dt * (isVocal ? 20 : target.electrons ? 12 : 8);
+      positions[j] += (dirs[j] + -ny * swirl * 0.12) * drift;
+      positions[j + 1] += (dirs[j + 1] + (nx - nz) * swirl * 0.12) * drift;
+      positions[j + 2] += (dirs[j + 2] + ny * swirl * 0.12) * drift;
       const len = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
-      const desired = current.radius * (0.55 + (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) * 0.45) * breathe;
-      const correction = (desired - len) * 0.012;
+      const irregular = isVocal
+        ? 1 + expandAmount * (0.075 * Math.sin(p * 2.7 + t * 3.2) + 0.045 * Math.sin(p * 5.1 - t * 2.4))
+        : 1;
+      const shell = 0.55 + (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) * 0.45;
+      const desired = current.radius * shell * breathe * irregular;
+      const correction = (desired - len) * (isVocal ? 0.022 : 0.012);
       positions[j] += positions[j] / len * correction;
       positions[j + 1] += positions[j + 1] / len * correction;
       positions[j + 2] += positions[j + 2] / len * correction;
