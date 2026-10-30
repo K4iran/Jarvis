@@ -216,7 +216,7 @@ export function createOrb(canvas, options = {}) {
       // A quicker, deeper inhale/exhale; each particle lags slightly so the
       // outline feels like a living cloud rather than a uniformly scaling ball.
       const expansion = isSpeaking
-        ? 0.12 + 1.50 * speakingAmount
+        ? 1 + 0.035 * speakingAmount * Math.sin(t * Math.PI * 2.0)
         : isListening
           ? 0.79 + 0.43 * (0.5 + 0.5 * vocalCycle) + 0.055 * Math.sin(t * 12.0 + p * 0.7)
           : target.electrons
@@ -258,9 +258,9 @@ export function createOrb(canvas, options = {}) {
       const len = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
       const shell = 0.55 + (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) * 0.45;
       const desired = current.radius * shell * breathe;
-      const isOuterSingularityParticle = Math.sin(p * 2.37 + i * 0.071) > 0.68;
-      // The smallest speaking form remains the same orb, simply scaled
-      // to one quarter of its maximum size—no collapsing singularity.
+      // Keep the same particle cloud at every point in the speaking cycle.
+      // Its minimum is exactly one quarter of its expanded size, never a
+      // separate inward-collapsing singularity.
       const speakingExpansionScale = isSpeaking ? 0.25 + 0.75 * speakingAmount : 1;
       const particleDesired = isSpeaking ? desired * speakingExpansionScale : desired;
       const correction = (particleDesired - len) * (isSpeaking ? 0.10 : isVocal ? 0.022 : 0.012);
@@ -280,36 +280,47 @@ export function createOrb(canvas, options = {}) {
           const r = Math.hypot(x, y, z) || 1;
           const nx = x / r, ny = y / r, nz = z / r;
           const a = Math.atan2(z, x);
-          let radial = 1, vertical = 1, bend = 0, twist = 0;
+          const radialInput = Math.hypot(x, z);
+          const elevation = Math.atan2(y, radialInput || 0.001);
+          let px = x, py = y, pz = z;
+
           if (shape === 0) {
-            radial = 0.91 + 0.075 * Math.cos(a * 3 + ny * 2.2);
-            vertical = 0.82;
-            bend = Math.sin(a * 2 + ny * 2.0) * 2.0;
-            twist = 0.12;
+            // A broad crescent: one side swells while the opposite side
+            // pulls inward, with a pronounced bend through its depth.
+            const crescent = 1.0 + 0.48 * Math.cos(a);
+            const bend = 5.8 * Math.sin(a);
+            px = Math.cos(a) * (11.5 + radialInput * 0.48) * crescent;
+            pz = Math.sin(a) * (11.5 + radialInput * 0.48) * crescent;
+            py = y * 0.72 + bend * 0.72 + Math.sin(a * 2.0) * 2.2;
           } else if (shape === 1) {
-            radial = 0.86 + 0.09 * Math.cos(a * 2 - ny * 2.8);
-            vertical = 0.94;
-            bend = Math.sin(a + ny * 3.0) * 2.6;
-            twist = -0.16;
+            // A clearly hollow torus / ring with a rolling, uneven surface.
+            const major = 10.0 + 1.8 * Math.sin(a * 3.0 + elevation * 2.0);
+            const minor = 3.6 + 1.6 * (ny + 1.0) * 0.5;
+            const tube = minor * Math.cos(elevation * 2.2);
+            px = (major + tube) * Math.cos(a);
+            pz = (major + tube) * Math.sin(a);
+            py = minor * Math.sin(elevation * 2.2) * 1.55 +
+              1.5 * Math.sin(a * 3.0 + elevation);
           } else if (shape === 2) {
-            radial = 0.94 + 0.07 * Math.sin(a * 3 + ny * 2.5);
-            vertical = 0.72 + 0.08 * Math.cos(a * 2);
-            bend = Math.sin(a * 2.5 - ny * 2.0) * 2.2;
-            twist = 0.22;
+            // A sweeping multi-turn spiral ribbon, with a strong vertical
+            // rise and fall instead of another tilted oval.
+            const spiralAngle = a + ny * 2.9;
+            const spiralRadius = 5.0 + (ny + 1.0) * 6.2 +
+              1.8 * Math.sin(a * 2.0 + ny * 3.0);
+            px = Math.cos(spiralAngle) * spiralRadius;
+            pz = Math.sin(spiralAngle) * spiralRadius;
+            py = ny * 13.5 + 2.2 * Math.sin(a * 2.0 + ny * 3.0);
           } else {
-            radial = 0.88 + 0.08 * Math.cos(a * 2 + ny * 3.2);
-            vertical = 0.88;
-            bend = Math.sin(a * 3 - ny * 1.8) * 1.8;
-            twist = -0.08;
+            // An asymmetric four-lobed / pinched form, with deep valleys
+            // between lobes and a slight 3D corkscrew through the centre.
+            const lobes = 7.0 + 6.2 * Math.pow(Math.abs(Math.cos(a * 2.0 + ny * 0.8)), 1.35);
+            const pinch = 1.0 - 0.30 * Math.pow(Math.abs(Math.sin(a * 2.0 + ny * 0.8)), 1.2);
+            const rr = lobes * pinch * (0.82 + 0.18 * (1.0 - Math.abs(ny)));
+            px = Math.cos(a + ny * 0.72) * rr;
+            pz = Math.sin(a + ny * 0.72) * rr;
+            py = ny * 9.5 + 3.8 * Math.sin(a * 2.0 + ny * 1.4);
           }
-          const angle = twist + Math.sin(ny * 2.4) * 0.08;
-          const ca = Math.cos(angle), sa = Math.sin(angle);
-          const px = x * radial, pz = z * radial;
-          return [
-            (px * ca - pz * sa) * 0.88 + bend,
-            y * vertical * 1.08 + Math.sin(a * 2 + ny) * 1.7,
-            (px * sa + pz * ca) * 0.88 + Math.cos(a * 2 - ny) * 1.35
-          ];
+          return [px, py, pz];
         };
         const first = shapePoint(shapeIndex % 4, bx, by, bz);
         const second = shapePoint((shapeIndex + 1) % 4, bx, by, bz);
