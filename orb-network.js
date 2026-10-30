@@ -75,6 +75,7 @@ export function createOrb(canvas, options = {}) {
   const target = { ...PROFILES.idle };
   let current = { ...target };
   let activeState = "idle";
+  let shapeRecovery = 0;
   const connectionCounts = new Uint8Array(count);
   let analyser = null;
   let audioData = null;
@@ -171,6 +172,8 @@ export function createOrb(canvas, options = {}) {
 
   function setState(state) {
     if (!PROFILES[state]) return;
+    if (activeState === "thinking" && state !== "thinking") shapeRecovery = 1;
+    if (state === "thinking") shapeRecovery = 0;
     activeState = state;
     Object.assign(target, PROFILES[state]);
   }
@@ -184,6 +187,7 @@ export function createOrb(canvas, options = {}) {
     if (destroyed) return;
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
+    shapeRecovery = Math.max(0, shapeRecovery - dt / 1.15);
     frame++;
     const ease = 1 - Math.pow(activeState === "listening" || activeState === "speaking" ? 0.88 : 0.96, dt * 60);
     for (const key of ["radius", "speed", "brightness", "size", "links"]) current[key] += (target[key] - current[key]) * ease;
@@ -259,6 +263,17 @@ export function createOrb(canvas, options = {}) {
         positions[j] += positions[j] / radiusNow * radialPush;
         positions[j + 2] += positions[j + 2] / radiusNow * radialPush;
         positions[j + 1] += (base[j + 1] * 0.28 - positions[j + 1]) * 0.012;
+      } else if (shapeRecovery > 0) {
+        // When leaving Thinking, smoothly restore the normal particle layout
+        // instead of letting the black-hole deformation leak into other states.
+        const baseLen = Math.hypot(base[j], base[j + 1], base[j + 2]) || 1;
+        const normalX = base[j] / baseLen * desired;
+        const normalY = base[j + 1] / baseLen * desired;
+        const normalZ = base[j + 2] / baseLen * desired;
+        const restore = (1 - Math.exp(-dt * 3.5)) * shapeRecovery;
+        positions[j] += (normalX - positions[j]) * restore;
+        positions[j + 1] += (normalY - positions[j + 1]) * restore;
+        positions[j + 2] += (normalZ - positions[j + 2]) * restore;
       }
     }
     pointGeo.attributes.position.needsUpdate = true;
