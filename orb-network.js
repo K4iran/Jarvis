@@ -223,30 +223,43 @@ export function createOrb(canvas, options = {}) {
       const nx = positions[j] / radialLen, ny = positions[j + 1] / radialLen, nz = positions[j + 2] / radialLen;
       const swirl = isVocal ? (1 - expandAmount) * (isSpeaking ? 5.8 : 4.8) : 0;
       const edgeFactor = Math.max(0, (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) - 0.58) / 0.42;
+      let edgeX = 0, edgeY = 0, edgeZ = 0;
       if (isListening) {
-        const edgeMotion = 1 + edgeFactor * (0.9 + 0.55 * Math.sin(t * 5.2 + p * 1.8));
-        dirs[j] = Math.cos(p + t * 1.8) * edgeMotion * 0.45 + dirs[j] * 0.55;
-        dirs[j + 1] = Math.sin(p * 1.3 + t * 2.1) * edgeMotion * 0.45 + dirs[j + 1] * 0.55;
-        dirs[j + 2] = Math.cos(p * 0.8 - t * 1.6) * edgeMotion * 0.45 + dirs[j + 2] * 0.55;
+        // Add temporary tangential movement without rewriting the particles'
+        // underlying directions, so the listening state cannot deform later states.
+        const edgeMotion = edgeFactor * (0.9 + 0.55 * Math.sin(t * 5.2 + p * 1.8));
+        edgeX = Math.cos(p + t * 1.8) * edgeMotion;
+        edgeY = Math.sin(p * 1.3 + t * 2.1) * edgeMotion;
+        edgeZ = Math.cos(p * 0.8 - t * 1.6) * edgeMotion;
         const glow = 1 + edgeFactor * (0.65 + 0.35 * Math.sin(t * 6 + p * 2));
         pointColors[j] = glow; pointColors[j + 1] = glow; pointColors[j + 2] = glow;
       } else {
         pointColors[j] = pointColors[j + 1] = pointColors[j + 2] = 1;
       }
+      const blackHole = activeState === "thinking";
+      const blackHoleFlow = blackHole ? 1 : 0;
       const drift = current.speed * (0.35 + speeds[i]) * dt * (isVocal ? 20 : target.electrons ? 12 : 8);
-      positions[j] += (dirs[j] + -ny * swirl * 0.12) * drift;
-      positions[j + 1] += (dirs[j + 1] + (nx - nz) * swirl * 0.12) * drift;
-      positions[j + 2] += (dirs[j + 2] + ny * swirl * 0.12) * drift;
+      const orbital = blackHoleFlow * (2.2 + 1.8 * (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25));
+      positions[j] += (dirs[j] + -ny * (swirl * 0.12 + orbital) + edgeX) * drift;
+      positions[j + 1] += (dirs[j + 1] + (nx - nz) * swirl * 0.12 + edgeY) * drift;
+      positions[j + 2] += (dirs[j + 2] + ny * (swirl * 0.12 + orbital) + edgeZ) * drift;
       const len = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
-      const irregular = isVocal
-        ? 1 + expandAmount * (0.075 * Math.sin(p * 2.7 + t * 3.2) + 0.045 * Math.sin(p * 5.1 - t * 2.4))
-        : 1;
       const shell = 0.55 + (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) * 0.45;
-      const desired = current.radius * shell * breathe * irregular;
+      const desired = current.radius * shell * breathe;
       const correction = (desired - len) * (isVocal ? 0.022 : 0.012);
       positions[j] += positions[j] / len * correction;
       positions[j + 1] += positions[j + 1] / len * correction;
       positions[j + 2] += positions[j + 2] / len * correction;
+      if (blackHole) {
+        // Thinking alone gets a flattened, fast-orbiting accretion flow with
+        // a darker central gap; all other states keep their familiar silhouette.
+        const radiusNow = Math.hypot(positions[j], positions[j + 2]) || 1;
+        const innerGap = current.radius * 0.34;
+        const radialPush = Math.max(0, innerGap - radiusNow) * 0.045;
+        positions[j] += positions[j] / radiusNow * radialPush;
+        positions[j + 2] += positions[j + 2] / radiusNow * radialPush;
+        positions[j + 1] *= 0.985;
+      }
     }
     pointGeo.attributes.position.needsUpdate = true;
     pointGeo.attributes.color.needsUpdate = true;
