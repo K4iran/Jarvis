@@ -156,7 +156,7 @@ export function createOrb(canvas, options = {}) {
 
   function speakingExpansion(t) {
     // Full compact / full expanded cycle with short endpoint holds.
-    const phase = (t % 1.9) / 1.9;
+    const phase = (t % 3.0) / 3.0;
     const hold = 0.12;
     const travel = 0.38;
     if (phase < hold) return 0;
@@ -256,33 +256,65 @@ export function createOrb(canvas, options = {}) {
       const len = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
       const shell = 0.55 + (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) * 0.45;
       const desired = current.radius * shell * breathe;
-      const correction = (desired - len) * (isSpeaking ? 0.055 : isVocal ? 0.022 : 0.012);
+      const isOuterSingularityParticle = Math.sin(p * 2.37 + i * 0.071) > 0.68;
+      const singularityRadius = isOuterSingularityParticle
+        ? 2.0 + baseRadius * 2.5
+        : 0.16 + baseRadius * 0.58;
+      const singularityAmount = isSpeaking ? 1 - speakingAmount : 0;
+      const speakingDesired = desired + (singularityRadius - desired) * singularityAmount;
+      const particleDesired = isSpeaking ? speakingDesired : desired;
+      const correction = (particleDesired - len) * (isSpeaking ? 0.10 : isVocal ? 0.022 : 0.012);
       positions[j] += positions[j] / len * correction;
       positions[j + 1] += positions[j + 1] / len * correction;
       positions[j + 2] += positions[j + 2] / len * correction;
       if (blackHole) {
-        // Thinking alone gets a flattened, fast-orbiting accretion flow with
-        // a darker central gap; all other states keep their familiar silhouette.
-        const radiusNow = Math.hypot(positions[j], positions[j + 2]) || 1;
-        const innerGap = current.radius * (0.28 + 0.07 * Math.sin(t * 1.9 + p * 1.7));
-        const radialPush = Math.max(0, innerGap - radiusNow) * 0.075;
-        positions[j] += positions[j] / radiusNow * radialPush;
-        positions[j + 2] += positions[j + 2] / radiusNow * radialPush;
-        const warpedPlane = base[j + 1] * (0.20 + 0.12 * Math.sin(t * 2.3 + p * 2.0));
-        positions[j + 1] += (warpedPlane - positions[j + 1]) * 0.018;
-      } else if (shapeRecovery > 0) {
-        // When leaving Thinking, smoothly restore the normal particle layout
-        // instead of letting the black-hole deformation leak into other states.
+        // Thinking is a fully three-dimensional, continuously morphing
+        // intelligence field: curved lobes, folds, twists and changing axes.
+        // The target changes over time so the cloud never settles into one line.
+        const turn = t * 0.42 + Math.sin(t * 0.73 + p) * 0.34;
+        const ct = Math.cos(turn), st = Math.sin(turn);
+        const bx = base[j], by = base[j + 1], bz = base[j + 2];
+        const twistX = bx * ct - bz * st;
+        const twistZ = bx * st + bz * ct;
+        const lobeA = Math.sin(by * 0.17 + t * 1.05 + p * 0.55);
+        const lobeB = Math.cos(bz * 0.15 - t * 0.82 + p * 0.38);
+        const lobeC = Math.sin(bx * 0.14 + t * 0.91 - p * 0.62);
+        const fold = Math.sin((bx + bz) * 0.105 - t * 1.32 + p);
+        const thinkingX = twistX * 0.48 + lobeA * 6.2 + lobeB * 3.4 + fold * 2.8;
+        const thinkingY = by * 0.44 + lobeB * 6.8 - lobeC * 4.1 + Math.cos(t * 0.68 + bz * 0.12) * 2.5;
+        const thinkingZ = twistZ * 0.50 + lobeC * 6.0 + lobeA * 3.7 - fold * 3.2;
+        const morph = 1 - Math.exp(-dt * 2.8);
+        positions[j] += (thinkingX - positions[j]) * morph;
+        positions[j + 1] += (thinkingY - positions[j + 1]) * morph;
+        positions[j + 2] += (thinkingZ - positions[j + 2]) * morph;
+      } else {
+        // Every non-thinking frame gently reasserts the normal 3D layout.
+        // This is continuous (not a one-shot timer), so a second or later
+        // Thinking visit cannot leave a stale warped shape behind.
         const baseLen = Math.hypot(base[j], base[j + 1], base[j + 2]) || 1;
-        const normalX = base[j] / baseLen * desired;
-        const normalY = base[j + 1] / baseLen * desired;
-        const normalZ = base[j + 2] / baseLen * desired;
-        // Strong per-frame convergence guarantees the normal silhouette is
-        // genuinely restored on every exit, including repeated Thinking visits.
-        const restore = (1 - Math.exp(-dt * 18)) * (0.8 + 0.2 * shapeRecovery);
+        const normalX = base[j] / baseLen * particleDesired;
+        const normalY = base[j + 1] / baseLen * particleDesired;
+        const normalZ = base[j + 2] / baseLen * particleDesired;
+        const restore = (1 - Math.exp(-dt * 8));
         positions[j] += (normalX - positions[j]) * restore;
         positions[j + 1] += (normalY - positions[j + 1]) * restore;
         positions[j + 2] += (normalZ - positions[j + 2]) * restore;
+
+        if (isSpeaking && singularityAmount > 0.02) {
+          // The singularity is a tiny, bright swarm rather than a scaled-down
+          // miniature orb. Most particles crowd the white core; a minority
+          // orbit just outside it, constantly exchanging places.
+          const spin = (isOuterSingularityParticle ? 1.0 : 2.8) * singularityAmount;
+          const sx = positions[j], sz = positions[j + 2];
+          positions[j] += -sz * spin * dt * 2.2;
+          positions[j + 2] += sx * spin * dt * 2.2;
+          positions[j + 1] += Math.sin(t * (2.8 + speeds[i] * 2.2) + p * 1.7) *
+            singularityAmount * (isOuterSingularityParticle ? 0.75 : 0.28) * dt * 8;
+          const coreGlow = 1 + singularityAmount * (isOuterSingularityParticle ? 0.35 : 1.15);
+          pointColors[j] = coreGlow;
+          pointColors[j + 1] = coreGlow;
+          pointColors[j + 2] = coreGlow;
+        }
       }
     }
     pointGeo.attributes.position.needsUpdate = true;
