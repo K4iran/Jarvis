@@ -3,9 +3,9 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050914">
-<meta name="description" content="A voice-first interface for commands and personal tools.">
+<meta name="description" content="ZERO — a voice-first personal AI assistant with a holographic interface.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23050914'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%2358DFFF' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2358DFFF' fill-opacity='.15'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%23D8F7FF'/%3E%3C/svg%3E">
-<title>J.A.R.V.I.S.</title>
+<title>ZERO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 
@@ -793,7 +793,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 </defs></svg>
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
-<header id="bar"><div class="br"><svg class="helmet-mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="helmetGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C7FAFF"/><stop offset=".48" stop-color="#58DFFF"/><stop offset="1" stop-color="#2879D8"/></linearGradient></defs><g fill="none" stroke="url(#helmetGlow)" stroke-linecap="round" stroke-linejoin="round"><path d="M24 3.5 10 9 5.5 20l3 15 8.5 8h14l8.5-8 3-15L38 9 24 3.5Z" stroke-width="1.5"/><path d="M10 14 16 8l8-2 8 2 6 6-3 13-6 8-5 3-5-3-6-8-3-13Z" stroke-width="1.15"/><path d="m10 17 7 1 5 4-3 5-7-2M38 17l-7 1-5 4 3 5 7-2M17 34l7-3 7 3M20 10l4 2 4-2" stroke-width="1.4"/><path d="m17 18 5 3m9-3-5 3" stroke-width="2.2"/><path d="M20 25h8" stroke-width=".9" opacity=".7"/></g><path d="m12 18 7 1 3 4-3 3-6-2ZM36 18l-7 1-3 4 3 3 6-2Z" fill="#58DFFF" opacity=".18"/></svg><div class="brand-copy"><b>J.A.R.V.I.S.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
+<header id="bar"><div class="br"><svg class="helmet-mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="helmetGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C7FAFF"/><stop offset=".48" stop-color="#58DFFF"/><stop offset="1" stop-color="#2879D8"/></linearGradient></defs><g fill="none" stroke="url(#helmetGlow)" stroke-linecap="round" stroke-linejoin="round"><path d="M24 3.5 10 9 5.5 20l3 15 8.5 8h14l8.5-8 3-15L38 9 24 3.5Z" stroke-width="1.5"/><path d="M10 14 16 8l8-2 8 2 6 6-3 13-6 8-5 3-5-3-6-8-3-13Z" stroke-width="1.15"/><path d="m10 17 7 1 5 4-3 5-7-2M38 17l-7 1-5 4 3 5 7-2M17 34l7-3 7 3M20 10l4 2 4-2" stroke-width="1.4"/><path d="m17 18 5 3m9-3-5 3" stroke-width="2.2"/><path d="M20 25h8" stroke-width=".9" opacity=".7"/></g><path d="m12 18 7 1 3 4-3 3-6-2ZM36 18l-7 1-3 4 3 3 6-2Z" fill="#58DFFF" opacity=".18"/></svg><div class="brand-copy"><b>ZERO</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
 <nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
 <main id="stage">
 <section id="center">
@@ -843,7 +843,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 <div id="ratingRadarView" class="rating-radar-view" hidden role="region" aria-label="LifeOS rating radar"></div>
 </div>
 <p id="cs" class="lbl mono">STANDBY</p>
-<div id="id"><p id="msg" aria-live="polite">Speak or type a command to get started.</p></div>
+<div id="id"><p id="msg" aria-live="polite">Ready when you are.</p></div>
 <div class="ctl"><div class="mc"><button class="mic" id="mic" aria-pressed="false" aria-label="Activate voice interface"><svg class="rg rot" style="--d:16s" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" stroke-dasharray="3 7"/></svg><svg class="ic"><use href="#i-mic"/></svg></button><p class="lbl" id="ml">Activate voice interface</p></div>
 <button class="ib" id="kb" aria-label="Open command input" aria-expanded="false"><svg class="ic"><use href="#i-kbd"/></svg></button></div>
 <form id="cmd" hidden><div class="row2"><input id="ci" type="text" autocomplete="off" placeholder="Enter a command…" aria-label="Command"><button class="ib" aria-label="Submit command"><svg class="ic"><use href="#i-go"/></svg></button><button class="ib" type="button" id="cc" aria-label="Close command input"><svg class="ic"><use href="#i-x"/></svg></button></div>
@@ -886,7 +886,7 @@ body.zen-mode-active #core{visibility:hidden!important}
       <button class="hm-submit" type="submit">GUESS</button>
       <button id="hmExit" class="hm-exit" type="button">EXIT</button>
     </form>
-    <p id="hmFeedback" class="hm-feedback" aria-live="polite">Voice guesses are enabled when JARVIS listening is active.</p>
+    <p id="hmFeedback" class="hm-feedback" aria-live="polite">Voice guesses are enabled when ZERO listening is active.</p>
     <div class="hm-footer"><span>VOICE + TOUCH INPUT</span><span id="hmRecord">ADAPTIVE · STARTING MODERATE</span></div>
   </section>
 </div>
@@ -1051,14 +1051,14 @@ const JarvisMemory = (() => {
   return { remember, forget, clear, list, context };
 })();
   
-const IDLE=['Awaiting your command.','All systems standing by.','Ready when you are.','Awaiting input.'];
+const IDLE=['Standing by.','Ready when you are.','All systems operational.','At your service.'];
 const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING',responding:'RESPONDING'};
 const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:12,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
 const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
 const P={
-profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'PERSONAL DETAILS',d:'',v:()=>`<p class="mut" style="margin:8px 0">Details you ask JARVIS to remember are kept in this browser.</p>`},
-lifeos:{l:'LIFEOS',i:'#i-life',s:'PERSONAL PROGRESSION',d:'Your LifeOS app, embedded inside JARVIS and using its existing saved data.',v:()=>'<div class="lifeos-embed-wrap"><iframe id="lifeosFrame" class="lifeos-embed" src="https://k4iran.github.io/Jarvis/LifeOS.html" title="LifeOS personal progression tracker" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'},
+profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'PERSONAL DETAILS',d:'',v:()=>`<p class="mut" style="margin:8px 0">Details you ask ZERO to remember are kept in this browser.</p>`},
+lifeos:{l:'LIFEOS',i:'#i-life',s:'PERSONAL PROGRESSION',d:'Your LifeOS app, embedded inside ZERO and using its existing saved data.',v:()=>'<div class="lifeos-embed-wrap"><iframe id="lifeosFrame" class="lifeos-embed" src="https://k4iran.github.io/Jarvis/LifeOS.html" title="LifeOS personal progression tracker" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'},
 hoop:{l:'HOOP CENTRAL',i:'#i-hoop',s:'BASKETBALL STATS',d:'',v:()=>`<div class="kp">${['PPG','AST','STL','FG%'].map(k=>`<div><span class="lbl">${k}</span></div>`).join('')}</div>`},
 status:{l:'SYSTEM STATUS',i:'#i-stat',s:'LIVE INTERFACE',d:'',v:()=>[row('Interface','Loaded',1),row('Animation system',S.rm?'Reduced':'Active',1),row('Orb renderer',orbInfo,orbInfo!=='Unavailable'),row('Viewport',innerWidth+' × '+innerHeight+' px'),row('Interface mode',state.toUpperCase())].join('')}};
 const idleHTML=`<div class="idle"><p class="lbl" style="color:var(--t)">Choose a panel</p></div>`;
@@ -1728,7 +1728,7 @@ async function streamJarvisReply(message) {
     eventBuffer += decoder.decode();
     if (eventBuffer.trim()) processEvent(eventBuffer);
     if (pendingText.trim()) queueSentence(pendingText);
-    if (!fullReply.trim()) throw new Error('Jarvis returned an empty response.');
+    if (!fullReply.trim()) throw new Error('ZERO returned an empty response.');
   } finally {
     streamDone = true;
     notifyPlayer();
@@ -1827,11 +1827,11 @@ function setState(s){
   $('#cs').textContent=LBL[s];
   $('#st').textContent=s.toUpperCase();
   $('#mic').setAttribute('aria-pressed',wakeEnabled);
-  $('#mic').setAttribute('aria-label',wakeEnabled?'Disable Hey Jarvis':'Enable Hey Jarvis');
+  $('#mic').setAttribute('aria-label',wakeEnabled?'Disable Hey ZERO':'Enable Hey ZERO');
   if (s !== 'listening') {
   $('#ml').textContent = wakeEnabled
-    ? 'Wake word active: say Hey Jarvis'
-    : 'Tap to enable Hey Jarvis';
+    ? 'Wake word active: say Hey ZERO'
+    : 'Tap to enable Hey ZERO';
   }
   if(s==='responding'){pulse(1);cur.flash=1}
   refresh();
@@ -1911,7 +1911,7 @@ recognition.onstart=()=>{
 
       // The mic button activates conversation mode: speak naturally, with or
       // without saying "Hey Jarvis" first.
-      const match=transcript.match(/\bhey[\s,]+jarvis\b/i);
+      const match=transcript.match(/\bhey[\s,]+(?:zero|jarvis)\b/i);
       const command=match
         ? transcript.slice(match.index+match[0].length).replace(/^[\\s,.:!?-]+/,'').trim()
         : transcript;
@@ -1982,7 +1982,7 @@ function conversationContext() {
   const turns = jarvisConversation.slice();
   if (turns.length && turns[turns.length - 1].role === 'user') turns.pop();
   if (!turns.length) return '';
-  const lines = turns.map(item => (item.role === 'user' ? 'User: ' : 'JARVIS: ') + item.text);
+  const lines = turns.map(item => (item.role === 'user' ? 'User: ' : 'ZERO: ') + item.text);
   let history = lines.join('\n');
   while (history.length > 18000 && lines.length > 2) {
     lines.shift();
@@ -2203,7 +2203,7 @@ function handleHangmanCommand(text) {
   const raw = String(text || '').trim();
   // Speech recognition may preserve or remove the wake phrase, so normalize both forms.
   const q = raw.toLowerCase()
-    .replace(/^\s*(?:hey[\s,]+)?jarvis[\s,:-]*/i, '')
+    .replace(/^\s*(?:(?:hey[\s,]+)?(?:zero|jarvis))\b[\s,:-]*/i, '')
     .replace(/[.!?]+$/,'').trim();
   const asksToPlay = /\b(?:can we|could we|let'?s|start|play|launch|open)\b/.test(q);
   const mentionsHangman = /\bhangman\b/.test(q);
@@ -2382,7 +2382,7 @@ function renderRatingRadar(mode) {
         ? 'No ratings have been saved for this radar yet.'
         : 'Not enough rated attributes to draw this radar yet.';
     body = '<div class="rr-empty"><strong>' + radarEscape(message) +
-      '</strong><span>Open LifeOS, add ratings, then ask JARVIS to show this radar again.</span></div>';
+      '</strong><span>Open LifeOS, add ratings, then ask ZERO to show this radar again.</span></div>';
   } else {
     const cx = 250, cy = 258, radius = 119, count = radar.fields.length;
     const xy = (index, factor) => {
@@ -2640,7 +2640,7 @@ async function run(t) {
   // Send other messages to the real Jarvis AI
   busy = true;
   setState('processing');
-  say('Connecting to Jarvis…');
+  say('Connecting to ZERO…');
   window.startBurstCharge();
 
   try {
@@ -3220,7 +3220,7 @@ addEventListener('pagehide',()=>{
  <canvas id="zenParticles" aria-hidden="true"></canvas>
  <div class="zen-shell">
   <header class="zen-head">
-   <button class="zen-back" type="button" data-zen-action="exit">← JARVIS</button>
+   <button class="zen-back" type="button" data-zen-action="exit">← ZERO</button>
    <div class="zen-brand"><strong>ZEN</strong></div>
    <button class="zen-small-action" type="button" data-zen-action="backup">BACKUP</button>
   </header>
@@ -3265,7 +3265,7 @@ addEventListener('pagehide',()=>{
    <button class="zen-node" type="button" data-branch="timer" aria-pressed="false" aria-label="Quiet timer branch"><span class="zen-node-icon">◷<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Quiet timer</span></button>
    <button class="zen-node" type="button" data-branch="nutrition" aria-pressed="false" aria-label="Nutrition branch"><span class="zen-node-icon">❋<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Nutrition</span></button>
   </div>
-  <button class="zen-jarvis-mic" id="zenJarvisMic" type="button" aria-label="Activate JARVIS microphone"><span class="zen-mini-orb" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>JARVIS</span></button>
+  <button class="zen-jarvis-mic" id="zenJarvisMic" type="button" aria-label="Activate ZERO microphone"><span class="zen-mini-orb" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>ZERO</span></button>
  </div>
  <div class="zen-panel-host" id="zenPanelHost" hidden><section class="zen-panel" id="zenPanelCard" aria-live="polite"></section></div>
  <div class="zen-modal-host" id="zenModalHost" hidden><section class="zen-dialog" id="zenDialog" role="dialog" aria-modal="true"></section></div>
@@ -3339,7 +3339,7 @@ function zenFmtTime(seconds){const s=Math.max(0,Math.floor(seconds));return Math
 function zenTimerStart(minutes,withBreathing,withAmbient){zenTimerEnds=Date.now()+minutes*60000;zenTimerRunning=true;zenTimerBreathing=withBreathing;zenTimerAmbient=withAmbient;if(withBreathing)zenStartBreathing(minutes);if(withAmbient){let toStart=zenData.preferences.lastMix||[];if(!toStart.length)zenToastShow('No ambient mix is selected. The timer will run quietly.');toStart.forEach(function(k){if(zenSounds[k]&&!zenSoundOn[k])zenStartSound(k)})}clearInterval(zenTimerInterval);zenTimerInterval=setInterval(zenTimerTick,250);zenTimerTick()}
 function zenTimerTick(){if(!zenTimerRunning)return;const left=Math.max(0,Math.ceil((zenTimerEnds-Date.now())/1000));const output=$z('#zenTimerRemaining');if(output)output.textContent=zenFmtTime(left);if(left<=0){zenTimerRunning=false;clearInterval(zenTimerInterval);zenTimerInterval=0;zenStopBreathing();zenStopAmbient(1800);zenClosePanel();zenUpdateRingState()}}
 function zenTimerStop(){zenTimerRunning=false;clearInterval(zenTimerInterval);zenTimerInterval=0;zenStopBreathing()}
-function zenRenderPendingFoodPanel(){if(!zenPendingFoods||!zenPendingFoods.length)return '';return '<div class="zen-card"><div class="zen-eyebrow">Voice entry — review before saving</div><p class="zen-muted">JARVIS interpreted your speech below. Edit names and estimates, then confirm. Nothing is saved until you confirm.</p>'+zenPendingFoods.map(function(f,i){return '<div class="zen-pending-item" data-pending-index="'+i+'"><input aria-label="Food name" data-pending-name="1" value="'+ez(f.name)+'"><input aria-label="Calories" data-pending-cal="1" type="number" min="0" value="'+ez(f.cal)+'" placeholder="kcal"><input aria-label="Protein" data-pending-pro="1" type="number" min="0" value="'+ez(f.pro)+'" placeholder="protein"></div>'}).join('')+'<p class="zen-muted">'+(zenPendingFoods.some(function(f){return f.cal===''||f.pro===''})?'An estimate was not available for one or more items; enter values or 0 if unknown.':'These are approximate values. Check the portion and edit as needed.')+'</p><div class="zen-row"><button class="zen-btn primary" data-zen-action="food-voice-confirm">Confirm and save</button><button class="zen-btn subtle" data-zen-action="food-voice-cancel">Cancel</button></div></div>'}
+function zenRenderPendingFoodPanel(){if(!zenPendingFoods||!zenPendingFoods.length)return '';return '<div class="zen-card"><div class="zen-eyebrow">Voice entry — review before saving</div><p class="zen-muted">ZERO interpreted your speech below. Edit names and estimates, then confirm. Nothing is saved until you confirm.</p>'+zenPendingFoods.map(function(f,i){return '<div class="zen-pending-item" data-pending-index="'+i+'"><input aria-label="Food name" data-pending-name="1" value="'+ez(f.name)+'"><input aria-label="Calories" data-pending-cal="1" type="number" min="0" value="'+ez(f.cal)+'" placeholder="kcal"><input aria-label="Protein" data-pending-pro="1" type="number" min="0" value="'+ez(f.pro)+'" placeholder="protein"></div>'}).join('')+'<p class="zen-muted">'+(zenPendingFoods.some(function(f){return f.cal===''||f.pro===''})?'An estimate was not available for one or more items; enter values or 0 if unknown.':'These are approximate values. Check the portion and edit as needed.')+'</p><div class="zen-row"><button class="zen-btn primary" data-zen-action="food-voice-confirm">Confirm and save</button><button class="zen-btn subtle" data-zen-action="food-voice-cancel">Cancel</button></div></div>'}
 function zenRenderPanel(name){
  zenBranch=name;zenPanelHost.hidden=false;zenRenderBranches();let title='',subtitle='',body='';
  const header=function(t,s){return '<div class="zen-panel-head"><div><div class="zen-eyebrow">Spirit Tree / '+ez(t)+'</div><h2>'+ez(t)+'</h2><p class="zen-sub">'+s+'</p></div><button class="zen-close-panel" type="button" data-zen-action="panel-close" aria-label="Back to tree">×</button></div>'};
@@ -3442,7 +3442,7 @@ function zenHandleAction(action,el){
  if(action==='water-custom-confirm'){const n=$z('#zenWaterAmount').value;zenHideDialog();zenWaterAdd(n);return}
  if(action==='food-voice-confirm'){zenConfirmPendingFoods();return}if(action==='food-voice-cancel'){zenPendingFoods=null;zenRenderPanel('nutrition');zenToastShow('Food entry cancelled. Nothing was saved.');return}
 }
-function zenNormalizeVoice(t){return String(t||'').trim().replace(/^\s*(?:hey[\s,]+)?jarvis[\s,:-]*/i,'').replace(/[.!?]+$/,'').trim()}
+function zenNormalizeVoice(t){return String(t||'').trim().replace(/^\s*(?:(?:hey[\s,]+)?(?:zero|jarvis))\b[\s,:-]*/i,'').replace(/[.!?]+$/,'').trim()}
 function zenParseAmount(text){const m=text.match(/\b(\d+(?:\.\d+)?)\s*(ml|millilitres?|milliliters?|litres?|liters?|l)\b/i);if(!m)return null;let amount=Number(m[1]);if(/^(l|litre|liter)/i.test(m[2]))amount*=1000;return Number.isFinite(amount)&&amount>0&&amount<=5000?Math.round(amount):null}
 function zenParseFood(text){
  const prefix=text.replace(/^\s*(?:i\s+(?:just\s+)?(?:had|ate|drank)|i've\s+had|i have had|log food|add food|record food)\s*/i,'').trim(),defs=[
@@ -3468,7 +3468,7 @@ async function zenHandleCommand(raw,respond){
  if(/^(?:cancel|cancel food|discard food|no dont save|no don't save)$/i.test(q)&&zenPendingFoods){zenPendingFoods=null;zenRenderPanel('nutrition');await respond('Food entry cancelled. Nothing was saved.');return true}
  if(/^(keep audio|keep it playing|keep playing|stop audio|stop sounds|stop zen audio|cancel|stay here)$/i.test(q)&&zenExitPending){if(/^keep|^keep it|^stay/i.test(q)){zenDoExit(false);await respond('Leaving Zen. Ambient sounds will keep playing.')}else if(/^stop/i.test(q)){zenDoExit(true);await respond('Leaving Zen. Zen audio is fading out. Spotify playback must be stopped in Spotify itself.')}else{zenExitPending=false;zenHideDialog();await respond('Staying in Zen.')}return true}
  if(/^(?:enter|open|start|activate|switch to|go to)\s+(?:zen|zen mode|spirit tree|the spirit tree)$/.test(q)||/\b(?:enter|open|activate)\s+zen(?:\s+mode)?\b/.test(q)||/\b(?:can we|could we|please)\s+(?:enter|open|go to|switch to)\s+zen(?:\s+mode)?\b/.test(q)){zenOpenMode();await respond('Welcome to Zen. The Spirit Tree is ready.');return true}
- if(/^(?:leave|exit|close|quit)\s+(?:zen|zen mode|the spirit tree)$/.test(q)||/^(?:back to jarvis|return to jarvis)$/.test(q)||(zenIsActive()&&/^(?:return to standby|return|standby|back to the orb|back to orb)$/.test(q))){zenExit();await respond(zenExitPending?'Would you like me to keep the ambient sounds playing or fade them out?':'Returning to JARVIS.');return true}
+ if(/^(?:leave|exit|close|quit)\s+(?:zen|zen mode|the spirit tree)$/.test(q)||/^(?:back to zero|return to zero|back to jarvis|return to jarvis)$/.test(q)||(zenIsActive()&&/^(?:return to standby|return|standby|back to the orb|back to orb)$/.test(q))){zenExit();await respond(zenExitPending?'Would you like me to keep the ambient sounds playing or fade them out?':'Returning to ZERO.');return true}
  if(/\b(?:log|add|record)\s+(?:\d+(?:\.\d+)?\s*(?:ml|millilitres?|milliliters?|litres?|liters?|l)\s+(?:of\s+)?water|water\s+\d+(?:\.\d+)?\s*(?:ml|millilitres?|milliliters?|litres?|liters?|l))\b/i.test(t)||/\bi drank \d+(?:\.\d+)?\s*(?:ml|millilitres?|milliliters?|litres?|liters?|l)\b/i.test(t)){const amount=zenParseAmount(t);if(amount){zenOpenBranch('nutrition');zenWaterAdd(amount);await respond('I understood '+amount+' millilitres of water and updated your shared LifeOS total. You can correct the total in Zen Nutrition.');return true}}
  if(/\b(?:i\s+(?:just\s+)?(?:had|ate)|i've\s+had|i have had|log food|add food|record food)\b/i.test(t)&&!/\b(?:water|protein shake)\b/i.test(t)){zenPendingFoods=zenParseFood(t);zenOpenBranch('nutrition');zenRenderPanel('nutrition');await respond('I prepared a food entry for you to review. Check the items and estimates on screen, then confirm them before I save anything.');return true}
  if(/\b(?:how much|what(?:'s| is)?|show|check).*(?:protein|calories|nutrition|water)|\b(?:today's nutrition|nutrition today|food log|hydration total)\b/i.test(q)){zenOpenBranch('nutrition');const d=zenReadLifeOS(),f=d&&d.food&&d.food[zday()]||[],c=f.reduce(function(s,x){return s+(Number(x.cal)||0)},0),p=f.reduce(function(s,x){return s+(Number(x.pro)||0)},0),w=d&&d.water?Number(d.water[zday()])||0:0;await respond(d?'Today you have logged about '+Math.round(c)+' kilocalories, '+(Math.round(p*10)/10)+' grams of protein and '+Math.round(w)+' millilitres of water. These are estimates and totals, not limits.':'Open LifeOS and finish setup first; Zen will then use its shared nutrition data.');return true}
