@@ -157,8 +157,12 @@ export function createOrb(canvas, options = {}) {
     const isSpeaking = target.speed === PROFILES.speaking.speed && target.radius === PROFILES.speaking.radius;\n    const pulse = isSpeaking || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
       const j = i * 3, p = phases[i], wave = Math.sin(t * (0.55 + speeds[i]) + p);
-      const expansion = 1 + 0.115 * Math.sin(t * 0.62) + 0.035 * Math.sin(t * 1.35 + p * 0.35);
-      const breathe = expansion * (1 + 0.045 * wave + bass * 0.12 + pulse * 0.08);
+      const expansion = isSpeaking
+        ? 1 + 0.19 * Math.sin(t * 5.0) + 0.075 * Math.sin(t * 8.2 + p * 0.55)
+        : target.electrons
+          ? 1 + 0.09 * Math.sin(t * 1.8 + p * 0.2) + 0.045 * Math.sin(t * 3.1 + p)
+          : 1 + 0.115 * Math.sin(t * 0.62) + 0.035 * Math.sin(t * 1.35 + p * 0.35);
+      const breathe = expansion * (1 + (isSpeaking ? 0.085 : 0.045) * wave + bass * (isSpeaking ? 0.22 : 0.12) + pulse * (isSpeaking ? 0.20 : 0.08));
       const drift = current.speed * (0.35 + speeds[i]) * dt * (isSpeaking ? 17 : target.electrons ? 12 : 8);
       positions[j] += dirs[j] * drift;
       positions[j + 1] += dirs[j + 1] * drift;
