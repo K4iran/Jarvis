@@ -117,7 +117,9 @@ export function createOrb(canvas, options = {}) {
         const phase = t * (target.electrons ? 2.1 : 1.25) + i * 0.037 + j * 0.019;
         const linkWave = Math.sin(phase);
         const detailBoost = target.electrons ? 1.10 : 1.0;
-        const dynamicDistance = linkDistance * detailBoost * (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
+        const singularityNetwork = activeState === "speaking" && speakingPulse < 0.08;
+        const dynamicDistance = linkDistance * detailBoost * (singularityNetwork ? 1.65 : 1.0) *
+          (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
         if (linkWave > -0.30 && dx * dx + dy * dy + dz * dz < dynamicDistance * dynamicDistance) {
           // On the outward surge, selected particles briefly shed most of
           // their neighbours, retaining a single tether before reconnecting.
@@ -155,19 +157,28 @@ export function createOrb(canvas, options = {}) {
   }
 
   function speakingExpansion(t) {
-    // Full compact / full expanded cycle with short endpoint holds.
-    const phase = (t % 3.0) / 3.0;
-    const hold = 0.12;
-    const travel = 0.38;
-    if (phase < hold) return 0;
-    if (phase < hold + travel) {
-      const x = (phase - hold) / travel;
+    // Brief singularity, smooth expansion, a deliberate full-size pause,
+    // then a smooth return to the compact state.
+    const cycle = 3.9;
+    const phase = t % cycle;
+    const compactHold = 0.12;
+    const expandDuration = 1.0;
+    const expandedHold = 1.6;
+    const shrinkDuration = 1.0;
+    if (phase < compactHold) return 0;
+    if (phase < compactHold + expandDuration) {
+      const x = (phase - compactHold) / expandDuration;
       return x * x * (3 - 2 * x);
     }
-    if (phase < hold * 2 + travel) return 1;
-    const x = (phase - hold * 2 - travel) / travel;
-    const eased = x * x * (3 - 2 * x);
-    return 1 - eased;
+    const fullStart = compactHold + expandDuration;
+    if (phase < fullStart + expandedHold) return 1;
+    const shrinkStart = fullStart + expandedHold;
+    if (phase < shrinkStart + shrinkDuration) {
+      const x = (phase - shrinkStart) / shrinkDuration;
+      const eased = x * x * (3 - 2 * x);
+      return 1 - eased;
+    }
+    return 0;
   }
 
   function setState(state) {
@@ -194,7 +205,9 @@ export function createOrb(canvas, options = {}) {
     pointMat.opacity += (current.brightness * 0.85 - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
     const networkBreath = 0.68 + 0.32 * (0.5 + 0.5 * Math.sin(t * (target.electrons ? 3.4 : 0.75)));
-    lineMat.opacity += (current.links * 0.12 * networkBreath - lineMat.opacity) * ease;
+    const singularityNetwork = activeState === "speaking" && speakingExpansion(t) < 0.08;
+    const networkOpacity = current.links * (singularityNetwork ? 0.22 : 0.12) * networkBreath;
+    lineMat.opacity += (networkOpacity - lineMat.opacity) * ease;
     let bass = 0, mids = 0;
     if (analyser && audioData) {
       analyser.getByteFrequencyData(audioData);
@@ -258,8 +271,8 @@ export function createOrb(canvas, options = {}) {
       const desired = current.radius * shell * breathe;
       const isOuterSingularityParticle = Math.sin(p * 2.37 + i * 0.071) > 0.68;
       const singularityRadius = isOuterSingularityParticle
-        ? 2.0 + baseRadius * 2.5
-        : 0.16 + baseRadius * 0.58;
+        ? 2.6 + baseRadius * 2.8
+        : 0.42 + baseRadius * 1.0;
       const singularityAmount = isSpeaking ? 1 - speakingAmount : 0;
       const speakingDesired = desired + (singularityRadius - desired) * singularityAmount;
       const particleDesired = isSpeaking ? speakingDesired : desired;
