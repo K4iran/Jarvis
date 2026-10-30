@@ -117,8 +117,7 @@ export function createOrb(canvas, options = {}) {
         const phase = t * (target.electrons ? 2.1 : 1.25) + i * 0.037 + j * 0.019;
         const linkWave = Math.sin(phase);
         const detailBoost = target.electrons ? 1.10 : 1.0;
-        const singularityNetwork = activeState === "speaking" && speakingPulse < 0.08;
-        const dynamicDistance = linkDistance * detailBoost * (singularityNetwork ? 1.65 : 1.0) *
+        const dynamicDistance = linkDistance * detailBoost *
           (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
         if (linkWave > -0.30 && dx * dx + dy * dy + dz * dz < dynamicDistance * dynamicDistance) {
           // On the outward surge, selected particles briefly shed most of
@@ -157,14 +156,11 @@ export function createOrb(canvas, options = {}) {
   }
 
   function speakingExpansion(t) {
-    // Five-second cycle: two seconds near maximum size with a very subtle
-    // living pulse, two seconds smoothly contracting, then one full second
-    // held in the singularity.
+    // Five-second cycle: two seconds gently pulsing at maximum size,
+    // two seconds smoothly moving between sizes, then one second at 25%.
     const cycle = 5.0;
     const phase = t % cycle;
     if (phase < 2.0) {
-      // Keep the orb lively at full expansion: motion continues, but its
-      // amplitude is deliberately restrained rather than freezing at 1.
       return 0.975 + 0.025 * (0.5 + 0.5 * Math.sin(phase * Math.PI * 2));
     }
     if (phase < 4.0) {
@@ -199,8 +195,7 @@ export function createOrb(canvas, options = {}) {
     pointMat.opacity += (current.brightness * 0.85 - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
     const networkBreath = 0.68 + 0.32 * (0.5 + 0.5 * Math.sin(t * (target.electrons ? 3.4 : 0.75)));
-    const singularityNetwork = activeState === "speaking" && speakingExpansion(t) < 0.08;
-    const networkOpacity = current.links * (singularityNetwork ? 0.22 : 0.12) * networkBreath;
+    const networkOpacity = current.links * 0.12 * networkBreath;
     lineMat.opacity += (networkOpacity - lineMat.opacity) * ease;
     let bass = 0, mids = 0;
     if (analyser && audioData) {
@@ -264,12 +259,10 @@ export function createOrb(canvas, options = {}) {
       const shell = 0.55 + (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) * 0.45;
       const desired = current.radius * shell * breathe;
       const isOuterSingularityParticle = Math.sin(p * 2.37 + i * 0.071) > 0.68;
-      const singularityRadius = isOuterSingularityParticle
-        ? 2.6 + baseRadius * 2.8
-        : 0.42 + baseRadius * 1.0;
-      const singularityAmount = isSpeaking ? 1 - speakingAmount : 0;
-      const speakingDesired = desired + (singularityRadius - desired) * singularityAmount;
-      const particleDesired = isSpeaking ? speakingDesired : desired;
+      // The smallest speaking form remains the same orb, simply scaled
+      // to one quarter of its maximum size—no collapsing singularity.
+      const speakingExpansionScale = isSpeaking ? 0.25 + 0.75 * speakingAmount : 1;
+      const particleDesired = isSpeaking ? desired * speakingExpansionScale : desired;
       const correction = (particleDesired - len) * (isSpeaking ? 0.10 : isVocal ? 0.022 : 0.012);
       positions[j] += positions[j] / len * correction;
       positions[j + 1] += positions[j + 1] / len * correction;
@@ -313,9 +306,9 @@ export function createOrb(canvas, options = {}) {
           const ca = Math.cos(angle), sa = Math.sin(angle);
           const px = x * radial, pz = z * radial;
           return [
-            (px * ca - pz * sa) * 0.78 + bend,
-            y * vertical + Math.sin(a * 2 + ny) * 1.5,
-            (px * sa + pz * ca) * 0.78 + Math.cos(a * 2 - ny) * 1.2
+            (px * ca - pz * sa) * 0.88 + bend,
+            y * vertical * 1.08 + Math.sin(a * 2 + ny) * 1.7,
+            (px * sa + pz * ca) * 0.88 + Math.cos(a * 2 - ny) * 1.35
           ];
         };
         const first = shapePoint(shapeIndex % 4, bx, by, bz);
@@ -344,21 +337,7 @@ export function createOrb(canvas, options = {}) {
         positions[j + 1] += (normalY - positions[j + 1]) * restore;
         positions[j + 2] += (normalZ - positions[j + 2]) * restore;
 
-        if (isSpeaking && singularityAmount > 0.02) {
-          // The singularity is a tiny, bright swarm rather than a scaled-down
-          // miniature orb. Most particles crowd the white core; a minority
-          // orbit just outside it, constantly exchanging places.
-          const spin = (isOuterSingularityParticle ? 1.0 : 2.8) * singularityAmount;
-          const sx = positions[j], sz = positions[j + 2];
-          positions[j] += -sz * spin * dt * 2.2;
-          positions[j + 2] += sx * spin * dt * 2.2;
-          positions[j + 1] += Math.sin(t * (2.8 + speeds[i] * 2.2) + p * 1.7) *
-            singularityAmount * (isOuterSingularityParticle ? 0.75 : 0.28) * dt * 8;
-          const coreGlow = 1 + singularityAmount * (isOuterSingularityParticle ? 0.35 : 1.15);
-          pointColors[j] = coreGlow;
-          pointColors[j + 1] = coreGlow;
-          pointColors[j + 2] = coreGlow;
-        }
+
       }
     }
     pointGeo.attributes.position.needsUpdate = true;
