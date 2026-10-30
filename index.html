@@ -860,7 +860,7 @@ body.zen-mode-active #core{visibility:hidden!important}
     <path id="hangmanWave3" class="hangman-wave" d=""/>
   </svg>
   <section class="hangman-layout" aria-labelledby="hmTitle">
-    <div class="hm-top"><span class="hm-kicker">J.A.R.V.I.S. / GAME MODULE</span><span id="hmStatus" class="hm-status">ROUND 01 · ACTIVE</span></div>
+    <div class="hm-top"><span class="hm-kicker">ZERO / GAME MODULE</span><span id="hmStatus" class="hm-status">ROUND 01 · ACTIVE</span></div>
     <h2 id="hmTitle" class="hm-title">HANGMAN</h2>
     <p class="hm-subtitle">I've selected a word. Guess one letter at a time.</p>
     <div class="hm-main">
@@ -898,7 +898,7 @@ body.zen-mode-active #core{visibility:hidden!important}
   const show = (message) => {
     const el = document.getElementById('msg');
     if (!el) return;
-    el.textContent = 'J.A.R.V.I.S. diagnostic: ' + String(message || 'Unknown startup error').slice(0, 220);
+    el.textContent = 'ZERO diagnostic: ' + String(message || 'Unknown startup error').slice(0, 220);
     el.dataset.persistent = 'true';
     el.dataset.typing = 'false';
     el.classList.remove('msg-out');
@@ -1910,7 +1910,7 @@ recognition.onstart=()=>{
       if(!transcript || jarvisSpeaking || busy)continue;
 
       // The mic button activates conversation mode: speak naturally, with or
-      // without saying "Hey Jarvis" first.
+      // without saying "Hey ZERO" first.
       const match=transcript.match(/\bhey[\s,]+(?:zero|jarvis)\b/i);
       const command=match
         ? transcript.slice(match.index+match[0].length).replace(/^[\\s,.:!?-]+/,'').trim()
