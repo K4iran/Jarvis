@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050914">
+<meta name="description" content="Z.E.R.O. Legal & Privacy information and draft policies.">
+<title>Legal &amp; Privacy — Z.E.R.O.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#050914;--panel:rgba(9,19,33,.86);--cyan:#58DFFF;--blue:#278DFF;--text:#EAF8FF;--muted:#91A9BC;--line:rgba(88,223,255,.22);font-family:Sora,system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(ellipse at 50% 0%,#102944 0,#091321 38%,#050914 78%);line-height:1.65}
+a{color:var(--cyan)}a:focus-visible,summary:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}
+.shell{width:min(920px,100%);margin:auto;padding:24px 18px 64px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:8px 0 20px;border-bottom:1px solid var(--line)}
+.brand{font:13px 'JetBrains Mono',monospace;letter-spacing:.28em;color:var(--text);text-decoration:none}.back{font:10px 'JetBrains Mono',monospace;letter-spacing:.08em;text-decoration:none;border:1px solid var(--line);padding:9px 12px}
+.kicker{margin:36px 0 8px;color:var(--cyan);font:10px 'JetBrains Mono',monospace;letter-spacing:.22em}
+h1{font-weight:300;letter-spacing:.08em;font-size:clamp(27px,6vw,42px);line-height:1.15;margin:0}
+.lead{max-width:720px;color:#B5C9D8;font-size:14px;margin:16px 0 22px}
+.notice{border:1px solid rgba(255,190,100,.45);background:rgba(120,75,20,.13);padding:15px 16px;margin:20px 0 26px;color:#F3D9B3;font-size:12px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 28px}.pill{border:1px solid var(--line);padding:5px 9px;color:var(--muted);font:9px 'JetBrains Mono',monospace;letter-spacing:.08em}
+nav.index{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 30px}nav.index a{font:10px 'JetBrains Mono',monospace;text-decoration:none;color:#BDEEFF;border:1px solid var(--line);padding:7px 9px}
+section{scroll-margin-top:18px;margin:14px 0;border:1px solid var(--line);background:linear-gradient(130deg,rgba(88,223,255,.045),var(--panel) 45%,rgba(7,14,34,.76));padding:18px 18px 14px}
+h2{font-weight:400;font-size:17px;letter-spacing:.06em;margin:0 0 10px;color:#DDF8FF}
+h3{font-size:12px;font-weight:500;color:var(--cyan);margin:18px 0 5px;letter-spacing:.06em}
+p,li{font-size:12px;color:#B5C9D8}p{margin:8px 0}ul{padding-left:20px;margin:8px 0}li{padding:2px 0}
+small,.small{font-size:10px;color:var(--muted)}.status{font:9px 'JetBrains Mono',monospace;color:#F1D3A9;letter-spacing:.1em}
+footer{padding:26px 2px 0;color:var(--muted);font-size:10px}
+@media(max-width:520px){.shell{padding:16px 12px 44px}.top{align-items:flex-start}.back{font-size:9px;padding:8px}.lead{font-size:13px}section{padding:15px 13px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="top"><a class="brand" href="index.html">Z.E.R.O.</a><a class="back" href="index.html">← RETURN TO DASHBOARD</a></header>
+<main>
+<div class="kicker">SYSTEM DOCUMENTATION / TRUST CENTRE</div>
+<h1>LEGAL &amp; PRIVACY</h1>
+<p class="lead">How Z.E.R.O. is intended to handle information, AI services, safety and intellectual property. This page is a transparent working draft for the current personal prototype—not a claim that every legal or technical review is complete.</p>
+<div class="meta"><span class="pill">DOCUMENT SET 0.2</span><span class="pill">FACT CHECK: 30 OCT 2026</span><span class="pill">PERSONAL PROTOTYPE / NOT A LAUNCH POLICY</span></div>
+<div class="notice"><strong>Prototype notice — not ready for public launch.</strong><br>These documents are draft explanations, not a solicitor-reviewed contract or a guarantee of legal compliance. Some technical details—especially exact data fields, provider retention, account deletion and recording flows—still need verification. Do not treat this page as permission to invite other people, collect their data, or launch a paid/public service. Provider eligibility and age restrictions must be followed regardless of what this page says.</div>
+<nav class="index" aria-label="On this page">
+<a href="#privacy">PRIVACY</a><a href="#terms">TERMS</a><a href="#acceptable-use">ACCEPTABLE USE</a><a href="#ai">AI DISCLOSURE</a><a href="#copyright">COPYRIGHT &amp; IP</a><a href="#data">DATA &amp; MEMORY</a><a href="#providers">PROVIDERS</a><a href="#safety">SAFETY</a><a href="#contact">CONTACT</a>
+</nav>
+
+<section id="privacy">
+<h2>01 / PRIVACY POLICY — DRAFT</h2>
+<p><span class="status">STATUS: TECHNICAL AUDIT REQUIRED</span></p>
+<p>Z.E.R.O. is being developed as a personal AI assistant. It is not yet an account-based multi-user service. However, the dashboard is hosted on a publicly reachable GitHub Pages address; it should be treated as a public webpage, not a private or access-controlled app. The exact information processed depends on which features are used.</p>
+<h3>Information that may be processed</h3>
+<ul>
+<li>Text entered into the assistant and the conversation context needed to generate a reply.</li>
+<li>Voice or audio data when voice features are used, and any text produced by speech recognition.</li>
+<li>Personal preferences, settings, memories and information the user chooses to save.</li>
+<li>Technical information needed to operate and protect the service, such as error and diagnostic data, where enabled by the relevant platform.</li>
+</ul>
+<h3>Where information may go</h3>
+<p>The current architecture uses a browser-based dashboard hosted through GitHub Pages, Supabase Edge Functions for backend requests, Gemini for AI responses, and Fish Audio for speech generation. Depending on the feature, relevant request content may be sent to those providers so they can perform the requested service. This list must be updated if the architecture changes.</p>
+<h3>Local storage and third parties</h3>
+<p>The dashboard source reviewed on 30 October 2026 stores saved personal memories, Hangman progress, Zen preferences/journal data and LifeOS ratings in browser local storage. It stores recent conversation turns in session storage (up to 40 turns, with each turn text limited by the app). These are stored in the browser profile on the device, not as a user account or secure cloud backup. Anyone with access to that browser profile or device may be able to access them; clearing browser data may remove them. The exact contents can include personal information the user chooses to save.</p>
+<p>Voice input uses the browser's SpeechRecognition/Web Speech interface where supported. The browser and its speech-recognition provider may process audio or transcripts under their own terms; the exact processing provider and retention depend on the browser/device and have not been independently verified. The app sends chat request text to Gemini for response generation and sends text selected for spoken output to Fish Audio for speech generation.</p>
+<p>Third-party providers process data under their own terms and privacy documentation. Their retention, location, human-review and model-training settings must be checked for the exact product and account tier in use. Do not assume that all providers handle data in the same way.</p>
+<h3>Purpose and sharing</h3>
+<p>The intended purposes are to provide requested assistant features, maintain service security, troubleshoot faults and meet applicable legal requirements. Z.E.R.O. is not intended to sell personal data. The assistant does send relevant request content to external providers as described below; their processing is governed by their own terms and privacy documents. The two active Supabase Edge Function handlers reviewed for this draft contain no database-write calls, but that does not establish that providers or hosting platforms retain no logs or metadata.</p>
+<h3>Information still required before this can become a real privacy notice</h3>
+<p>This draft does not yet identify the responsible data controller by legal name and contact details, state the lawful basis for each processing purpose, specify provider/subprocessor recipients and international transfers, set retention periods, explain how individuals can exercise their rights, or provide an operational privacy contact and ICO complaint information. Those details must be established from the actual operator, provider account configuration and data flows—not guessed. The ICO explains the minimum privacy information expected under the UK GDPR in its <a href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/the-right-to-be-informed/">right to be informed guidance</a>.</p>
+<p>No account-wide export or deletion workflow has been verified. Local browser memories can be listed/forgotten through the assistant's memory feature, but this does not delete session history, Zen/LifeOS/Hangman data, browser backups, provider logs or data held by third parties. Do not promise complete deletion until each store and provider process has been tested.</p>
+<p>Before any public or multi-user release, document the lawful basis, retention periods, rights-request process, backups, processor agreements and international-transfer safeguards where applicable.</p>
+</section>
+
+<section id="terms">
+<h2>02 / TERMS OF SERVICE — DRAFT</h2>
+<p><span class="status">STATUS: NOT A FINAL USER CONTRACT</span></p>
+<p>These are proposed principles for a future version of Z.E.R.O.; they do not currently form a solicitor-reviewed agreement.</p>
+<ul>
+<li>Use Z.E.R.O. lawfully and follow the terms of every third-party service involved.</li>
+<li>Do not use the app to infringe intellectual-property, privacy, publicity or other rights.</li>
+<li>Do not attempt to bypass age, location, payment, safety or access restrictions imposed by a provider.</li>
+<li>Do not rely on AI output as professional legal, medical, financial, emergency or other high-stakes advice.</li>
+<li>Do not upload information about another person unless you have a lawful reason and any required permission.</li>
+<li>Do not interfere with the security, availability or operation of the app or its providers.</li>
+</ul>
+<p>Any future public terms must identify the responsible operator, explain service availability and limitations, set out complaint/contact routes, and preserve rights that cannot legally be excluded. A disclaimer cannot override consumer law or a provider's contract.</p>
+</section>
+
+<section id="acceptable-use">
+<h2>03 / ACCEPTABLE USE</h2>
+<p>The following are proposed acceptable-use rules for a future release. They are not a claim that every category is technically detected or blocked today. Z.E.R.O. should not be used to:</p>
+<ul>
+<li>Plan, facilitate or encourage violence, abuse, exploitation, fraud, cybercrime or other unlawful conduct.</li>
+<li>Harass, threaten, impersonate, stalk or expose private information about someone.</li>
+<li>Create or distribute non-consensual intimate content, deceptive impersonations or unauthorised voice clones.</li>
+<li>Generate or distribute content that infringes copyright, trademarks or other rights.</li>
+<li>Evade provider safeguards, access controls, age limits, geographic restrictions or usage limits.</li>
+<li>Probe, attack or disrupt Z.E.R.O., its hosting, databases or third-party services.</li>
+</ul>
+<p>These rules are proposed standards, not a guarantee of technical enforcement. They do not replace provider acceptable-use policies or applicable law.</p>
+</section>
+
+<section id="ai">
+<h2>04 / AI DISCLOSURE</h2>
+<p>Z.E.R.O. is an AI-powered assistant. Its text responses are generated by an external AI model; its generated speech may be produced by an external text-to-speech provider. Responses can be incomplete, outdated, biased or wrong, and may sound confident even when mistaken.</p>
+<p>AI output should be checked before acting on it, especially where safety, money, health, legal rights or other important decisions are involved. Users should not assume that the assistant has independently verified a claim or completed an action unless the app clearly confirms it.</p>
+<p>Any future user-facing version should disclose when users are interacting with AI and when audio is processed or generated, in a clear place before the relevant feature is used.</p>
+</section>
+
+<section id="copyright">
+<h2>05 / COPYRIGHT &amp; INTELLECTUAL PROPERTY</h2>
+<p>Users must only submit or use material they have the rights or permission to use, or that is otherwise permitted by law. This includes text, books, lyrics, music, images, video, software, recordings and voice samples.</p>
+<p>AI-generated output is not automatically free of copyright or other rights issues. Output may resemble existing material, and the user/operator remains responsible for checking the intended use and applicable provider terms. Do not request or distribute substantial unauthorised copies of protected works.</p>
+<p>Z.E.R.O. branding, code and original interface elements should be kept distinct from third-party brands and franchises. Do not use another company's logos, characters, film dialogue, product branding or imply sponsorship or affiliation without permission. Check open-source licences before redistributing code or dependencies.</p>
+<p>Rights in user inputs and AI outputs depend on applicable law, the relevant provider's terms and the facts of each use. This page does not grant a licence to third-party content or promise exclusive ownership of generated output.</p>
+</section>
+
+<section id="data">
+<h2>06 / DATA &amp; MEMORY</h2>
+<p>Memory features should save only information needed for a clear user-requested purpose. The user should be able to understand what is saved, review it and request correction or deletion.</p>
+<p>The current prototype uses browser-side storage for some data. A complete in-app memory inventory, export function, account-wide deletion process and backup deletion procedure are not yet confirmed. Until those controls are implemented and tested, do not describe them as available.</p>
+<p>Before multi-user support, each person's data must be isolated by authenticated identity and enforced server-side. Client-side hiding is not access control. Database permissions and row-level security must be independently tested.</p>
+</section>
+
+<section id="providers">
+<h2>07 / THIRD-PARTY SERVICES</h2>
+<p>The known services in the current implementation are listed below. This inventory is based on the dashboard and active Edge Function configuration reviewed on 30 October 2026; it must be updated if the architecture changes.</p>
+<ul>
+<li><strong>GitHub Pages / GitHub:</strong> hosts the static dashboard and source repository. The dashboard URL is publicly reachable.</li>
+<li><strong>Supabase:</strong> hosts the active <code>jarvis-chat</code> and <code>Jarvis-speech</code> Edge Functions.</li>
+<li><strong>Google Gemini API:</strong> receives chat request text and generates assistant responses. Current official <a href="https://ai.google.dev/gemini-api/terms">Gemini API Additional Terms</a> (effective 23 March 2026) require API users to be 18+, prohibit API clients directed to or likely to be accessed by under-18s, state that the API is for professional/business development rather than consumer use, and require Paid Services for API clients made available in the UK. The current personal prototype has not been shown to satisfy these conditions. This is a critical eligibility blocker; do not treat the policy page as permission to continue using Gemini. Check the current terms and obtain clarification before further use.</li>
+<li><strong>Fish Audio:</strong> receives text for speech generation. Its published <a href="https://beta.fish.audio/terms/">Terms of Use</a> state a minimum age of 13 and require parent/guardian permission and agreement for users under 18. Confirm that the exact API product and account are covered by these terms and that any required guardian permission is in place.</li>
+<li><strong>Browser speech recognition:</strong> voice input uses the browser's SpeechRecognition/Web Speech interface where available. The browser/device provider's own terms and privacy practices also matter.</li>
+<li><strong>Google Fonts:</strong> the dashboard and this page request font files from Google Fonts. A browser request can disclose connection metadata such as an IP address and browser details to the font service.</li>
+<li><strong>cdnjs / Cloudflare:</strong> the dashboard loads the Three.js JavaScript library from cdnjs.cloudflare.com. The CDN receives a browser request and associated connection metadata.</li>
+<li><strong>Wikimedia Commons:</strong> Zen soundscape audio is loaded from Wikimedia Commons when the relevant ambient sound is selected.</li>
+<li><strong>Spotify, Apple Music and YouTube Music:</strong> Z.E.R.O. provides links that open these services separately; their own terms and privacy policies apply if a user follows those links.</li>
+</ul>
+<p>The frontend source reviewed did not contain an obvious analytics or advertising tag. This is not a complete audit of hosting, CDN, browser, or provider-side logs.</p>
+<p>Supabase's <a href="https://supabase.com/terms">Terms of Service</a>, <a href="https://supabase.com/privacy">Privacy Policy</a> and <a href="https://supabase.com/legal/customer-resources/data-processing-addendum">Data Processing Addendum</a> apply according to the project/account relationship. Provider-specific retention, model-training use, human review, data location, subprocessors and deletion capabilities depend on the exact product and account tier and must be checked against current official documentation.</p>
+<p><strong>Security blocker found during this review:</strong> both active Edge Functions are configured with JWT verification disabled, and their handlers do not perform an application-level user authentication check. The reviewed handlers also allow cross-origin requests from any origin and show no per-user rate limiting. This means the endpoints should be treated as publicly callable, creating an abuse and unexpected-usage risk. This page does not fix that issue. Add proper authentication/authorization and abuse controls, then test them before inviting anyone else or treating the service as launch-ready.</p>
+<p>No API keys, passwords or other credentials were read, copied, changed or included in this review or page.</p>
+</section>
+
+<section id="safety">
+<h2>08 / SAFETY &amp; LIMITATIONS</h2>
+<ul>
+<li>Z.E.R.O. can misunderstand requests and produce incorrect information.</li>
+<li>Do not use it as an emergency service or a substitute for a qualified professional.</li>
+<li>Do not submit passwords, payment-card details, authentication codes or other secrets to ordinary chats.</li>
+<li>Use microphone and voice features only with appropriate notice and consent from anyone whose voice is captured.</li>
+<li>Use safeguards appropriate to the age and needs of the actual audience. Provider age restrictions must be checked before enabling a provider or inviting users.</li>
+<li>Before launch, test security, access controls, abuse handling, incident response, backups and recovery.</li>
+</ul>
+</section>
+
+<section id="contact">
+<h2>09 / CONTACT &amp; LEGAL</h2>
+<p>A public support or privacy contact address has not yet been configured. It must be added before Z.E.R.O. is offered to other people. Do not publish a personal address or private contact detail without considering the privacy implications.</p>
+<p>This page is an informational working draft, not legal advice and not a complete UK GDPR privacy notice or final user contract. UK requirements depend on the responsible operator, the purpose and scale of processing, the data involved, who can access it and whether children are likely to use the service. The ICO says its Children's Code may apply to online services likely to be accessed by children, even if children are not the intended audience; see the <a href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/childrens-information/childrens-code-guidance-and-resources/introduction-to-the-childrens-code">ICO Children's Code guidance</a>. Before public launch, paid use or processing other people's data, obtain advice from a qualified UK solicitor and check current regulator guidance.</p>
+</section>
+</main>
+<footer>© Z.E.R.O. — Working documentation for a personal prototype. Not approved for public launch. Fact-check date: 30 October 2026. Update this page whenever providers, data flows or app features change.</footer>
+</div>
+</body>
+</html>
