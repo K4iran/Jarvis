@@ -268,25 +268,62 @@ export function createOrb(canvas, options = {}) {
       positions[j + 1] += positions[j + 1] / len * correction;
       positions[j + 2] += positions[j + 2] / len * correction;
       if (blackHole) {
-        // Thinking is a fully three-dimensional, continuously morphing
-        // intelligence field: curved lobes, folds, twists and changing axes.
-        // The target changes over time so the cloud never settles into one line.
-        const turn = t * 0.42 + Math.sin(t * 0.73 + p) * 0.34;
-        const ct = Math.cos(turn), st = Math.sin(turn);
+        // Thinking follows one coordinated shape at a time. Every particle
+        // shares the same two-second shape cycle and eases together into the
+        // next form, so the whole cloud moves with intent rather than noise.
         const bx = base[j], by = base[j + 1], bz = base[j + 2];
-        const twistX = bx * ct - bz * st;
-        const twistZ = bx * st + bz * ct;
-        const lobeA = Math.sin(by * 0.17 + t * 1.05 + p * 0.55);
-        const lobeB = Math.cos(bz * 0.15 - t * 0.82 + p * 0.38);
-        const lobeC = Math.sin(bx * 0.14 + t * 0.91 - p * 0.62);
-        const fold = Math.sin((bx + bz) * 0.105 - t * 1.32 + p);
-        const thinkingX = twistX * 0.48 + lobeA * 6.2 + lobeB * 3.4 + fold * 2.8;
-        const thinkingY = by * 0.44 + lobeB * 6.8 - lobeC * 4.1 + Math.cos(t * 0.68 + bz * 0.12) * 2.5;
-        const thinkingZ = twistZ * 0.50 + lobeC * 6.0 + lobeA * 3.7 - fold * 3.2;
-        const morph = 1 - Math.exp(-dt * 2.8);
-        positions[j] += (thinkingX - positions[j]) * morph;
+        const shapeCycle = t / 2.0;
+        const shapeIndex = Math.floor(shapeCycle);
+        const phaseInCycle = shapeCycle - shapeIndex;
+        const transition = THREE_NS.MathUtils.smoothstep(phaseInCycle, 0.70, 1.0);
+        const shapePoint = (shape, x, y, z) => {
+          const r = Math.hypot(x, y, z) || 1;
+          const nx = x / r, ny = y / r, nz = z / r;
+          const a = Math.atan2(z, x);
+          let radial = 1, vertical = 1, bend = 0, twist = 0;
+          if (shape === 0) {
+            radial = 0.91 + 0.075 * Math.cos(a * 3 + ny * 2.2);
+            vertical = 0.82;
+            bend = Math.sin(a * 2 + ny * 2.0) * 2.0;
+            twist = 0.12;
+          } else if (shape === 1) {
+            radial = 0.86 + 0.09 * Math.cos(a * 2 - ny * 2.8);
+            vertical = 0.94;
+            bend = Math.sin(a + ny * 3.0) * 2.6;
+            twist = -0.16;
+          } else if (shape === 2) {
+            radial = 0.94 + 0.07 * Math.sin(a * 3 + ny * 2.5);
+            vertical = 0.72 + 0.08 * Math.cos(a * 2);
+            bend = Math.sin(a * 2.5 - ny * 2.0) * 2.2;
+            twist = 0.22;
+          } else {
+            radial = 0.88 + 0.08 * Math.cos(a * 2 + ny * 3.2);
+            vertical = 0.88;
+            bend = Math.sin(a * 3 - ny * 1.8) * 1.8;
+            twist = -0.08;
+          }
+          const angle = twist + Math.sin(ny * 2.4) * 0.08;
+          const ca = Math.cos(angle), sa = Math.sin(angle);
+          const px = x * radial, pz = z * radial;
+          return [
+            (px * ca - pz * sa) * 0.78 + bend,
+            y * vertical + Math.sin(a * 2 + ny) * 1.5,
+            (px * sa + pz * ca) * 0.78 + Math.cos(a * 2 - ny) * 1.2
+          ];
+        };
+        const first = shapePoint(shapeIndex % 4, bx, by, bz);
+        const second = shapePoint((shapeIndex + 1) % 4, bx, by, bz);
+        const thinkingX = first[0] + (second[0] - first[0]) * transition;
+        const thinkingY = first[1] + (second[1] - first[1]) * transition;
+        const thinkingZ = first[2] + (second[2] - first[2]) * transition;
+        const orientation = t * 0.10;
+        const co = Math.cos(orientation), si = Math.sin(orientation);
+        const rotatedX = thinkingX * co - thinkingZ * si;
+        const rotatedZ = thinkingX * si + thinkingZ * co;
+        const morph = 1 - Math.exp(-dt * 3.8);
+        positions[j] += (rotatedX - positions[j]) * morph;
         positions[j + 1] += (thinkingY - positions[j + 1]) * morph;
-        positions[j + 2] += (thinkingZ - positions[j + 2]) * morph;
+        positions[j + 2] += (rotatedZ - positions[j + 2]) * morph;
       } else {
         // Every non-thinking frame gently reasserts the normal 3D layout.
         // This is continuous (not a one-shot timer), so a second or later
