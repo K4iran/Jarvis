@@ -15,8 +15,8 @@ export function createOrb(canvas, options = {}) {
   const linkDistance = options.lineDistance || 8;
   const scene = new THREE_NS.Scene();
   scene.background = new THREE_NS.Color(options.backgroundColor ?? 0x050508);
-  const camera = new THREE_NS.PerspectiveCamera(42, 1, 0.1, 300);
-  camera.position.z = 76;
+  const camera = new THREE_NS.PerspectiveCamera(50, 1, 0.1, 400);
+  camera.position.z = 90;
   const renderer = new THREE_NS.WebGLRenderer({ canvas, antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, options.maxPixelRatio || 2));
   renderer.setClearColor(0x050508, 1);
@@ -76,6 +76,9 @@ export function createOrb(canvas, options = {}) {
     const h = Math.max(1, canvas.clientHeight || window.innerHeight);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
+    // Fit the complete orb even on a narrow portrait phone screen.
+    const halfHorizontalFov = Math.atan(Math.tan(THREE_NS.MathUtils.degToRad(camera.fov / 2)) * Math.min(1, camera.aspect));
+    camera.position.z = Math.max(78, 31 / Math.sin(halfHorizontalFov));
     camera.updateProjectionMatrix();
   }
   resize();
@@ -84,7 +87,7 @@ export function createOrb(canvas, options = {}) {
     resizeObserver.observe(canvas);
   } else window.addEventListener("resize", resize);
 
-  function rebuildLinks() {
+  function rebuildLinks(t) {
     links.length = 0;
     const sampleStep = Math.max(1, Math.floor(count / 600));
     for (let i = 0; i < count; i += sampleStep) {
@@ -92,7 +95,12 @@ export function createOrb(canvas, options = {}) {
       for (let j = i + sampleStep; j < count; j += sampleStep) {
         const bj = j * 3;
         const dx = positions[ai] - positions[bj], dy = positions[ai + 1] - positions[bj + 1], dz = positions[ai + 2] - positions[bj + 2];
-        if (dx * dx + dy * dy + dz * dz < linkDistance * linkDistance) {
+        // Connections breathe in and out: some links temporarily fade away,
+        // then reconnect as the network flows through a slow travelling wave.
+        const phase = t * 0.72 + i * 0.037 + j * 0.019;
+        const linkWave = Math.sin(phase);
+        const dynamicDistance = linkDistance * (0.84 + 0.16 * Math.sin(t * 0.48 + i * 0.011));
+        if (linkWave > -0.30 && dx * dx + dy * dy + dz * dz < dynamicDistance * dynamicDistance) {
           links.push([i, j]);
           if (links.length >= maxLines) break;
         }
@@ -133,7 +141,8 @@ export function createOrb(canvas, options = {}) {
     for (const key of ["radius", "speed", "brightness", "size", "links"]) current[key] += (target[key] - current[key]) * ease;
     pointMat.opacity += (current.brightness * 0.85 - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
-    lineMat.opacity += (current.links * 0.12 - lineMat.opacity) * ease;
+    const networkBreath = 0.78 + 0.22 * (0.5 + 0.5 * Math.sin(t * 0.75));
+    lineMat.opacity += (current.links * 0.12 * networkBreath - lineMat.opacity) * ease;
     let bass = 0, mids = 0;
     if (analyser && audioData) {
       analyser.getByteFrequencyData(audioData);
@@ -144,7 +153,8 @@ export function createOrb(canvas, options = {}) {
     const pulse = target === PROFILES.speaking || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
       const j = i * 3, p = phases[i], wave = Math.sin(t * (0.55 + speeds[i]) + p);
-      const breathe = 1 + 0.035 * wave + bass * 0.12 + pulse * 0.08;
+      const expansion = 1 + 0.115 * Math.sin(t * 0.62) + 0.035 * Math.sin(t * 1.35 + p * 0.35);
+      const breathe = expansion * (1 + 0.045 * wave + bass * 0.12 + pulse * 0.08);
       const drift = current.speed * (0.35 + speeds[i]) * dt * 8;
       positions[j] += dirs[j] * drift;
       positions[j + 1] += dirs[j + 1] * drift;
@@ -162,7 +172,7 @@ export function createOrb(canvas, options = {}) {
     lines.rotation.copy(points.rotation);
     electrons.rotation.copy(points.rotation);
 
-    if (frame % 3 === 0) rebuildLinks();
+    if (frame % 3 === 0) rebuildLinks(t);
     for (let k = travellers.length - 1; k >= 0; k--) {
       const e = travellers[k];
       e.t += dt * e.speed;
