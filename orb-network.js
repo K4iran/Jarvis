@@ -258,7 +258,7 @@ export function createOrb(canvas, options = {}) {
         const radialPush = Math.max(0, innerGap - radiusNow) * 0.045;
         positions[j] += positions[j] / radiusNow * radialPush;
         positions[j + 2] += positions[j + 2] / radiusNow * radialPush;
-        positions[j + 1] *= 0.985;
+        positions[j + 1] += (base[j + 1] * 0.28 - positions[j + 1]) * 0.012;
       }
     }
     pointGeo.attributes.position.needsUpdate = true;
