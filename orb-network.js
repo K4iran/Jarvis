@@ -258,11 +258,13 @@ export function createOrb(canvas, options = {}) {
       const len = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
       const shell = 0.55 + (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) * 0.45;
       const desired = current.radius * shell * breathe;
-      // Keep the same particle cloud at every point in the speaking cycle.
-      // Its minimum is exactly one quarter of its expanded size, never a
-      // separate inward-collapsing singularity.
-      const speakingExpansionScale = isSpeaking ? 0.25 + 0.75 * speakingAmount : 1;
-      const particleDesired = isSpeaking ? desired * speakingExpansionScale : desired;
+      // Preserve the previous maximum speaking size (1.62x the normal
+      // orb radius), then scale that same complete orb smoothly down to 25%.
+      // There is no singularity state, particle clustering, or core collapse.
+      const speakingExpansionScale = isSpeaking
+        ? 1.62 * (0.25 + 0.75 * speakingAmount)
+        : 1;
+      const particleDesired = desired * speakingExpansionScale;
       const correction = (particleDesired - len) * (isSpeaking ? 0.10 : isVocal ? 0.022 : 0.012);
       positions[j] += positions[j] / len * correction;
       positions[j + 1] += positions[j + 1] / len * correction;
