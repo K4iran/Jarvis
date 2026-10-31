@@ -4429,8 +4429,8 @@ function startHelmetAnimation(){
    const side=Math.max(0,Math.min(1,(p.x-104)/352));
    // Preserve the existing left-side peak; progressively shade toward the right.
    const directionalLight=1-.985*smoothstep(.02,1,side),baseRed=176+58*(1-side)+21*p.bright;
-   const cr=Math.round(176+(baseRed-176)*directionalLight+21*band),cg=Math.round((10+22*p.bright)*directionalLight+105*band),cb=Math.round((18+25*p.bright)*directionalLight+110*band);
-   projected[i]={x:px*perspective,y:py*perspective,alpha:alpha*(.025+.975*directionalLight),cr,cg,cb,size:p.size*(.65+reveal*.4),reveal,band,directionalLight};
+   const cr=Math.round((baseRed+21*band)*directionalLight),cg=Math.round(((10+22*p.bright)+105*band)*directionalLight),cb=Math.round(((18+25*p.bright)+110*band)*directionalLight);
+   projected[i]={x:px*perspective,y:py*perspective,alpha,cr,cg,cb,size:p.size*(.65+reveal*.4),reveal,band,directionalLight};
   }
   // Subtle connecting filaments: each line breathes independently in
   // brightness, with the same left-to-right colour treatment as the nodes.
@@ -4440,7 +4440,7 @@ function startHelmetAnimation(){
    if(!a||!b)continue;
    const shimmer=.24+.22*(.5+.5*Math.sin(t*1.7+k*.19));
    const alpha=shimmer*Math.min(a.reveal,b.reveal)*Math.min(1,Math.min(a.alpha,b.alpha)*1.8);
-   ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+(alpha*(.025+.975*Math.min(a.directionalLight,b.directionalLight)))+')';
+   ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+alpha+')';
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
   }
   // Distinct Iron-Man-inspired panel seams, eye surrounds, cheek geometry,
