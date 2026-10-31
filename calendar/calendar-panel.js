@@ -23,6 +23,7 @@
     #jarvis-calendar-panel .jcp-event{border:1px solid rgba(104,204,255,.2);border-radius:12px;padding:14px;margin:10px 0;background:rgba(11,29,45,.7)}
     #jarvis-calendar-panel .jcp-event-title{font-size:17px}
     #jarvis-calendar-panel .jcp-form{display:grid;gap:10px;margin-top:16px}
+    #jarvis-calendar-panel .jcp-form[hidden]{display:none!important}
     #jarvis-calendar-panel .jcp-form label{display:grid;gap:5px;color:#9dc5d5}
     #jarvis-calendar-panel .jcp-status{min-height:24px;color:#8de1ff;margin:12px 0}
     #jarvis-calendar-panel .jcp-close{font-size:22px}
@@ -142,7 +143,7 @@
     try {
       const api = window.JarvisGoogleCalendar;
       if (!api) throw new Error("Calendar adapter has not been loaded.");
-      await api.init();
+      await (window.JarvisGoogleCalendarReady || api.init());
       await api.connect();
       say("Google Calendar connected.");
       await refresh();
@@ -178,5 +179,5 @@
     renderEvents(event.detail && event.detail.events);
     say("Calendar synced.");
   });
-  window.JarvisCalendarPanel = Object.freeze({ open: show, close: hide, refresh });
+  window.JarvisCalendarPanel = Object.freeze({ open: show, close: hide, refresh, newEvent: () => openForm(null) });
 })();
