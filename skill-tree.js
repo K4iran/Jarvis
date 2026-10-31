@@ -677,7 +677,7 @@ function createOrbVisual(group, radius, color, icon, label, isCenter) {
     wordmark.material.opacity = 1;
     wordmark.material.depthTest = false;
     wordmark.scale.set(radius * 1.05, radius * 0.25, 1);
-    wordmark.position.set(0, 0, radius * 0.34);
+    wordmark.position.set(0, 0, 0);
     wordmark.renderOrder = 8;
     group.add(wordmark);
     core = wordmark;
