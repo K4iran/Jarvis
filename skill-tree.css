@@ -1,0 +1,55 @@
+
+/* ZERO Skill Tree — isolated styles; the Zen tree and main orb are untouched. */
+#skillTreeTab { position:relative; }
+#skillTreeTab:before { content:""; position:absolute; inset:5px 10px; border-radius:999px; background:rgba(88,191,255,.08); filter:blur(10px); opacity:.7; pointer-events:none; }
+#zeroSkillTree { position:fixed; inset:0; z-index:4200; overflow:hidden; color:#eaf6ff; background:radial-gradient(ellipse at 50% 47%,#0a1327 0%,#030814 54%,#01030a 100%); isolation:isolate; font-family:inherit; }
+#zeroSkillTree[hidden] { display:none !important; }
+#zeroSkillCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; outline:none; }
+.st-vignette { position:absolute; inset:0; pointer-events:none; z-index:1; background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.2) 72%,rgba(0,0,0,.62) 100%); }
+.st-topline { position:absolute; z-index:4; top:max(18px,env(safe-area-inset-top)); left:clamp(18px,4vw,54px); right:clamp(18px,4vw,54px); display:flex; align-items:center; justify-content:space-between; pointer-events:none; }
+.st-brand { display:flex; flex-direction:column; gap:3px; letter-spacing:.2em; text-shadow:0 0 18px rgba(92,184,255,.3); }
+.st-brand strong { font-size:12px; font-weight:700; color:#e9f8ff; }
+.st-brand span { font-size:9px; color:rgba(166,205,237,.62); letter-spacing:.24em; }
+.st-hint { font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:rgba(171,204,235,.48); text-align:right; }
+.st-skill-panel { position:absolute; z-index:5; width:min(340px,calc(100vw - 34px)); max-height:min(72vh,600px); overflow:auto; padding:20px 20px 18px; border:1px solid rgba(144,202,255,.25); border-radius:17px; background:linear-gradient(145deg,rgba(8,22,43,.92),rgba(5,10,24,.88)); box-shadow:0 18px 70px rgba(0,0,0,.48),inset 0 0 28px rgba(85,173,255,.055),0 0 28px rgba(82,156,255,.12); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+.st-skill-panel[hidden] { display:none !important; }
+.st-panel-close { position:absolute; top:10px; right:12px; border:0; background:transparent; color:rgba(225,242,255,.65); font-size:24px; line-height:1; padding:5px 8px; cursor:pointer; }
+.st-panel-kicker { color:#91c9eb; font-size:9px; letter-spacing:.22em; text-transform:uppercase; margin:0 28px 7px 0; }
+.st-panel-title { font-size:21px; font-weight:650; letter-spacing:.015em; margin:0 28px 9px 0; color:#f1f9ff; }
+.st-panel-status { display:inline-flex; align-items:center; gap:7px; padding:5px 9px; border:1px solid rgba(141,207,255,.2); border-radius:999px; color:#b8dfff; font-size:9px; letter-spacing:.14em; text-transform:uppercase; }
+.st-panel-status:before { content:""; width:6px; height:6px; border-radius:50%; background:#57e9a5; box-shadow:0 0 10px currentColor; }
+.st-panel-status[data-status="available"]:before { background:#75cfff; }
+.st-panel-status[data-status="coming soon"]:before { background:#f4c675; }
+.st-panel-description { color:rgba(217,234,249,.78); font-size:12px; line-height:1.65; margin:15px 0 16px; }
+.st-panel-label { display:block; color:rgba(152,198,230,.7); font-size:9px; letter-spacing:.17em; text-transform:uppercase; margin-bottom:7px; }
+.st-activation { padding:11px 12px; border:1px solid rgba(121,187,238,.17); border-radius:10px; background:rgba(88,157,220,.07); color:#dbf2ff; font-size:12px; line-height:1.5; }
+.st-launch { display:block; width:100%; margin-top:15px; padding:12px 15px; border:1px solid rgba(135,210,255,.42); border-radius:10px; background:linear-gradient(105deg,rgba(35,106,160,.42),rgba(38,56,112,.36)); color:#eaf8ff; font:600 10px inherit; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; box-shadow:0 0 18px rgba(76,163,236,.12),inset 0 0 16px rgba(108,197,255,.08); transition:transform .18s,border-color .18s,box-shadow .18s; }
+.st-launch:hover { border-color:rgba(166,226,255,.82); box-shadow:0 0 24px rgba(76,163,236,.24); }
+.st-launch:active { transform:scale(.98); }
+.st-launch:disabled { opacity:.35; cursor:not-allowed; }
+.st-toast { position:absolute; z-index:8; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translate(-50%,12px); opacity:0; pointer-events:none; padding:10px 15px; border:1px solid rgba(130,205,255,.25); border-radius:999px; background:rgba(5,18,35,.88); color:#d9f1ff; font-size:11px; box-shadow:0 6px 28px rgba(0,0,0,.35); transition:opacity .25s,transform .25s; white-space:nowrap; max-width:calc(100vw - 30px); overflow:hidden; text-overflow:ellipsis; }
+.st-toast.visible { opacity:1; transform:translate(-50%,0); }
+.st-no-webgl { position:absolute; z-index:5; inset:25% 20px auto; text-align:center; color:#c7deef; font-size:13px; line-height:1.6; }
+.zero-music-settings { margin-top:18px; padding:15px 0 2px; border-top:1px solid rgba(143,179,210,.16); }
+.zero-music-settings h3 { margin:0 0 5px; color:var(--t,#eaf6ff); font-size:13px; letter-spacing:.04em; }
+.zero-music-settings p { margin:0 0 12px; color:var(--mut,#9fb0c2); font-size:11px; line-height:1.5; }
+.zero-music-settings label { display:block; margin:10px 0 6px; color:var(--mut,#9fb0c2); font-size:11px; }
+.zero-music-settings select,.zero-music-settings input { display:block; width:100%; min-height:39px; margin-top:6px; padding:8px 10px; border:1px solid rgba(124,183,225,.24); border-radius:8px; background:rgba(5,15,28,.86); color:#e9f6ff; font:inherit; font-size:12px; }
+.zero-music-settings button { margin-top:11px; padding:9px 13px; border:1px solid rgba(124,193,240,.35); border-radius:8px; background:rgba(51,115,163,.2); color:#e5f6ff; cursor:pointer; font-size:11px; }
+.zero-music-settings .zero-music-feedback { min-height:16px; margin-top:8px; color:#8fd8bc; font-size:10px; }
+#zenRoot .zen-node[data-branch="music"] { filter:drop-shadow(0 0 8px rgba(102,218,255,.08)); }
+#zenRoot .zen-node[data-branch="music"] .zen-node-icon { box-shadow:0 0 20px rgba(81,216,255,.27),0 0 34px rgba(81,216,255,.12),inset 0 0 15px rgba(81,216,255,.18); animation:zeroMusicBranchGlow 5.5s ease-in-out infinite; }
+#zenRoot .zen-node[data-branch="music"]:after { content:"♪"; position:absolute; top:-8px; right:-5px; color:#b9f5ff; font-size:12px; line-height:1; text-shadow:0 0 8px rgba(91,219,255,.75); opacity:.66; pointer-events:none; }
+@keyframes zeroMusicBranchGlow { 0%,100% { filter:brightness(.94); box-shadow:0 0 14px rgba(81,216,255,.18),inset 0 0 12px rgba(81,216,255,.11); } 50% { filter:brightness(1.2); box-shadow:0 0 22px rgba(81,216,255,.34),0 0 34px rgba(81,216,255,.12),inset 0 0 18px rgba(81,216,255,.18); } }
+#hangmanGame.tree-hangman-mode .hm-exit { min-width:190px; padding-left:16px; padding-right:16px; }
+@media(max-width:680px) {
+  .st-topline { top:max(13px,env(safe-area-inset-top)); }
+  .st-brand strong { font-size:10px; }
+  .st-brand span { font-size:8px; }
+  .st-hint { max-width:145px; font-size:8px; line-height:1.5; }
+  .st-skill-panel { left:17px !important; right:17px !important; top:auto !important; bottom:calc(18px + env(safe-area-inset-bottom)) !important; width:auto; max-height:47vh; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #zenRoot .zen-node[data-branch="music"] .zen-node-icon { animation:none !important; }
+  .st-toast,.st-launch { transition:none !important; }
+}
