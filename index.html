@@ -4449,7 +4449,7 @@ function startHelmetAnimation(){
   for(let k=0;k<detailLinks.length;k++){
    const d=detailLinks[k],a={x:d[0]-280,y:d[1]-320},b={x:d[2]-280,y:d[3]-320},midX=(a.x+b.x)*.5;
    const lineReveal=smoothstep(midX-44,midX+44,scanX),shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31)),side=Math.max(0,Math.min(1,(midX+176)/352)),light=1-.985*smoothstep(.02,1,side);
-   ctx.strokeStyle='rgba(255,105,115,'+((.34+.22*(.5+.5*Math.sin(t*1.35+k*.31)))*lineReveal*(.40+.60*light))+')';ctx.lineWidth=1.35;
+   ctx.strokeStyle='rgba('+Math.round(255*light)+','+Math.round(105*light)+','+Math.round(115*light)+','+((.34+.22*(.5+.5*Math.sin(t*1.35+k*.31)))*lineReveal)+')';ctx.lineWidth=1.35;
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
   }
   ctx.restore();
