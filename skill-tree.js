@@ -580,6 +580,79 @@ function addIcon(group, type, color, scale) {
   return root;
 }
 
+function addCategoryAura(group, radius, color, categoryId) {
+  if (!categoryId) return null;
+  const aura = new THREE.Group();
+  const tint = new THREE.Color(color);
+  const mat = (opacity) => new THREE.MeshBasicMaterial({ color:tint, transparent:true, opacity:opacity, blending:THREE.AdditiveBlending, depthWrite:false });
+  const ring = (r, tube, arc) => new THREE.Mesh(new THREE.TorusGeometry(r, tube, 6, 64, arc || Math.PI * 2), mat(0.58));
+  const dot = (r, material) => new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), material || mat(0.82));
+  aura.position.z = 0;
+  aura.userData.effectType = categoryId;
+  if (categoryId === 'voice') {
+    [0.0, 0.22, 0.44].forEach((offset, i) => {
+      const wave = ring(radius * (1.32 + i * 0.19), Math.max(0.012, radius * 0.018), Math.PI * 1.42);
+      wave.rotation.set(0.45 + i * 0.42, 0.2, -0.72 + offset);
+      aura.add(wave);
+    });
+    aura.userData.waveRings = aura.children;
+  } else if (categoryId === 'games') {
+    const orbit = new THREE.Group();
+    orbit.rotation.set(0.72, 0.2, 0.35);
+    const orbitLine = ring(radius * 1.48, radius * 0.012);
+    orbit.add(orbitLine);
+    for (let i = 0; i < 4; i++) {
+      const marker = dot(radius * 0.075);
+      const a = i * Math.PI / 2;
+      marker.position.set(Math.cos(a) * radius * 1.48, Math.sin(a) * radius * 1.48, 0);
+      orbit.add(marker);
+    }
+    aura.add(orbit); aura.userData.orbit = orbit;
+  } else if (categoryId === 'productivity') {
+    const dial = new THREE.Group();
+    dial.rotation.set(0.6, 0.3, 0.2);
+    dial.add(ring(radius * 1.42, radius * 0.014));
+    for (let i = 0; i < 12; i++) {
+      const tick = new THREE.Mesh(new THREE.BoxGeometry(radius * 0.025, radius * (i % 3 === 0 ? 0.16 : 0.09), radius * 0.018), mat(i % 3 === 0 ? 0.82 : 0.42));
+      const a = i * Math.PI / 6;
+      tick.position.set(Math.cos(a) * radius * 1.42, Math.sin(a) * radius * 1.42, 0);
+      tick.rotation.z = a - Math.PI / 2;
+      dial.add(tick);
+    }
+    const hand = new THREE.Mesh(new THREE.BoxGeometry(radius * 0.035, radius * 0.62, radius * 0.025), mat(0.9));
+    hand.position.y = radius * 0.31; dial.add(hand);
+    aura.add(dial); aura.userData.dial = dial; aura.userData.hand = hand;
+  } else if (categoryId === 'intelligence') {
+    const network = new THREE.Group();
+    const nodes = [];
+    for (let i = 0; i < 6; i++) {
+      const a = i * Math.PI / 3;
+      const p = new THREE.Vector3(Math.cos(a) * radius * 1.43, Math.sin(a) * radius * 1.43, (i % 2 ? 1 : -1) * radius * 0.16);
+      nodes.push(p);
+      const n = dot(radius * (i === 0 ? 0.085 : 0.06)); n.position.copy(p); network.add(n);
+    }
+    for (let i = 0; i < nodes.length; i++) {
+      const j = (i + 2) % nodes.length;
+      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([nodes[i], nodes[j]]), new THREE.LineBasicMaterial({ color:tint, transparent:true, opacity:0.38, blending:THREE.AdditiveBlending, depthWrite:false }));
+      network.add(line);
+    }
+    aura.add(network); aura.userData.network = network;
+  } else if (categoryId === 'personalisation') {
+    const controls = new THREE.Group();
+    controls.rotation.set(0.55, 0.3, -0.3);
+    for (let i = 0; i < 3; i++) {
+      const y = (i - 1) * radius * 0.34;
+      const track = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.012, radius * 0.012, radius * 1.35, 8), mat(0.45));
+      track.rotation.z = Math.PI / 2; track.position.y = y; controls.add(track);
+      const knob = dot(radius * 0.09);
+      knob.position.set((i - 1) * radius * 0.31, y, radius * 0.05);
+      controls.add(knob);
+    }
+    aura.add(controls); aura.userData.controls = controls;
+  }
+  group.add(aura);
+  return aura;
+}
 function createOrbVisual(group, radius, color, icon, label, isCenter) {
   const colorValue = new THREE.Color(color);
   const shellMaterial = new THREE.MeshPhysicalMaterial({
@@ -694,6 +767,9 @@ function createOrbVisual(group, radius, color, icon, label, isCenter) {
   }));
   group.add(detailParticles);
 
+  const nodeMeta = group.userData.node;
+  const categoryAura = !isCenter && nodeMeta && nodeMeta.kind === 'category'
+    ? addCategoryAura(group, radius, color, nodeMeta.id) : null;
   if (icon && icon !== 'zero') addIcon(group, icon, color, radius * 0.65);
   if (label) {
     const labelSprite = makeLabelSprite(label, '#e9f6ff', 28);
@@ -711,6 +787,7 @@ function createOrbVisual(group, radius, color, icon, label, isCenter) {
   group.add(hit);
   group.userData.hitMesh = hit;
   group.userData.rings = rings;
+  group.userData.categoryAura = categoryAura;
   group.userData.particles = particles;
   group.userData.shell = shell;
 
@@ -824,6 +901,7 @@ function buildWorld() {
     categoryOrbit.add(node.group);
     const visual = createOrbVisual(node.group,0.76,category.color,category.icon,category.name,false);
     node.visual = visual;
+    visual.categoryAura = node.group.userData.categoryAura;
     node.mesh = visual.hit;
     node.mesh.userData.pickTarget = node;
     pickMeshes.push(node.mesh);
@@ -1517,6 +1595,35 @@ function animate(now) {
   categoryNodes.forEach(function (category) {
     if(category.group.visible){
       category.group.rotation.y+=dt*0.08;
+      const aura = category.visual && category.visual.categoryAura;
+      if (aura) {
+        const t = now * 0.001;
+        if (aura.userData.effectType === 'voice') {
+          (aura.userData.waveRings || []).forEach((wave, i) => {
+            wave.rotation.z += dt * (i % 2 ? -0.22 : 0.18);
+            const pulse = 1 + Math.sin(t * 2.1 - i * 0.85) * 0.045;
+            wave.scale.setScalar(pulse);
+            wave.material.opacity = 0.34 + (Math.sin(t * 2.1 - i * 0.85) + 1) * 0.13;
+          });
+        } else if (aura.userData.orbit) {
+          aura.userData.orbit.rotation.z += dt * 0.42;
+          aura.userData.orbit.rotation.x += dt * 0.08;
+        } else if (aura.userData.dial) {
+          aura.userData.dial.rotation.z += dt * 0.22;
+          aura.userData.hand.rotation.z = Math.sin(t * 0.8) * 0.55;
+        } else if (aura.userData.network) {
+          aura.userData.network.rotation.y += dt * 0.24;
+          aura.userData.network.rotation.z -= dt * 0.16;
+          aura.userData.network.scale.setScalar(1 + Math.sin(t * 1.7) * 0.025);
+        } else if (aura.userData.controls) {
+          aura.userData.controls.rotation.z += dt * 0.1;
+          aura.userData.controls.children.forEach((part, i) => {
+            if (part.geometry && part.geometry.type === 'IcosahedronGeometry') {
+              part.position.x = Math.sin(t * 1.1 + Math.floor(i / 2) * 1.8) * 0.22;
+            }
+          });
+        }
+      }
       category.skills.forEach(function (skill,index) {
         if(skill.group.visible){
           skill.group.rotation.y+=dt*(index%2?-.1:.12);
