@@ -4,6 +4,7 @@
   const STYLE = [
     ".zf-overlay{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:clamp(12px,3vw,28px);background:radial-gradient(ellipse at 50% 35%,rgba(8,32,57,.985),rgba(2,7,16,.995) 74%);color:#e7f7ff;opacity:0;transition:opacity .3s ease;overflow:auto}",
     ".zf-overlay[hidden]{display:none!important}.zf-overlay.on{opacity:1}",
+    ".zf-city-change{appearance:none;border:0;border-bottom:1px dashed rgba(117,210,255,.55);background:transparent;color:#e7f8ff;font:inherit;letter-spacing:inherit;padding:0 0 2px;cursor:pointer}.zf-city-change span{font-size:.72em;color:#70cfff;margin-left:5px}.zf-city-change:focus-visible{outline:2px solid #70cfff;outline-offset:5px}",
     ".zf-panel{width:min(100%,900px);max-height:calc(100dvh - 28px);overflow:auto;border:1px solid rgba(105,205,255,.23);background:linear-gradient(145deg,rgba(7,22,40,.88),rgba(2,9,20,.9));box-shadow:0 0 60px rgba(32,130,220,.11),inset 0 0 40px rgba(67,169,255,.035);backdrop-filter:blur(16px);padding:clamp(16px,3vw,28px);position:relative}",
     ".zf-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.zf-kicker{font:10px ui-monospace,monospace;letter-spacing:.24em;color:#69caff;text-transform:uppercase}.zf-title{font-size:clamp(23px,5vw,34px);font-weight:300;letter-spacing:.12em;margin:5px 0 0;color:#e7f8ff}.zf-close{width:36px;height:36px;flex:none;border:1px solid rgba(117,198,239,.3);background:rgba(19,54,79,.35);color:#bfeeff;font-size:22px;cursor:pointer}",
     ".zf-muted{color:#88a9bf;font:12px/1.6 ui-monospace,monospace}.zf-weather-current{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:16px;border:1px solid rgba(103,194,244,.16);background:rgba(21,61,91,.18)}.zf-temp{font-size:clamp(44px,10vw,68px);font-weight:200;line-height:1;color:#f0fbff}.zf-condition{font-size:17px;color:#bcecff;margin-top:5px}.zf-weather-icon{font-size:54px;filter:drop-shadow(0 0 16px rgba(87,198,255,.28))}.zf-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0 18px}.zf-metric{padding:11px;border:1px solid rgba(103,194,244,.13);background:rgba(9,31,51,.4)}.zf-metric span{display:block;color:#7fa5bd;font:9px ui-monospace,monospace;letter-spacing:.13em;text-transform:uppercase}.zf-metric strong{display:block;color:#d9f4ff;font-size:17px;font-weight:400;margin-top:5px}.zf-section-label{font:10px ui-monospace,monospace;letter-spacing:.2em;color:#73c8ef;text-transform:uppercase;margin:18px 0 10px}.zf-chart-wrap{border:1px solid rgba(103,194,244,.14);background:rgba(3,15,28,.48);padding:12px}.zf-chart{display:block;width:100%;height:auto;touch-action:pan-y;cursor:crosshair}.zf-chart-label{display:flex;justify-content:space-between;gap:10px;color:#86a9bf;font:11px ui-monospace,monospace;margin-top:5px}.zf-hour-strip{display:grid;grid-auto-columns:minmax(65px,1fr);grid-auto-flow:column;gap:7px;overflow-x:auto;padding:10px 0 3px}.zf-hour{border:1px solid rgba(103,194,244,.13);background:rgba(15,44,68,.34);padding:9px 7px;text-align:center;min-width:0}.zf-hour b{display:block;font-size:16px;font-weight:400;color:#dff7ff}.zf-hour small{display:block;color:#81a8c0;font:10px ui-monospace,monospace;margin-top:4px}.zf-news-list{display:grid;gap:10px}.zf-news-item{border:1px solid rgba(103,194,244,.15);background:rgba(13,42,64,.32);padding:14px}.zf-news-item a{color:#dff6ff;text-decoration:none;font-size:15px}.zf-news-item a:focus,.zf-news-item a:hover{color:#80d9ff}.zf-news-meta{color:#78a3bb;font:10px ui-monospace,monospace;margin-top:7px;letter-spacing:.08em}.zf-news-intro{color:#a9c7d8;font-size:13px;margin:0 0 14px}.zf-status{color:#8eb6cc;font:12px ui-monospace,monospace;padding:16px;text-align:center}",
@@ -27,6 +28,8 @@
   let activeMode = "";
   let sudoku = null;
   let weatherData = null;
+  let weatherCity = "Edinburgh";
+  try { weatherCity = localStorage.getItem("zero.weather.city.v1") || "Edinburgh"; } catch (error) {}
   let chartIndex = 0;
 
   function escapeHtml(value) {
@@ -76,7 +79,7 @@
     const match = cleaned.match(/\b(?:weather|forecast|temperature|conditions|rain|raining|sunny|cloudy|windy)\b.*?\b(?:in|for|at)\s+(.+?)\s*$/i) ||
       cleaned.match(/\b(?:in|for|at)\s+(.+?)\s+(?:weather|forecast)\b/i);
     if (match && match[1]) return match[1].replace(/[?.!]+$/g, "").trim();
-    return "Edinburgh";
+    return weatherCity || "Edinburgh";
   }
   async function fetchWeather(city) {
     const geoUrl = "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(city) + "&count=1&language=en&format=json";
@@ -115,7 +118,7 @@
       const condition = weatherDescription(day.weather_code[i]);
       return '<div class="zf-hour"><small>' + new Date(time + "T12:00:00").toLocaleDateString("en-GB", { weekday:"short", day:"numeric", timeZone: result.data.timezone }) + '</small><b>' + condition[1] + " " + Math.round(day.temperature_2m_max[i]) + "°</b><small>↓ " + Math.round(day.temperature_2m_min[i]) + "° · rain " + (day.precipitation_probability_max[i] ?? 0) + '%</small></div>';
     }).join("");
-    panel.innerHTML = head("LIVE WEATHER / " + escapeHtml(result.place.country || "LOCAL"), escapeHtml(result.place.name)) +
+    panel.innerHTML = head("LIVE WEATHER / " + escapeHtml(result.place.country || "LOCAL"), '<button type="button" class="zf-city-change" data-weather-change aria-label="Change weather city">' + escapeHtml(result.place.name) + '<span aria-hidden="true">⌄</span></button>') +
       '<div class="zf-weather-current"><div><div class="zf-temp">' + Math.round(current.temperature_2m) + '°</div><div class="zf-condition">' + info[0] + '</div><div class="zf-muted">Feels like ' + Math.round(current.apparent_temperature) + '°</div></div><div class="zf-weather-icon" aria-hidden="true">' + info[1] + '</div></div>' +
       '<div class="zf-metrics"><div class="zf-metric"><span>Humidity</span><strong>' + current.relative_humidity_2m + '%</strong></div><div class="zf-metric"><span>Wind</span><strong>' + Math.round(current.wind_speed_10m) + ' km/h</strong></div><div class="zf-metric"><span>Rain now</span><strong>' + Number(current.precipitation || 0).toFixed(1) + ' mm</strong></div><div class="zf-metric"><span>Today&#39;s high</span><strong>' + Math.round(day.temperature_2m_max[0]) + '°</strong></div><div class="zf-metric"><span>Today&#39;s low</span><strong>' + Math.round(day.temperature_2m_min[0]) + '°</strong></div><div class="zf-metric"><span>Rain chance</span><strong>' + (day.precipitation_probability_max[0] ?? 0) + '%</strong></div></div>' +
       '<div class="zf-section-label">HOURLY TEMPERATURE / NEXT 24 HOURS</div><div class="zf-chart-wrap"><svg id="zfWeatherChart" class="zf-chart" viewBox="0 0 700 210" role="img" aria-label="Interactive hourly temperature graph"></svg><div class="zf-chart-label"><span id="zfChartSelected">Select a point on the graph</span><span>' + Math.round(min) + '° — ' + Math.round(max) + '°C</span></div></div>' +
@@ -398,6 +401,12 @@
     return true;
   }
   panel.addEventListener("click", function (event) {
+    const changeCity = event.target.closest("[data-weather-change]");
+    if (changeCity && activeMode === "weather") {
+      const nextCity = window.prompt("Change weather city:", weatherCity);
+      if (nextCity && nextCity.trim()) openWeather(nextCity.trim());
+      return;
+    }
     const cell = event.target.closest("[data-cell]");
     if (cell && sudoku && sudoku.active) {
       const parts = cell.dataset.cell.split("-").map(Number);
@@ -427,7 +436,9 @@
   }
 
   async function openWeather(city) {
-    const requestedCity=String(city || "Edinburgh").trim() || "Edinburgh";
+    const requestedCity=String(city || weatherCity || "Edinburgh").trim() || "Edinburgh";
+    weatherCity = requestedCity;
+    try { localStorage.setItem("zero.weather.city.v1", weatherCity); } catch (error) {}
     open("weather");
     panel.innerHTML = head("LIVE WEATHER / FETCHING", "Weather") + '<div class="zf-status">Checking current conditions for ' + escapeHtml(requestedCity) + '…</div>';
     try {
@@ -499,5 +510,5 @@
     return false;
   }
 
-  window.ZeroExtraFeatures = { handleCommand: handleCommand, openSudoku: openSudoku, openWeather: openWeather };
+  window.ZeroExtraFeatures = { handleCommand: handleCommand, openSudoku: openSudoku, openWeather: openWeather, openHappyNews: function () { return showHappyNews(async function () {}); } };
 })();
