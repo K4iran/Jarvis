@@ -731,6 +731,39 @@ body.zen-mode-active #core{visibility:hidden!important}
 #zenRoot.zen-panel-closing .zen-panel{animation-duration:.58s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
 @media(prefers-reduced-motion:reduce){#zenRoot .zen-tree-stage,#zenRoot .zen-node,#zenRoot .zen-node .zen-node-icon,#zenRoot .zen-panel-host{transition:none!important}#zenRoot.zen-audio-live .zen-node .zen-ring{animation:none!important;opacity:.22}}
 
+
+/* Zen holographic Spirit Tree refinement — isolated to Zen mode. */
+#zenRoot .zen-tree-svg{filter:drop-shadow(0 0 5px rgba(106,255,219,.18)) drop-shadow(0 0 18px rgba(94,196,255,.08));}
+#zenRoot .zen-trunk{stroke:url(#zenHolo);stroke-width:8.5;opacity:.94;filter:url(#zenHoloGlow) drop-shadow(0 0 5px rgba(110,255,220,.42));}
+#zenRoot .zen-branch{stroke:url(#zenHolo);stroke-width:5.1;opacity:.9;filter:drop-shadow(0 0 4px rgba(110,255,220,.35));}
+#zenRoot .zen-vein{stroke:#a4fff0;stroke-width:.85;opacity:.43;filter:drop-shadow(0 0 2px rgba(123,255,226,.6));}
+#zenRoot .zen-tree-svg .zen-bark-detail{stroke:#d7fff5;stroke-width:.65;opacity:.5;}
+#zenRoot .zen-tree-svg .zen-fine-twig{stroke:#8effe3;stroke-width:.9;opacity:.7;}
+#zenRoot .zen-holo-detail{fill:none;stroke:url(#zenHoloDim);stroke-width:1.05;stroke-linecap:round;stroke-linejoin:round;opacity:.8;filter:drop-shadow(0 0 3px rgba(112,255,226,.24));}
+#zenRoot .zen-holo-spine{stroke:url(#zenHolo);stroke-width:1.8;opacity:.62;filter:drop-shadow(0 0 4px rgba(130,255,235,.65));}
+#zenRoot .zen-holo-branchlet{stroke:#8cf6dc;stroke-width:1.1;opacity:.7;}
+#zenRoot .zen-holo-joints circle{fill:#d8fff5;stroke:#74f8df;stroke-width:1.4;filter:drop-shadow(0 0 5px #69f6e0);}
+#zenRoot .zen-holo-diamonds{fill:rgba(169,255,239,.14);stroke:#b9fff2;stroke-width:1;opacity:.72;filter:drop-shadow(0 0 4px rgba(119,255,231,.6));}
+#zenRoot .zen-leaf-cluster path{fill:rgba(104,246,207,.11)!important;stroke:#9cffe8!important;stroke-width:1.05;stroke-opacity:.72!important;filter:drop-shadow(0 0 4px rgba(111,255,224,.38));}
+#zenRoot .zen-growth-node{fill:#e2fff9;stroke:#8fffe9;filter:drop-shadow(0 0 5px rgba(125,255,231,.9));}
+#zenRoot .zen-energy-wire{stroke:#5bdcc8;stroke-width:1.5;opacity:.28;}
+#zenRoot .zen-energy-flow{stroke-width:2.2;stroke-dasharray:3 23;opacity:.86;filter:drop-shadow(0 0 3px rgba(137,255,236,.8));}
+#zenRoot .zen-energy-aura{stroke-width:6;opacity:.23;filter:blur(3px);}
+#zenRoot .zen-node{background:transparent!important;border:0!important;backdrop-filter:none!important;}
+#zenRoot .zen-node .zen-node-icon{width:48px;height:48px;border:1px solid currentColor!important;border-radius:16px 7px 16px 7px;background:radial-gradient(circle at 35% 25%,rgba(226,255,255,.2),rgba(29,80,82,.46) 45%,rgba(3,16,25,.9) 82%)!important;box-shadow:0 0 13px color-mix(in srgb,currentColor 26%,transparent),inset 0 0 16px rgba(123,255,235,.12)!important;position:relative;overflow:visible;}
+#zenRoot .zen-node .zen-node-icon:before{content:"";position:absolute;inset:-5px;border:1px solid color-mix(in srgb,currentColor 32%,transparent);border-radius:20px 9px 20px 9px;transform:rotate(45deg) scale(.78);opacity:.52;pointer-events:none;}
+#zenRoot .zen-node .zen-node-icon:after{content:"";position:absolute;inset:5px;border:1px solid rgba(211,255,249,.12);border-radius:10px 4px 10px 4px;pointer-events:none;}
+#zenRoot .zen-node .zen-glyph{width:29px;height:29px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px currentColor);overflow:visible;}
+#zenRoot .zen-node .zen-node-label{font-size:9px;letter-spacing:.15em;text-shadow:0 0 8px rgba(0,0,0,.95),0 0 12px currentColor;}
+#zenRoot .zen-node[data-branch="music"] .zen-node-icon{box-shadow:0 0 17px rgba(91,213,245,.28),inset 0 0 15px rgba(91,213,245,.16)!important;}
+#zenRoot .zen-node[data-branch="breathe"] .zen-node-icon{box-shadow:0 0 17px rgba(89,222,165,.28),inset 0 0 15px rgba(89,222,165,.16)!important;}
+#zenRoot .zen-node[data-branch="journal"] .zen-node-icon{box-shadow:0 0 17px rgba(166,132,244,.28),inset 0 0 15px rgba(166,132,244,.16)!important;}
+#zenRoot .zen-node[data-branch="ambient"] .zen-node-icon{box-shadow:0 0 17px rgba(94,153,239,.28),inset 0 0 15px rgba(94,153,239,.16)!important;}
+#zenRoot .zen-node[data-branch="timer"] .zen-node-icon{box-shadow:0 0 17px rgba(74,205,190,.28),inset 0 0 15px rgba(74,205,190,.16)!important;}
+#zenRoot .zen-node[data-branch="nutrition"] .zen-node-icon{box-shadow:0 0 17px rgba(116,139,246,.28),inset 0 0 15px rgba(116,139,246,.16)!important;}
+@media(max-width:680px){#zenRoot .zen-node .zen-node-icon{width:40px;height:40px}#zenRoot .zen-node .zen-glyph{width:25px;height:25px}}
+@media(prefers-reduced-motion:reduce){#zenRoot .zen-holo-detail{filter:none}}
+
 </style>  <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
   </script>
@@ -3160,6 +3193,9 @@ addEventListener('pagehide',()=>{
      <filter id="zenEnergyFlowFilter" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation=".45" result="soft"/><feMerge><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
      <radialGradient id="zenTreeGlow"><stop offset="0" stop-color="#9dffc1" stop-opacity=".48"/><stop offset=".36" stop-color="#4bcbab" stop-opacity=".22"/><stop offset=".7" stop-color="#7b7ce8" stop-opacity=".08"/><stop offset="1" stop-color="#244b2c" stop-opacity="0"/></radialGradient>
      <filter id="zenBlur"><feGaussianBlur stdDeviation="20"/></filter>
+     <linearGradient id="zenHolo" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#43d9b2"/><stop offset=".28" stop-color="#8fffe2"/><stop offset=".55" stop-color="#83dfff"/><stop offset=".78" stop-color="#b8ffd4"/><stop offset="1" stop-color="#e8fff0"/></linearGradient>
+     <linearGradient id="zenHoloDim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#65dcb7" stop-opacity=".12"/><stop offset=".5" stop-color="#a0f7ff" stop-opacity=".72"/><stop offset="1" stop-color="#8cffc0" stop-opacity=".14"/></linearGradient>
+     <filter id="zenHoloGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
     
     <ellipse class="zen-canopy-glow" cx="300" cy="385" rx="200" ry="260"/>
@@ -3176,6 +3212,17 @@ addEventListener('pagehide',()=>{
      <g class="zen-leaf-cluster" aria-hidden="true"><path d="M159 237 Q126 205 119 177 Q151 187 159 237Z"/><path d="M172 251 Q184 215 211 205 Q207 236 172 251Z"/><path d="M98 195 Q70 177 66 150 Q91 163 98 195Z"/><path d="M430 169 Q430 132 453 112 Q464 144 430 169Z"/><path d="M446 176 Q477 143 508 147 Q489 176 446 176Z"/><path d="M505 160 Q520 129 549 126 Q536 155 505 160Z"/><path d="M132 372 Q102 348 101 321 Q126 336 132 372Z"/><path d="M119 382 Q87 393 61 375 Q89 361 119 382Z"/><path d="M480 342 Q495 311 523 306 Q510 336 480 342Z"/><path d="M490 355 Q523 340 549 353 Q522 373 490 355Z"/><path d="M183 576 Q148 563 137 538 Q167 544 183 576Z"/><path d="M176 601 Q142 611 119 593 Q146 581 176 601Z"/><path d="M448 595 Q480 575 507 592 Q482 610 448 595Z"/><path d="M458 619 Q489 616 508 638 Q478 645 458 619Z"/><path d="M265 154 Q237 137 238 111 Q263 126 265 154Z"/><path d="M323 116 Q344 91 370 96 Q353 119 323 116Z"/><path d="M284 187 Q263 165 270 143 Q290 160 284 187Z"/><path d="M318 202 Q337 181 360 187 Q345 207 318 202Z"/></g>
      <g class="zen-tree-stars" aria-hidden="true"><circle cx="203" cy="237" r="2.3"/><circle cx="390" cy="181" r="2"/><circle cx="118" cy="335" r="2.2"/><circle cx="478" cy="323" r="2.4"/><circle cx="231" cy="527" r="2"/><circle cx="374" cy="534" r="2.5"/><path d="M300 94v12 M294 100h12 M224 198v8 M220 202h8 M396 273v8 M392 277h8 M150 451v10 M145 456h10 M450 475v10 M445 480h10"/></g>
     </g>
+     <g class="zen-holo-detail" aria-hidden="true">
+      <path class="zen-holo-spine" d="M302 690 C291 626 311 570 299 510 C288 458 308 411 300 360 C291 310 308 267 302 220 C298 181 304 148 302 125"/>
+      <path d="M298 500 C270 480 253 449 230 425 C211 405 190 391 162 383 M302 466 C330 450 354 429 378 411 C398 395 416 381 444 372"/>
+      <path d="M296 557 C268 561 245 579 225 600 C205 620 187 637 163 650 M304 558 C334 566 357 583 379 603 C399 621 421 637 446 650"/>
+      <path d="M284 337 C264 320 247 299 233 278 C220 260 202 247 181 238 M316 304 C339 286 355 262 370 240 C384 220 403 205 424 193"/>
+      <path d="M230 425 Q217 395 194 379 Q176 366 151 360 M378 411 Q397 383 422 371 Q445 359 470 357 M225 600 Q210 574 184 563 Q164 554 144 550 M379 603 Q398 576 423 565 Q445 555 466 550"/>
+      <path d="M183 269 Q160 255 143 253 Q126 251 108 258 M411 201 Q432 184 451 183 Q470 182 487 190 M163 397 Q144 383 124 386 Q104 389 89 402 M433 366 Q454 350 475 352 Q494 354 510 367 M207 561 Q187 548 169 553 Q151 558 138 575 M402 563 Q422 548 441 553 Q459 558 474 575"/>
+      <path class="zen-holo-branchlet" d="M158 252 Q143 229 145 207 M146 253 Q126 238 111 239 M435 184 Q442 161 457 148 M451 184 Q474 169 490 172 M124 386 Q108 365 111 347 M124 386 Q99 381 83 389 M475 352 Q489 331 486 313 M475 352 Q500 344 515 352 M169 553 Q150 533 151 514 M169 553 Q144 550 128 560 M441 553 Q462 535 462 516 M441 553 Q466 551 482 562"/>
+      <g class="zen-holo-joints"><circle cx="299" cy="509" r="4"/><circle cx="300" cy="360" r="3.5"/><circle cx="302" cy="220" r="3.2"/><circle cx="183" cy="269" r="3"/><circle cx="411" cy="201" r="3"/><circle cx="163" cy="397" r="2.8"/><circle cx="433" cy="366" r="2.8"/><circle cx="207" cy="561" r="2.8"/><circle cx="402" cy="563" r="2.8"/></g>
+      <g class="zen-holo-diamonds"><path d="M300 184l5 8-5 8-5-8z"/><path d="M230 293l4 6-4 6-4-6z"/><path d="M375 246l4 6-4 6-4-6z"/><path d="M211 414l4 6-4 6-4-6z"/><path d="M389 392l4 6-4 6-4-6z"/><path d="M262 536l4 6-4 6-4-6z"/><path d="M345 537l4 6-4 6-4-6z"/></g>
+     </g>
     <g class="zen-energy-aura" aria-hidden="true"><path d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/><path d="M299 366 C253 341 223 294 183 269 C151 249 129 228 83 224 M302 315 C351 286 379 233 411 201 C438 174 464 159 504 151 M299 438 C245 423 204 410 163 397 C132 387 105 372 67 372 M300 420 C351 407 390 379 433 366 C474 352 505 351 545 350 M296 512 C263 520 233 544 207 561 C183 576 166 597 136 611 M300 512 C339 525 377 546 402 563 C425 579 448 595 477 610"/></g>
     <g class="zen-energy-network" aria-hidden="true">
      <path class="zen-energy-wire" d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/>
@@ -3184,12 +3231,12 @@ addEventListener('pagehide',()=>{
      <path class="zen-energy-flow" d="M299 366 C253 341 223 294 183 269 C151 249 129 228 83 224 M302 315 C351 286 379 233 411 201 C438 174 464 159 504 151 M299 438 C245 423 204 410 163 397 C132 387 105 372 67 372 M300 420 C351 407 390 379 433 366 C474 352 505 351 545 350 M296 512 C263 520 233 544 207 561 C183 576 166 597 136 611 M300 512 C339 525 377 546 402 563 C425 579 448 595 477 610"/>
     </g>
    </svg>
-   <button class="zen-node" type="button" data-branch="music" aria-pressed="false" aria-label="Music branch"><span class="zen-node-icon">♫<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Music</span></button>
-   <button class="zen-node" type="button" data-branch="breathe" aria-pressed="false" aria-label="Breathe branch"><span class="zen-node-icon">◌<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Breathe</span></button>
-   <button class="zen-node" type="button" data-branch="journal" aria-pressed="false" aria-label="Journal branch"><span class="zen-node-icon">✎<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Journal</span></button>
-   <button class="zen-node" type="button" data-branch="ambient" aria-pressed="false" aria-label="Ambient sounds branch"><span class="zen-node-icon">≈<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Ambience</span></button>
-   <button class="zen-node" type="button" data-branch="timer" aria-pressed="false" aria-label="Quiet timer branch"><span class="zen-node-icon">◷<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Quiet timer</span></button>
-   <button class="zen-node" type="button" data-branch="nutrition" aria-pressed="false" aria-label="Nutrition branch"><span class="zen-node-icon">❋<i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Nutrition</span></button>
+   <button class="zen-node" type="button" data-branch="music" aria-pressed="false" aria-label="Music branch"><span class="zen-node-icon"><svg class="zen-glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M19 31V12l18-4v19"/><path d="M19 17l18-4"/><ellipse cx="13" cy="32" rx="6" ry="4" transform="rotate(-18 13 32)"/><ellipse cx="31" cy="29" rx="6" ry="4" transform="rotate(-18 31 29)"/><path d="M8 10h6M11 7v6"/></svg><i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Music</span></button>
+   <button class="zen-node" type="button" data-branch="breathe" aria-pressed="false" aria-label="Breathe branch"><span class="zen-node-icon"><svg class="zen-glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 7c-8 7-12 12-12 19a12 12 0 0 0 24 0c0-7-4-12-12-19Z"/><path d="M24 15c-4 5-6 8-6 12a6 6 0 0 0 12 0c0-4-2-7-6-12Z"/><path d="M6 23h5M37 23h5M24 2v4"/></svg><i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Breathe</span></button>
+   <button class="zen-node" type="button" data-branch="journal" aria-pressed="false" aria-label="Journal branch"><span class="zen-node-icon"><svg class="zen-glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M13 8h20a3 3 0 0 1 3 3v28H16a5 5 0 0 1-5-5V11a3 3 0 0 1 2-3Z"/><path d="M16 8v26a5 5 0 0 0 5 5M19 17h11M19 23h11M19 29h7"/><path d="m29 9 5 5"/></svg><i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Journal</span></button>
+   <button class="zen-node" type="button" data-branch="ambient" aria-pressed="false" aria-label="Ambient sounds branch"><span class="zen-node-icon"><svg class="zen-glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 17c5-7 10 7 16 0s11 7 20 0M6 25c5-7 10 7 16 0s11 7 20 0M6 33c5-7 10 7 16 0s11 7 20 0"/><circle cx="24" cy="8" r="2"/></svg><i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Ambience</span></button>
+   <button class="zen-node" type="button" data-branch="timer" aria-pressed="false" aria-label="Quiet timer branch"><span class="zen-node-icon"><svg class="zen-glyph" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="26" r="15"/><path d="M24 11V6M19 5h10M24 26l8-6M24 26v-9"/><path d="M11 14 8 11M37 14l3-3"/></svg><i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Quiet timer</span></button>
+   <button class="zen-node" type="button" data-branch="nutrition" aria-pressed="false" aria-label="Nutrition branch"><span class="zen-node-icon"><svg class="zen-glyph" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 39V20M24 27c-11 0-16-6-16-14 9 0 16 4 16 14ZM24 22c0-10 6-16 16-16 0 9-5 16-16 16Z"/><path d="M24 31c-5-7-10-8-15-7 1 8 7 12 15 12M24 30c5-7 10-8 15-7-1 8-7 12-15 12"/></svg><i class="zen-ring"></i><i class="zen-ring"></i><i class="zen-ring"></i></span><span class="zen-node-label">Nutrition</span></button>
   </div>
   <button class="zen-zero-mic" id="zenZeroMic" type="button" aria-label="Activate ZERO microphone"><span class="zen-mini-orb" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>Z.E.R.O.</span></button>
  </div>
