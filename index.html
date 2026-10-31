@@ -1191,7 +1191,7 @@ body.zen-mode-active #core{visibility:hidden!important}
       <label>Spotify song link
         <input class="bt-input" id="btSpotifyUrl" type="url" placeholder="https://open.spotify.com/track/...">
       </label>
-      <p class="bt-inline-hint">At launch, JARVIS will open this Spotify link. Full in-app Spotify playback needs Spotify app credentials and user authorisation.</p>
+      <p class="bt-inline-hint">Battle Mode opens the selected track directly in Spotify. If the app opens without playing, use PLAY / OPEN MY TRACK. Fully remote playback control requires Spotify account authorisation.</p>
     </div>
     <div class="bt-divider"></div>
     <div class="bt-kicker">INTERNAL SCHEDULE</div>
@@ -4061,7 +4061,7 @@ const root=$('#battleMode');
 if(!root||root.dataset.ready==='true')return;
 root.dataset.ready='true';
 const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{songSource:'file',spotifyUrl:'',trackName:''}});
-let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0;
+let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,spotifyLaunchWindow=null;
 try{
  const saved=JSON.parse(localStorage.getItem(KEY)||'null');
  if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,saved.settings||{});data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
@@ -4218,9 +4218,11 @@ function finishCountdown(){
    num.textContent='FOCUS';word.textContent='MAKE THE WORK COUNT';const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;
    const line=motivationText()+' The work is done one possession and one rep at a time. Let us make this session count, sir.';
    speak(line);
-   playFinalTrack();
+   let trackLaunched=true;
+   if(data.settings.songSource==='spotify')trackLaunched=launchSpotifyTrack();
+   else playFinalTrack();
    $('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';
-   setPrompt('Battle Mode engaged. Your selected track is launching.');
+   setPrompt(trackLaunched?'Battle Mode engaged. Your selected track is launching.':'Spotify did not launch automatically. Tap PLAY / OPEN MY TRACK to start it.');
    setActions('<button class="bt-action" data-bt-action="play-track">PLAY / OPEN MY TRACK</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>');
   },450);
  };
@@ -4255,11 +4257,45 @@ async function loadTrack(){
   req.onerror=()=>{db.close();reject(req.error||new Error('Could not load the saved track.'))};
  });
 }
+function spotifyLaunchTarget(url){
+ const match=String(url||'').match(/^https:\/\/open\.spotify\.com\/(track|album|playlist)\/([A-Za-z0-9]+)/i);
+ if(!match)return null;
+ const kind=match[1].toLowerCase(),trackId=match[2],webUrl='https://open.spotify.com/'+kind+'/'+trackId;
+ const appUri='spotify:'+kind+':'+trackId;
+ const androidIntent='intent://'+kind+'/'+trackId+'#Intent;scheme=spotify;package=com.spotify.music;S.browser_fallback_url='+encodeURIComponent(webUrl)+';end';
+ return {webUrl: webUrl,appUri: appUri,androidIntent: androidIntent};
+}
+function prepareSpotifyLaunch(){
+ if(data.settings.songSource!=='spotify')return false;
+ const target=spotifyLaunchTarget(data.settings.spotifyUrl);
+ if(!target){setPrompt('Add a valid Spotify track, album or playlist link in Battle Mode Settings first.');return false}
+ try{
+  const win=window.open('about:blank','_blank');
+  if(!win)return false;
+  spotifyLaunchWindow=win;
+  try{win.document.title='ZERO / Spotify';win.document.body.innerHTML='<main style="margin:0;min-height:100vh;display:grid;place-items:center;background:#08090b;color:#e8e8e8;font:14px system-ui;text-align:center"><div><div style="color:#ff555f;letter-spacing:.2em;font-size:11px">Z.E.R.O. / BATTLE MODE</div><p>Preparing your selected track…</p></div></main>'}catch(e){}
+  return true;
+ }catch(e){spotifyLaunchWindow=null;return false}
+}
+function launchSpotifyTrack(){
+ const target=spotifyLaunchTarget(data.settings.spotifyUrl);
+ if(!target){setPrompt('Add a valid Spotify track, album or playlist link in Battle Mode Settings first.');return false}
+ const isAndroid=/Android/i.test(navigator.userAgent||'');
+ const destination=isAndroid?target.androidIntent:target.appUri;
+ let win=spotifyLaunchWindow;spotifyLaunchWindow=null;
+ if(win&&!win.closed){
+  try{win.location.replace(destination);return true}catch(e){}
+ }
+ try{
+  const opened=window.open(destination,'_blank');
+  if(opened){try{opened.opener=null}catch(e){}return true}
+ }catch(e){}
+ return false;
+}
 async function playFinalTrack(){
  if(data.settings.songSource==='spotify'){
-  const url=data.settings.spotifyUrl;
-  if(url){const opened=window.open(url,'_blank');if(opened){try{opened.opener=null}catch(e){}return}}
-  setPrompt('Spotify could not be opened automatically. Tap PLAY / OPEN MY TRACK to launch it.');
+  const launched=launchSpotifyTrack();
+  if(!launched)setPrompt('Spotify could not be launched automatically. Tap PLAY / OPEN MY TRACK to try again.');
   return;
  }
  try{
@@ -4271,7 +4307,7 @@ async function playFinalTrack(){
   const p=currentAudio.play();if(p&&p.catch)p.catch(()=>setPrompt('Your browser blocked automatic playback. Tap PLAY / OPEN MY TRACK.'));
  }catch(error){setPrompt('Your saved track could not be loaded. Check Battle Mode Settings.')}
 }
-async function manualPlayTrack(){if(data.settings.songSource==='spotify'){if(data.settings.spotifyUrl)window.open(data.settings.spotifyUrl,'_blank');return}await playFinalTrack()}
+async function manualPlayTrack(){if(data.settings.songSource==='spotify'){const launched=launchSpotifyTrack();if(!launched)setPrompt('Spotify could not be opened. Check the saved link and try again.');return}await playFinalTrack()}
 function openSettings(){
  const overlay=$('#btSettingsOverlay');overlay.hidden=false;
  $('#btSongSource').value=data.settings.songSource||'file';
@@ -4325,7 +4361,7 @@ function handleAction(action,el){
  if(action==='choose-type'){showTypeChoices();return}
  if(action==='choose-training'){beginBriefing('training',null);return}
  if(action==='choose-game'){beginBriefing('game',null);return}
- if(action==='launch'){finishCountdown();return}
+ if(action==='launch'){if(data.settings.songSource==='spotify')prepareSpotifyLaunch();finishCountdown();return}
  if(action==='postgame'){openPostgame(activeEvent);return}
  if(action==='accept-suggestion'){const suggestions=makeSuggestions(sessionType);const text=suggestions[Number(el.dataset.index)];if(text)addObjective(text);return}
  if(action==='edit-objective'){const item=data.objectives[Number(el.dataset.index)];if(!item)return;const revised=prompt('Edit this objective:',item.text);if(revised===null)return;const clean=revised.trim().slice(0,120);if(clean){item.text=clean;save();if(sessionType)beginBriefing(sessionType,activeEvent)}return}
@@ -4409,6 +4445,48 @@ function startHelmetAnimation(){
   };
   points.push({x:p.x,y:p.y,z:faceZ(p.x,p.y)+(Math.random()-.5)*5,sx:Math.cos(a)*v*r,sy:u*r,sz:Math.sin(a)*v*r,size:.65+Math.random()*1.3,phase:Math.random()*Math.PI*2,bright:Math.random()});
  }
+ // A sparse intelligent red particle shell slowly orbits the helmet in 3D.
+ // It is deliberately made from isolated motes: no connecting cage or solid ring.
+ const redOrbParticles=Array.from({length:38},function(_,i){
+  const y=1-2*(i+.5)/38,ring=Math.sqrt(1-y*y),angle=i*2.399963229728653;
+  return {
+   x:Math.cos(angle)*ring*232,
+   y:y*334-24,
+   z:Math.sin(angle)*ring*176,
+   size:.65+Math.random()*.9,
+   alpha:.35+Math.random()*.55,
+   phase:Math.random()*Math.PI*2,
+   drift:Math.random()*.8+.2
+  };
+ });
+ function drawRedOrbLayer(t,front){
+  const rotation=t*.105,cos=Math.cos(rotation),sin=Math.sin(rotation),tilt=Math.sin(t*.075)*.045;
+  const visible=[];
+  for(let i=0;i<redOrbParticles.length;i++){
+   const p=redOrbParticles[i],x=p.x*cos+p.z*sin,depth=-p.x*sin+p.z*cos;
+   const y=p.y+Math.sin(t*.16+p.phase)*p.drift*2.2;
+   const perspective=1+depth*.00055,px=x*perspective,py=y*Math.cos(tilt)*perspective;
+   // Keep the motes outside the helmet silhouette so its facial detail stays clear.
+   const outside=(px/187)*(px/187)+((py+24)/296)*((py+24)/296);
+   if(outside<1.035 || (front ? depth<=0 : depth>0))continue;
+   visible.push({p:p,x:px,y:py,depth:depth});
+  }
+  visible.sort(function(a,b){return a.depth-b.depth});
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  for(let i=0;i<visible.length;i++){
+   const item=visible[i],p=item.p;
+   const depth=clamp((item.depth+176)/352,0,1);
+   const pulse=.72+.28*Math.sin(t*.72+p.phase);
+   const alpha=p.alpha*pulse*(front?.28:.105)*(.55+depth*.45);
+   const size=p.size*(.78+depth*.28);
+   ctx.globalAlpha=alpha;
+   ctx.shadowColor='rgba(255,34,48,'+(front ? 0.62 : 0.28)+')';
+   ctx.shadowBlur=front?5.5:2.2;
+   ctx.fillStyle=front?'rgba(255,57,68,1)':'rgba(178,24,36,1)';
+   ctx.beginPath();ctx.arc(item.x,item.y,size,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();ctx.globalAlpha=1;ctx.shadowBlur=0;
+ }
  // Build a sparse, local particle lattice once. Nearby links keep the helmet's
  // panel geometry legible without turning the whole mask into a wireframe.
  const links=[],cellSize=18,grid=new Map(),cellKey=(x,y)=>Math.floor(x/cellSize)+','+Math.floor(y/cellSize);
@@ -4463,6 +4541,7 @@ function startHelmetAnimation(){
   const turn=smoothstep(1,1.30,scanRaw),scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=.045+turn*.12+(reduced?0:Math.sin(t*.38)*.008),rotX=-.015+(reduced?0:Math.cos(t*.29)*.006),eyeOn=t>3.48;
   ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
   const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
+  drawRedOrbLayer(t,false);
   if(scanVisible>.001){
    ctx.save();ctx.globalCompositeOperation='lighter';
    const beam=ctx.createLinearGradient(scanX-25,0,scanX+25,0);
@@ -4529,6 +4608,7 @@ function startHelmetAnimation(){
    ctx.restore()};
   if(eyeOn){const pulse=.78+.22*Math.sin(t*3.8);eye(-83,pulse);eye(83,pulse)}
   else if(t>2.9){eyeSocket(-83);eyeSocket(83)}
+  drawRedOrbLayer(t,true);
   ctx.restore();
   animationFrame=requestAnimationFrame(draw);
  }
