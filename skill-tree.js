@@ -138,6 +138,7 @@ let unlockEffects = [];
 let launchFromTree = false;
 let returnTimer = 0;
 let treeOpen = false;
+let treeCloseTimer = 0;
 let discovery = loadDiscovery();
 
 function addStylesheet() {
@@ -743,7 +744,7 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
     rings.push(ringMesh);
   }
 
-  const particleCount = isCenter ? 950 : 185;
+  const particleCount = isCenter ? 1450 : 320;
   const positions = new Float32Array(particleCount * 3);
   const colors = new Float32Array(particleCount * 3);
   const pale = new THREE.Color('#dff8ff');
@@ -769,7 +770,7 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
   group.add(particles);
 
   // A second, finer particle layer adds depth without making the orbs cluttered.
-  const detailCount = isCenter ? 360 : 84;
+  const detailCount = isCenter ? 520 : 145;
   const detailPositions = new Float32Array(detailCount * 3);
   const detailColors = new Float32Array(detailCount * 3);
   const detailPale = new THREE.Color('#f2fbff');
@@ -794,6 +795,35 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
     opacity: 0.58, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true
   }));
   group.add(detailParticles);
+
+  // Loose energy motes drift around each orb on independent orbital paths.
+  const strayOrbit = new THREE.Group();
+  const strayCount = isCenter ? 120 : 68;
+  const strayPositions = new Float32Array(strayCount * 3);
+  const strayColors = new Float32Array(strayCount * 3);
+  for (let i = 0; i < strayCount; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const orbitRadius = radius * (1.22 + Math.random() * 0.62);
+    strayPositions[i * 3] = Math.sin(phi) * Math.cos(theta) * orbitRadius;
+    strayPositions[i * 3 + 1] = Math.cos(phi) * orbitRadius;
+    strayPositions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * orbitRadius;
+    const moteColor = colorValue.clone().lerp(new THREE.Color('#f1fbff'), 0.48 + Math.random() * 0.42);
+    strayColors[i * 3] = moteColor.r;
+    strayColors[i * 3 + 1] = moteColor.g;
+    strayColors[i * 3 + 2] = moteColor.b;
+  }
+  const strayGeometry = new THREE.BufferGeometry();
+  strayGeometry.setAttribute('position', new THREE.BufferAttribute(strayPositions, 3));
+  strayGeometry.setAttribute('color', new THREE.BufferAttribute(strayColors, 3));
+  const strayParticles = new THREE.Points(strayGeometry, new THREE.PointsMaterial({
+    size: isCenter ? 0.026 : 0.021, vertexColors: true, transparent: true,
+    opacity: 0.76, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true
+  }));
+  strayOrbit.add(strayParticles);
+  strayOrbit.rotation.set(Math.random() * 1.1, Math.random() * 1.1, Math.random() * 1.1);
+  group.add(strayOrbit);
+  group.userData.strayOrbit = strayOrbit;
 
   const nodeMeta = group.userData.node;
   const categoryAura = !isCenter && nodeMeta && nodeMeta.kind === 'category'
@@ -1429,8 +1459,13 @@ function launchSkill(skillNode) {
 
 function showSkillTree() {
   if (!overlay) return;
+  clearTimeout(treeCloseTimer);
   overlay.hidden=false;
+  overlay.classList.remove('st-closing');
+  document.body.classList.add('zero-skill-tree-open');
   treeOpen=true;
+  zeroFadeTarget=1;
+  requestAnimationFrame(function(){ if(treeOpen)overlay.classList.add('st-open'); });
   if (navButton) navButton.setAttribute('aria-pressed','true');
   resizeRenderer();
   if (activeSkill && viewMode==='skill') showSkillPanel(activeSkill);
@@ -1439,6 +1474,9 @@ function showSkillTree() {
 
 function openSkillTree() {
   if (!overlay) return;
+  clearTimeout(treeCloseTimer);
+  overlay.classList.remove('st-closing','st-open');
+  document.body.classList.add('zero-skill-tree-open');
   returnToRoot(false);
   categoryOrbit && (categoryOrbit.rotation.y=0);
   revealJobs=[];
@@ -1448,6 +1486,7 @@ function openSkillTree() {
   }
   overlay.hidden=false;
   treeOpen=true;
+  requestAnimationFrame(function(){if(treeOpen)overlay.classList.add('st-open')});
   if (navButton) navButton.setAttribute('aria-pressed','true');
   resizeRenderer();
   cameraRadius=21;
@@ -1469,11 +1508,20 @@ function openSkillTree() {
 }
 
 function closeSkillTree() {
-  if (!overlay) return;
-  overlay.hidden=true;
+  if (!overlay || !treeOpen) return;
   treeOpen=false;
+  zeroFadeTarget=0;
+  document.body.classList.remove('zero-skill-tree-open');
+  overlay.classList.remove('st-open');
+  overlay.classList.add('st-closing');
   hideSkillPanel();
   if (navButton) navButton.setAttribute('aria-pressed','false');
+  clearTimeout(treeCloseTimer);
+  treeCloseTimer=setTimeout(function(){
+    if(treeOpen)return;
+    overlay.hidden=true;
+    overlay.classList.remove('st-closing');
+  },820);
 }
 
 function handleZoomOut() {
@@ -1624,6 +1672,7 @@ function animate(now) {
   categoryNodes.forEach(function (category) {
     if(category.group.visible){
       category.group.rotation.y+=dt*0.08;
+      if(category.group.userData.strayOrbit){category.group.userData.strayOrbit.rotation.y+=dt*0.42;category.group.userData.strayOrbit.rotation.x+=dt*0.17;category.group.userData.strayOrbit.position.y=Math.sin(now*.0014+category.position[0])*.035;}
       const aura = category.visual && category.visual.categoryAura;
       if (aura) {
         const t = now * 0.001;
@@ -1656,6 +1705,7 @@ function animate(now) {
       category.skills.forEach(function (skill,index) {
         if(skill.group.visible){
           skill.group.rotation.y+=dt*(index%2?-.1:.12);
+          if(skill.group.userData.strayOrbit){skill.group.userData.strayOrbit.rotation.y+=dt*(index%2?-.52:.46);skill.group.userData.strayOrbit.rotation.z+=dt*.14;skill.group.userData.strayOrbit.position.y=Math.sin(now*.0018+index)*.028;}
           const rings=skill.group.userData.rings||[];
           rings.forEach(function(ring,ringIndex){ring.rotation.z+=dt*(ringIndex%2?-.14:.11)});
         }
