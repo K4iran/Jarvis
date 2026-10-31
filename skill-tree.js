@@ -45,6 +45,12 @@ const categories = [
         launch: 'calendar'
       },
       {
+        id: 'weather', name: 'Weather', status: 'Active', icon: 'weather',
+        description: 'Live weather for a city, including current temperature, feels-like temperature, conditions, rain chances, a daily outlook and an interactive hourly temperature graph.',
+        activation: '“Hey ZERO, what’s the weather in Istanbul?”',
+        launch: 'weather'
+      },
+      {
         id: 'task-lists', name: 'Task Lists', status: 'Coming Soon', icon: 'tasks',
         description: 'A built-in task list and preparation checklist for everyday plans and things to remember before leaving.',
         activation: 'A voice command will be shown here when task lists are released.'
@@ -116,6 +122,11 @@ let toast = null;
 let renderer = null;
 let scene = null;
 let camera = null;
+let perspectiveCamera = null;
+let flatCamera = null;
+let flatView = false;
+let savedOrbitRotation = 0;
+const FLAT_VIEW_HEIGHT = 15.8;
 let worldRoot = null;
 let zeroGroup = null;
 let zeroPickMesh = null;
@@ -152,7 +163,7 @@ function addStylesheet() {
   styleAdded = true;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './skill-tree.css';
+  link.href = './skill-tree.css?v=2d-weather-1';
   link.dataset.zeroSkillCss = 'true';
   document.head.appendChild(link);
 }
@@ -463,7 +474,11 @@ function addNavAndOverlay() {
     '<canvas id="zeroSkillCanvas" aria-label="Interactive three-dimensional ZERO Skill Tree. Drag to look around and select an orb."></canvas>' +
     '<div class="st-vignette" aria-hidden="true"></div>' +
     '<div class="st-topline"><div class="st-brand"><strong>Z.E.R.O. / SKILL TREE</strong><span>CAPABILITIES &amp; SYSTEM MAP</span></div>' +
-    '<div class="st-hint">DRAG TO LOOK · ZOOM OUT TO RETURN</div></div>' +
+    '<div class="st-toolbar"><span class="st-hint" id="zeroTreeHint">DRAG TO LOOK · ZOOM OUT TO RETURN</span>' +
+    '<button type="button" class="st-tool-button st-back-button" id="zeroTreeBack" hidden>BACK</button>' +
+    '<button type="button" class="st-tool-button st-view-toggle" id="zeroViewToggle" aria-pressed="false">2D VIEW</button>' +
+    '<button type="button" class="st-tool-button st-zoom-button" id="zeroZoomOut" aria-label="Zoom out">−</button>' +
+    '<button type="button" class="st-tool-button st-zoom-button" id="zeroZoomIn" aria-label="Zoom in">+</button></div></div>' +
     '<section id="zeroSkillPanel" class="st-skill-panel" hidden aria-live="polite"></section>' +
     '<div id="zeroSkillToast" class="st-toast" role="status" aria-live="polite"></div>';
   document.body.appendChild(overlay);
@@ -584,6 +599,16 @@ function addIcon(group, type, color, scale) {
       addLine(root, [[0,0.64,0],[0,0.9,0]], color, 1);
       addLine(root, [[-0.13,0.77,0],[0.13,0.77,0]], color, 1);
     }
+  } else if (type === 'weather') {
+    sphere(-0.22,0.2,0.02,0.22,glow);
+    ring(-0.22,0.2,0.04,0.34,0.035,solid);
+    [[-0.22,0.67],[-0.22,-0.27],[0.25,0.2],[-0.69,0.2],[0.12,0.53],[0.12,-0.13]].forEach(function (p) {
+      addLine(root, [[p[0]*0.72,p[1]*0.72,0.02],[p[0],p[1],0.02]], color, 0.9);
+    });
+    sphere(0.19,-0.22,0.12,0.2,solid);
+    sphere(0.43,-0.13,0.12,0.24,glow);
+    sphere(0.65,-0.22,0.12,0.18,solid);
+    bar(0.42,-0.34,0.1,0.62,0.08,0.08,glow);
   } else if (type === 'microphone') {
     const capsule = new THREE.Mesh(new THREE.CapsuleGeometry(0.18,0.42,4,10), glow);
     capsule.position.z = 0.08; root.add(capsule);
@@ -1027,6 +1052,7 @@ function buildWorld() {
       ];
       const pos = layouts[index % layouts.length];
       child.position = new THREE.Vector3(pos[0],pos[1],pos[2]);
+      child.originalPosition = child.position.clone();
       child.group.position.copy(child.position);
       child.group.scale.setScalar(0);
       node.skillsGroup.add(child.group);
@@ -1240,13 +1266,201 @@ function worldPosition(group) {
   return position;
 }
 
+function flatIsNarrow() {
+  const width=overlay ? overlay.clientWidth : window.innerWidth;
+  const height=overlay ? overlay.clientHeight : window.innerHeight;
+  return width < 680 || width / Math.max(1,height) < 0.72;
+}
+
+function replaceTube(mesh,start,end,radius,segments,bend) {
+  if (!mesh) return;
+  const middle=start.clone().lerp(end,0.5);
+  middle.y += bend || 0;
+  const curve=new THREE.QuadraticBezierCurve3(start.clone(),middle,end.clone());
+  const previous=mesh.geometry;
+  mesh.geometry=new THREE.TubeGeometry(curve,segments,radius,5,false);
+  if(previous)previous.dispose();
+}
+
+function rebuildRootBranch(node) {
+  if (!node || !node.branch) return;
+  let start,end,bend;
+  if (flatView) {
+    start=new THREE.Vector3(0,(flatIsNarrow()?5.0:4.8)-0.95,0);
+    end=node.group.position.clone();
+    bend=0.18;
+  } else {
+    start=new THREE.Vector3(0,0,0);
+    end=new THREE.Vector3(node.position[0],node.position[1],node.position[2]);
+    const direction=end.clone().normalize();
+    const middle=direction.multiplyScalar(3.3);
+    middle.y+=0.55;
+    const curve=new THREE.QuadraticBezierCurve3(start,middle,end.clone());
+    const previous=node.branch.geometry;
+    node.branch.geometry=new THREE.TubeGeometry(curve,36,0.016,5,false);
+    if(previous)previous.dispose();
+    return;
+  }
+  replaceTube(node.branch,start,end,0.016,36,bend);
+}
+
+function rebuildSkillBranches(category) {
+  if (!category) return;
+  category.skillBranches.forEach(function (entry) {
+    const end=entry.skillNode.position.clone();
+    const middle=end.clone().multiplyScalar(0.48);
+    if (flatView) middle.y-=0.12;
+    else middle.y+=0.35;
+    const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(0,0,0),middle,end);
+    const previous=entry.line.geometry;
+    entry.line.geometry=new THREE.TubeGeometry(curve,22,0.012,5,false);
+    if(previous)previous.dispose();
+  });
+}
+
+function applyFlatRootLayout() {
+  if (!flatView || !categoryOrbit) return;
+  const narrow=flatIsNarrow();
+  const columns=narrow?2:3;
+  const xGap=narrow?2.6:5.8;
+  const yGap=narrow?3.0:3.4;
+  const topY=narrow?1.8:1.2;
+  zeroGroup.position.set(0,narrow?5.0:4.8,0);
+  categoryOrbit.rotation.set(0,0,0);
+  categoryNodes.forEach(function (node,index) {
+    const row=Math.floor(index/columns);
+    const rowStart=row*columns;
+    const inRow=Math.min(columns,categoryNodes.length-rowStart);
+    const column=index-rowStart;
+    const x=(column-(inRow-1)/2)*xGap;
+    const y=topY-row*yGap;
+    node.group.position.set(x,y,0);
+    node.group.rotation.set(0,0,0);
+    if (node.nameSprite && node.nameSprite.userData.baseScale) {
+      const base=node.nameSprite.userData.baseScale;
+      node.nameSprite.scale.set(narrow?Math.min(base.x,2.25):base.x,base.y,base.z);
+    }
+    rebuildRootBranch(node);
+  });
+}
+
+function applyFlatCategoryLayout(category) {
+  if (!flatView || !category) return;
+  const narrow=flatIsNarrow();
+  zeroGroup.position.set(0,flatIsNarrow()?5.0:4.8,0);
+  categoryOrbit.rotation.set(0,0,0);
+  category.group.position.set(0,3.3,0);
+  category.group.rotation.set(0,0,0);
+  rebuildRootBranch(category);
+  const columns=category.skills.length>1?2:1;
+  const xGap=narrow?2.55:3.6;
+  const yGap=2.8;
+  const topY=-2.4;
+  category.skills.forEach(function (skill,index) {
+    const row=Math.floor(index/columns);
+    const rowStart=row*columns;
+    const inRow=Math.min(columns,category.skills.length-rowStart);
+    const column=index-rowStart;
+    const x=(column-(inRow-1)/2)*xGap;
+    const y=topY-row*yGap;
+    skill.position.set(x,y,0);
+    skill.group.position.copy(skill.position);
+    skill.group.rotation.set(0,0,0);
+    if (skill.nameSprite && skill.nameSprite.userData.baseScale) {
+      const base=skill.nameSprite.userData.baseScale;
+      skill.nameSprite.scale.set(narrow?Math.min(base.x,2.0):base.x,base.y,base.z);
+    }
+  });
+  rebuildSkillBranches(category);
+}
+
+function applyFlatLayoutForCurrentView() {
+  if (!flatView) return;
+  if (viewMode==='root') applyFlatRootLayout();
+  else if (activeCategory) applyFlatCategoryLayout(activeCategory);
+  if (activeSkill && viewMode==='skill') positionPanel(activeSkill);
+}
+
+function updateViewToolbar() {
+  const toggle=document.getElementById('zeroViewToggle');
+  const hint=document.getElementById('zeroTreeHint');
+  if(toggle) {
+    toggle.textContent=flatView?'3D VIEW':'2D VIEW';
+    toggle.setAttribute('aria-pressed',flatView?'true':'false');
+  }
+  if(hint)hint.textContent=flatView?'DRAG TO PAN · PINCH / WHEEL TO ZOOM':'DRAG TO LOOK · ZOOM OUT TO RETURN';
+  const back=document.getElementById('zeroTreeBack');
+  if(back) {
+    back.hidden=viewMode==='root';
+    back.textContent=viewMode==='skill'?'BACK TO SKILLS':'ALL CATEGORIES';
+  }
+}
+
+function setFlatViewMode(enabled) {
+  enabled=!!enabled;
+  if (enabled===flatView || !renderer) return;
+  cameraTween=null;
+  if (enabled) {
+    savedOrbitRotation=categoryOrbit ? categoryOrbit.rotation.y : 0;
+    if (!flatCamera) flatCamera=new THREE.OrthographicCamera(-8,8,8,-8,0.1,300);
+    camera=flatCamera;
+    flatView=true;
+    cameraYaw=0;
+    cameraPitch=0;
+    applyFlatLayoutForCurrentView();
+    if (viewMode==='root') {
+      cameraTarget.set(0,0,0);cameraRadius=FLAT_VIEW_HEIGHT;
+    } else if (viewMode==='category' && activeCategory) {
+      cameraTarget.set(0,0,0);cameraRadius=9.3;
+    } else if (viewMode==='skill' && activeSkill) {
+      cameraTarget.copy(worldPosition(activeSkill.group));cameraRadius=6.0;
+    }
+  } else {
+    flatView=false;
+    camera=perspectiveCamera;
+    zeroGroup.position.set(0,0,0);
+    categoryOrbit.rotation.set(0,savedOrbitRotation,0);
+    categoryNodes.forEach(function (node) {
+      node.group.position.set(node.position[0],node.position[1],node.position[2]);
+      if (node.nameSprite && node.nameSprite.userData.baseScale) node.nameSprite.scale.copy(node.nameSprite.userData.baseScale);
+      node.skills.forEach(function (skill) {
+        skill.position.copy(skill.originalPosition);
+        skill.group.position.copy(skill.originalPosition);
+        if (skill.nameSprite && skill.nameSprite.userData.baseScale) skill.nameSprite.scale.copy(skill.nameSprite.userData.baseScale);
+      });
+      rebuildRootBranch(node);
+      rebuildSkillBranches(node);
+    });
+    if (viewMode==='root') {
+      cameraTarget.set(0,0,0);cameraRadius=21;cameraYaw=0.08;cameraPitch=0.1;
+    } else if (viewMode==='category' && activeCategory) {
+      const focus=worldPosition(activeCategory.group);
+      cameraTarget.copy(focus);cameraRadius=8.7;
+      cameraYaw=Math.atan2(focus.x,focus.z);
+      cameraPitch=Math.atan2(focus.y,Math.max(0.01,Math.hypot(focus.x,focus.z)))*0.55;
+    } else if (viewMode==='skill' && activeSkill) {
+      cameraTarget.copy(worldPosition(activeSkill.group));cameraRadius=5.25;cameraYaw=0.08;cameraPitch=0.1;
+    }
+  }
+  resizeRenderer();
+  updateViewToolbar();
+}
+
+function zoomSkillTree(direction) {
+  if (!camera || cameraTween) return;
+  const step=flatView?0.9:1.25;
+  cameraRadius=Math.max(flatView?3.4:4.3,Math.min(28,cameraRadius+(direction<0?step:-step)));
+  updateCamera(0);
+  maybeHandleZoomThreshold();
+}
+
 function enterCategory(category) {
   if (!category) return;
   viewMode='category';
   activeCategory=category;
   activeSkill=null;
+  updateViewToolbar();
   hideSkillPanel();
-  categoryOrbit.rotation.y = categoryOrbit.rotation.y;
   categoryNodes.forEach(function (node) {
     node.group.visible = node === category;
     node.branch.visible = node === category;
@@ -1254,7 +1468,15 @@ function enterCategory(category) {
   });
   category.skillsGroup.visible = true;
   category.group.scale.setScalar(1);
-  zeroFadeTarget = 0.12;
+  zeroFadeTarget=0.12;
+  if (flatView) {
+    applyFlatCategoryLayout(category);
+    cameraTo(new THREE.Vector3(0,0,0),9.3,850,function () {
+      revealSkillBranches(category);
+      playPendingUnlocks(category);
+    },0,0);
+    return;
+  }
   const focus = worldPosition(category.group);
   const facingYaw=Math.atan2(focus.x,focus.z);
   const facingPitch=Math.atan2(focus.y,Math.max(0.01,Math.hypot(focus.x,focus.z)))*0.55;
@@ -1268,18 +1490,27 @@ function returnToRoot(animate) {
   viewMode='root';
   activeCategory=null;
   activeSkill=null;
+  updateViewToolbar();
   hideSkillPanel();
-  categoryOrbit.rotation.y += 0.001;
   categoryNodes.forEach(function (node) {
-    node.group.visible = true;
-    node.branch.visible = true;
-    node.skillsGroup.visible = false;
+    node.group.visible=true;
+    node.branch.visible=true;
+    node.skillsGroup.visible=false;
     node.group.scale.setScalar(1);
   });
   zeroFadeTarget=1;
-  if (animate !== false) cameraTo(new THREE.Vector3(0,0,0),21,1100,null,0.08,0.1);
-  else {
-    cameraTarget.set(0,0,0);cameraRadius=21;cameraTween=null;cameraYaw=0.08;cameraPitch=0.1;
+  if (flatView) {
+    applyFlatRootLayout();
+    if (animate !== false) cameraTo(new THREE.Vector3(0,0,0),FLAT_VIEW_HEIGHT,750,null,0,0);
+    else {
+      cameraTarget.set(0,0,0);cameraRadius=FLAT_VIEW_HEIGHT;cameraTween=null;cameraYaw=0;cameraPitch=0;
+    }
+  } else {
+    categoryOrbit.rotation.y += 0.001;
+    if (animate !== false) cameraTo(new THREE.Vector3(0,0,0),21,1100,null,0.08,0.1);
+    else {
+      cameraTarget.set(0,0,0);cameraRadius=21;cameraTween=null;cameraYaw=0.08;cameraPitch=0.1;
+    }
   }
   refreshNewBadges();
 }
@@ -1289,10 +1520,11 @@ function selectSkill(skillNode) {
   markSkillExplored(skillNode.skill);
   viewMode='skill';
   activeSkill=skillNode;
+  updateViewToolbar();
   zeroFadeTarget=0;
   hideSkillPanel();
   const destination=worldPosition(skillNode.group);
-  cameraTo(destination,5.25,1250,function () {
+  cameraTo(destination,flatView?6.0:5.25,1250,function () {
     showSkillPanel(skillNode);
   });
 }
@@ -1315,12 +1547,20 @@ function updateCamera(dt) {
       if(tween.onComplete)tween.onComplete();
     }
   }
-  camera.position.set(
-    cameraTarget.x+cameraRadius*Math.sin(cameraYaw)*Math.cos(cameraPitch),
-    cameraTarget.y+cameraRadius*Math.sin(cameraPitch),
-    cameraTarget.z+cameraRadius*Math.cos(cameraYaw)*Math.cos(cameraPitch)
-  );
-  camera.lookAt(cameraTarget);
+  if (flatView && camera && camera.isOrthographicCamera) {
+    camera.position.set(cameraTarget.x,cameraTarget.y,45);
+    camera.up.set(0,1,0);
+    camera.lookAt(cameraTarget.x,cameraTarget.y,0);
+    camera.zoom=FLAT_VIEW_HEIGHT/Math.max(3.4,cameraRadius);
+    camera.updateProjectionMatrix();
+  } else {
+    camera.position.set(
+      cameraTarget.x+cameraRadius*Math.sin(cameraYaw)*Math.cos(cameraPitch),
+      cameraTarget.y+cameraRadius*Math.sin(cameraPitch),
+      cameraTarget.z+cameraRadius*Math.cos(cameraYaw)*Math.cos(cameraPitch)
+    );
+    camera.lookAt(cameraTarget);
+  }
   zeroFade += (zeroFadeTarget-zeroFade)*Math.min(1,dt*1.6);
   if(zeroGroup){
     zeroGroup.scale.setScalar(0.05+zeroFade*0.95);
@@ -1339,14 +1579,17 @@ function updateLabels() {
     const categoryPoint=worldPosition(category.group);
     const categoryDistance=cameraPos.distanceTo(categoryPoint);
     const categoryLabel=category.nameSprite;
-    if(categoryLabel)categoryLabel.material.opacity=(viewMode==='root' ? (categoryDistance<14?0.94:0) : (category===activeCategory?0.88:0));
+    if(categoryLabel) {
+      if (flatView) categoryLabel.material.opacity=(viewMode==='root'||category===activeCategory)?0.96:0;
+      else categoryLabel.material.opacity=(viewMode==='root' ? (categoryDistance<14?0.94:0) : (category===activeCategory?0.88:0));
+    }
     if(category.newBadge)category.newBadge.visible=isCategoryNew(category.category);
     category.skills.forEach(function (skill) {
       if (!skill.group.visible) return;
       const point=worldPosition(skill.group);
       const distance=cameraPos.distanceTo(point);
-      const show=viewMode==='skill'&&skill===activeSkill ? true : distance<10.5;
-      if(skill.nameSprite)skill.nameSprite.material.opacity=show?0.95:0;
+      const show=flatView ? true : (viewMode==='skill'&&skill===activeSkill ? true : distance<10.5);
+      if(skill.nameSprite)skill.nameSprite.material.opacity=show?0.96:0;
       if(skill.newBadge)skill.newBadge.visible=isSkillNew(skill.skill);
     });
   });
@@ -1377,7 +1620,8 @@ function showSkillPanel(skillNode) {
     conversation:'TRY A CONVERSATION',
     voice:'ACTIVATE VOICE INTERFACE',
     settings:'OPEN SETTINGS',
-    memory:'OPEN MEMORY COMMANDS'
+    memory:'OPEN MEMORY COMMANDS',
+    weather:'OPEN WEATHER'
   }[skill.launch];
   panel.innerHTML =
     '<button type="button" class="st-panel-close" data-zero-panel-close aria-label="Close skill details">×</button>' +
@@ -1402,9 +1646,10 @@ function closePanelToCategory() {
   if (!activeCategory) return;
   viewMode='category';
   activeSkill=null;
+  updateViewToolbar();
   zeroFadeTarget=0.12;
   hideSkillPanel();
-  cameraTo(worldPosition(activeCategory.group),8.7,850);
+  cameraTo(flatView?new THREE.Vector3(0,0,0):worldPosition(activeCategory.group),flatView?9.3:8.7,850, null, flatView?0:undefined, flatView?0:undefined);
 }
 
 function launchSkill(skillNode) {
@@ -1445,6 +1690,23 @@ function launchSkill(skillNode) {
       launchFromTree=false;
       overlay.hidden=false;
       showToast('Sudoku is not available right now.');
+    }
+    return;
+  }
+
+  if (skill.launch === 'weather') {
+    launchFromTree=true;
+    overlay.hidden=true;
+    treeOpen=false;
+    if (navButton) navButton.setAttribute('aria-pressed','false');
+    if (window.ZeroExtraFeatures && typeof window.ZeroExtraFeatures.openWeather === 'function') {
+      window.ZeroExtraFeatures.openWeather('Edinburgh');
+    } else {
+      launchFromTree=false;
+      overlay.hidden=false;
+      treeOpen=true;
+      if (navButton) navButton.setAttribute('aria-pressed','true');
+      showToast('Weather is not available right now.');
     }
     return;
   }
@@ -1525,11 +1787,13 @@ function openSkillTree() {
   requestAnimationFrame(function(){if(treeOpen)overlay.classList.add('st-open')});
   if (navButton) navButton.setAttribute('aria-pressed','true');
   resizeRenderer();
-  cameraRadius=21;
+  cameraRadius=flatView?FLAT_VIEW_HEIGHT:21;
   cameraTarget.set(0,0,0);
   cameraTween=null;
-  cameraYaw=0.08;
-  cameraPitch=0.1;
+  cameraYaw=flatView?0:0.08;
+  cameraPitch=flatView?0:0.1;
+  if(flatView)applyFlatRootLayout();
+  updateViewToolbar();
   rootRevealStarted=false;
   categoryNodes.forEach(function (node) {
     node.group.scale.setScalar(0);
@@ -1608,6 +1872,17 @@ function raycastNode(clientX,clientY) {
 
 function pointerHandlers() {
   const canvas=renderer.domElement;
+  const viewToggle=document.getElementById('zeroViewToggle');
+  const zoomOutButton=document.getElementById('zeroZoomOut');
+  const zoomInButton=document.getElementById('zeroZoomIn');
+  const backButton=document.getElementById('zeroTreeBack');
+  if(viewToggle)viewToggle.addEventListener('click',function(){setFlatViewMode(!flatView);});
+  if(zoomOutButton)zoomOutButton.addEventListener('click',function(){zoomSkillTree(1);});
+  if(backButton)backButton.addEventListener('click',function(){
+    if(viewMode==='skill')closePanelToCategory();
+    else if(viewMode==='category')returnToRoot(true);
+  });
+  if(zoomInButton)zoomInButton.addEventListener('click',function(){zoomSkillTree(-1);});
   canvas.addEventListener('pointerdown',function (event) {
     canvas.setPointerCapture(event.pointerId);
     pointerMap.set(event.pointerId,{x:event.clientX,y:event.clientY});
@@ -1628,7 +1903,7 @@ function pointerHandlers() {
       const distance=Math.hypot(values[0].x-values[1].x,values[0].y-values[1].y);
       const delta=distance-pinchDistance;
       if(Math.abs(delta)>0.5){
-        cameraRadius=Math.max(4.3,Math.min(28,cameraRadius+delta*0.035));
+        cameraRadius=Math.max(4.3,Math.min(28,cameraRadius+(flatView?-delta*0.035:delta*0.035)));
         pinchDistance=distance;
         maybeHandleZoomThreshold();
       }
@@ -1638,8 +1913,14 @@ function pointerHandlers() {
     const dy=event.clientY-previous.y;
     if(dragStart && (Math.abs(event.clientX-dragStart.x)>5||Math.abs(event.clientY-dragStart.y)>5))dragMoved=true;
     if(dragMoved){
-      cameraYaw-=dx*0.006;
-      cameraPitch=Math.max(-1.25,Math.min(1.25,cameraPitch+dy*0.005));
+      if(flatView) {
+        const scale=cameraRadius/Math.max(1,overlay.clientHeight);
+        cameraTarget.x-=dx*scale;
+        cameraTarget.y+=dy*scale;
+      } else {
+        cameraYaw-=dx*0.006;
+        cameraPitch=Math.max(-1.25,Math.min(1.25,cameraPitch+dy*0.005));
+      }
     }
   });
   const pointerEnd=function (event) {
@@ -1669,7 +1950,7 @@ function pointerHandlers() {
 }
 
 function maybeHandleZoomThreshold() {
-  if(cameraTween)return;
+  if(cameraTween || flatView)return;
   if(viewMode==='skill'&&cameraRadius>8.6)handleZoomOut();
   else if(viewMode==='category'&&cameraRadius>13.8)handleZoomOut();
   else if(viewMode==='root'&&cameraRadius>25.5)handleZoomOut();
@@ -1698,7 +1979,7 @@ function animate(now) {
   renderFrame=requestAnimationFrame(animate);
   const dt=Math.min(0.05,(now-lastFrame)/1000||0);
   lastFrame=now;
-  if(viewMode==='root'&&categoryOrbit)categoryOrbit.rotation.y+=dt*0.025;
+  if(!flatView&&viewMode==='root'&&categoryOrbit)categoryOrbit.rotation.y+=dt*0.025;
   if(zeroGroup){
     zeroGroup.rotation.y+=dt*0.15;
     zeroGroup.rotation.x=Math.sin(now*0.00018)*0.08;
@@ -1707,7 +1988,7 @@ function animate(now) {
   }
   categoryNodes.forEach(function (category) {
     if(category.group.visible){
-      category.group.rotation.y+=dt*0.08;
+      if(!flatView)category.group.rotation.y+=dt*0.08;
       if(category.group.userData.strayOrbit){category.group.userData.strayOrbit.rotation.y+=dt*0.42;category.group.userData.strayOrbit.rotation.x+=dt*0.17;category.group.userData.strayOrbit.position.y=Math.sin(now*.0014+category.position[0])*.035;}
       const aura = category.visual && category.visual.categoryAura;
       if (aura) {
@@ -1740,7 +2021,7 @@ function animate(now) {
       }
       category.skills.forEach(function (skill,index) {
         if(skill.group.visible){
-          skill.group.rotation.y+=dt*(index%2?-.1:.12);
+          if(!flatView)skill.group.rotation.y+=dt*(index%2?-.1:.12);
           if(skill.group.userData.strayOrbit){skill.group.userData.strayOrbit.rotation.y+=dt*(index%2?-.52:.46);skill.group.userData.strayOrbit.rotation.z+=dt*.14;skill.group.userData.strayOrbit.position.y=Math.sin(now*.0018+index)*.028;}
           const rings=skill.group.userData.rings||[];
           rings.forEach(function(ring,ringIndex){ring.rotation.z+=dt*(ringIndex%2?-.14:.11)});
@@ -1766,9 +2047,21 @@ function resizeRenderer() {
   if (!renderer || !camera || !overlay) return;
   const width=Math.max(1,overlay.clientWidth || window.innerWidth || 1);
   const height=Math.max(1,overlay.clientHeight || window.innerHeight || 1);
-  camera.aspect=width/height;
+  const aspect=width/height;
+  if(camera.isOrthographicCamera) {
+    const visibleHeight=FLAT_VIEW_HEIGHT;
+    const visibleWidth=visibleHeight*aspect;
+    camera.left=-visibleWidth/2;
+    camera.right=visibleWidth/2;
+    camera.top=visibleHeight/2;
+    camera.bottom=-visibleHeight/2;
+    camera.zoom=FLAT_VIEW_HEIGHT/Math.max(3.4,cameraRadius);
+  } else {
+    camera.aspect=aspect;
+  }
   camera.updateProjectionMatrix();
   renderer.setSize(width,height,false);
+  if(flatView)applyFlatLayoutForCurrentView();
 }
 
 function initRenderer() {
@@ -1784,6 +2077,7 @@ function initRenderer() {
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     scene=new THREE.Scene();
     camera=new THREE.PerspectiveCamera(46,1,0.1,300);
+    perspectiveCamera=camera;
     resizeRenderer();
     camera.position.set(0,2,21);
     failedStage='building the 3D scene';
@@ -1901,6 +2195,7 @@ function initialize() {
   setupHangmanReturn();
   setupKeyboard();
   initRenderer();
+  updateViewToolbar();
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden&&treeOpen)startRenderLoop();
   });

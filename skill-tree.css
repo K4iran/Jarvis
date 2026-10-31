@@ -58,3 +58,21 @@ body.zero-skill-tree-open #core { opacity:0; transform:scale(.78); filter:blur(1
   #zenRoot .zen-node[data-branch="music"] .zen-node-icon { animation:none !important; }
   .st-toast,.st-launch { transition:none !important; }
 }
+
+
+/* 2D/3D view controls for the interactive Skill Tree. */
+.st-toolbar { display:flex; align-items:center; justify-content:flex-end; gap:7px; pointer-events:auto; }
+.st-toolbar .st-hint { margin-right:7px; pointer-events:none; }
+.st-tool-button { min-width:35px; min-height:34px; padding:7px 10px; border:1px solid rgba(110,201,247,.28); border-radius:8px; background:rgba(5,20,38,.72); color:#d9f3ff; font:inherit; font-size:9px; font-weight:600; line-height:1; letter-spacing:.12em; cursor:pointer; box-shadow:0 0 15px rgba(63,166,231,.07),inset 0 0 12px rgba(85,185,255,.035); backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px); transition:background .18s,border-color .18s,box-shadow .18s; }
+.st-tool-button:hover,.st-tool-button:focus-visible { outline:none; border-color:rgba(136,221,255,.72); background:rgba(28,82,121,.62); box-shadow:0 0 18px rgba(75,181,245,.18); }
+.st-tool-button[aria-pressed="true"] { border-color:rgba(112,211,255,.7); background:rgba(36,121,172,.28); color:#fff; }
+.st-view-toggle { min-width:72px; }
+.st-zoom-button { min-width:34px; padding:6px; font-size:17px; letter-spacing:0; }
+@media(max-width:680px) {
+  .st-topline { align-items:flex-start; }
+  .st-toolbar { gap:5px; flex-wrap:wrap; max-width:58%; }
+  .st-toolbar .st-hint { width:100%; max-width:none; margin:0 0 2px; text-align:right; }
+  .st-tool-button { min-height:32px; padding:6px 8px; font-size:8px; }
+  .st-view-toggle { min-width:66px; }
+  .st-zoom-button { min-width:31px; }
+}

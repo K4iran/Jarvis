@@ -426,6 +426,20 @@
     newSudoku(difficulty || "easy");
   }
 
+  async function openWeather(city) {
+    const requestedCity=String(city || "Edinburgh").trim() || "Edinburgh";
+    open("weather");
+    panel.innerHTML = head("LIVE WEATHER / FETCHING", "Weather") + '<div class="zf-status">Checking current conditions for ' + escapeHtml(requestedCity) + '…</div>';
+    try {
+      const result=await fetchWeather(requestedCity);
+      renderWeather(requestedCity,result);
+      return { ok:true, result:result };
+    } catch (error) {
+      panel.innerHTML = head("LIVE WEATHER", "Weather") + '<div class="zf-status">' + escapeHtml(error.message || "Weather is unavailable.") + '</div>';
+      return { ok:false, error:error };
+    }
+  }
+
   async function handleCommand(text, respond) {
     const raw = String(text || "").trim();
     const q = raw.toLowerCase().replace(/^\s*(?:(?:hey[\s,]+)?zero)\b[\s,:-]*/i, "").replace(/[.!?]+$/,"").trim();
@@ -465,16 +479,14 @@
     }
     if (/\b(?:weather|forecast|temperature|conditions|rain|raining|sunny|cloudy|windy)\b/.test(q)) {
       const city = getWeatherCity(raw);
-      open("weather");
-      panel.innerHTML = head("LIVE WEATHER / FETCHING", "Weather") + '<div class="zf-status">Checking current conditions for ' + escapeHtml(city) + '…</div>';
-      try {
-        const result = await fetchWeather(city);
-        renderWeather(city, result);
+      const weatherResult=await openWeather(city);
+      if(weatherResult.ok) {
+        const result=weatherResult.result;
         const current = result.data.current, info = weatherDescription(current.weather_code);
         await respond("In " + result.place.name + ", it is " + Math.round(current.temperature_2m) + " degrees and " + info[0].toLowerCase() + ". It feels like " + Math.round(current.apparent_temperature) + " degrees. Today's high is " + Math.round(result.data.daily.temperature_2m_max[0]) + " and the low is " + Math.round(result.data.daily.temperature_2m_min[0]) + " degrees. The interactive hourly graph and forecast are on screen.");
-      } catch (error) {
-        panel.innerHTML = head("LIVE WEATHER", "Weather") + '<div class="zf-status">' + escapeHtml(error.message || "Weather is unavailable.") + '</div>';
-        await respond("I could not load the weather. " + (error.message || "Please try again."));
+      } else {
+        const error=weatherResult.error;
+        await respond("I could not load the weather. " + (error && error.message || "Please try again."));
       }
       return true;
     }
@@ -487,5 +499,5 @@
     return false;
   }
 
-  window.ZeroExtraFeatures = { handleCommand: handleCommand, openSudoku: openSudoku };
+  window.ZeroExtraFeatures = { handleCommand: handleCommand, openSudoku: openSudoku, openWeather: openWeather };
 })();
