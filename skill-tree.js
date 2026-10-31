@@ -639,6 +639,33 @@ function createOrbVisual(group, radius, color, icon, label, isCenter) {
   );
   group.add(particles);
 
+  // A second, finer particle layer adds depth without making the orbs cluttered.
+  const detailCount = isCenter ? 360 : 84;
+  const detailPositions = new Float32Array(detailCount * 3);
+  const detailColors = new Float32Array(detailCount * 3);
+  const detailPale = new THREE.Color('#f2fbff');
+  for (let i = 0; i < detailCount; i++) {
+    const y = 1 - (i / Math.max(1, detailCount - 1)) * 2;
+    const radial = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = Math.PI * (3 - Math.sqrt(5)) * i + Math.random() * 0.16;
+    const r = radius * (1.13 + Math.random() * 0.16);
+    detailPositions[i * 3] = Math.cos(theta) * radial * r;
+    detailPositions[i * 3 + 1] = y * r;
+    detailPositions[i * 3 + 2] = Math.sin(theta) * radial * r;
+    const c = colorValue.clone().lerp(detailPale, 0.42 + Math.random() * 0.42);
+    detailColors[i * 3] = c.r;
+    detailColors[i * 3 + 1] = c.g;
+    detailColors[i * 3 + 2] = c.b;
+  }
+  const detailGeometry = new THREE.BufferGeometry();
+  detailGeometry.setAttribute('position', new THREE.BufferAttribute(detailPositions, 3));
+  detailGeometry.setAttribute('color', new THREE.BufferAttribute(detailColors, 3));
+  const detailParticles = new THREE.Points(detailGeometry, new THREE.PointsMaterial({
+    size: isCenter ? 0.021 : 0.018, vertexColors: true, transparent: true,
+    opacity: 0.58, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true
+  }));
+  group.add(detailParticles);
+
   if (icon && icon !== 'zero') addIcon(group, icon, color, radius * 0.65);
   if (label) {
     const labelSprite = makeLabelSprite(label, '#e9f6ff', 28);
