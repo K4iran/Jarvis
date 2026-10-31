@@ -596,12 +596,40 @@ function createOrbVisual(group, radius, color, icon, label, isCenter) {
   );
   group.add(wire);
 
-  const core = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * (isCenter ? 0.19 : 0.16), 18, 16),
-    new THREE.MeshBasicMaterial({ color: '#eafaff', transparent: true, opacity: 0.94 })
-  );
-  core.material.color.lerp(colorValue, 0.28);
-  group.add(core);
+  // The centre of ZERO carries its wordmark; smaller orbs use a faceted,
+  // category-coloured energy crystal instead of a plain white sphere.
+  let core;
+  if (isCenter) {
+    const wordmark = makeLabelSprite('Z.E.R.O.', '#eafaff', 34);
+    wordmark.material.opacity = 1;
+    wordmark.material.depthTest = false;
+    wordmark.scale.set(radius * 1.05, radius * 0.25, 1);
+    wordmark.position.set(0, 0, radius * 0.34);
+    wordmark.renderOrder = 8;
+    group.add(wordmark);
+    core = wordmark;
+  } else {
+    const crystalMaterial = new THREE.MeshBasicMaterial({
+      color: colorValue, transparent: true, opacity: 0.88,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    core = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(radius * 0.145, 1),
+      crystalMaterial
+    );
+    core.rotation.set(0.35, 0.55, 0.2);
+    group.add(core);
+
+    const nucleusRing = new THREE.Mesh(
+      new THREE.TorusGeometry(radius * 0.23, Math.max(0.012, radius * 0.018), 6, 40),
+      new THREE.MeshBasicMaterial({
+        color: colorValue, transparent: true, opacity: 0.78,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      })
+    );
+    nucleusRing.rotation.set(0.72, 0.35, 0.18);
+    group.add(nucleusRing);
+  }
 
   const rings = [];
   for (let i = 0; i < 3; i++) {
