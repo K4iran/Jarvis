@@ -1026,10 +1026,22 @@ body.zen-mode-active #core{visibility:hidden!important}
 .bt-protocol{margin:7px 0;padding-left:16px;color:#e2d2d4;font-size:10px;line-height:1.7}
 .bt-callout{margin-top:10px;padding:10px;border:1px solid rgba(255,66,75,.2);background:rgba(91,9,17,.13);font-size:10px;line-height:1.65;color:#e8d9da}
 .bt-empty{font-size:10px;color:#977e81;line-height:1.6}
-.bt-countdown{position:absolute;inset:0;z-index:12;display:grid;place-items:center;background:rgba(0,0,0,.78);backdrop-filter:blur(9px);text-align:center}
+.bt-countdown{position:absolute;inset:0;z-index:12;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 48%,rgba(65,5,12,.22),rgba(0,0,0,.48) 68%),linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.52));backdrop-filter:blur(1.5px);text-align:center;isolation:isolate}
 .bt-countdown[hidden]{display:none!important}
-.bt-count-number{font:clamp(70px,18vw,170px) "JetBrains Mono",monospace;color:#ff414c;text-shadow:0 0 18px rgba(255,35,48,.75),0 0 70px rgba(255,20,32,.35);animation:btCountPulse .7s ease both}
-.bt-count-word{margin-top:8px;font:12px "JetBrains Mono",monospace;letter-spacing:.38em;color:#f2c4c6}.bt-count-return{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);min-width:190px}.bt-count-return[hidden]{display:none!important}
+.bt-countdown:before{content:"";position:absolute;inset:-20%;z-index:-1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,90,100,.045) 4px,transparent 5px),radial-gradient(ellipse at 50% 50%,transparent 28%,rgba(0,0,0,.68) 78%);animation:btCineScan 7s linear infinite}
+.bt-countdown:after{content:"";position:absolute;left:-20%;right:-20%;top:50%;height:1px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,55,67,.08),rgba(255,180,184,.8),rgba(255,55,67,.08),transparent);box-shadow:0 0 25px 8px rgba(255,28,43,.12);animation:btCineFlare 5.2s ease-in-out infinite}
+.bt-cine-frame{position:absolute;inset:clamp(16px,4vw,48px);pointer-events:none;border:1px solid rgba(255,90,100,.19);box-shadow:inset 0 0 45px rgba(255,30,40,.035),0 0 40px rgba(255,20,30,.045)}
+.bt-cine-frame:before,.bt-cine-frame:after{content:"";position:absolute;left:0;right:0;height:clamp(24px,6vh,70px);background:#020204;opacity:.66}.bt-cine-frame:before{top:0}.bt-cine-frame:after{bottom:0}
+.bt-cine-corner{position:absolute;width:38px;height:38px;border-color:rgba(255,94,103,.9);border-style:solid;filter:drop-shadow(0 0 7px rgba(255,30,45,.65))}
+.bt-cine-corner.a{top:-1px;left:-1px;border-width:2px 0 0 2px}.bt-cine-corner.b{top:-1px;right:-1px;border-width:2px 2px 0 0}.bt-cine-corner.c{bottom:-1px;left:-1px;border-width:0 0 2px 2px}.bt-cine-corner.d{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.bt-cine-copy{position:absolute;top:clamp(34px,8vh,90px);left:0;right:0;text-align:center;color:rgba(255,184,188,.82);font:9px "JetBrains Mono",monospace;letter-spacing:.34em;text-shadow:0 0 14px rgba(255,38,52,.45)}
+.bt-cine-bottom{position:absolute;left:0;right:0;bottom:clamp(38px,8vh,88px);text-align:center;color:rgba(255,124,132,.72);font:8px "JetBrains Mono",monospace;letter-spacing:.25em}
+.bt-count-number{font:clamp(82px,20vw,190px) "JetBrains Mono",monospace;color:#fff0f1;text-shadow:0 0 12px rgba(255,235,236,.9),0 0 32px rgba(255,40,54,.95),0 0 100px rgba(255,15,30,.6);animation:btCountPulse .86s cubic-bezier(.16,.8,.22,1) both;position:relative}
+.bt-count-word{margin-top:8px;font:clamp(10px,1.4vw,13px) "JetBrains Mono",monospace;letter-spacing:.48em;color:#ffd9dc;text-shadow:0 0 16px rgba(255,38,52,.75)}.bt-cine-subtitle{margin-top:18px;color:rgba(255,125,134,.78);font:8px "JetBrains Mono",monospace;letter-spacing:.24em}
+.bt-count-return{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);min-width:190px}.bt-count-return[hidden]{display:none!important}
+@media(max-width:899px){#battleMode.bt-cinematic .bt-helmet-wrap{animation-name:btCinematicCameraMobile}}@keyframes btCinematicCameraMobile{0%{filter:brightness(.55) contrast(1.1);transform:translateX(-50%) scale(.94)}35%{filter:brightness(1.08) contrast(1.18);transform:translateX(-50%) scale(1.035)}100%{filter:brightness(1.18) contrast(1.12);transform:translateX(-50%) scale(1.075)}}
+#battleMode.bt-cinematic .bt-helmet-wrap{animation:btCinematicCamera 6s cubic-bezier(.2,.75,.2,1) both}#battleMode.bt-cinematic #battleHelmetCanvas{filter:drop-shadow(0 0 28px rgba(255,34,46,.28)) drop-shadow(0 0 72px rgba(255,12,28,.14))}
+@keyframes btCineScan{0%{transform:translateY(-3%);opacity:.35}50%{opacity:.8}100%{transform:translateY(3%);opacity:.35}}@keyframes btCineFlare{0%,100%{transform:translateY(-25vh) scaleX(.55);opacity:0}25%,72%{opacity:.75}50%{transform:translateY(25vh) scaleX(1.2);opacity:.35}}@keyframes btCinematicCamera{0%{filter:brightness(.55) contrast(1.1);transform:translateZ(0) scale(.94)}35%{filter:brightness(1.08) contrast(1.18);transform:translateZ(0) scale(1.035)}100%{filter:brightness(1.18) contrast(1.12);transform:translateZ(0) scale(1.075)}}
 @keyframes btCountPulse{0%{transform:scale(1.35);opacity:0}35%{opacity:1}100%{transform:scale(1);opacity:1}}
 .bt-settings-overlay,.bt-postgame-overlay{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(12px)}
 .bt-settings-overlay[hidden],.bt-postgame-overlay[hidden]{display:none!important}
@@ -1043,6 +1055,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 .bt-postgame-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
 .bt-inline-hint{margin:6px 0;color:#977f82;font-size:9px;line-height:1.55}
 #battleMode .bt-red{color:#ff6971}
+.profile-memory{display:grid;gap:14px;padding:8px 0}.profile-memory-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border:1px solid rgba(88,223,255,.2);background:linear-gradient(110deg,rgba(42,134,170,.1),rgba(5,15,24,.2));color:var(--t);font-size:9px;letter-spacing:.12em}.profile-memory-head b{font:9px "JetBrains Mono",monospace;color:var(--t)}.profile-memory-group h3{margin:4px 0 8px;color:var(--t);font:9px "JetBrains Mono",monospace;letter-spacing:.18em}.profile-memory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}.profile-memory-card{padding:11px 12px;border:1px solid rgba(130,180,210,.13);background:linear-gradient(145deg,rgba(15,32,43,.46),rgba(5,10,16,.36));min-width:0}.profile-memory-card span{display:block;color:var(--t);font:9px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase}.profile-memory-card p{margin:7px 0 0;color:var(--tx);font-size:12px;line-height:1.55;overflow-wrap:anywhere}.profile-memory-foot{color:var(--mut);font:8px "JetBrains Mono",monospace;letter-spacing:.05em}.profile-memory-empty{padding:22px;border:1px dashed rgba(88,223,255,.2);color:var(--mut);font-size:12px;line-height:1.6}.profile-memory-empty .mono{color:var(--t);font-size:9px;letter-spacing:.15em}
 @media(max-width:899px){
  #battleMode{overflow-y:auto}
  /* Mobile HUD cards stay out of the helmet's way until JARVIS references them. */
@@ -1099,7 +1112,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 </defs></svg>
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
-<header id="bar"><div class="br"><svg class="helmet-mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="helmetGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C7FAFF"/><stop offset=".48" stop-color="#58DFFF"/><stop offset="1" stop-color="#2879D8"/></linearGradient></defs><g fill="none" stroke="url(#helmetGlow)" stroke-linecap="round" stroke-linejoin="round"><path d="M24 3.5 10 9 5.5 20l3 15 8.5 8h14l8.5-8 3-15L38 9 24 3.5Z" stroke-width="1.5"/><path d="M10 14 16 8l8-2 8 2 6 6-3 13-6 8-5 3-5-3-6-8-3-13Z" stroke-width="1.15"/><path d="m10 17 7 1 5 4-3 5-7-2M38 17l-7 1-5 4 3 5 7-2M17 34l7-3 7 3M20 10l4 2 4-2" stroke-width="1.4"/><path d="m17 18 5 3m9-3-5 3" stroke-width="2.2"/><path d="M20 25h8" stroke-width=".9" opacity=".7"/></g><path d="m12 18 7 1 3 4-3 3-6-2ZM36 18l-7 1-3 4 3 3 6-2Z" fill="#58DFFF" opacity=".18"/></svg><div class="brand-copy"><b>Z.E.R.O.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
+<header id="bar"><div class="br"><div class="brand-copy"><b>Z.E.R.O.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
 <nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button><button class="tab" id="battleModeLaunch" type="button" aria-label="Activate Battle Mode">BATTLE</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
 <main id="stage">
 <section id="center">
@@ -1171,23 +1184,19 @@ body.zen-mode-active #core{visibility:hidden!important}
     <div class="bt-actions" id="btFooterActions"></div>
   </footer>
   <div class="bt-countdown" id="btCountdown" hidden>
-    <div><div class="bt-count-number" id="btCountNumber">3</div><div class="bt-count-word" id="btCountWord">PREPARE</div></div>
+    <div class="bt-cine-frame" aria-hidden="true"><i class="bt-cine-corner a"></i><i class="bt-cine-corner b"></i><i class="bt-cine-corner c"></i><i class="bt-cine-corner d"></i></div>
+    <div class="bt-cine-copy">Z.E.R.O. // FINAL SEQUENCE</div>
+    <div><div class="bt-count-number" id="btCountNumber">5</div><div class="bt-count-word" id="btCountWord">SYSTEMS CHECK</div><div class="bt-cine-subtitle" id="btCineSubtitle">NEURAL LINK // SYNCHRONISING</div></div>
+    <div class="bt-cine-bottom">TACTICAL INTERFACE • ALL SYSTEMS NOMINAL</div>
     <button class="bt-action bt-count-return" id="btCountReturn" data-bt-action="close" type="button" hidden>RETURN TO JARVIS</button>
   </div>
 </div>
 <div class="bt-settings-overlay" id="btSettingsOverlay" hidden>
   <section class="bt-settings-card" role="dialog" aria-modal="true" aria-labelledby="btSettingsTitle">
     <div class="bt-kicker">Z.E.R.O. / CONFIGURATION</div><h2 id="btSettingsTitle">BATTLE MODE SETTINGS</h2>
-    <label>Final launch music
-      <select class="bt-select" id="btSongSource"><option value="file">Built-in track (audio file)</option><option value="spotify">Spotify link</option></select>
-    </label>
-    <div id="btFileMusicSettings">
-      <label>Choose your Battle Mode song
-        <input class="bt-input" id="btAudioFile" type="file" accept="audio/*">
-      </label>
-      <div class="bt-track-state" id="btTrackName">No built-in track selected.</div>
-    </div>
-    <div id="btSpotifyMusicSettings" hidden>
+    <label>Music playback<select class="bt-select" id="btSongSource"><option value="file">Two built-in tracks (play inside ZERO)</option><option value="spotify">Spotify links (requires connection)</option></select></label>
+     <div id="btFileMusicSettings"><label>Opening track — starts after ZERO’s first sentence<input class="bt-input" id="btIntroAudioFile" type="file" accept="audio/*"></label><div class="bt-track-state" id="btIntroTrackName">No opening track selected.</div><label>Final track — starts after the cinematic sequence and final line<input class="bt-input" id="btFinalAudioFile" type="file" accept="audio/*"></label><div class="bt-track-state" id="btFinalTrackName">No final track selected.</div><p class="bt-inline-hint">Tracks are stored locally in this browser and play inside ZERO. Choose two separate audio files.</p></div>
+     <div id="btSpotifyMusicSettings" hidden>
       <label>Opening song — starts after ZERO's first sentence
         <input class="bt-input" id="btSpotifyIntroUrl" type="url" placeholder="https://open.spotify.com/track/...">
       </label>
@@ -1400,6 +1409,7 @@ const ZeroMemory = (() => {
 
   function save(memories) {
     localStorage.setItem(KEY, JSON.stringify(memories));
+    try { window.dispatchEvent(new Event("zero:memory-updated")); } catch {}
   }
 
   function remember(key, value) {
@@ -1464,7 +1474,7 @@ const ZeroMemory = (() => {
     return true;
   }
 
-  return { remember, forget, clear, list, context, rememberIfMissing };
+  return { remember, forget, clear, list, context, rememberIfMissing, entries: () => Object.entries(read()) };
 })();
 
 // Keep the user's calendar-opening preference in ZERO's own persistent memory.
@@ -1497,11 +1507,13 @@ const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING
 const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:12,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
 const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
+function profileMemoryHTML(){const entries=ZeroMemory.entries();if(!entries.length)return '<div class="profile-memory" data-memory-profile><div class="profile-memory-empty"><span class="mono">MEMORY CORE / EMPTY</span><p>Z.E.R.O. has not saved any personal details yet. Tell ZERO “remember that…” to add something here.</p></div></div>';const groups={'PERSONAL DETAILS':[],'BASKETBALL':[],'GOALS & PREFERENCES':[],'OTHER MEMORIES':[]};entries.forEach(([key,value])=>{const k=String(key).toLowerCase(),g=/basket|position|height|weight|team|shoot|game|training|court|player|jersey|ppg|assist|defen|handle/.test(k)?'BASKETBALL':/goal|prefer|like|dislike|style|routine|music|clothing|food|school|study/.test(k)?'GOALS & PREFERENCES':/name|age|birthday|location|calendar|personal|family/.test(k)?'PERSONAL DETAILS':'OTHER MEMORIES';groups[g].push([key,value])});const safe=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));return '<div class="profile-memory" data-memory-profile><div class="profile-memory-head"><span class="mono">MEMORY CORE / ACTIVE</span><b>'+entries.length+' SAVED '+(entries.length===1?'DETAIL':'DETAILS')+'</b></div>'+Object.entries(groups).filter(([,a])=>a.length).map(([h,a])=>'<section class="profile-memory-group"><h3>'+h+'</h3><div class="profile-memory-grid">'+a.map(([k,v])=>'<article class="profile-memory-card"><span>'+safe(k)+'</span><p>'+safe(v)+'</p></article>').join('')+'</div></section>').join('')+'<p class="profile-memory-foot">Stored locally in this browser • Only details ZERO has explicitly saved appear here</p></div>'}
 const P={
-profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'PERSONAL DETAILS',d:'',v:()=>`<p class="mut" style="margin:8px 0">Details you ask Z.E.R.O. to remember are kept in this browser.</p>`},
+profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'ZERO MEMORY',d:'Everything Z.E.R.O. has saved about you in this browser.',v:()=>profileMemoryHTML()},
 lifeos:{l:'LIFEOS',i:'#i-life',s:'PERSONAL PROGRESSION',d:'Your LifeOS app, embedded inside ZERO and using its existing saved data.',v:()=>'<div class="lifeos-embed-wrap"><iframe id="lifeosFrame" class="lifeos-embed" src="https://k4iran.github.io/Jarvis/LifeOS.html" title="LifeOS personal progression tracker" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'},
 hoop:{l:'HOOP CENTRAL',i:'#i-hoop',s:'BASKETBALL STATS',d:'',v:()=>`<div class="kp">${['PPG','AST','STL','FG%'].map(k=>`<div><span class="lbl">${k}</span></div>`).join('')}</div>`},
 status:{l:'SYSTEM STATUS',i:'#i-stat',s:'LIVE INTERFACE',d:'',v:()=>[row('Interface','Loaded',1),row('Animation system',S.rm?'Reduced':'Active',1),row('Orb renderer',orbInfo,orbInfo!=='Unavailable'),row('Viewport',innerWidth+' × '+innerHeight+' px'),row('Interface mode',state.toUpperCase())].join('')}};
+window.addEventListener("zero:memory-updated",()=>{const host=$("#dv [data-memory-profile]");if(host)host.outerHTML=profileMemoryHTML()});
 const idleHTML=`<div class="idle"><p class="lbl" style="color:var(--t)">Choose a panel</p></div>`;
 $('#rail').innerHTML=Object.entries(P).map(([k,p])=>`<button class="pn" data-p="${k}"><svg class="ic"><use href="${p.i}"/></svg><span><b>${p.l}</b><small class="mono">${p.s}</small></span></button>`).join('');
 $('#rail').onclick=e=>{const b=e.target.closest('[data-p]');if(b)setView(b.dataset.p)};
@@ -4063,8 +4075,8 @@ const $$=s=>Array.from(document.querySelectorAll(s));
 const root=$('#battleMode');
 if(!root||root.dataset.ready==='true')return;
 root.dataset.ready='true';
-const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{songSource:'file',spotifyUrl:'',spotifyIntroUrl:'',spotifyFinalUrl:'',trackName:''}});
-let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,spotifyLaunchSucceeded=false,battleAudioContext=null,battleAudioAnalyser=null,battleAudioData=null;
+const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{songSource:'file',spotifyUrl:'',spotifyIntroUrl:'',spotifyFinalUrl:'',trackName:'',introTrackName:'',finalTrackName:''}});
+let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,spotifyLaunchSucceeded=false,battleAudioContext=null,battleAudioAnalyser=null,battleAudioData=null,battleAudioSource=null,battleGain=null;
 try{
  const saved=JSON.parse(localStorage.getItem(KEY)||'null');
  if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,saved.settings||{});if(!data.settings.spotifyFinalUrl&&data.settings.spotifyUrl)data.settings.spotifyFinalUrl=data.settings.spotifyUrl;data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
@@ -4112,11 +4124,12 @@ function showPanelForSpeech(text){
  const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
  speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
 }
-function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
-function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
+function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
+function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
  if(!root.hidden)return;
+ unlockBattleAudio();
  show();
  const events=await todayEvents();
  if(root.hidden)return;
@@ -4208,34 +4221,15 @@ function beginBriefing(type,event){
  const openingLine='Sir, I have prepared your '+(type==='game'?'game-day':'training')+' briefing.';
  const briefingRest='Your key priorities are: '+suggestions.slice(0,2).join('. ')+'. Stay composed. Release the last play, trust your preparation and focus on the next decision. Picture yourself making the right read and responding calmly if things do not go perfectly. '+motivationText()+' Review your panels, then begin the final sequence when you are ready.';
  speak(openingLine).then(async()=>{
-  if(data.settings.songSource==='spotify')await playSpotifyStage('intro');
+  if(data.settings.songSource==='spotify')await playSpotifyStage('intro');else await playBattleTrack('intro');
   await speak(briefingRest);
  });
 }
 function addObjective(text){const clean=String(text||'').trim().slice(0,120);if(!clean)return;data.objectives.push({id:id(),text:clean,done:false});save();if(sessionType)beginBriefing(sessionType,activeEvent)}
 function saveNote(){const field=$('#btNoteInput'),text=field.value.trim();if(!text)return;data.notes.push({id:id(),text:text.slice(0,1200),time:Date.now()});data.notes=data.notes.slice(-80);save();field.value='';renderNotebook();setPrompt('Saved to your basketball notebook, sir.')}
 function toggleObjective(index,checked){const item=data.objectives[index];if(!item)return;item.done=!!checked;save()}
-function finishCountdown(){
- const overlay=$('#btCountdown'),num=$('#btCountNumber'),word=$('#btCountWord');
- overlay.hidden=false;let n=3;
- const messages=['PREPARE','LOCK IN','FOCUS'];
- const tick=()=>{
-  num.textContent=String(n);word.textContent=messages[3-n]||'FOCUS';
-  if(n>1){n--;later(tick,850);return}
-  later(async()=>{
-   num.textContent='FOCUS';word.textContent='MAKE THE WORK COUNT';const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;
-   const line=motivationText()+' The work is done one possession and one rep at a time. Let us make this session count, sir.';
-   await speak(line);
-   if(data.settings.songSource==='spotify')await playSpotifyStage('final');
-   else await playFinalTrack();
-   $('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';
-   setPrompt('Battle Mode engaged. Your final sequence is complete, sir.');
-   setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>');
-  },450);
- };
- tick();
-}
-let battleSpeechQueue=Promise.resolve();
+function finishCountdown(){const overlay=$('#btCountdown'),num=$('#btCountNumber'),word=$('#btCountWord'),subtitle=$('#btCineSubtitle');root.classList.add('bt-cinematic');overlay.hidden=false;let n=5;const messages=['SYSTEMS CHECK','POWERING CORE','SYNCING SYSTEMS','NEURAL LINK READY','FOCUS'],sublines=['DIAGNOSTIC SWEEP / 01','ENERGY CORE / ONLINE','TACTICAL DISPLAY / SYNCHRONISED','ALL SYSTEMS / NOMINAL','READY WHEN YOU ARE'];const tick=()=>{num.textContent=String(n);word.textContent=messages[5-n];subtitle.textContent=sublines[5-n];if(n>1){n--;later(tick,920);return}later(async()=>{num.textContent='FOCUS';word.textContent='MAKE THE WORK COUNT';subtitle.textContent='THE NEXT POSSESSION STARTS NOW';const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;const line=motivationText()+' The work is done one possession and one rep at a time. Let us make this session count, sir.';await speak(line);if(data.settings.songSource==='spotify')await playSpotifyStage('final');else await playFinalTrack();$('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';setPrompt('Battle Mode engaged. Your final sequence is complete, sir.');setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>')},700)};tick()}
+ let battleSpeechQueue=Promise.resolve();
 function speak(text){
  const message=document.getElementById('msg');if(message)message.textContent=text;
  showPanelForSpeech(text);
@@ -4261,69 +4255,22 @@ function openDb(){
   req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('Could not open local audio storage.'));
  });
 }
-async function storeTrack(file){
- const db=await openDb();
- return new Promise((resolve,reject)=>{
-  const tx=db.transaction('tracks','readwrite');tx.objectStore('tracks').put(file,'battle-track');
-  tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error||new Error('Could not save this audio file.'))};
- });
-}
-async function loadTrack(){
- const db=await openDb();
- return new Promise((resolve,reject)=>{
-  const tx=db.transaction('tracks','readonly'),req=tx.objectStore('tracks').get('battle-track');
-  req.onsuccess=()=>{const value=req.result||null;db.close();resolve(value)};
-  req.onerror=()=>{db.close();reject(req.error||new Error('Could not load the saved track.'))};
- });
-}
+async function storeTrack(file,stage){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction('tracks','readwrite');tx.objectStore('tracks').put(file,stage==='intro'?'battle-intro-track':'battle-final-track');tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error||new Error('Could not save this audio file.'))}})}
+async function loadTrack(stage){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction('tracks','readonly'),req=tx.objectStore('tracks').get(stage==='intro'?'battle-intro-track':'battle-final-track');req.onsuccess=()=>{const value=req.result||null;if(value||stage==='intro'){db.close();resolve(value);return}const legacy=indexedDB.open('jarvis-battle-audio',1);legacy.onsuccess=()=>{const db2=legacy.result,tx2=db2.transaction('tracks','readonly'),old=tx2.objectStore('tracks').get('battle-track');old.onsuccess=()=>{const value=old.result||null;db2.close();db.close();resolve(value)};old.onerror=()=>{db2.close();db.close();resolve(null)}};legacy.onerror=()=>{db.close();resolve(null)}};req.onerror=()=>{db.close();reject(req.error||new Error('Could not load saved audio.'))}})}
 function spotifyTrackUri(url){
  const match=String(url||'').match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/([A-Za-z0-9]+)/i);
  return match?'spotify:track:'+match[1]:null;
 }
-async function playSpotifyStage(stage){
- const url=stage==='intro'?data.settings.spotifyIntroUrl:data.settings.spotifyFinalUrl;
- const uri=spotifyTrackUri(url);
- if(!uri){setPrompt('Add a valid Spotify track for the '+(stage==='intro'?'opening':'final')+' music in Battle Mode Settings.');return false}
- if(typeof window.zeroSpotifyPlayTrack!=='function'){
-  setPrompt('Spotify background playback needs to be connected to ZERO first. No external app will be opened.');
-  return false;
- }
- try{return await window.zeroSpotifyPlayTrack(uri)}catch(error){
-  console.warn('ZERO Spotify playback failed:',error);
-  setPrompt('Spotify could not start inside ZERO. Check the Spotify connection in Battle Mode Settings.');
-  return false;
- }
-}
-function connectBattleAudioAnalyser(audio){
- try{
-  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
-  if(!AudioContextClass)return;
-  if(!battleAudioContext)battleAudioContext=new AudioContextClass();
-  const analyser=battleAudioContext.createAnalyser();
-  analyser.fftSize=256;analyser.smoothingTimeConstant=.78;
-  const source=battleAudioContext.createMediaElementSource(audio);
-  source.connect(analyser);analyser.connect(battleAudioContext.destination);
-  battleAudioAnalyser=analyser;battleAudioData=new Uint8Array(analyser.fftSize);
-  if(battleAudioContext.state==='suspended')battleAudioContext.resume();
- }catch(error){console.warn('Battle audio visualiser unavailable:',error)}
-}
-async function playFinalTrack(){
- if(data.settings.songSource==='spotify'){await playSpotifyStage('final');return}
- try{
-  const blob=await loadTrack();
-  if(!blob){setPrompt('No built-in song is selected yet. Add one in Battle Mode Settings.');return}
-  if(currentAudio){currentAudio.pause();if(currentAudioUrl)URL.revokeObjectURL(currentAudioUrl)}
-  currentAudioUrl=URL.createObjectURL(blob);currentAudio=new Audio(currentAudioUrl);
-  currentAudio.volume=.9;connectBattleAudioAnalyser(currentAudio);
-  const p=currentAudio.play();if(p&&p.catch)p.catch(()=>setPrompt('Your browser blocked automatic playback. Tap PLAY / OPEN MY TRACK.'));
- }catch(error){setPrompt('Your saved track could not be loaded. Check Battle Mode Settings.')}
-}
-async function manualPlayTrack(){if(data.settings.songSource==='spotify'){await playSpotifyStage('final');return}await playFinalTrack()}
+async function playSpotifyStage(stage){const url=stage==='intro'?data.settings.spotifyIntroUrl:data.settings.spotifyFinalUrl,uri=spotifyTrackUri(url);if(!uri){setPrompt('Add a valid Spotify track for the '+(stage==='intro'?'opening':'final')+' music in Battle Mode Settings.');return false}if(typeof window.zeroSpotifyPlayTrack!=='function'){if(await playBattleTrack(stage))return true;setPrompt('Spotify is not connected yet. Add the two built-in tracks to play music inside ZERO. No external app will be opened.');return false}try{return await window.zeroSpotifyPlayTrack(uri)}catch(error){console.warn('ZERO Spotify playback failed:',error);setPrompt('Spotify could not start inside ZERO. Check the Spotify connection in Battle Mode Settings.');return false}}
+function unlockBattleAudio(){const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;try{if(!battleAudioContext){battleAudioContext=new C();battleAudioAnalyser=battleAudioContext.createAnalyser();battleAudioAnalyser.fftSize=512;battleAudioAnalyser.smoothingTimeConstant=.86;battleAudioData=new Uint8Array(battleAudioAnalyser.fftSize);battleGain=battleAudioContext.createGain();battleAudioAnalyser.connect(battleGain);battleGain.connect(battleAudioContext.destination)}const p=battleAudioContext.resume();if(p&&p.catch)p.catch(()=>{});return true}catch(e){console.warn('Battle audio unlock failed:',e);return false}}
+async function playBattleTrack(stage){try{if(!unlockBattleAudio()){setPrompt('This browser could not initialise in-page audio.');return false}const blob=await loadTrack(stage);if(!blob){setPrompt('Choose a separate '+(stage==='intro'?'opening':'final')+' track in Battle Mode Settings.');return false}const buffer=await battleAudioContext.decodeAudioData((await blob.arrayBuffer()).slice(0)),now=battleAudioContext.currentTime,old=battleAudioSource;if(old){battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(battleGain.gain.value,now);battleGain.gain.linearRampToValueAtTime(0,now+.32);try{old.stop(now+.34)}catch(e){}}const source=battleAudioContext.createBufferSource();source.buffer=buffer;source.connect(battleAudioAnalyser);const startAt=now+(old?.36:0);battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(0,startAt);battleGain.gain.linearRampToValueAtTime(.9,startAt+1.5);const state={paused:false,ended:false};currentAudio=state;battleAudioSource=source;source.onended=()=>{if(battleAudioSource===source){state.paused=true;state.ended=true;battleAudioSource=null}};source.start(startAt);return true}catch(e){console.warn('Battle Mode audio failed:',e);setPrompt('The selected track could not be decoded. Try another audio file.');return false}}
+async function playFinalTrack(){if(data.settings.songSource==='spotify')return playSpotifyStage('final');return playBattleTrack('final')}
+async function manualPlayTrack(){if(data.settings.songSource==='spotify')return playSpotifyStage('final');return playBattleTrack('final')}
 function openSettings(){
  const overlay=$('#btSettingsOverlay');overlay.hidden=false;
  $('#btSongSource').value=data.settings.songSource||'file';
  $('#btSpotifyIntroUrl').value=data.settings.spotifyIntroUrl||'';$('#btSpotifyFinalUrl').value=data.settings.spotifyFinalUrl||data.settings.spotifyUrl||'';
- $('#btTrackName').textContent=data.settings.trackName?'Selected: '+data.settings.trackName:'No built-in track selected.';
+ $('#btIntroTrackName').textContent=data.settings.introTrackName?'Selected: '+data.settings.introTrackName:'No opening track selected.';$('#btFinalTrackName').textContent=data.settings.finalTrackName?'Selected: '+data.settings.finalTrackName:'No final track selected.';
  $('#btSpotifyMusicSettings').hidden=data.settings.songSource!=='spotify';
  $('#btFileMusicSettings').hidden=data.settings.songSource==='spotify';
  renderInternalEvents();
@@ -4399,13 +4346,8 @@ $('#btSongSource').addEventListener('change',e=>{
  $('#btFileMusicSettings').hidden=e.target.value==='spotify';
 });
 ['btSpotifyIntroUrl','btSpotifyFinalUrl'].forEach(id=>$('#'+id).addEventListener('change',e=>{const url=e.target.value.trim();if(url&&!/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/[A-Za-z0-9]+/i.test(url)){alert('Use a Spotify track link.');return}data.settings[id==='btSpotifyIntroUrl'?'spotifyIntroUrl':'spotifyFinalUrl']=url;save()}));
-$('#btAudioFile').addEventListener('change',async e=>{
- const file=e.target.files&&e.target.files[0];if(!file)return;
- if(!file.type.startsWith('audio/')){alert('Choose an audio file.');return}
- try{await storeTrack(file);data.settings.trackName=file.name;data.settings.songSource='file';$('#btSongSource').value='file';$('#btTrackName').textContent='Selected: '+file.name;$('#btSpotifyMusicSettings').hidden=true;$('#btFileMusicSettings').hidden=false;save()}
- catch(error){alert(error.message||'Could not save this audio file.')}
-});
-$('#btSaveEvent').addEventListener('click',saveInternalEvent);
+[['btIntroAudioFile','intro'],['btFinalAudioFile','final']].forEach(([id,stage])=>$('#'+id).addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('audio/')){alert('Choose an audio file.');return}try{await storeTrack(file,stage);const key=stage==='intro'?'introTrackName':'finalTrackName';data.settings[key]=file.name;data.settings.songSource='file';$('#btSongSource').value='file';$('#'+(stage==='intro'?'btIntroTrackName':'btFinalTrackName')).textContent='Selected: '+file.name;$('#btSpotifyMusicSettings').hidden=true;$('#btFileMusicSettings').hidden=false;save()}catch(error){alert(error.message||'Could not save this audio file.')}}));
+ $('#btSaveEvent').addEventListener('click',saveInternalEvent);
 $('#btPostSave').addEventListener('click',savePostgame);
 $('#btPostLater').addEventListener('click',markPostgameLater);
 $('#battlePostgame').addEventListener('click',e=>{if(e.target.id==='battlePostgame')markPostgameLater()});
@@ -4470,35 +4412,7 @@ function startHelmetAnimation(){
    drift:Math.random()*.8+.2
   };
  });
- function drawSoundWaves(t,volume){
-  const bands=[
-   {rx:207,ry:298,color:'rgba(255,105,116,.82)',width:1.55,phase:.0},
-   {rx:229,ry:326,color:'rgba(220,45,59,.72)',width:1.35,phase:1.7},
-   {rx:252,ry:355,color:'rgba(116,17,29,.78)',width:1.25,phase:3.1}
-  ];
-  const data=battleAudioData,active=!!(battleAudioAnalyser&&data&&currentAudio&&!currentAudio.paused&&!currentAudio.ended);
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';ctx.lineJoin='round';
-  bands.forEach(function(band,bandIndex){
-   ctx.beginPath();
-   const steps=180;
-   for(let i=0;i<=steps;i++){
-    const angle=i/steps*Math.PI*2;
-    const sample=active?((data[Math.floor(i/steps*(data.length-1))]||128)-128)/128:0;
-    const ambient=Math.sin(t*1.05+angle*3+band.phase)*.012;
-    const displacement=(active?sample*(5+volume*24):ambient*18)*(1+bandIndex*.16);
-    const ripple=Math.sin(angle*5-t*(1.1+bandIndex*.12)+band.phase)*(1.1+volume*2.5);
-    const x=Math.cos(angle)*(band.rx+displacement+ripple);
-    const y=-24+Math.sin(angle)*(band.ry+displacement+ripple);
-    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-   }
-   ctx.closePath();
-   ctx.strokeStyle=band.color;ctx.lineWidth=band.width+volume*.7;
-   ctx.globalAlpha=.48+Math.min(.42,volume*.48);
-   ctx.shadowColor=band.color;ctx.shadowBlur=4+volume*10;
-   ctx.stroke();
-  });
-  ctx.restore();ctx.globalAlpha=1;ctx.shadowBlur=0;
- }
+ function drawSoundWaves(t,volume){const bands=[{rx:198,ry:282,color:'rgba(255,178,183,.9)',width:1.25,phase:0,speed:1.05},{rx:216,ry:306,color:'rgba(255,76,91,.78)',width:1.45,phase:1.35,speed:.82},{rx:237,ry:331,color:'rgba(207,35,52,.68)',width:1.2,phase:2.65,speed:1.18},{rx:259,ry:357,color:'rgba(111,15,29,.72)',width:1.05,phase:3.9,speed:.68}],data=battleAudioData,active=!!(battleAudioAnalyser&&data&&currentAudio&&!currentAudio.paused&&!currentAudio.ended);ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';ctx.lineJoin='round';bands.forEach((band,bi)=>{ctx.beginPath();const steps=240;for(let i=0;i<=steps;i++){const angle=i/steps*Math.PI*2,idx=Math.floor(i/steps*(data?data.length-1:0)),sample=active?((data[idx]||128)-128)/128:0,travelling=Math.sin(angle*3.2-t*band.speed+band.phase)*3.2+Math.sin(angle*7+t*.72-band.phase)*1.35+Math.sin(angle*11-t*1.35+band.phase)*.55,envelope=active?volume:.12,audioRipple=active?sample*(3+volume*17):Math.sin(t*.9+angle*2+band.phase)*1.15,displacement=travelling*(.62+envelope*.72)+audioRipple*(1+bi*.13),x=Math.cos(angle)*(band.rx+displacement),y=-24+Math.sin(angle)*(band.ry+displacement*.94);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.closePath();ctx.strokeStyle=band.color;ctx.lineWidth=band.width+volume*.48;ctx.globalAlpha=.42+Math.min(.48,volume*.55);ctx.shadowColor=band.color;ctx.shadowBlur=5+volume*12;ctx.stroke()});ctx.restore();ctx.globalAlpha=1;ctx.shadowBlur=0}
  function drawRedOrbLayer(t,front){
   const rotation=t*.105,cos=Math.cos(rotation),sin=Math.sin(rotation),tilt=Math.sin(t*.075)*.045;
   const visible=[];
@@ -4578,7 +4492,7 @@ function startHelmetAnimation(){
   if(root.hidden){animationFrame=0;return}
   const t=(now-start)/1000,scanRaw=(t-scanStart)/scanDuration,scanProgress=clamp(scanRaw,0,1),scanX=-235+smoothstep(0,1,scanProgress)*470,scanVisible=t>=scanStart?clamp(1-(scanRaw-1)/.22,0,1):0,scatter=Math.sin(scanProgress*Math.PI)*(1-scanProgress)*.30;
   ctx.clearRect(0,0,w,h);
-  const turn=smoothstep(1,1.30,scanRaw),scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=.045+turn*.12+(reduced?0:Math.sin(t*.38)*.008),rotX=-.015+(reduced?0:Math.cos(t*.29)*.006),eyeOn=t>3.48;
+  const turn=smoothstep(1,1.30,scanRaw),scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=.045+turn*.12+(reduced?0:Math.sin(t*.38)*.008),rotX=-.015+(reduced?0:Math.cos(t*.29)*.006),eyeFade=smoothstep(3.05,4.35,t),eyeRed=smoothstep(4.15,5.55,t);
   ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
   const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
   drawRedOrbLayer(t,false);
@@ -4636,19 +4550,18 @@ function startHelmetAnimation(){
    ctx.strokeStyle='rgba(125,24,34,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-44,-7);ctx.lineTo(35,12);ctx.lineTo(46,3);ctx.stroke();
    // Small inner bevels make the eye read as a fitted optical assembly.
    ctx.strokeStyle='rgba(255,105,113,.5)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-48,-13);ctx.lineTo(-39,-3);ctx.moveTo(42,-3);ctx.lineTo(34,7);ctx.stroke();ctx.restore()};
-  const eye=(x,pulse)=>{ctx.save();ctx.translate(x,-43);ctx.globalAlpha=1;if(x>0)ctx.scale(-1,1);
+  const eye=(x,pulse,fade,red)=>{ctx.save();ctx.translate(x,-43);ctx.globalAlpha=fade;if(x>0)ctx.scale(-1,1);
    // Recessed lens with a controlled red core and a thin white-hot optical slit.
-   ctx.shadowColor='rgba(0,0,0,.95)';ctx.shadowBlur=13;ctx.fillStyle='rgba(0,0,2,1)';eyeShape();ctx.fill();ctx.strokeStyle='rgba(0,0,0,1)';ctx.lineWidth=8;ctx.lineJoin='round';ctx.stroke();ctx.shadowColor='#ff1828';ctx.shadowBlur=23*pulse;ctx.fillStyle='rgba(72,3,12,.98)';eyeShape();ctx.fill();
+   ctx.shadowColor='rgba(0,0,0,.98)';ctx.shadowBlur=15;ctx.fillStyle='rgba(0,0,2,1)';eyeShape();ctx.fill();ctx.strokeStyle='rgba(0,0,0,1)';ctx.lineWidth=9;ctx.lineJoin='round';ctx.stroke();ctx.shadowColor=red>.5?'#ff1828':'#d9f5ff';ctx.shadowBlur=(7+16*red)*pulse;ctx.fillStyle=red>.5?'rgba(72,3,12,.98)':'rgba(38,55,67,.95)';eyeShape();ctx.fill();
    ctx.beginPath();ctx.moveTo(-47,-13);ctx.lineTo(43,-3);ctx.lineTo(32,8);ctx.lineTo(-38,-3);ctx.closePath();
-   const lens=ctx.createLinearGradient(0,-14,0,9);lens.addColorStop(0,'rgba(255,72,83,'+(.78*pulse)+')');lens.addColorStop(.48,'rgba(255,24,39,'+(.96*pulse)+')');lens.addColorStop(1,'rgba(105,3,15,.98)');ctx.fillStyle=lens;ctx.fill();
-   ctx.shadowBlur=8*pulse;ctx.strokeStyle='rgba(255,218,220,'+(.92*pulse)+')';ctx.lineWidth=1.25;ctx.beginPath();ctx.moveTo(-39,-3);ctx.lineTo(34,5);ctx.stroke();
+   const lens=ctx.createLinearGradient(0,-14,0,9);lens.addColorStop(0,'rgba('+Math.round(205+50*red)+','+Math.round(235-190*red)+','+Math.round(255-175*red)+','+(.58*pulse)+')');lens.addColorStop(.48,'rgba(255,'+Math.round(235-211*red)+','+Math.round(245-206*red)+','+((.68+.28*red)*pulse)+')');lens.addColorStop(1,'rgba('+Math.round(115+140*red)+','+Math.round(160-145*red)+','+Math.round(180-160*red)+',.98)');ctx.fillStyle=lens;ctx.fill();
+   ctx.shadowBlur=8*pulse;ctx.strokeStyle='rgba(255,218,220,'+((.58+.34*red)*pulse)+')';ctx.lineWidth=1.25;ctx.beginPath();ctx.moveTo(-39,-3);ctx.lineTo(34,5);ctx.stroke();
    ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,111,120,.8)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(-30,-2);ctx.lineTo(27,4);ctx.stroke();
    // Tiny segmented highlights inside each lens add a technical optical feel.
    for(let i=0;i<4;i++){const lx=-24+i*15,ly=-2+i*1.35;ctx.fillStyle='rgba(255,205,207,'+(i===1?.9:.48)+')';ctx.fillRect(lx,ly,5,.8)}
    ctx.restore()};
-  if(eyeOn){const pulse=.78+.22*Math.sin(t*3.8);eye(-83,pulse);eye(83,pulse)}
-  else if(t>2.9){eyeSocket(-83);eyeSocket(83)}
-  drawRedOrbLayer(t,true);
+  if(t>2.9){eyeSocket(-83);eyeSocket(83)}if(eyeFade>0){const pulse=.78+.22*Math.sin(t*3.8);eye(-83,pulse,eyeFade,eyeRed);eye(83,pulse,eyeFade,eyeRed)}
+   drawRedOrbLayer(t,true);
   let battleVolume=0;
   if(battleAudioAnalyser&&battleAudioData&&currentAudio&&!currentAudio.paused&&!currentAudio.ended){
    battleAudioAnalyser.getByteTimeDomainData(battleAudioData);
