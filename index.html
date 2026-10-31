@@ -4428,9 +4428,9 @@ function startHelmetAnimation(){
    const perspective=1+z*.0009,alpha=(.24+.58*reveal)*(.68+.32*Math.sin(t*1.2+p.phase));
    const side=Math.max(0,Math.min(1,(p.x-104)/352));
    // Preserve the existing left-side peak; progressively shade toward the right.
-   const directionalLight=1-.66*smoothstep(.04,1,side),baseRed=176+58*(1-side)+21*p.bright;
+   const directionalLight=1-.985*smoothstep(.02,1,side),baseRed=176+58*(1-side)+21*p.bright;
    const cr=Math.round(176+(baseRed-176)*directionalLight+21*band),cg=Math.round((10+22*p.bright)*directionalLight+105*band),cb=Math.round((18+25*p.bright)*directionalLight+110*band);
-   projected[i]={x:px*perspective,y:py*perspective,alpha:alpha*(.40+.60*directionalLight),cr,cg,cb,size:p.size*(.65+reveal*.4),reveal,band,directionalLight};
+   projected[i]={x:px*perspective,y:py*perspective,alpha:alpha*(.025+.975*directionalLight),cr,cg,cb,size:p.size*(.65+reveal*.4),reveal,band,directionalLight};
   }
   // Subtle connecting filaments: each line breathes independently in
   // brightness, with the same left-to-right colour treatment as the nodes.
@@ -4440,7 +4440,7 @@ function startHelmetAnimation(){
    if(!a||!b)continue;
    const shimmer=.24+.22*(.5+.5*Math.sin(t*1.7+k*.19));
    const alpha=shimmer*Math.min(a.reveal,b.reveal)*Math.min(1,Math.min(a.alpha,b.alpha)*1.8);
-   ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+(alpha*(.40+.60*Math.min(a.directionalLight,b.directionalLight)))+')';
+   ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+(alpha*(.025+.975*Math.min(a.directionalLight,b.directionalLight)))+')';
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
   }
   // Distinct Iron-Man-inspired panel seams, eye surrounds, cheek geometry,
@@ -4448,7 +4448,7 @@ function startHelmetAnimation(){
   ctx.save();ctx.beginPath();ctx.rect(-235,-330,Math.max(0,scanX+250),660);ctx.clip();
   for(let k=0;k<detailLinks.length;k++){
    const d=detailLinks[k],a={x:d[0]-280,y:d[1]-320},b={x:d[2]-280,y:d[3]-320},midX=(a.x+b.x)*.5;
-   const lineReveal=smoothstep(midX-44,midX+44,scanX),shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31)),side=Math.max(0,Math.min(1,(midX+176)/352)),light=1-.66*smoothstep(.04,1,side);
+   const lineReveal=smoothstep(midX-44,midX+44,scanX),shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31)),side=Math.max(0,Math.min(1,(midX+176)/352)),light=1-.985*smoothstep(.02,1,side);
    ctx.strokeStyle='rgba(255,105,115,'+((.34+.22*(.5+.5*Math.sin(t*1.35+k*.31)))*lineReveal*(.40+.60*light))+')';ctx.lineWidth=1.35;
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
   }
@@ -4463,27 +4463,27 @@ function startHelmetAnimation(){
    const edge=clamp(scanProgress*1.2,0,1),outline=[[0,-282],[85,-259],[148,-203],[176,-118],[167,-10],[129,89],[70,173],[0,226],[-70,173],[-129,89],[-167,-10],[-176,-118],[-148,-203],[-85,-259]];
    ctx.save();ctx.beginPath();ctx.rect(-235,-315,Math.max(0,scanX+250),650);ctx.clip();ctx.globalAlpha=edge;
    ctx.shadowColor='rgba(255,34,48,.9)';ctx.shadowBlur=15;
-   ctx.strokeStyle='rgba(255,55,67,.72)';ctx.lineWidth=3.1;ctx.lineJoin='round';ctx.beginPath();outline.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
-   ctx.shadowBlur=2;ctx.strokeStyle='rgba(255,190,194,.72)';ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
+   const shellGlow=ctx.createLinearGradient(-176,0,176,0);shellGlow.addColorStop(0,'rgba(255,55,67,.72)');shellGlow.addColorStop(.48,'rgba(115,10,20,.48)');shellGlow.addColorStop(1,'rgba(3,0,3,.025)');ctx.strokeStyle=shellGlow;ctx.lineWidth=3.1;ctx.lineJoin='round';ctx.beginPath();outline.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
+   ctx.shadowBlur=2;const shellEdge=ctx.createLinearGradient(-176,0,176,0);shellEdge.addColorStop(0,'rgba(255,190,194,.72)');shellEdge.addColorStop(.52,'rgba(100,12,20,.32)');shellEdge.addColorStop(1,'rgba(0,0,0,.01)');ctx.strokeStyle=shellEdge;ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
   }
-  const eyeShape=()=>{ctx.beginPath();ctx.moveTo(-57,-5);ctx.lineTo(53,-17);ctx.lineTo(43,-5);ctx.lineTo(34,5);ctx.lineTo(-46,12);ctx.closePath()};
-  const eyeSocket=(x)=>{ctx.save();ctx.translate(x,-43);if(x>0)ctx.scale(-1,1);
+  const eyeShape=()=>{ctx.beginPath();ctx.moveTo(-57,-17);ctx.lineTo(53,-5);ctx.lineTo(43,5);ctx.lineTo(34,12);ctx.lineTo(-46,-5);ctx.closePath()};
+  const eyeSocket=(x)=>{ctx.save();ctx.translate(x,-43);const eyeSide=Math.max(0,Math.min(1,(x+176)/352)),eyeLight=1-.985*smoothstep(.02,1,eyeSide);ctx.globalAlpha=.025+.975*eyeLight;if(x>0)ctx.scale(-1,1);
    // Deep angular recess, stepped brow and lower socket rim.
    ctx.fillStyle='rgba(1,0,3,.98)';eyeShape();ctx.fill();
    ctx.strokeStyle='rgba(91,13,22,.98)';ctx.lineWidth=5;ctx.stroke();
-   ctx.strokeStyle='rgba(255,76,87,.62)';ctx.lineWidth=1.25;ctx.beginPath();ctx.moveTo(-59,-8);ctx.lineTo(54,-20);ctx.lineTo(46,-8);ctx.stroke();
-   ctx.strokeStyle='rgba(125,24,34,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-44,14);ctx.lineTo(35,7);ctx.lineTo(46,-5);ctx.stroke();
+   ctx.strokeStyle='rgba(255,76,87,.62)';ctx.lineWidth=1.25;ctx.beginPath();ctx.moveTo(-59,-20);ctx.lineTo(54,-8);ctx.lineTo(46,3);ctx.stroke();
+   ctx.strokeStyle='rgba(125,24,34,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-44,-7);ctx.lineTo(35,12);ctx.lineTo(46,3);ctx.stroke();
    // Small inner bevels make the eye read as a fitted optical assembly.
-   ctx.strokeStyle='rgba(255,105,113,.5)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-48,-2);ctx.lineTo(-39,7);ctx.moveTo(42,-12);ctx.lineTo(34,-2);ctx.stroke();ctx.restore()};
-  const eye=(x,pulse)=>{ctx.save();ctx.translate(x,-43);if(x>0)ctx.scale(-1,1);
+   ctx.strokeStyle='rgba(255,105,113,.5)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-48,-13);ctx.lineTo(-39,-3);ctx.moveTo(42,-3);ctx.lineTo(34,7);ctx.stroke();ctx.restore()};
+  const eye=(x,pulse)=>{ctx.save();ctx.translate(x,-43);const eyeSide=Math.max(0,Math.min(1,(x+176)/352)),eyeLight=1-.985*smoothstep(.02,1,eyeSide);ctx.globalAlpha=.025+.975*eyeLight;if(x>0)ctx.scale(-1,1);
    // Recessed lens with a controlled red core and a thin white-hot optical slit.
    ctx.shadowColor='#ff1828';ctx.shadowBlur=23*pulse;ctx.fillStyle='rgba(72,3,12,.98)';eyeShape();ctx.fill();
-   ctx.beginPath();ctx.moveTo(-47,-3);ctx.lineTo(43,-13);ctx.lineTo(32,-2);ctx.lineTo(-38,7);ctx.closePath();
+   ctx.beginPath();ctx.moveTo(-47,-13);ctx.lineTo(43,-3);ctx.lineTo(32,8);ctx.lineTo(-38,-3);ctx.closePath();
    const lens=ctx.createLinearGradient(0,-14,0,9);lens.addColorStop(0,'rgba(255,72,83,'+(.78*pulse)+')');lens.addColorStop(.48,'rgba(255,24,39,'+(.96*pulse)+')');lens.addColorStop(1,'rgba(105,3,15,.98)');ctx.fillStyle=lens;ctx.fill();
-   ctx.shadowBlur=8*pulse;ctx.strokeStyle='rgba(255,218,220,'+(.92*pulse)+')';ctx.lineWidth=1.25;ctx.beginPath();ctx.moveTo(-39,1);ctx.lineTo(34,-7);ctx.stroke();
-   ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,111,120,.8)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(-30,5);ctx.lineTo(27,-1);ctx.stroke();
+   ctx.shadowBlur=8*pulse;ctx.strokeStyle='rgba(255,218,220,'+(.92*pulse)+')';ctx.lineWidth=1.25;ctx.beginPath();ctx.moveTo(-39,-3);ctx.lineTo(34,5);ctx.stroke();
+   ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,111,120,.8)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(-30,-2);ctx.lineTo(27,4);ctx.stroke();
    // Tiny segmented highlights inside each lens add a technical optical feel.
-   for(let i=0;i<4;i++){const lx=-24+i*15,ly=2-i*1.35;ctx.fillStyle='rgba(255,205,207,'+(i===1?.9:.48)+')';ctx.fillRect(lx,ly,5,.8)}
+   for(let i=0;i<4;i++){const lx=-24+i*15,ly=-2+i*1.35;ctx.fillStyle='rgba(255,205,207,'+(i===1?.9:.48)+')';ctx.fillRect(lx,ly,5,.8)}
    ctx.restore()};
   if(eyeOn){const pulse=.78+.22*Math.sin(t*3.8);eye(-83,pulse);eye(83,pulse)}
   else if(t>2.9){eyeSocket(-83);eyeSocket(83)}
