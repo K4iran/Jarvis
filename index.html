@@ -4219,7 +4219,7 @@ function beginBriefing(type,event){
  setPrompt('Briefing prepared, sir. Review your objectives, mental cues and notes. We launch when you are ready.');
  setActions('<button class="bt-action secondary" data-bt-action="add-custom">ADD OBJECTIVE</button><button class="bt-action" data-bt-action="launch">BEGIN FINAL SEQUENCE</button>');
  const openingLine='Sir, I have prepared your '+(type==='game'?'game-day':'training')+' briefing.';
- const briefingRest='Your key priorities are: '+suggestions.slice(0,2).join('. ')+'. Stay composed. Release the last play, trust your preparation and focus on the next decision. Picture yourself making the right read and responding calmly if things do not go perfectly. '+motivationText()+' Review your panels, then begin the final sequence when you are ready.';
+ const briefingRest='Your briefing is ready, sir. Take a moment to review your objectives and mental cues on screen. Let me know when you are ready to begin.';
  speak(openingLine).then(async()=>{
   if(data.settings.songSource==='spotify')await playSpotifyStage('intro');else await playBattleTrack('intro');
   await speak(briefingRest);
