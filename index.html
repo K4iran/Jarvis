@@ -764,6 +764,54 @@ body.zen-mode-active #core{visibility:hidden!important}
 @media(max-width:680px){#zenRoot .zen-node .zen-node-icon{width:40px;height:40px}#zenRoot .zen-node .zen-glyph{width:25px;height:25px}}
 @media(prefers-reduced-motion:reduce){#zenRoot .zen-holo-detail{filter:none}}
 
+
+/* Zen Spirit Tree: structural holographic trunk, organic breathing and legible branch controls. */
+#zenRoot .zen-tree-svg{animation:zenTreeBreath 7.8s cubic-bezier(.42,0,.58,1) infinite!important;transform-origin:50% 58%;will-change:transform,filter;}
+#zenRoot .zen-tree-stage:before{animation:zenTreeBreathGlow 7.8s cubic-bezier(.42,0,.58,1) infinite!important;}
+@keyframes zenTreeBreath{0%,100%{transform:scale(.975);filter:brightness(.9) saturate(.96) drop-shadow(0 0 9px rgba(90,232,220,.14))}50%{transform:scale(1.025);filter:brightness(1.2) saturate(1.13) drop-shadow(0 0 24px rgba(105,255,230,.3))}}
+@keyframes zenTreeBreathGlow{0%,100%{opacity:.28;transform:scale(.96)}50%{opacity:.68;transform:scale(1.04)}}
+#zenRoot .zen-trunk{stroke:url(#zenHolo);stroke-width:8;opacity:.88;filter:drop-shadow(0 0 7px rgba(110,255,225,.55));}
+#zenRoot .zen-trunk-volume{fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
+#zenRoot .zen-trunk-shadow{stroke:#061c23;stroke-width:25;opacity:.8;filter:blur(3px);}
+#zenRoot .zen-trunk-side{stroke:url(#zenHoloDim);stroke-width:19;opacity:.8;filter:drop-shadow(0 0 8px rgba(95,255,226,.3));}
+#zenRoot .zen-trunk-edge{stroke:#53d8d0;stroke-width:1.5;opacity:.68;filter:drop-shadow(0 0 4px rgba(95,255,231,.65));}
+#zenRoot .zen-trunk-edge-light{stroke:#e0fff8;stroke-width:1;opacity:.76;}
+#zenRoot .zen-holo-detail{opacity:.92;filter:drop-shadow(0 0 4px rgba(112,255,226,.3));}
+#zenRoot .zen-stem-ridge{fill:none;stroke:url(#zenHolo);stroke-width:2.3;opacity:.95;filter:drop-shadow(0 0 5px rgba(164,255,240,.85));}
+#zenRoot .zen-stem-channel{fill:none;stroke:#54d9d0;stroke-width:1.15;opacity:.72;filter:drop-shadow(0 0 3px rgba(92,255,229,.65));}
+#zenRoot .zen-stem-thread{fill:none;stroke:#e0fff8;stroke-width:.8;stroke-dasharray:2 8;opacity:.7;}
+#zenRoot .zen-root-flare{fill:none;stroke:url(#zenHolo);stroke-width:2;opacity:.68;filter:drop-shadow(0 0 5px rgba(100,255,228,.7));}
+#zenRoot .zen-stem-collars{fill:rgba(117,255,232,.16);stroke:#b9fff2;stroke-width:1.5;opacity:.86;filter:drop-shadow(0 0 6px rgba(105,255,232,.85));}
+#zenRoot .zen-stem-inlays{fill:rgba(171,255,241,.2);stroke:#cafff6;stroke-width:1;opacity:.68;filter:drop-shadow(0 0 4px rgba(125,255,232,.65));}
+#zenRoot .zen-branch{stroke-width:4.5;opacity:.82;filter:drop-shadow(0 0 5px rgba(112,244,220,.32));}
+#zenRoot .zen-holo-branchlet{opacity:.52;stroke-width:.8;}
+#zenRoot .zen-holo-joints{opacity:.72;}
+/* Dark glass nameplates separate controls from the luminous branches. */
+#zenRoot .zen-node{z-index:6;width:94px;min-height:66px;padding:6px 5px;gap:5px;border:1px solid rgba(166,235,239,.55)!important;border-radius:13px!important;background:linear-gradient(145deg,rgba(5,20,31,.97),rgba(3,10,20,.96))!important;box-shadow:0 5px 20px rgba(0,0,0,.62),inset 0 0 16px rgba(104,218,230,.12)!important;backdrop-filter:blur(9px)!important;}
+#zenRoot .zen-node .zen-node-icon{width:39px;height:39px;border-radius:10px!important;background:linear-gradient(145deg,rgba(23,55,70,.96),rgba(4,15,26,.98))!important;box-shadow:inset 0 0 13px rgba(132,239,244,.12),0 0 10px rgba(83,208,222,.14)!important;}
+#zenRoot .zen-node .zen-node-icon:before{inset:-3px;opacity:.35;}
+#zenRoot .zen-node .zen-glyph{width:24px;height:24px;stroke-width:1.8;}
+#zenRoot .zen-node .zen-node-label{color:#f1ffff!important;font:600 9px/1.25 var(--zen-mono)!important;letter-spacing:.08em!important;text-shadow:0 1px 4px #000,0 0 8px rgba(0,0,0,.95)!important;white-space:nowrap;}
+#zenRoot .zen-node[data-branch="music"]{left:7%!important;top:25%!important}
+#zenRoot .zen-node[data-branch="breathe"]{left:93%!important;top:25%!important}
+#zenRoot .zen-node[data-branch="journal"]{left:7%!important;top:49%!important}
+#zenRoot .zen-node[data-branch="ambient"]{left:93%!important;top:49%!important}
+#zenRoot .zen-node[data-branch="timer"]{left:24%!important;top:83%!important}
+#zenRoot .zen-node[data-branch="nutrition"]{left:76%!important;top:83%!important}
+@media(max-width:520px){
+ #zenRoot .zen-node{width:82px;min-height:59px;padding:4px 3px;}
+ #zenRoot .zen-node .zen-node-icon{width:33px;height:33px;}
+ #zenRoot .zen-node .zen-glyph{width:21px;height:21px;}
+ #zenRoot .zen-node .zen-node-label{font-size:8px!important;letter-spacing:.04em!important;}
+ #zenRoot .zen-node[data-branch="music"]{left:7%!important;top:24%!important}
+ #zenRoot .zen-node[data-branch="breathe"]{left:93%!important;top:24%!important}
+ #zenRoot .zen-node[data-branch="journal"]{left:7%!important;top:48%!important}
+ #zenRoot .zen-node[data-branch="ambient"]{left:93%!important;top:48%!important}
+ #zenRoot .zen-node[data-branch="timer"]{left:25%!important;top:84%!important}
+ #zenRoot .zen-node[data-branch="nutrition"]{left:75%!important;top:84%!important}
+}
+@media(prefers-reduced-motion:reduce){#zenRoot .zen-tree-svg,#zenRoot .zen-tree-stage:before{animation:none!important;}}
+
 </style>  <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
   </script>
@@ -3201,6 +3249,12 @@ addEventListener('pagehide',()=>{
     <ellipse class="zen-canopy-glow" cx="300" cy="385" rx="200" ry="260"/>
     
     <g id="zenTreeBranches">
+     <g class="zen-trunk-volume" aria-hidden="true">
+      <path class="zen-trunk-shadow" d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/>
+      <path class="zen-trunk-side" d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/>
+      <path class="zen-trunk-edge" d="M296 690 C275 626 314 568 291 509 C272 459 310 408 293 359 C275 309 311 267 295 220 C283 180 297 145 296 117"/>
+      <path class="zen-trunk-edge zen-trunk-edge-light" d="M308 690 C287 626 326 568 303 509 C284 459 322 408 305 359 C287 309 323 267 307 220 C295 180 309 145 308 117"/>
+     </g>
      <path class="zen-trunk" d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/>
      <path class="zen-branch" d="M299 366 C253 341 223 294 183 269 C151 249 129 228 83 224"/>
      <path class="zen-branch" d="M302 315 C351 286 379 233 411 201 C438 174 464 159 504 151"/>
@@ -3213,17 +3267,21 @@ addEventListener('pagehide',()=>{
      <g class="zen-tree-stars" aria-hidden="true"><circle cx="203" cy="237" r="2.3"/><circle cx="390" cy="181" r="2"/><circle cx="118" cy="335" r="2.2"/><circle cx="478" cy="323" r="2.4"/><circle cx="231" cy="527" r="2"/><circle cx="374" cy="534" r="2.5"/><path d="M300 94v12 M294 100h12 M224 198v8 M220 202h8 M396 273v8 M392 277h8 M150 451v10 M145 456h10 M450 475v10 M445 480h10"/></g>
     </g>
      <g class="zen-holo-detail" aria-hidden="true">
-      <path class="zen-holo-spine" d="M302 690 C291 626 311 570 299 510 C288 458 308 411 300 360 C291 310 308 267 302 220 C298 181 304 148 302 125"/>
-      <path d="M298 500 C270 480 253 449 230 425 C211 405 190 391 162 383 M302 466 C330 450 354 429 378 411 C398 395 416 381 444 372"/>
-      <path d="M296 557 C268 561 245 579 225 600 C205 620 187 637 163 650 M304 558 C334 566 357 583 379 603 C399 621 421 637 446 650"/>
-      <path d="M284 337 C264 320 247 299 233 278 C220 260 202 247 181 238 M316 304 C339 286 355 262 370 240 C384 220 403 205 424 193"/>
-      <path d="M230 425 Q217 395 194 379 Q176 366 151 360 M378 411 Q397 383 422 371 Q445 359 470 357 M225 600 Q210 574 184 563 Q164 554 144 550 M379 603 Q398 576 423 565 Q445 555 466 550"/>
-      <path d="M183 269 Q160 255 143 253 Q126 251 108 258 M411 201 Q432 184 451 183 Q470 182 487 190 M163 397 Q144 383 124 386 Q104 389 89 402 M433 366 Q454 350 475 352 Q494 354 510 367 M207 561 Q187 548 169 553 Q151 558 138 575 M402 563 Q422 548 441 553 Q459 558 474 575"/>
-      <path class="zen-holo-branchlet" d="M158 252 Q143 229 145 207 M146 253 Q126 238 111 239 M435 184 Q442 161 457 148 M451 184 Q474 169 490 172 M124 386 Q108 365 111 347 M124 386 Q99 381 83 389 M475 352 Q489 331 486 313 M475 352 Q500 344 515 352 M169 553 Q150 533 151 514 M169 553 Q144 550 128 560 M441 553 Q462 535 462 516 M441 553 Q466 551 482 562"/>
-      <g class="zen-holo-joints"><circle cx="299" cy="509" r="4"/><circle cx="300" cy="360" r="3.5"/><circle cx="302" cy="220" r="3.2"/><circle cx="183" cy="269" r="3"/><circle cx="411" cy="201" r="3"/><circle cx="163" cy="397" r="2.8"/><circle cx="433" cy="366" r="2.8"/><circle cx="207" cy="561" r="2.8"/><circle cx="402" cy="563" r="2.8"/></g>
-      <g class="zen-holo-diamonds"><path d="M300 184l5 8-5 8-5-8z"/><path d="M230 293l4 6-4 6-4-6z"/><path d="M375 246l4 6-4 6-4-6z"/><path d="M211 414l4 6-4 6-4-6z"/><path d="M389 392l4 6-4 6-4-6z"/><path d="M262 536l4 6-4 6-4-6z"/><path d="M345 537l4 6-4 6-4-6z"/></g>
+      <path class="zen-stem-ridge" d="M302 690 C291 626 311 570 299 510 C288 458 308 411 300 360 C291 310 308 267 302 220 C298 181 304 148 302 125"/>
+      <path class="zen-stem-channel" d="M294 674 C286 616 303 566 291 510 C282 459 300 411 293 360 C285 310 300 268 295 220 C291 183 296 151 295 132"/>
+      <path class="zen-stem-channel" d="M310 674 C300 616 319 566 307 510 C298 459 317 411 309 360 C301 310 317 268 309 220 C306 183 311 151 309 132"/>
+      <path class="zen-stem-thread" d="M299 678 C311 626 289 572 304 510 C317 459 293 411 305 360 C317 310 294 268 306 220 C312 183 300 151 305 132"/>
+      <path class="zen-root-flare" d="M299 635 C282 650 267 665 247 676 M304 635 C322 650 337 665 357 676 M298 653 C289 670 282 682 277 693 M305 653 C314 670 321 682 326 693"/>
+      <g class="zen-stem-collars">
+       <path d="M289 510 Q300 503 311 510 M290 360 Q300 353 310 360 M292 220 Q302 213 312 220"/>
+       <circle cx="300" cy="510" r="5"/><circle cx="300" cy="360" r="4.5"/><circle cx="302" cy="220" r="4"/>
+      </g>
+      <g class="zen-stem-inlays">
+       <path d="M296 590l8-7 8 7-8 7z M292 438l8-7 8 7-8 7z M294 286l8-7 8 7-8 7z"/>
+       <path d="M300 580v-9 M300 428v-9 M302 276v-9"/>
+      </g>
      </g>
-    <g class="zen-energy-aura" aria-hidden="true"><path d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/><path d="M299 366 C253 341 223 294 183 269 C151 249 129 228 83 224 M302 315 C351 286 379 233 411 201 C438 174 464 159 504 151 M299 438 C245 423 204 410 163 397 C132 387 105 372 67 372 M300 420 C351 407 390 379 433 366 C474 352 505 351 545 350 M296 512 C263 520 233 544 207 561 C183 576 166 597 136 611 M300 512 C339 525 377 546 402 563 C425 579 448 595 477 610"/></g>
+    <g class="zen-energy-aura"/> aria-hidden="true"><path d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/><path d="M299 366 C253 341 223 294 183 269 C151 249 129 228 83 224 M302 315 C351 286 379 233 411 201 C438 174 464 159 504 151 M299 438 C245 423 204 410 163 397 C132 387 105 372 67 372 M300 420 C351 407 390 379 433 366 C474 352 505 351 545 350 M296 512 C263 520 233 544 207 561 C183 576 166 597 136 611 M300 512 C339 525 377 546 402 563 C425 579 448 595 477 610"/></g>
     <g class="zen-energy-network" aria-hidden="true">
      <path class="zen-energy-wire" d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/>
      <path class="zen-energy-flow" d="M302 700 C281 631 320 569 297 509 C278 459 316 408 299 359 C281 309 317 267 301 220 C289 180 303 145 302 117"/>
