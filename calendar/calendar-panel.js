@@ -59,6 +59,7 @@
   function updateConnectionUI(api) {
     const connected = Boolean(api && api.isConnected());
     connectButton.hidden = connected;
+    connectButton.style.display = connected ? "none" : "";
     connectButton.textContent = connected ? "Google Calendar connected" : "Connect Google Calendar";
     connectButton.disabled = false;
   }
@@ -67,7 +68,7 @@
   let latestEvents = [];
 
   function say(message) { status.textContent = message; }
-  function show() { root.style.display = "block"; }
+  function show() { root.style.display = "block"; updateConnectionUI(window.JarvisGoogleCalendar); refresh(); }
   function hide() { root.style.display = "none"; form.hidden = true; }
   function dateLabel(value, allDay) {
     if (!value) return "Time not set";

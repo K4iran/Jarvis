@@ -374,7 +374,8 @@ function loadDiscovery() {
     // Calendar was added to existing installations after the original discovery state
     // had already marked all built-in skills as known. Give it one targeted first-view
     // unlock effect without resetting any other skill's animation history.
-    if (!state.playedSkills.includes('google-calendar')) {
+    if (!state.playedSkills.includes('google-calendar') &&
+        !state.pendingSkills.includes('google-calendar')) {
       state.pendingSkills.push('google-calendar');
     }
     state.pendingCategories = Array.from(new Set(state.pendingCategories));
