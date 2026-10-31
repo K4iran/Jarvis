@@ -143,7 +143,8 @@
     try {
       const api = window.JarvisGoogleCalendar;
       if (!api) throw new Error("Calendar adapter has not been loaded.");
-      await (window.JarvisGoogleCalendarReady || api.init());
+      const ready = await (window.JarvisGoogleCalendarReady || api.init());
+      if (ready !== true) await api.init();
       await api.connect();
       say("Google Calendar connected.");
       await refresh();
