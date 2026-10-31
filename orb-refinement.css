@@ -1,0 +1,17 @@
+/* JARVIS orb refinement — include only after confirming the live orb's selectors.
+   Shrinks the orb surface while leaving surrounding sound-wave elements untouched. */
+#orb,
+.orb {
+  transform: scale(.84);
+  transform-origin: center;
+}
+
+/* Brightness/glow can be driven per particle using --core-proximity (0 = outer edge, 1 = core). */
+.particle {
+  opacity: calc(.18 + var(--core-proximity, 0) * .82);
+  filter: brightness(calc(.72 + var(--core-proximity, 0) * 1.55));
+  box-shadow:
+    0 0 calc(2px + var(--core-proximity, 0) * 10px)
+    color-mix(in srgb, var(--c, #8bd7ff),
+      transparent calc(72% - var(--core-proximity, 0) * 52%));
+}
