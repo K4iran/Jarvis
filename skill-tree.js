@@ -1525,7 +1525,9 @@ function registerSkill(categoryId,skill) {
     if(previousCategory){
       const newCategory=categoryNodes.find(function (entry) { return entry.id===previousCategory; });
       if(newCategory)enterCategory(newCategory);
-    }
+      else revealCategoryBranches();
+    } else revealCategoryBranches();
+    startRenderLoop();
   }
   return true;
 }
