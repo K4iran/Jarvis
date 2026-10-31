@@ -1042,6 +1042,16 @@ body.zen-mode-active #core{visibility:hidden!important}
 #battleMode .bt-red{color:#ff6971}
 @media(max-width:899px){
  #battleMode{overflow-y:auto}
+ /* Mobile HUD cards stay out of the helmet's way until JARVIS references them. */
+ #battleMode .bt-panel{display:none}
+ #battleMode .bt-panel.bt-speaking-overlay{display:block;position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,480px);max-height:min(62vh,560px);margin:0;background:linear-gradient(145deg,rgba(19,7,10,.58),rgba(4,4,7,.52));border-color:rgba(255,80,88,.58);backdrop-filter:blur(7px);box-shadow:0 0 38px rgba(255,35,45,.16),inset 0 0 24px rgba(255,40,50,.05);animation:btPanelReveal .32s ease-out both}
+ #battleMode .bt-panel.bt-speaking-overlay:before,#battleMode .bt-panel.bt-speaking-overlay:after{border-color:rgba(255,100,108,.95)}
+ #battleMode .bt-panel.bt-speaking-overlay.bt-panel-left{top:46%}
+ #battleMode .bt-panel.bt-speaking-overlay.bt-panel-right{top:54%}
+ #battleMode .bt-panel.bt-speaking-overlay .bt-muted{color:#d0bfc1}
+ @keyframes btPanelReveal{from{opacity:0;filter:blur(5px)}to{opacity:1;filter:blur(0)}}
+ #battleMode .bt-panel.bt-speaking-side{border-color:rgba(255,105,112,.65);box-shadow:0 0 22px rgba(255,40,50,.13)}
+
  .bt-top{position:sticky;top:0}
  .bt-layout{display:block;height:auto;min-height:calc(100dvh - 116px);padding:0 12px 18px}
  .bt-helmet-wrap{position:absolute;z-index:1;top:7%;left:50%;transform:translateX(-50%);width:min(96vw,520px);height:min(76vh,650px);opacity:.92;pointer-events:none}
@@ -4013,8 +4023,24 @@ function scheduleSummary(events){
 }
 function setPrompt(text){$('#btPrompt').textContent=text}
 function setActions(html){$('#btFooterActions').innerHTML=html}
-function show(){root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');startHelmetAnimation()}
-function hide(){root.hidden=true;root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0}
+function clearSpeakingPanels(){['#btLeftPanel','#btRightPanel'].forEach(sel=>$(sel).classList.remove('bt-speaking-overlay','bt-speaking-side','bt-panel-left','bt-panel-right'))}
+let speakingPanelTimer=0;
+function showPanelForSpeech(text){
+ clearTimeout(speakingPanelTimer);clearSpeakingPanels();
+ const t=String(text||'').toLowerCase();
+ let panel='';
+ if(/\b(objective|objectives|target|targets|priority|priorities|goal|goals)\b/.test(t))panel='left';
+ else if(/\b(note|notes|remember|last game|previous game|you told me)\b/.test(t))panel='right';
+ else if(/\b(confidence|calm|pressure|visualis|mental|composure|protocol|reset|nervous)\b/.test(t))panel='right';
+ if(!panel)return;
+ const el=panel==='left'?$('#btLeftPanel'):$('#btRightPanel');
+ const mobile=window.matchMedia('(max-width: 899px)').matches;
+ el.classList.add(mobile?'bt-speaking-overlay':'bt-speaking-side',panel==='left'?'bt-panel-left':'bt-panel-right');
+ const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
+ speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
+}
+function show(){root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');startHelmetAnimation()}
+function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.hidden=true;root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
  if(!root.hidden)return;
@@ -4132,6 +4158,7 @@ function finishCountdown(){
 }
 function speak(text){
  const message=document.getElementById('msg');if(message)message.textContent=text;
+ showPanelForSpeech(text);
  if(typeof window.speakReply==='function'){try{window.speakReply(text,true);return}catch(e){}}
  if('speechSynthesis'in window){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';speechSynthesis.speak(u)}catch(e){}}
 }
