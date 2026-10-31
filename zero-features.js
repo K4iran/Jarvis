@@ -48,6 +48,7 @@
     }, 320);
     activeMode = "";
     if (sudoku) sudoku.active = false;
+    if (typeof window.__zeroReturnToSkillTree === "function") window.__zeroReturnToSkillTree();
   }
   function head(kicker, title) {
     return '<div class="zf-head"><div><div class="zf-kicker">' + kicker + '</div><h2 class="zf-title">' + title + '</h2></div><button class="zf-close" id="zfClose" type="button" aria-label="Close">×</button></div>';
