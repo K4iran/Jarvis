@@ -1418,9 +1418,10 @@ function launchSkill(skillNode) {
   }
 
   if (skill.launch === 'calendar') {
-    // Use Google's verified Android App Link: Android opens the Calendar app
-    // when installed, otherwise the browser falls back to Google Calendar web.
-    window.location.assign('https://calendar.google.com/calendar/u/0/r');
+    // Explicitly target the Android Google Calendar package. Chrome can launch
+    // the installed app via this intent URL; other browsers fall back to web.
+    const calendarIntent = 'intent://calendar.google.com/calendar/u/0/r#Intent;scheme=https;package=com.google.android.calendar;S.browser_fallback_url=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fu%2F0%2Fr;end';
+    window.location.href = calendarIntent;
     return;
   }
 
