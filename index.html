@@ -4038,6 +4038,7 @@ async function startBattle(){
    const any=summary.classified.length>0;
    setPrompt(any?'I can see other events on your schedule, but no basketball session. What are we preparing for, sir?':"You don't have anything scheduled for today sir, what are we preparing for?");
    setActions('<button class="bt-action" data-bt-action="choose-training">TRAINING</button><button class="bt-action" data-bt-action="choose-game">GAME</button>');
+   speak(any?'I can see other events on your schedule, but no basketball session. What are we preparing for, sir?':"You don't have anything scheduled for today, sir. What are we preparing for?");
   }
  },3850);
 }
@@ -4097,14 +4098,16 @@ function beginBriefing(type,event){
  $('#btCustomObjective').hidden=false;
  const suggestions=makeSuggestions(type);
  const suggestedHtml=suggestions.map((s,i)=>'<div class="bt-suggest"><span>✦</span><span>'+esc(s)+'</span><button class="bt-action secondary" style="min-height:26px;padding:3px 7px;font-size:8px" data-bt-action="accept-suggestion" data-index="'+i+'">ADD</button></div>').join('');
- const custom=data.objectives.map((o,i)=>'<label class="bt-objective"><input type="checkbox" data-custom-objective="'+i+'" '+(o.done?'checked':'')+'><span>'+esc(o.text)+'</span></label>').join('');
+ const custom=data.objectives.map((o,i)=>'<div class="bt-objective"><label style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0"><input type="checkbox" data-custom-objective="'+i+'" '+(o.done?'checked':'')+'><span>'+esc(o.text)+'</span></label><button class="bt-action secondary" style="min-height:25px;padding:3px 6px;font-size:8px" data-bt-action="edit-objective" data-index="'+i+'">EDIT</button><button class="bt-action secondary" style="min-height:25px;padding:3px 6px;font-size:8px" data-bt-action="delete-objective" data-index="'+i+'">REMOVE</button></div>').join('');
  $('#btObjectives').innerHTML='<span class="bt-kicker">JARVIS SUGGESTIONS</span>'+suggestedHtml+'<div class="bt-divider"></div><span class="bt-kicker">YOUR OBJECTIVES</span>'+(custom||'<p class="bt-empty">No custom objectives yet. Add your own below.</p>');
- $('#btMental').innerHTML='<div class="bt-callout"><span class="bt-kicker">CONFIDENCE</span><br>You do not need a perfect performance. Trust your preparation and commit to the next good decision.</div><div class="bt-callout"><span class="bt-kicker">PRESSURE RESET</span><ol class="bt-protocol"><li>Relax your shoulders and take a steady, natural breath.</li><li>Release the last play. It is finished.</li><li>Choose one cue: “next play”.</li><li>Put your attention on the next decision you can control.</li></ol></div><div class="bt-callout"><span class="bt-kicker">VISUALISATION</span><br>Picture yourself receiving the ball, reading the floor, staying composed and making the right play. See the whole sequence clearly — then see yourself responding calmly if it does not go perfectly.</div><div class="bt-callout"><span class="bt-kicker">WHY YOU WORK</span><br>'+esc(motivationText())+'</div>';
+ const protocol=type==='game'?['Arrive with enough time to settle in and check your kit and water.','Warm up progressively and get comfortable with the ball.','Choose one simple first-possession cue: communicate, make the read, and play composed.']:['Check your shoes, water and anything you need for practice.','Choose one skill priority before the first drill.','Focus on quality repetitions, listen to coaching feedback and finish with a clear takeaway.'];
+ $('#btMental').innerHTML='<div class="bt-callout"><span class="bt-kicker">CONFIDENCE</span><br>You do not need a perfect performance. Trust your preparation and commit to the next good decision.</div><div class="bt-callout"><span class="bt-kicker">PRESSURE RESET</span><ol class="bt-protocol"><li>Relax your shoulders and take a steady, natural breath.</li><li>Release the last play. It is finished.</li><li>Choose one cue: “next play”.</li><li>Put your attention on the next decision you can control.</li></ol></div><div class="bt-callout"><span class="bt-kicker">VISUALISATION</span><br>Picture yourself receiving the ball, reading the floor, staying composed and making the right play. See the whole sequence clearly — then see yourself responding calmly if it does not go perfectly.</div><div class="bt-callout"><span class="bt-kicker">'+(type==='game'?'GAME-DAY':'TRAINING-DAY')+' PROTOCOL</span><ol class="bt-protocol">'+protocol.map(step=>'<li>'+esc(step)+'</li>').join('')+'</ol></div><div class="bt-callout"><span class="bt-kicker">WHY YOU WORK</span><br>'+esc(motivationText())+'</div>';
  renderNotebook();
  $('#btScheduleOverride').hidden=!activeEvent;
  const protocol=type==='game'?'GAME-DAY PROTOCOL':'TRAINING PROTOCOL';
  setPrompt('Briefing prepared, sir. Review your objectives, mental cues and notes. We launch when you are ready.');
  setActions('<button class="bt-action secondary" data-bt-action="add-custom">ADD OBJECTIVE</button><button class="bt-action" data-bt-action="launch">BEGIN FINAL SEQUENCE</button>');
+ speak('Sir, I have prepared your '+(type==='game'?'game-day':'training')+' briefing. Your key priorities are: '+suggestions.slice(0,2).join('. ')+'. Stay composed. Release the last play, trust your preparation and focus on the next decision. Picture yourself making the right read and responding calmly if things do not go perfectly. '+motivationText()+' Review your panels, then begin the final sequence when you are ready.');
 }
 function addObjective(text){const clean=String(text||'').trim().slice(0,120);if(!clean)return;data.objectives.push({id:id(),text:clean,done:false});save();if(sessionType)beginBriefing(sessionType,activeEvent)}
 function saveNote(){const field=$('#btNoteInput'),text=field.value.trim();if(!text)return;data.notes.push({id:id(),text:text.slice(0,1200),time:Date.now()});data.notes=data.notes.slice(-80);save();field.value='';renderNotebook();setPrompt('Saved to your basketball notebook, sir.')}
@@ -4229,6 +4232,8 @@ function handleAction(action,el){
  if(action==='launch'){finishCountdown();return}
  if(action==='postgame'){openPostgame(activeEvent);return}
  if(action==='accept-suggestion'){const suggestions=makeSuggestions(sessionType);const text=suggestions[Number(el.dataset.index)];if(text)addObjective(text);return}
+ if(action==='edit-objective'){const item=data.objectives[Number(el.dataset.index)];if(!item)return;const revised=prompt('Edit this objective:',item.text);if(revised===null)return;const clean=revised.trim().slice(0,120);if(clean){item.text=clean;save();if(sessionType)beginBriefing(sessionType,activeEvent)}return}
+ if(action==='delete-objective'){const index=Number(el.dataset.index);if(!data.objectives[index])return;data.objectives.splice(index,1);save();if(sessionType)beginBriefing(sessionType,activeEvent);return}
  if(action==='add-custom'){$('#btObjectiveInput').focus();return}
  if(action==='delete-event'){data.schedule=data.schedule.filter(e=>e.id!==el.dataset.id);save();renderInternalEvents();return}
  if(action==='play-track'){manualPlayTrack();return}
