@@ -811,7 +811,11 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
 
   // Loose energy motes drift around each orb on independent orbital paths.
   const strayOrbit = new THREE.Group();
-  const strayCount = isCenter ? 120 : 68;
+  // Only ZERO itself and the larger category orbs carry loose drifting motes.
+  // Individual capability/game orbs keep their clean particle shells.
+  const nodeKind = group.userData.node && group.userData.node.kind;
+  const keepStrayParticles = isCenter || nodeKind === 'category';
+  const strayCount = keepStrayParticles ? (isCenter ? 120 : 68) : 0;
   const strayPositions = new Float32Array(strayCount * 3);
   const strayColors = new Float32Array(strayCount * 3);
   for (let i = 0; i < strayCount; i++) {
