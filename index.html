@@ -4159,7 +4159,7 @@ async function loadTrack(){
 async function playFinalTrack(){
  if(data.settings.songSource==='spotify'){
   const url=data.settings.spotifyUrl;
-  if(url){const opened=window.open(url,'_blank','noopener');if(opened)return}
+  if(url){const opened=window.open(url,'_blank');if(opened){try{opened.opener=null}catch(e){}return}}
   setPrompt('Spotify could not be opened automatically. Tap PLAY / OPEN MY TRACK to launch it.');
   return;
  }
@@ -4264,6 +4264,7 @@ $('#battlePostgame').addEventListener('click',e=>{if(e.target.id==='battlePostga
 $('#battleModeLaunch').addEventListener('click',startBattle);
 document.addEventListener('click',e=>{if(e.target.closest('#battleSettingsOpen'))openSettings()});
 window.addEventListener('jarvis:calendar-events',e=>checkPostgame(e.detail&&e.detail.events));
+window.addEventListener('jarvis:calendar-connected',()=>checkPostgame());
 window.addEventListener('storage',e=>{if(e.key==='jarvis.zen.v1'&& !root.hidden)renderNotebook()});
 window.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPostgame()});
 
