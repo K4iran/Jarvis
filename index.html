@@ -3976,7 +3976,7 @@ import { createOrb } from './orb-network.js';
 'use strict';
 const KEY='jarvis.battle.v1';
 const $=s=>document.querySelector(s);
-const $=s=>Array.from(document.querySelectorAll(s));
+const $$=s=>Array.from(document.querySelectorAll(s));
 const root=$('#battleMode');
 if(!root||root.dataset.ready==='true')return;
 root.dataset.ready='true';
