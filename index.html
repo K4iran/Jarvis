@@ -4126,7 +4126,7 @@ function showPanelForSpeech(text){
  const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
  speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
 }
-function show(){clearTimeout(battleHideTimer);stopSpotifyBriefingEmbed();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
+function show(){clearTimeout(battleHideTimer);stopSpotifyBriefingEmbed();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
 function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();stopSpotifyBriefingEmbed();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
@@ -4136,14 +4136,17 @@ async function startBattle(){
  const events=await todayEvents();
  if(root.hidden)return;
  const summary=scheduleSummary(events);
- later(()=>{
+ later(async()=>{
   $('#btHelmetStatus').textContent='RECONSTRUCTION COMPLETE / SYSTEM ONLINE';
   if(summary.upcoming.length){
    const event=summary.upcoming[0],type=event.battleType;
    activeEvent=event;
    const label=type==='game'?'GAME':'TRAINING';
-   setPrompt('I have detected '+(event.title||label)+' at '+timeLabel(event.start,event.allDay)+'. Preparing your '+label.toLowerCase()+' briefing, sir.');
+   const announcement='I have detected '+(event.title||label)+' at '+timeLabel(event.start,event.allDay)+'. Preparing your '+label.toLowerCase()+' briefing, sir.';
+   setPrompt(announcement);
    showScheduleOverride(event,type);
+   await speak(announcement);
+   if(root.hidden)return;
    beginBriefing(type,event);
   }else if(summary.pastGames.length){
    setPrompt('You have already had a game today, sir. Would you like to review it before preparing for your next session?');
@@ -4204,6 +4207,7 @@ function renderNotebook(){
 }
 function beginBriefing(type,event){
  sessionType=type;activeEvent=event||activeEvent;
+ $('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;
  const label=type==='game'?'GAME DAY':'TRAINING';
  $('#btLeftKicker').textContent='MISSION OBJECTIVES / '+label;
  $('#btLeftTitle').textContent=label+' BRIEFING';
