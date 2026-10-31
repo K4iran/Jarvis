@@ -4328,7 +4328,7 @@ function startHelmetAnimation(){
  path([[196,75],[229,55],[280,48],[331,55],[364,75]],7,false,false);
  const pixels=m.getImageData(0,0,mask.width,mask.height).data,target=[];
  for(let y=12;y<mask.height-10;y+=3)for(let x=12;x<mask.width-10;x+=3){if(pixels[(y*mask.width+x)*4+3]>70)target.push({x,y})}
- const count=6375,points=[];
+ const count=5100,points=[];
  for(let i=0;i<count;i++){
   const p=target[Math.floor(Math.random()*target.length)]||{x:280,y:320};
   // Begin as a compact 3D orb, then unfold into the fixed helmet surface.
@@ -4437,7 +4437,7 @@ function startHelmetAnimation(){
    const perspective=1+z*.00165,alpha=(.24+.58*reveal)*(.68+.32*Math.sin(t*1.2+p.phase));
    const side=Math.max(0,Math.min(1,(p.x-104)/352));
    // Preserve the existing left-side peak; progressively shade toward the right.
-   const directionalLight=1-.985*smoothstep(.02,1,side),baseRed=176+58*(1-side)+21*p.bright;
+   const directionalLight=.34+.66*(1-smoothstep(.02,1,side)),baseRed=176+58*(1-side)+21*p.bright;
    const cr=Math.round((baseRed+21*band)*directionalLight),cg=Math.round(((10+22*p.bright)+105*band)*directionalLight),cb=Math.round(((18+25*p.bright)+110*band)*directionalLight);
    projected[i]={x:px*perspective,y:py*perspective,alpha,cr,cg,cb,size:p.size*(.65+reveal*.4),reveal,band,directionalLight};
   }
@@ -4472,8 +4472,8 @@ function startHelmetAnimation(){
    const edge=clamp(scanProgress*1.2,0,1),outline=[[0,-282],[85,-259],[148,-203],[176,-118],[167,-10],[129,89],[70,173],[0,226],[-70,173],[-129,89],[-167,-10],[-176,-118],[-148,-203],[-85,-259]];
    ctx.save();ctx.beginPath();ctx.rect(-235,-315,Math.max(0,scanX+250),650);ctx.clip();ctx.globalAlpha=edge;
    ctx.shadowColor='rgba(255,34,48,.9)';ctx.shadowBlur=15;
-   const shellGlow=ctx.createLinearGradient(-176,0,176,0);shellGlow.addColorStop(0,'rgba(255,55,67,.72)');shellGlow.addColorStop(.48,'rgba(115,10,20,.48)');shellGlow.addColorStop(1,'rgba(3,0,3,.025)');ctx.strokeStyle=shellGlow;ctx.lineWidth=3.1;ctx.lineJoin='round';ctx.beginPath();outline.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
-   ctx.shadowBlur=2;const shellEdge=ctx.createLinearGradient(-176,0,176,0);shellEdge.addColorStop(0,'rgba(255,190,194,.72)');shellEdge.addColorStop(.52,'rgba(100,12,20,.32)');shellEdge.addColorStop(1,'rgba(0,0,0,.01)');ctx.strokeStyle=shellEdge;ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
+   const shellGlow=ctx.createLinearGradient(-176,0,176,0);shellGlow.addColorStop(0,'rgba(255,55,67,.72)');shellGlow.addColorStop(.48,'rgba(115,10,20,.48)');shellGlow.addColorStop(1,'rgba(105,12,22,.58)');ctx.strokeStyle=shellGlow;ctx.lineWidth=3.1;ctx.lineJoin='round';ctx.beginPath();outline.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
+   ctx.shadowBlur=2;const shellEdge=ctx.createLinearGradient(-176,0,176,0);shellEdge.addColorStop(0,'rgba(255,190,194,.72)');shellEdge.addColorStop(.52,'rgba(100,12,20,.32)');shellEdge.addColorStop(1,'rgba(75,8,17,.48)');ctx.strokeStyle=shellEdge;ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
   }
   const eyeShape=()=>{ctx.beginPath();ctx.moveTo(-57,-17);ctx.lineTo(53,-5);ctx.lineTo(43,5);ctx.lineTo(34,12);ctx.lineTo(-46,-5);ctx.closePath()};
   const eyeSocket=(x)=>{ctx.save();ctx.translate(x,-43);const eyeSide=Math.max(0,Math.min(1,(x+176)/352)),eyeLight=1-.985*smoothstep(.02,1,eyeSide);ctx.globalAlpha=.025+.975*eyeLight;if(x>0)ctx.scale(-1,1);
