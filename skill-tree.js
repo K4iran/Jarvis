@@ -875,6 +875,14 @@ function revealCategoryBranches() {
 function revealSkillBranches(category) {
   category.skillsGroup.visible = true;
   category.skillsGroup.scale.setScalar(1);
+  if (category.skillsGroup.userData.revealed) {
+    category.skills.forEach(function (skill,index) {
+      skill.group.scale.setScalar(1);
+      category.skillBranches[index].line.material.opacity = 0.45;
+    });
+    return;
+  }
+  category.skillsGroup.userData.revealed = true;
   category.skills.forEach(function (skill,index) {
     skill.group.scale.setScalar(0);
     const line = category.skillBranches[index].line;
@@ -1010,15 +1018,6 @@ function enterCategory(category) {
     revealSkillBranches(category);
     playPendingUnlocks(category);
   });
-  if (!category.skillsGroup.userData.revealed) {
-    category.skillsGroup.userData.revealed = true;
-    // Reveal is started after the camera arrives so the nodes unfold into view.
-  } else {
-    category.skills.forEach(function (skill,index) {
-      skill.group.scale.setScalar(1);
-      category.skillBranches[index].line.material.opacity=0.45;
-    });
-  }
 }
 
 function returnToRoot(animate) {
@@ -1043,6 +1042,7 @@ function returnToRoot(animate) {
 
 function selectSkill(skillNode) {
   if (!skillNode || !activeCategory) return;
+  markSkillExplored(skillNode.skill);
   viewMode='skill';
   activeSkill=skillNode;
   hideSkillPanel();
@@ -1228,6 +1228,7 @@ function showSkillTree() {
   treeOpen=true;
   if (navButton) navButton.setAttribute('aria-pressed','true');
   if (renderer) renderer.setSize(overlay.clientWidth,overlay.clientHeight,false);
+  startRenderLoop();
 }
 
 function openSkillTree() {
@@ -1258,6 +1259,7 @@ function openSkillTree() {
   setTimeout(function () {
     if (treeOpen && !rootRevealStarted) revealCategoryBranches();
   },520);
+  startRenderLoop();
 }
 
 function closeSkillTree() {
@@ -1391,11 +1393,13 @@ function updateRevealJobs(now) {
 }
 
 function animate(now) {
+  if(!renderer||!scene||!camera||!overlay||overlay.hidden||document.hidden){
+    renderFrame=0;
+    return;
+  }
   renderFrame=requestAnimationFrame(animate);
   const dt=Math.min(0.05,(now-lastFrame)/1000||0);
   lastFrame=now;
-  if(!renderer||!scene||!camera)return;
-  if(overlay.hidden||document.hidden)return;
   if(viewMode==='root'&&categoryOrbit)categoryOrbit.rotation.y+=dt*0.025;
   if(zeroGroup){
     zeroGroup.rotation.y+=dt*0.15;
@@ -1422,6 +1426,13 @@ function animate(now) {
   renderer.render(scene,camera);
 }
 
+function startRenderLoop() {
+  if (!renderFrame && treeOpen) {
+    lastFrame=performance.now();
+    renderFrame=requestAnimationFrame(animate);
+  }
+}
+
 function initRenderer() {
   const canvas=document.getElementById('zeroSkillCanvas');
   try{
@@ -1443,7 +1454,6 @@ function initRenderer() {
       camera.aspect=width/height;camera.updateProjectionMatrix();
       renderer.setSize(width,height,false);
     });
-    renderFrame=requestAnimationFrame(animate);
   }catch(error){
     console.error('ZERO Skill Tree could not initialise WebGL:',error);
     const notice=document.createElement('p');
@@ -1551,6 +1561,9 @@ function initialize() {
   setupHangmanReturn();
   setupKeyboard();
   initRenderer();
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden&&treeOpen)startRenderLoop();
+  });
   window.ZERO_SKILL_TREE = {
     open:openSkillTree,
     close:closeSkillTree,
