@@ -4331,6 +4331,47 @@ function startHelmetAnimation(){
   const a=Math.random()*Math.PI*2,r=Math.pow(Math.random(),.55)*170;
   points.push({x:p.x,y:p.y,z:(Math.random()-.5)*40,sx:Math.cos(a)*r,sy:Math.sin(a)*r,sz:(Math.random()-.5)*100,size:.55+Math.random()*1.35,phase:Math.random()*Math.PI*2,bright:Math.random()});
  }
+ // Build a sparse, local particle lattice once. Nearby links keep the helmet's
+ // panel geometry legible without turning the whole mask into a wireframe.
+ const links=[],cellSize=15,grid=new Map(),cellKey=(x,y)=>Math.floor(x/cellSize)+','+Math.floor(y/cellSize);
+ for(let i=0;i<points.length;i++){
+  const p=points[i],gx=Math.floor(p.x/cellSize),gy=Math.floor(p.y/cellSize);
+  let made=0;
+  for(let oy=-1;oy<=1&&made<3;oy++)for(let ox=-1;ox<=1&&made<3;ox++){
+   const bucket=grid.get((gx+ox)+','+(gy+oy));if(!bucket)continue;
+   for(const j of bucket){
+    const q=points[j],dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy;
+    if(d2>18&&d2<cellSize*cellSize*.88){links.push([i,j]);made++;if(made>=3)break}
+   }
+  }
+  const key=cellKey(p.x,p.y);if(!grid.has(key))grid.set(key,[]);grid.get(key).push(i);
+ }
+ // Stronger facial construction lines are themselves made from short,
+ // separated particle-like links rather than continuous solid strokes.
+ const detailPaths=[
+  [[132,117],[184,102],[225,118],[280,143],[335,118],[376,102],[428,117]],
+  [[154,153],[193,177],[221,221],[211,275],[171,306],[133,273],[120,211],[154,153]],
+  [[406,153],[367,177],[339,221],[349,275],[389,306],[427,273],[440,211],[406,153]],
+  [[207,145],[248,171],[280,187],[312,171],[353,145],[338,221],[280,245],[222,221],[207,145]],
+  [[150,302],[202,286],[243,312],[258,375],[224,431],[174,410],[150,302]],
+  [[410,302],[358,286],[317,312],[302,375],[336,431],[386,410],[410,302]],
+  [[174,410],[218,450],[280,466],[342,450],[386,410],[350,493],[280,529],[210,493],[174,410]],
+  [[244,196],[267,214],[280,222],[293,214],[316,196]],
+  [[264,222],[257,278],[280,315],[303,278],[296,222]],
+  [[224,327],[252,344],[280,349],[308,344],[336,327]],
+  [[235,365],[260,367],[280,368],[300,367],[325,365]],
+  [[235,378],[260,380],[280,381],[300,380],[325,378]],
+  [[235,391],[260,393],[280,394],[300,393],[325,391]],
+  [[196,75],[229,55],[280,48],[331,55],[364,75]]
+ ];
+ const detailLinks=[];
+ for(const path of detailPaths)for(let k=1;k<path.length;k++){
+  const a=path[k-1],b=path[k],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy),steps=Math.max(1,Math.ceil(len/9));
+  for(let s=0;s<steps;s++){
+   const u=s/steps,v=Math.min(1,(s+.48)/steps);
+   detailLinks.push([a[0]+dx*u,a[1]+dy*u,a[0]+dx*v,a[1]+dy*v]);
+  }
+ }
  let w=1,h=1,dpr=1,start=performance.now(),formedAt=0;
  const resize=()=>{const rect=canvas.getBoundingClientRect();w=Math.max(1,rect.width);h=Math.max(1,rect.height);dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)};
  resize();if(typeof ResizeObserver==='function'){const ro=new ResizeObserver(resize);ro.observe(canvas)}else window.addEventListener('resize',resize);
@@ -4342,15 +4383,41 @@ function startHelmetAnimation(){
   const scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=reduced?0:Math.sin(t*.38)*.045,rotX=reduced?0:Math.cos(t*.29)*.018,eyeOn=t>3.65;
   ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
   const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
+  const projected=new Array(points.length);
   for(let i=0;i<points.length;i++){
    const p=points[i],dx=p.sx*(1-mix)+(p.x-280)*mix,dy=p.sy*(1-mix)+(p.y-320)*mix;
-   const sx=dx+Math.cos(p.phase+t*.8)*scatter*120,sy=dy+Math.sin(p.phase+t*.8)*scatter*120;
+   // Tiny independent motion gives the particles life while keeping their
+   // anchor positions fixed, so the helmet never melts or loses its shape.
+   const drift=mix*(reduced?.0:1),sx=dx+Math.cos(p.phase+t*.92)*drift*1.35+Math.cos(p.phase+t*.8)*scatter*120,
+         sy=dy+Math.sin(p.phase+t*.84)*drift*1.35+Math.sin(p.phase+t*.8)*scatter*120;
    const z=p.sz*(1-mix)+p.z*mix,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
    const perspective=1+z*.0009,alpha=(.25+.58*mix)*(.68+.32*Math.sin(t*1.2+p.phase));
    const side=Math.max(0,Math.min(1,(p.x-104)/352));
    const cr=Math.round(255-200*side),cg=Math.round(220-212*side),cb=Math.round(225-212*side);
-   ctx.fillStyle='rgba('+cr+','+cg+','+cb+','+alpha+')';
-   ctx.globalAlpha=alpha;ctx.beginPath();ctx.arc(px*perspective,py*perspective,p.size*(.65+mix*.4),0,Math.PI*2);ctx.fill();
+   projected[i]={x:px*perspective,y:py*perspective,alpha,cr,cg,cb,size:p.size*(.65+mix*.4)};
+  }
+  // Subtle connecting filaments: each line breathes independently in
+  // brightness, with the same left-to-right colour treatment as the nodes.
+  ctx.lineWidth=.62;
+  for(let k=0;k<links.length;k++){
+   const [ia,ib]=links[k],a=projected[ia],b=projected[ib];
+   if(!a||!b)continue;
+   const shimmer=.055+.075*(.5+.5*Math.sin(t*1.7+k*.19));
+   const alpha=shimmer*mix*Math.min(a.alpha,b.alpha);
+   ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+alpha+')';
+   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  }
+  // Distinct Iron-Man-inspired panel seams, eye surrounds, cheek geometry,
+  // nose bridge and mouth vents, rendered as broken particle connections.
+  for(let k=0;k<detailLinks.length;k++){
+   const d=detailLinks[k],a={x:d[0]-280,y:d[1]-320},b={x:d[2]-280,y:d[3]-320};
+   const shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31));
+   ctx.strokeStyle='rgba(255,105,115,'+(shimmer*mix)+')';ctx.lineWidth=.9;
+   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  }
+  for(let i=0;i<projected.length;i++){
+   const p=projected[i];ctx.fillStyle='rgba('+p.cr+','+p.cg+','+p.cb+','+p.alpha+')';
+   ctx.globalAlpha=p.alpha;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
   }
   ctx.globalAlpha=1;
   // Subtle particle edge glow keeps the silhouette readable without adding solid armour.
