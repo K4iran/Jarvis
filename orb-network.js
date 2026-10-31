@@ -14,12 +14,13 @@ export function createOrb(canvas, options = {}) {
   const maxLines = Math.max(100, options.maxLines || 8000);
   const linkDistance = options.lineDistance || 8;
   const scene = new THREE_NS.Scene();
-  scene.background = new THREE_NS.Color(options.backgroundColor ?? 0x050508);
+  const transparent = options.transparent === true;
+  scene.background = transparent ? null : new THREE_NS.Color(options.backgroundColor ?? 0x050508);
   const camera = new THREE_NS.PerspectiveCamera(50, 1, 0.1, 400);
   camera.position.z = 90;
-  const renderer = new THREE_NS.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  const renderer = new THREE_NS.WebGLRenderer({ canvas, antialias: true, alpha: transparent });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, options.maxPixelRatio || 2));
-  renderer.setClearColor(0x050508, 1);
+  renderer.setClearColor(options.backgroundColor ?? 0x050508, transparent ? 0 : 1);
 
   const positions = new Float32Array(count * 3);
   const pointColors = new Float32Array(count * 3);
