@@ -1437,8 +1437,37 @@ const ZeroMemory = (() => {
       '\nUse these facts when relevant. If the user corrects a fact, use the correction.';
   }
 
-  return { remember, forget, clear, list, context };
+  function rememberIfMissing(key, value) {
+    const memories = read();
+    if (Object.prototype.hasOwnProperty.call(memories, key)) return false;
+    memories[key] = String(value || '').trim().slice(0, 500);
+    save(memories);
+    return true;
+  }
+
+  return { remember, forget, clear, list, context, rememberIfMissing };
 })();
+
+// Keep the user's calendar-opening preference in ZERO's own persistent memory.
+// Do not overwrite a value they have already saved or edited.
+ZeroMemory.rememberIfMissing(
+  'Calendar access preference',
+  'When I ask to open my calendar, launch the Google Calendar app. Use ZERO’s connected Google Calendar for event lookups and creating or editing events.'
+);
+
+// Shared launcher for the Skill Tree and supported voice commands.
+window.zeroOpenGoogleCalendarApp = function () {
+  const calendarUrl = 'https://calendar.google.com/calendar/u/0/r';
+  if (/Android/i.test(navigator.userAgent || '')) {
+    const intentUrl = 'intent://calendar.google.com/calendar/u/0/r#Intent;scheme=https;package=com.google.android.calendar;S.browser_fallback_url=' +
+      encodeURIComponent(calendarUrl) + ';end';
+    window.location.href = intentUrl;
+    return true;
+  }
+  const opened = window.open(calendarUrl, '_blank', 'noopener,noreferrer');
+  if (!opened) window.location.assign(calendarUrl);
+  return true;
+};
   
 const IDLE=['Standing by.','Ready when you are.','All systems operational.','At your service.'];
 const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING',responding:'RESPONDING'};
@@ -2834,6 +2863,17 @@ async function run(t) {
   const calendarCreateIntent = /\b(?:add|create|schedule)\b/.test(calendarText) && /\b(?:event|appointment|training|practice|game)\b/.test(calendarText);
   const calendarReadIntent = /\b(?:what'?s on|what is on|any events|my events|appointments|calendar today|calendar tomorrow)\b/.test(calendarText);
   const calendarBareIntent = /^(?:calendar|my calendar|open calendar|open my calendar)$/.test(calendarText);
+  const calendarAppIntent = /\bopen\b/.test(calendarText) && /\b(?:calendar|schedule)\b/.test(calendarText) ||
+    /^(?:calendar|my calendar|open calendar|open my calendar)$/.test(calendarText);
+  if (calendarAppIntent && !calendarCreateIntent && !calendarReadIntent) {
+    say('Opening Google Calendar.');
+    if (typeof window.zeroOpenGoogleCalendarApp === 'function') {
+      window.zeroOpenGoogleCalendarApp();
+    } else {
+      window.location.assign('https://calendar.google.com/calendar/u/0/r');
+    }
+    return;
+  }
   if (calendarOpenIntent || calendarCreateIntent || calendarReadIntent || calendarBareIntent) {
     const api = window.JarvisGoogleCalendar;
     const panel = window.JarvisCalendarPanel;
@@ -3983,7 +4023,7 @@ import { createOrb } from './orb-network.js';
   }
 })();
 </script>
-<script type="module" src="./skill-tree.js?v=calendar-unlock-fix-3"></script>
+<script type="module" src="./skill-tree.js?v=calendar-app-launch-4"></script>
 <script>
 
 (function(){
