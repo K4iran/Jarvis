@@ -1820,6 +1820,13 @@ const HANGMAN_WORDS = [
   ['extraterrestrial','electromagnetic','observatory','gravitational','communication','architecture']
 ];
 const HANGMAN_RECORD_KEY = 'jarvis.hangman.record.v1';
+const HANGMAN_RECENT_WORDS_KEY = 'jarvis.hangman.recentWords.v1';
+let hangmanRecentWords = [];
+try {
+  const recent = JSON.parse(localStorage.getItem(HANGMAN_RECENT_WORDS_KEY) || '[]');
+  if (Array.isArray(recent)) hangmanRecentWords = recent.filter(word => typeof word === 'string').slice(-12);
+} catch (e) {}
+
 let hangmanStats = { level: 3, rounds: [] };
 try {
   const stored = JSON.parse(localStorage.getItem(HANGMAN_RECORD_KEY) || 'null');
@@ -1839,8 +1846,19 @@ function hangmanLevelLabel(level) {
 }
 function pickHangmanWord() {
   const level = hangmanStats.level;
-  const pool = HANGMAN_WORDS[level - 1];
-  return pool[Math.floor(Math.random() * pool.length)].toUpperCase();
+  const pool = HANGMAN_WORDS[level - 1].map(word => word.toUpperCase());
+  // Avoid recently used words, including across page reloads. If a small pool
+  // is exhausted, relax the history gradually rather than getting stuck.
+  let candidates = pool.filter(word => !hangmanRecentWords.includes(word));
+  if (!candidates.length) {
+    hangmanRecentWords = hangmanRecentWords.slice(-Math.max(0, pool.length - 1));
+    candidates = pool.filter(word => !hangmanRecentWords.includes(word));
+  }
+  const chosen = candidates[Math.floor(Math.random() * candidates.length)] || pool[0];
+  hangmanRecentWords.push(chosen);
+  hangmanRecentWords = hangmanRecentWords.slice(-12);
+  try { localStorage.setItem(HANGMAN_RECENT_WORDS_KEY, JSON.stringify(hangmanRecentWords)); } catch (e) {}
+  return chosen;
 }
 function hangmanContext() {
   if (!hangman.active) return '';
