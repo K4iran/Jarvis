@@ -981,7 +981,10 @@ body.zen-mode-active #core{visibility:hidden!important}
 <style>
 
 /* BATTLE MODE — isolated tactical presentation layer */
-#battleMode{position:fixed;inset:0;z-index:70;overflow:hidden;color:#f2f4f8;background:#030407;font-family:Sora,system-ui,sans-serif;isolation:isolate}
+#battleMode{position:fixed;inset:0;z-index:70;overflow:hidden;color:#f2f4f8;background:#030407;font-family:Sora,system-ui,sans-serif;isolation:isolate;opacity:0;transition:opacity .95s cubic-bezier(.2,.75,.25,1)}
+#battleMode.bt-visible{opacity:1}
+#battleMode:not(.bt-visible){pointer-events:none}
+@media(prefers-reduced-motion:reduce){#battleMode{transition:none}}
 #battleMode[hidden]{display:none!important}
 #battleMode:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 50% 43%,rgba(80,8,13,.38),transparent 47%),radial-gradient(ellipse at 50% 100%,rgba(45,5,9,.28),transparent 55%),linear-gradient(180deg,#060608,#020305 70%,#050406)}
 #battleMode:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.16;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.05) 4px,transparent 5px);mix-blend-mode:screen}
@@ -3991,7 +3994,7 @@ const root=$('#battleMode');
 if(!root||root.dataset.ready==='true')return;
 root.dataset.ready='true';
 const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{songSource:'file',spotifyUrl:'',trackName:''}});
-let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null;
+let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0;
 try{
  const saved=JSON.parse(localStorage.getItem(KEY)||'null');
  if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,saved.settings||{});data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
@@ -4039,8 +4042,8 @@ function showPanelForSpeech(text){
  const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
  speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
 }
-function show(){root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');startHelmetAnimation()}
-function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.hidden=true;root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0}
+function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
+function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
  if(!root.hidden)return;
@@ -4328,20 +4331,28 @@ function startHelmetAnimation(){
  const count=8500,points=[];
  for(let i=0;i<count;i++){
   const p=target[Math.floor(Math.random()*target.length)]||{x:280,y:320};
-  const a=Math.random()*Math.PI*2,r=Math.pow(Math.random(),.55)*170;
-  points.push({x:p.x,y:p.y,z:(Math.random()-.5)*40,sx:Math.cos(a)*r,sy:Math.sin(a)*r,sz:(Math.random()-.5)*100,size:.55+Math.random()*1.35,phase:Math.random()*Math.PI*2,bright:Math.random()});
+  // Begin as a compact 3D orb, then unfold into the fixed helmet surface.
+  const a=Math.random()*Math.PI*2,u=Math.random()*2-1,v=Math.sqrt(1-u*u),r=27+Math.random()*12;
+  const faceZ=(p.x,p.y)=>{
+   const nx=(p.x-280)/176,ny=(p.y-320)/282;
+   const nose=Math.exp(-Math.pow((p.x-280)/43,2)-Math.pow((p.y-258)/105,2))*30;
+   const cheek=Math.exp(-Math.pow((Math.abs(nx)-.53)/.22,2)-Math.pow((ny-.12)/.42,2))*13;
+   const side=-Math.pow(Math.abs(nx),1.7)*23;
+   return nose+cheek+side+(p.y>400?7:0);
+  };
+  points.push({x:p.x,y:p.y,z:faceZ(p.x,p.y)+(Math.random()-.5)*5,sx:Math.cos(a)*v*r,sy:u*r,sz:Math.sin(a)*v*r,size:.65+Math.random()*1.3,phase:Math.random()*Math.PI*2,bright:Math.random()});
  }
  // Build a sparse, local particle lattice once. Nearby links keep the helmet's
  // panel geometry legible without turning the whole mask into a wireframe.
- const links=[],cellSize=15,grid=new Map(),cellKey=(x,y)=>Math.floor(x/cellSize)+','+Math.floor(y/cellSize);
+ const links=[],cellSize=18,grid=new Map(),cellKey=(x,y)=>Math.floor(x/cellSize)+','+Math.floor(y/cellSize);
  for(let i=0;i<points.length;i++){
   const p=points[i],gx=Math.floor(p.x/cellSize),gy=Math.floor(p.y/cellSize);
   let made=0;
-  for(let oy=-1;oy<=1&&made<3;oy++)for(let ox=-1;ox<=1&&made<3;ox++){
+  for(let oy=-1;oy<=1&&made<4;oy++)for(let ox=-1;ox<=1&&made<4;ox++){
    const bucket=grid.get((gx+ox)+','+(gy+oy));if(!bucket)continue;
    for(const j of bucket){
     const q=points[j],dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy;
-    if(d2>18&&d2<cellSize*cellSize*.88){links.push([i,j]);made++;if(made>=3)break}
+    if(d2>18&&d2<cellSize*cellSize*.82){links.push([i,j]);made++;if(made>=4)break}
    }
   }
   const key=cellKey(p.x,p.y);if(!grid.has(key))grid.set(key,[]);grid.get(key).push(i);
@@ -4380,7 +4391,7 @@ function startHelmetAnimation(){
   if(root.hidden){animationFrame=0;return}
   const t=(now-start)/1000,form=clamp((t-.9)/2.9,0,1),mix=form*form*(3-2*form),scatter=Math.sin(form*Math.PI)*(1-form)*.42;
   ctx.clearRect(0,0,w,h);
-  const scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=reduced?0:Math.sin(t*.38)*.045,rotX=reduced?0:Math.cos(t*.29)*.018,eyeOn=t>3.65;
+  const scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=reduced?.22:.22+Math.sin(t*.38)*.025,rotX=reduced?-.015:-.015+Math.cos(t*.29)*.012,eyeOn=t>3.65;
   ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
   const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
   const projected=new Array(points.length);
@@ -4402,8 +4413,8 @@ function startHelmetAnimation(){
   for(let k=0;k<links.length;k++){
    const [ia,ib]=links[k],a=projected[ia],b=projected[ib];
    if(!a||!b)continue;
-   const shimmer=.055+.075*(.5+.5*Math.sin(t*1.7+k*.19));
-   const alpha=shimmer*mix*Math.min(a.alpha,b.alpha);
+   const shimmer=.24+.22*(.5+.5*Math.sin(t*1.7+k*.19));
+   const alpha=shimmer*mix*Math.min(1,Math.min(a.alpha,b.alpha)*1.8);
    ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+alpha+')';
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
   }
@@ -4412,7 +4423,7 @@ function startHelmetAnimation(){
   for(let k=0;k<detailLinks.length;k++){
    const d=detailLinks[k],a={x:d[0]-280,y:d[1]-320},b={x:d[2]-280,y:d[3]-320};
    const shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31));
-   ctx.strokeStyle='rgba(255,105,115,'+(shimmer*mix)+')';ctx.lineWidth=.9;
+   ctx.strokeStyle='rgba(255,105,115,'+((.34+.22*(.5+.5*Math.sin(t*1.35+k*.31)))*mix)+')';ctx.lineWidth=1.35;
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
   }
   for(let i=0;i<projected.length;i++){
@@ -4420,10 +4431,13 @@ function startHelmetAnimation(){
    ctx.globalAlpha=p.alpha;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
   }
   ctx.globalAlpha=1;
-  // Subtle particle edge glow keeps the silhouette readable without adding solid armour.
-  if(mix>.58){
-   const a=(mix-.58)*.16;ctx.strokeStyle='rgba(255,75,85,'+a+')';ctx.lineWidth=2;ctx.lineJoin='round';
-   ctx.beginPath();ctx.moveTo(-176,-203);ctx.lineTo(-126,-245);ctx.lineTo(0,-276);ctx.lineTo(126,-245);ctx.lineTo(176,-203);ctx.lineTo(159,-11);ctx.lineTo(112,117);ctx.lineTo(0,221);ctx.lineTo(-112,117);ctx.lineTo(-159,-11);ctx.closePath();ctx.stroke();
+  // Crisp, angular outer shell: a bright edge plus a restrained red halo.
+  if(mix>.16){
+   const edge=clamp((mix-.16)/.84,0,1),outline=[[0,-282],[85,-259],[148,-203],[176,-118],[167,-10],[129,89],[70,173],[0,226],[-70,173],[-129,89],[-167,-10],[-176,-118],[-148,-203],[-85,-259]];
+   ctx.save();ctx.globalAlpha=edge;
+   ctx.shadowColor='rgba(255,34,48,.9)';ctx.shadowBlur=15;
+   ctx.strokeStyle='rgba(255,55,67,.72)';ctx.lineWidth=3.1;ctx.lineJoin='round';ctx.beginPath();outline.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
+   ctx.shadowBlur=2;ctx.strokeStyle='rgba(255,190,194,.72)';ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
   }
   if(eyeOn){
    const pulse=.72+.28*Math.sin(t*3.8);
