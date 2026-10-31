@@ -147,6 +147,7 @@
       if (ready !== true) await api.init();
       await api.connect();
       say("Google Calendar connected.");
+      window.dispatchEvent(new CustomEvent("jarvis:calendar-connected"));
       await refresh();
     } catch (error) { say(error.message || "Google Calendar connection failed."); }
   });
