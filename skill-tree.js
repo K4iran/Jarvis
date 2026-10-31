@@ -475,6 +475,7 @@ function addNavAndOverlay() {
     '<div class="st-vignette" aria-hidden="true"></div>' +
     '<div class="st-topline"><div class="st-brand"><strong>Z.E.R.O. / SKILL TREE</strong><span>CAPABILITIES &amp; SYSTEM MAP</span></div>' +
     '<div class="st-toolbar"><span class="st-hint" id="zeroTreeHint">DRAG TO LOOK · ZOOM OUT TO RETURN</span>' +
+    '<button type="button" class="st-tool-button st-back-button" id="zeroTreeBack" hidden>BACK</button>' +
     '<button type="button" class="st-tool-button st-view-toggle" id="zeroViewToggle" aria-pressed="false">2D VIEW</button>' +
     '<button type="button" class="st-tool-button st-zoom-button" id="zeroZoomOut" aria-label="Zoom out">−</button>' +
     '<button type="button" class="st-tool-button st-zoom-button" id="zeroZoomIn" aria-label="Zoom in">+</button></div></div>' +
@@ -1346,7 +1347,7 @@ function applyFlatRootLayout() {
 function applyFlatCategoryLayout(category) {
   if (!flatView || !category) return;
   const narrow=flatIsNarrow();
-  zeroGroup.position.set(0,6.5,0);
+  zeroGroup.position.set(0,flatIsNarrow()?5.7:5.4,0);
   categoryOrbit.rotation.set(0,0,0);
   category.group.position.set(0,3.3,0);
   category.group.rotation.set(0,0,0);
@@ -1388,6 +1389,11 @@ function updateViewToolbar() {
     toggle.setAttribute('aria-pressed',flatView?'true':'false');
   }
   if(hint)hint.textContent=flatView?'DRAG TO PAN · PINCH / WHEEL TO ZOOM':'DRAG TO LOOK · ZOOM OUT TO RETURN';
+  const back=document.getElementById('zeroTreeBack');
+  if(back) {
+    back.hidden=viewMode==='root';
+    back.textContent=viewMode==='skill'?'BACK TO SKILLS':'ALL CATEGORIES';
+  }
 }
 
 function setFlatViewMode(enabled) {
@@ -1453,6 +1459,7 @@ function enterCategory(category) {
   viewMode='category';
   activeCategory=category;
   activeSkill=null;
+  updateViewToolbar();
   hideSkillPanel();
   categoryNodes.forEach(function (node) {
     node.group.visible = node === category;
@@ -1483,6 +1490,7 @@ function returnToRoot(animate) {
   viewMode='root';
   activeCategory=null;
   activeSkill=null;
+  updateViewToolbar();
   hideSkillPanel();
   categoryNodes.forEach(function (node) {
     node.group.visible=true;
@@ -1512,6 +1520,7 @@ function selectSkill(skillNode) {
   markSkillExplored(skillNode.skill);
   viewMode='skill';
   activeSkill=skillNode;
+  updateViewToolbar();
   zeroFadeTarget=0;
   hideSkillPanel();
   const destination=worldPosition(skillNode.group);
@@ -1637,6 +1646,7 @@ function closePanelToCategory() {
   if (!activeCategory) return;
   viewMode='category';
   activeSkill=null;
+  updateViewToolbar();
   zeroFadeTarget=0.12;
   hideSkillPanel();
   cameraTo(flatView?new THREE.Vector3(0,0,0):worldPosition(activeCategory.group),flatView?9.3:8.7,850, null, flatView?0:undefined, flatView?0:undefined);
@@ -1865,8 +1875,13 @@ function pointerHandlers() {
   const viewToggle=document.getElementById('zeroViewToggle');
   const zoomOutButton=document.getElementById('zeroZoomOut');
   const zoomInButton=document.getElementById('zeroZoomIn');
+  const backButton=document.getElementById('zeroTreeBack');
   if(viewToggle)viewToggle.addEventListener('click',function(){setFlatViewMode(!flatView);});
   if(zoomOutButton)zoomOutButton.addEventListener('click',function(){zoomSkillTree(1);});
+  if(backButton)backButton.addEventListener('click',function(){
+    if(viewMode==='skill')closePanelToCategory();
+    else if(viewMode==='category')returnToRoot(true);
+  });
   if(zoomInButton)zoomInButton.addEventListener('click',function(){zoomSkillTree(-1);});
   canvas.addEventListener('pointerdown',function (event) {
     canvas.setPointerCapture(event.pointerId);
