@@ -184,12 +184,13 @@
     const seen = new Set();
     return feed.items.filter(function (item) {
       const title = cleanFeedText(item.title);
+      const summary = cleanFeedText(item.description);
       const key = title.toLowerCase();
-      if (!title || seen.has(key) || !positive.test(title) || negative.test(title)) return false;
+      if (!title || seen.has(key) || !positive.test(title) || negative.test(title + " " + summary)) return false;
       seen.add(key);
       return true;
-    }).slice(0, 5).map(function (item) {
-      return { title: cleanFeedText(item.title), source: cleanFeedText(item.author || item.title.split(" - ").pop()), url: item.link || "", date: item.pubDate || "" };
+    }).slice(0, 4).map(function (item) {
+      return { title: cleanFeedText(item.title), summary: cleanFeedText(item.description).slice(0, 220), source: cleanFeedText(item.author || item.title.split(" - ").pop()), url: item.link || "", date: item.pubDate || "" };
     });
   }
   async function showHappyNews(respond) {
@@ -205,9 +206,9 @@
       panel.innerHTML = head("POSITIVE BRIEFING / LAST 7 DAYS", "Happy news") +
         '<p class="zf-news-intro">A short selection of recent uplifting stories. Only headlines that pass the positive-content filter are included.</p><div class="zf-news-list">' +
         stories.map(function (story) {
-          return '<article class="zf-news-item"><a href="' + escapeHtml(story.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(story.title) + '</a><div class="zf-news-meta">' + escapeHtml(story.source) + (story.date ? " · " + escapeHtml(new Date(story.date).toLocaleDateString("en-GB", { day:"numeric", month:"short" })) : "") + '</div></article>';
+          return '<article class="zf-news-item"><a href="' + escapeHtml(story.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(story.title) + '</a>' + (story.summary ? '<p class="zf-news-intro" style="margin:8px 0 0">' + escapeHtml(story.summary) + '</p>' : '') + '<div class="zf-news-meta">' + escapeHtml(story.source) + (story.date ? " · " + escapeHtml(new Date(story.date).toLocaleDateString("en-GB", { day:"numeric", month:"short" })) : "") + '</div></article>';
         }).join("") + '</div><p class="zf-muted">Stories are filtered conservatively. If a headline is ambiguous or negative, ZERO leaves it out.</p>';
-      await respond("Here are " + stories.length + " recent positive stories. " + stories.map(function (story, i) { return "Story " + (i+1) + ": " + story.title; }).join(". "));
+      await respond("Here are " + stories.length + " recent positive stories. " + stories.map(function (story, i) { return "Story " + (i+1) + ": " + story.title + (story.summary ? ". " + story.summary : ""); }).join(". "));
     } catch (error) {
       panel.innerHTML = head("POSITIVE BRIEFING", "Happy news") + '<div class="zf-status">' + escapeHtml(error.message || "The news feed is unavailable.") + '</div>';
       await respond("I could not retrieve the happy news feed just now. Please try again in a moment.");
