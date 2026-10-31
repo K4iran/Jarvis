@@ -101,8 +101,8 @@
     const current = result.data.current;
     const info = weatherDescription(current.weather_code);
     const hourly = result.data.hourly;
-    const now = new Date(current.time).getTime();
-    let start = hourly.time.findIndex(function (time) { return new Date(time).getTime() >= now; });
+    // Open-Meteo returns wall-clock timestamps in the requested city's timezone.
+    let start = hourly.time.findIndex(function (time) { return time >= current.time; });
     if (start < 0) start = 0;
     const hours = hourly.time.slice(start, start + 24).map(function (time, i) {
       const index = start + i;
@@ -113,7 +113,7 @@
     const day = result.data.daily;
     const days = day.time.map(function (time, i) {
       const condition = weatherDescription(day.weather_code[i]);
-      return '<div class="zf-hour"><small>' + new Date(time + "T12:00:00").toLocaleDateString("en-GB", { weekday:"short", day:"numeric" }) + '</small><b>' + condition[1] + " " + Math.round(day.temperature_2m_max[i]) + "°</b><small>↓ " + Math.round(day.temperature_2m_min[i]) + "° · rain " + (day.precipitation_probability_max[i] ?? 0) + '%</small></div>';
+      return '<div class="zf-hour"><small>' + new Date(time + "T12:00:00").toLocaleDateString("en-GB", { weekday:"short", day:"numeric", timeZone: result.data.timezone }) + '</small><b>' + condition[1] + " " + Math.round(day.temperature_2m_max[i]) + "°</b><small>↓ " + Math.round(day.temperature_2m_min[i]) + "° · rain " + (day.precipitation_probability_max[i] ?? 0) + '%</small></div>';
     }).join("");
     panel.innerHTML = head("LIVE WEATHER / " + escapeHtml(result.place.country || "LOCAL"), escapeHtml(result.place.name)) +
       '<div class="zf-weather-current"><div><div class="zf-temp">' + Math.round(current.temperature_2m) + '°</div><div class="zf-condition">' + info[0] + '</div><div class="zf-muted">Feels like ' + Math.round(current.apparent_temperature) + '°</div></div><div class="zf-weather-icon" aria-hidden="true">' + info[1] + '</div></div>' +
@@ -142,7 +142,7 @@
     const area = line + " L" + x(hours.length-1) + ",176 L" + x(0) + ",176 Z";
     markup += '<defs><linearGradient id="zfWeatherFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#55c9ff" stop-opacity=".25"/><stop offset="1" stop-color="#55c9ff" stop-opacity="0"/></linearGradient></defs><path d="' + area + '" fill="url(#zfWeatherFill)"/><path d="' + line + '" fill="none" stroke="#75d8ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
     hours.forEach(function (h, i) {
-      if (i % 3 === 0 || i === hours.length - 1) markup += '<text x="' + x(i) + '" y="199" fill="#7fa7bd" font-size="11" text-anchor="middle">' + new Date(h.time).toLocaleTimeString("en-GB", { hour:"2-digit" }) + '</text>';
+      if (i % 3 === 0 || i === hours.length - 1) markup += '<text x="' + x(i) + '" y="199" fill="#7fa7bd" font-size="11" text-anchor="middle">' + h.time.slice(11, 13) + ":00" + '</text>';
       markup += '<circle data-hour="' + i + '" cx="' + x(i) + '" cy="' + y(h.temp) + '" r="4" fill="#dff8ff" stroke="#52bfff" stroke-width="2"/>';
     });
     svg.innerHTML = markup;
@@ -155,7 +155,7 @@
       });
       const h = hours[chartIndex];
       const label = document.getElementById("zfChartSelected");
-      if (label) label.textContent = new Date(h.time).toLocaleTimeString("en-GB", { weekday:"short", hour:"2-digit", minute:"2-digit" }) + " · " + Math.round(h.temp) + "°C · feels " + Math.round(h.feels) + "° · rain " + (h.rain ?? 0) + "%";
+      if (label) label.textContent = h.time.slice(0, 10) + " " + h.time.slice(11, 16) + " · " + Math.round(h.temp) + "°C · feels " + Math.round(h.feels) + "° · rain " + (h.rain ?? 0) + "%";
     };
     svg.addEventListener("pointerdown", function (event) {
       const rect = svg.getBoundingClientRect();
