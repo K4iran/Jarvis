@@ -815,6 +815,16 @@ body.zen-mode-active #core{visibility:hidden!important}
 </div>
 
 <div id="ov" hidden role="dialog" aria-modal="true" aria-labelledby="ot"><div class="sheet fr"><div class="hd"><span id="ot" class="lbl"></span><button class="ib" id="oc" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div><div id="ob"></div></div></div>
+<script src="./calendar/config.js"></script>
+<script src="./calendar/google-calendar.js"></script>
+<script src="./calendar/calendar-panel.js"></script>
+<script>
+/* Initialize Google Identity Services before the user presses Connect, preserving the click gesture. */
+window.JarvisGoogleCalendarReady = window.JarvisGoogleCalendar.init().catch(error => {
+  console.warn('Google Calendar is not ready yet:', error);
+  return false;
+});
+</script>
 <script>
 /* Emergency diagnostics: keep a visible error message if the main interface fails. */
 (function () {
@@ -2325,6 +2335,68 @@ async function run(t) {
     window.__zenCommandInProgress = false;
   }
   if (zenHandled) return;
+
+  // Google Calendar commands stay local: events are read or changed only through the
+  // user's explicitly connected Google account, never through the AI backend.
+  const calendarText = String(t || '').trim().toLowerCase();
+  const calendarOpenIntent = /\b(?:open|show|display|view)\b/.test(calendarText) && /\b(?:calendar|schedule)\b/.test(calendarText);
+  const calendarCreateIntent = /\b(?:add|create|schedule)\b/.test(calendarText) && /\b(?:event|appointment|training|practice|game)\b/.test(calendarText);
+  const calendarReadIntent = /\b(?:what'?s on|what is on|any events|my events|appointments|calendar today|calendar tomorrow)\b/.test(calendarText);
+  const calendarBareIntent = /^(?:calendar|my calendar|open calendar|open my calendar)$/.test(calendarText);
+  if (calendarOpenIntent || calendarCreateIntent || calendarReadIntent || calendarBareIntent) {
+    const api = window.JarvisGoogleCalendar;
+    const panel = window.JarvisCalendarPanel;
+    if (panel) panel.open();
+    if (!api || !api.isConnected()) {
+      await respond('Google Calendar is ready to connect. Open the calendar panel and select Connect Google Calendar to authorise access.');
+      return;
+    }
+    if (calendarCreateIntent) {
+      if (panel) panel.newEvent();
+      await respond('I have opened the new event form. Add the event details and save it to Google Calendar.');
+      return;
+    }
+    try {
+      let options = {};
+      if (calendarReadIntent) {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(start);
+        if (/\btomorrow\b/.test(calendarText)) {
+          start.setDate(start.getDate() + 1);
+          end.setDate(end.getDate() + 2);
+        } else if (/\bthis week\b/.test(calendarText)) {
+          end.setDate(end.getDate() + 7);
+        } else if (/\btoday\b/.test(calendarText)) {
+          end.setDate(end.getDate() + 1);
+        } else {
+          end.setDate(end.getDate() + 30);
+        }
+        options = { timeMin: start.toISOString(), timeMax: end.toISOString(), maxResults: 100 };
+      }
+      const events = await api.openCalendar(options);
+      if (calendarReadIntent) {
+        if (!events.length) {
+          await respond('You have no events scheduled in that period.');
+        } else {
+          const lines = events.slice(0, 6).map(event => {
+            const when = event.allDay
+              ? new Date(event.start + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+              : new Date(event.start).toLocaleString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
+            return event.title + ', ' + when;
+          });
+          const extra = events.length > lines.length ? ' And ' + (events.length - lines.length) + ' more.' : '';
+          await respond('Here is what you have: ' + lines.join('. ') + '.' + extra);
+        }
+      } else {
+        await respond('Your Google Calendar is open. I found ' + events.length + ' upcoming events.');
+      }
+    } catch (error) {
+      console.error('Google Calendar command failed:', error);
+      await respond('I could not load Google Calendar. ' + (error.message || 'Please reconnect and try again.'));
+    }
+    return;
+  }
 
   // Keep rating radar requests local so they never depend on model interpretation.
   const radarReply = handleRatingRadarCommand(t);
