@@ -653,19 +653,45 @@ function addCategoryAura(group, radius, color, categoryId) {
   group.add(aura);
   return aura;
 }
-function createOrbVisual(group, radius, color, icon, label, isCenter) {
-  const colorValue = new THREE.Color(color);
+function addHolographicLock(group, radius) {
+  const lock = new THREE.Group();
+  const glow = '#b9d9e8';
+  const material = new THREE.MeshBasicMaterial({ color:glow, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, depthWrite:false });
+  const softMaterial = new THREE.MeshBasicMaterial({ color:'#829baa', transparent:true, opacity:0.42, blending:THREE.AdditiveBlending, depthWrite:false });
+  const shackle = new THREE.Mesh(new THREE.TorusGeometry(radius*0.205,radius*0.045,8,36,Math.PI),material);
+  shackle.position.set(0,radius*0.13,radius*0.98); lock.add(shackle);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(radius*0.62,radius*0.49,radius*0.13),softMaterial);
+  body.position.set(0,-radius*0.12,radius*1.02); lock.add(body);
+  const outline = new THREE.LineSegments(new THREE.EdgesGeometry(body.geometry),new THREE.LineBasicMaterial({color:glow,transparent:true,opacity:0.95,blending:THREE.AdditiveBlending}));
+  outline.position.copy(body.position); lock.add(outline);
+  const keyHead = new THREE.Mesh(new THREE.CircleGeometry(radius*0.055,20),material);
+  keyHead.position.set(0,-radius*0.075,radius*1.105); lock.add(keyHead);
+  const keyStem = new THREE.Mesh(new THREE.BoxGeometry(radius*0.045,radius*0.12,radius*0.012),material);
+  keyStem.position.set(0,-radius*0.19,radius*1.11); lock.add(keyStem);
+  [-1,1].forEach(function(side){
+    for(let i=0;i<5;i++){
+      const angle=(i/4)*0.92+0.18;
+      const link=new THREE.Mesh(new THREE.TorusGeometry(radius*0.075,radius*0.022,6,16),i%2?material:softMaterial);
+      link.position.set(side*Math.sin(angle)*radius*0.82,(0.42-i*0.15)*radius,radius*(0.82+0.16*Math.cos(angle)));
+      link.rotation.set(0.55*side,side*(0.55+i*0.18),0.72*side); link.scale.set(1,0.78,1); lock.add(link);
+    }
+  });
+  lock.renderOrder=9; group.add(lock); return lock;
+}
+function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
+  const visualColor = locked ? '#9aaab5' : color;
+  const colorValue = new THREE.Color(visualColor);
   const shellMaterial = new THREE.MeshPhysicalMaterial({
-    color: colorValue, emissive: colorValue, emissiveIntensity: isCenter ? 0.8 : 0.46,
+    color: colorValue, emissive: colorValue, emissiveIntensity: isCenter ? 0.8 : (locked ? 0.24 : 0.46),
     metalness: 0.2, roughness: 0.25, clearcoat: 0.9, transparent: true,
-    opacity: isCenter ? 0.18 : 0.22, depthWrite: false
+    opacity: isCenter ? 0.18 : (locked ? 0.3 : 0.22), depthWrite: false
   });
   const shell = new THREE.Mesh(new THREE.SphereGeometry(radius, 34, 28), shellMaterial);
   group.add(shell);
 
   const wire = new THREE.Mesh(
     new THREE.SphereGeometry(radius * 1.06, 22, 18),
-    new THREE.MeshBasicMaterial({ color: colorValue, wireframe: true, transparent: true, opacity: isCenter ? 0.14 : 0.12, depthWrite: false })
+    new THREE.MeshBasicMaterial({ color: colorValue, wireframe: true, transparent: true, opacity: isCenter ? 0.14 : (locked ? 0.24 : 0.12), depthWrite: false })
   );
   group.add(wire);
 
@@ -681,7 +707,9 @@ function createOrbVisual(group, radius, color, icon, label, isCenter) {
     wordmark.renderOrder = 8;
     group.add(wordmark);
     core = wordmark;
-  } else {
+  } else if (locked) {
+    core = addHolographicLock(group, radius);
+
     const crystalMaterial = new THREE.MeshBasicMaterial({
       color: colorValue, transparent: true, opacity: 0.88,
       blending: THREE.AdditiveBlending, depthWrite: false
@@ -770,7 +798,7 @@ function createOrbVisual(group, radius, color, icon, label, isCenter) {
   const nodeMeta = group.userData.node;
   const categoryAura = !isCenter && nodeMeta && nodeMeta.kind === 'category'
     ? addCategoryAura(group, radius, color, nodeMeta.id) : null;
-  if (icon && icon !== 'zero') addIcon(group, icon, color, radius * 0.65);
+  if (!locked && icon && icon !== 'zero') addIcon(group, icon, color, radius * 0.65);
   if (label) {
     const labelSprite = makeLabelSprite(label, '#e9f6ff', 28);
     labelSprite.position.set(0, -radius * 1.72, 0);
@@ -949,7 +977,8 @@ function buildWorld() {
       child.group.position.copy(child.position);
       child.group.scale.setScalar(0);
       node.skillsGroup.add(child.group);
-      child.visual = createOrbVisual(child.group,child.radius,shade,skill.icon,skill.name,false);
+      const isLocked = /^(locked|coming soon)$/i.test(String(skill.status || '').trim());
+      child.visual = createOrbVisual(child.group,child.radius,isLocked ? '#9aaab5' : shade,skill.icon,skill.name,false,isLocked);
       child.mesh = child.visual.hit;
       child.mesh.userData.pickTarget = child;
       pickMeshes.push(child.mesh);
