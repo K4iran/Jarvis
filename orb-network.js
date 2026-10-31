@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 const PROFILES = {
   idle:       { radius: 28, speed: 0.20, brightness: 0.50, size: 0.35, links: 0.15, electrons: false },
-  listening:  { radius: 22, speed: 0.30, brightness: 0.65, size: 0.40, links: 0.40, electrons: false },
+  listening:  { radius: 22, speed: 0.30, brightness: 0.65, size: 0.40, links: 0.82, electrons: false },
   thinking:   { radius: 16, speed: 0.50, brightness: 0.70, size: 0.30, links: 1.00, electrons: true },
   speaking:   { radius: 18, speed: 0.20, brightness: 0.70, size: 0.40, links: 0.80, electrons: false },
   compacting: { radius: 12, speed: 0.08, brightness: 0.28, size: 0.28, links: 0.00, electrons: false }
@@ -116,7 +116,7 @@ export function createOrb(canvas, options = {}) {
         // then reconnect as the network flows through a slow travelling wave.
         const phase = t * (target.electrons ? 2.1 : 1.25) + i * 0.037 + j * 0.019;
         const linkWave = Math.sin(phase);
-        const detailBoost = target.electrons ? 1.10 : 1.0;
+        const detailBoost = target.electrons ? 1.10 : activeState === "listening" ? 1.55 : 1.0;
         const dynamicDistance = linkDistance * detailBoost *
           (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
         if (linkWave > -0.30 && dx * dx + dy * dy + dz * dz < dynamicDistance * dynamicDistance) {
@@ -140,8 +140,9 @@ export function createOrb(canvas, options = {}) {
       linePositions[o + 3] = positions[bi]; linePositions[o + 4] = positions[bi + 1]; linePositions[o + 5] = positions[bi + 2];
       const edgeA = Math.hypot(positions[ai], positions[ai + 1], positions[ai + 2]) / 30;
       const edgeB = Math.hypot(positions[bi], positions[bi + 1], positions[bi + 2]) / 30;
-      const edgeGlowA = activeState === "listening" ? 0.72 + Math.max(0, edgeA - 0.62) * 2.4 : 0.9;
-      const edgeGlowB = activeState === "listening" ? 0.72 + Math.max(0, edgeB - 0.62) * 2.4 : 0.9;
+      const lineFlicker = activeState === "listening" ? 0.22 + 0.95 * (0.5 + 0.5 * Math.sin(t * 1.7 + a * 0.071 + b * 0.043)) : 1;
+      const edgeGlowA = (activeState === "listening" ? 0.62 + Math.max(0, edgeA - 0.52) * 3.0 : 0.9) * lineFlicker;
+      const edgeGlowB = (activeState === "listening" ? 0.62 + Math.max(0, edgeB - 0.52) * 3.0 : 0.9) * lineFlicker;
       lineColors[o] = 0.62 * edgeGlowA; lineColors[o + 1] = 0.84 * edgeGlowA; lineColors[o + 2] = edgeGlowA;
       lineColors[o + 3] = 0.62 * edgeGlowB; lineColors[o + 4] = 0.84 * edgeGlowB; lineColors[o + 5] = edgeGlowB;
     }
@@ -195,7 +196,7 @@ export function createOrb(canvas, options = {}) {
     pointMat.opacity += (current.brightness * 0.85 - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
     const networkBreath = 0.68 + 0.32 * (0.5 + 0.5 * Math.sin(t * (target.electrons ? 3.4 : 0.75)));
-    const networkOpacity = current.links * 0.12 * networkBreath;
+    const networkOpacity = current.links * (activeState === "listening" ? 0.19 : 0.12) * networkBreath;
     lineMat.opacity += (networkOpacity - lineMat.opacity) * ease;
     let bass = 0, mids = 0;
     if (analyser && audioData) {
@@ -211,6 +212,7 @@ export function createOrb(canvas, options = {}) {
     const pulse = isVocal || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
       const j = i * 3, p = phases[i], wave = Math.sin(t * (0.9 + speeds[i]) + p);
+      const listeningBreath = 0.5 - 0.5 * Math.cos(t * 1.05);
       const vocalCycle = Math.sin(t * 7.4);
       const expandAmount = isSpeaking ? speakingAmount : isListening ? Math.max(0, vocalCycle) : 0;
       // A quicker, deeper inhale/exhale; each particle lags slightly so the
@@ -218,7 +220,7 @@ export function createOrb(canvas, options = {}) {
       const expansion = isSpeaking
         ? 1 + 0.035 * speakingAmount * Math.sin(t * Math.PI * 2.0)
         : isListening
-          ? 0.79 + 0.43 * (0.5 + 0.5 * vocalCycle) + 0.055 * Math.sin(t * 12.0 + p * 0.7)
+          ? 0.72 + 0.95 * listeningBreath + 0.025 * Math.sin(t * 1.8 + p * 0.7)
           : target.electrons
           ? 1 + 0.09 * Math.sin(t * 1.8 + p * 0.2) + 0.045 * Math.sin(t * 3.1 + p)
           : 1 + 0.115 * Math.sin(t * 0.62) + 0.035 * Math.sin(t * 1.35 + p * 0.35);
@@ -237,7 +239,7 @@ export function createOrb(canvas, options = {}) {
         edgeX = Math.cos(p + t * 1.8) * edgeMotion;
         edgeY = Math.sin(p * 1.3 + t * 2.1) * edgeMotion;
         edgeZ = Math.cos(p * 0.8 - t * 1.6) * edgeMotion;
-        const glow = 1 + edgeFactor * (0.65 + 0.35 * Math.sin(t * 6 + p * 2));
+        const glow = 1 + edgeFactor * (0.45 + 1.15 * listeningBreath) * (0.88 + 0.12 * Math.sin(t * 2.2 + p * 1.5));
         pointColors[j] = glow; pointColors[j + 1] = glow; pointColors[j + 2] = glow;
       } else {
         pointColors[j] = pointColors[j + 1] = pointColors[j + 2] = 1;
@@ -265,7 +267,7 @@ export function createOrb(canvas, options = {}) {
         ? 1.62 * (0.25 + 0.75 * speakingAmount)
         : 1;
       const particleDesired = desired * speakingExpansionScale;
-      const correction = (particleDesired - len) * (isSpeaking ? 0.10 : isVocal ? 0.022 : 0.012);
+      const correction = (particleDesired - len) * (isSpeaking ? 0.10 : isListening ? 0.045 : isVocal ? 0.022 : 0.012);
       positions[j] += positions[j] / len * correction;
       positions[j + 1] += positions[j + 1] / len * correction;
       positions[j + 2] += positions[j + 2] / len * correction;
@@ -355,8 +357,8 @@ export function createOrb(canvas, options = {}) {
     }
     pointGeo.attributes.position.needsUpdate = true;
     pointGeo.attributes.color.needsUpdate = true;
-    points.rotation.y += dt * current.speed * 0.12;
-    points.rotation.x = Math.sin(t * 0.13) * 0.10;
+    points.rotation.y += dt * (isListening ? 0.19 : current.speed * 0.12);
+    points.rotation.x = isListening ? Math.sin(t * 0.10) * 0.13 : Math.sin(t * 0.13) * 0.10;
     lines.rotation.copy(points.rotation);
     electrons.rotation.copy(points.rotation);
 
