@@ -4131,7 +4131,7 @@ const root=$('#battleMode');
 if(!root||root.dataset.ready==='true')return;
 root.dataset.ready='true';
 const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{trackName:''}});
-let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,spotifyLaunchSucceeded=false,battleAudioContext=null,battleAudioAnalyser=null,battleAudioData=null,battleAudioSource=null,battleGain=null;
+let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,battleAudioContext=null,battleAudioAnalyser=null,battleAudioData=null,battleAudioSource=null,battleGain=null;
 try{
  const saved=JSON.parse(localStorage.getItem(KEY)||'null');
  if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,{trackName:(saved.settings&&saved.settings.trackName)||(saved.settings&&saved.settings.finalTrackName)||(saved.settings&&saved.settings.introTrackName)||''});data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
@@ -4277,13 +4277,7 @@ function beginBriefing(type,event){
  $('#btScheduleOverride').hidden=!activeEvent;
  setPrompt('Briefing prepared, sir. Review your objectives, mental cues and notes. We launch when you are ready.');
  setActions('<button class="bt-action secondary" data-bt-action="add-custom">ADD OBJECTIVE</button><button class="bt-action" data-bt-action="launch">BEGIN FINAL SEQUENCE</button>');
- if(data.settings.songSource==='spotify'){
-  const ready=renderSpotifyBriefingEmbed();
-  setPrompt(ready?'Briefing ready, sir. Your soundtrack is ready in the objectives panel. Tap play when you are ready.':'Add a Spotify track in Battle Mode Settings to enable the briefing soundtrack.');
- }else{
-  stopSpotifyBriefingEmbed();
-  playBattleTrack('intro');
- }
+ setPrompt('Briefing ready, sir. Review your objectives and cues. We launch when you are ready.');
 }
 function addObjective(text){const clean=String(text||'').trim().slice(0,120);if(!clean)return;data.objectives.push({id:id(),text:clean,done:false});save();if(sessionType)beginBriefing(sessionType,activeEvent)}
 function saveNote(){const field=$('#btNoteInput'),text=field.value.trim();if(!text)return;data.notes.push({id:id(),text:text.slice(0,1200),time:Date.now()});data.notes=data.notes.slice(-80);save();field.value='';renderNotebook();setPrompt('Saved to your basketball notebook, sir.')}
