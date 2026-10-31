@@ -4303,6 +4303,8 @@ function startHelmetAnimation(){
  const canvas=$('#battleHelmetCanvas'),ctx=canvas.getContext('2d');if(!ctx)return;
  const mask=document.createElement('canvas');mask.width=560;mask.height=640;
  const m=mask.getContext('2d');m.strokeStyle='#fff';m.fillStyle='#fff';m.lineCap='round';m.lineJoin='round';
+ // Dense particle silhouette: the helmet is formed from particles, not solid metal.
+ m.beginPath();[[280,38],[365,61],[428,117],[456,202],[447,310],[409,409],[350,493],[280,546],[210,493],[151,409],[113,310],[104,202],[132,117],[195,61]].forEach((p,i)=>i?m.lineTo(p[0],p[1]):m.moveTo(p[0],p[1]));m.closePath();m.fill();
  function path(points,width,close,fill){m.beginPath();points.forEach((p,i)=>i?m.lineTo(p[0],p[1]):m.moveTo(p[0],p[1]));if(close)m.closePath();m.lineWidth=width;if(fill)m.fill();else m.stroke()}
  // Outer shell, cheek plates, brow, jaw and chin — an original angular robotic faceplate.
  path([[280,38],[365,61],[428,117],[456,202],[447,310],[409,409],[350,493],[280,546],[210,493],[151,409],[113,310],[104,202],[132,117],[195,61]],13,true,false);
@@ -4323,7 +4325,7 @@ function startHelmetAnimation(){
  path([[196,75],[229,55],[280,48],[331,55],[364,75]],7,false,false);
  const pixels=m.getImageData(0,0,mask.width,mask.height).data,target=[];
  for(let y=12;y<mask.height-10;y+=3)for(let x=12;x<mask.width-10;x+=3){if(pixels[(y*mask.width+x)*4+3]>70)target.push({x,y})}
- const count=2400,points=[];
+ const count=8500,points=[];
  for(let i=0;i<count;i++){
   const p=target[Math.floor(Math.random()*target.length)]||{x:280,y:320};
   const a=Math.random()*Math.PI*2,r=Math.pow(Math.random(),.55)*170;
@@ -4345,61 +4347,27 @@ function startHelmetAnimation(){
    const sx=dx+Math.cos(p.phase+t*.8)*scatter*120,sy=dy+Math.sin(p.phase+t*.8)*scatter*120;
    const z=p.sz*(1-mix)+p.z*mix,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
    const perspective=1+z*.0009,alpha=(.25+.58*mix)*(.68+.32*Math.sin(t*1.2+p.phase));
-   ctx.fillStyle=p.bright>.88?'rgba(255,88,96,'+alpha+')':p.bright>.62?'rgba(218,222,230,'+alpha+')':'rgba(151,164,178,'+alpha+')';
+   const side=Math.max(0,Math.min(1,(p.x-104)/352));
+   const cr=Math.round(255-200*side),cg=Math.round(220-212*side),cb=Math.round(225-212*side);
+   ctx.fillStyle='rgba('+cr+','+cg+','+cb+','+alpha+')';
    ctx.globalAlpha=alpha;ctx.beginPath();ctx.arc(px*perspective,py*perspective,p.size*(.65+mix*.4),0,Math.PI*2);ctx.fill();
   }
   ctx.globalAlpha=1;
-  // Sculpted metallic face armour: layered plates, recessed seams and directional red illumination.
-  if(mix>.34){
-   const reveal=Math.min(1,(mix-.34)/.66);
-   ctx.save();ctx.globalAlpha=reveal;
-   const plate=(points,fill,stroke='rgba(194,205,219,.42)',line=1.5)=>{ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.stroke()};
-   const metal=ctx.createLinearGradient(-210,-190,190,190);metal.addColorStop(0,'#8995a5');metal.addColorStop(.18,'#303945');metal.addColorStop(.43,'#111923');metal.addColorStop(.68,'#566170');metal.addColorStop(1,'#090e16');
-   // Main shell and cheek armour.
-   plate([[-174,-202],[-124,-246],[0,-278],[124,-246],[174,-202],[159,-8],[116,118],[0,225],[-116,118],[-159,-8]],metal,'rgba(207,218,232,.68)',2.4);
-   const leftShade=ctx.createLinearGradient(-205,0,18,0);leftShade.addColorStop(0,'rgba(255,28,42,.62)');leftShade.addColorStop(.32,'rgba(255,36,48,.19)');leftShade.addColorStop(1,'rgba(0,0,0,0)');
-   ctx.fillStyle=leftShade;ctx.beginPath();ctx.moveTo(-174,-202);ctx.lineTo(-124,-246);ctx.lineTo(0,-278);ctx.lineTo(0,225);ctx.lineTo(-116,118);ctx.lineTo(-159,-8);ctx.closePath();ctx.fill();
-   // Forehead crown, brow bridge and temple plates.
-   plate([[-145,-204],[-112,-235],[0,-262],[112,-235],[145,-204],[77,-174],[0,-188],[-77,-174]],'linear-gradient(0deg,#1b2632,#8793a1)');
-   plate([[-145,-204],[-112,-235],[0,-262],[112,-235],[145,-204],[77,-174],[0,-188],[-77,-174]],(()=>{const g=ctx.createLinearGradient(0,-265,0,-170);g.addColorStop(0,'#aeb9c7');g.addColorStop(1,'#303b49');return g})(), 'rgba(235,240,248,.55)',1.3);
-   plate([[-173,-177],[-121,-153],[-102,-88],[-133,-28],[-177,-61]],(()=>{const g=ctx.createLinearGradient(-180,-150,-100,-50);g.addColorStop(0,'#687585');g.addColorStop(1,'#111923');return g})(), 'rgba(210,220,232,.55)');
-   plate([[173,-177],[121,-153],[102,-88],[133,-28],[177,-61]],(()=>{const g=ctx.createLinearGradient(100,-150,180,-50);g.addColorStop(0,'#7b8796');g.addColorStop(1,'#111923');return g})(), 'rgba(210,220,232,.5)');
-   // Deep eye sockets; broad openings leave the eyes unmistakably open.
-   plate([[-142,-88],[-108,-125],[-42,-131],[-17,-104],[-35,-55],[-104,-47],[-143,-62]],'#050a11','rgba(157,174,193,.85)',2);
-   plate([[142,-88],[108,-125],[42,-131],[17,-104],[35,-55],[104,-47],[143,-62]],'#050a11','rgba(157,174,193,.85)',2);
-   // Cheek panels and angular lower face.
-   plate([[-151,-30],[-104,-15],[-80,64],[-111,131],[-151,90],[-169,5]],(()=>{const g=ctx.createLinearGradient(-170,-20,-75,115);g.addColorStop(0,'#8793a2');g.addColorStop(1,'#1a2430');return g})(), 'rgba(215,225,237,.58)');
-   plate([[151,-30],[104,-15],[80,64],[111,131],[151,90],[169,5]],(()=>{const g=ctx.createLinearGradient(75,-20,170,115);g.addColorStop(0,'#4b5868');g.addColorStop(1,'#101720');return g})(), 'rgba(191,205,221,.5)');
-   plate([[-101,20],[-44,40],[0,70],[44,40],[101,20],[80,132],[0,214],[-80,132]],(()=>{const g=ctx.createLinearGradient(0,24,0,218);g.addColorStop(0,'#566273');g.addColorStop(.48,'#1c2632');g.addColorStop(1,'#080d14');return g})(),'rgba(203,214,228,.66)',2);
-   plate([[-80,132],[-40,157],[0,171],[40,157],[80,132],[50,190],[0,222],[-50,190]],(()=>{const g=ctx.createLinearGradient(0,130,0,225);g.addColorStop(0,'#7c8998');g.addColorStop(1,'#111923');return g})(),'rgba(224,231,240,.55)');
-   // Engraved vents, panel seams and fine machined accents.
-   ctx.lineCap='round';ctx.lineJoin='round';
-   const seam=(pts,colour='rgba(220,229,240,.58)',width=1.6)=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle=colour;ctx.lineWidth=width;ctx.stroke()};
-   seam([[-158,-185],[-126,-145],[-115,-88],[-145,-36]],'rgba(255,93,102,.8)',2.2);
-   seam([[-125,-228],[-76,-203],[-28,-197]],'rgba(241,245,250,.72)',2);
-   seam([[125,-228],[76,-203],[28,-197]]);
-   seam([[-103,2],[-76,75],[-91,117]],'rgba(255,111,119,.72)',2);
-   seam([[103,2],[76,75],[91,117]]);
-   seam([[-52,85],[-28,98],[0,102],[28,98],[52,85]],'rgba(208,220,233,.72)',1.5);
-   for(let j=0;j<4;j++){const yy=112+j*12;seam([[-30,yy],[-10,yy+3],[10,yy+3],[30,yy]],'rgba(164,179,197,.7)',2)}
-   // Red emitter strip on the left temple casts light over the adjacent metal.
-   const emitter=ctx.createLinearGradient(-180,-145,-118,-92);emitter.addColorStop(0,'rgba(255,28,42,0)');emitter.addColorStop(.5,'rgba(255,37,50,.95)');emitter.addColorStop(1,'rgba(255,75,82,0)');
-   ctx.shadowColor='#ff1828';ctx.shadowBlur=24;ctx.strokeStyle=emitter;ctx.lineWidth=7;seam([[-165,-151],[-142,-126],[-128,-98]],emitter,7);ctx.shadowBlur=0;
-   ctx.restore();
+  // Subtle particle edge glow keeps the silhouette readable without adding solid armour.
+  if(mix>.58){
+   const a=(mix-.58)*.16;ctx.strokeStyle='rgba(255,75,85,'+a+')';ctx.lineWidth=2;ctx.lineJoin='round';
+   ctx.beginPath();ctx.moveTo(-176,-203);ctx.lineTo(-126,-245);ctx.lineTo(0,-276);ctx.lineTo(126,-245);ctx.lineTo(176,-203);ctx.lineTo(159,-11);ctx.lineTo(112,117);ctx.lineTo(0,221);ctx.lineTo(-112,117);ctx.lineTo(-159,-11);ctx.closePath();ctx.stroke();
   }
   if(eyeOn){
-   const pulse=.78+.22*Math.sin(t*3.8);
-   const eye=(x,side)=>{ctx.save();ctx.translate(x,-88);ctx.rotate(side*.045);
-    // Wide, vertically open eye aperture with a bright inner core.
-    ctx.shadowColor='#ff1428';ctx.shadowBlur=34*pulse;
-    ctx.fillStyle='rgba(255,15,32,'+(.28*pulse)+')';ctx.beginPath();ctx.moveTo(-49,-15);ctx.quadraticCurveTo(-5,-37,48,-13);ctx.lineTo(39,19);ctx.quadraticCurveTo(-4,34,-48,16);ctx.closePath();ctx.fill();
-    ctx.fillStyle='rgba(255,24,40,'+(.94*pulse)+')';ctx.beginPath();ctx.moveTo(-39,-8);ctx.quadraticCurveTo(0,-25,39,-8);ctx.quadraticCurveTo(18,20,-36,12);ctx.closePath();ctx.fill();
-    ctx.fillStyle='rgba(255,225,228,.95)';ctx.beginPath();ctx.ellipse(0,0,24,4.5,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='rgba(255,180,186,.95)';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(-51,-15);ctx.quadraticCurveTo(-4,-39,51,-13);ctx.moveTo(-49,16);ctx.quadraticCurveTo(0,35,49,16);ctx.stroke();
-    ctx.restore()};
-   eye(-83,-1);eye(83,1);
+   const pulse=.72+.28*Math.sin(t*3.8);
+   const eye=(x)=>{ctx.save();ctx.translate(x,-43);ctx.rotate(.1);
+    ctx.shadowColor='#ff1828';ctx.shadowBlur=32*pulse;
+    ctx.fillStyle='rgba(255,23,38,'+(.72*pulse)+')';ctx.beginPath();
+    ctx.moveTo(-62,-8);ctx.lineTo(55,-20);ctx.lineTo(37,10);ctx.lineTo(-45,16);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(255,183,186,.85)';ctx.lineWidth=2;ctx.stroke();ctx.restore()};
+   eye(-83);eye(83);
   }else if(t>2.8){
-   ctx.fillStyle='rgba(0,0,0,.78)';ctx.fillRect(-135,-116,105,56);ctx.fillRect(30,-116,105,56);
+   ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(-135,-62,105,32);ctx.fillRect(30,-62,105,32);
   }
   ctx.restore();
   animationFrame=requestAnimationFrame(draw);
