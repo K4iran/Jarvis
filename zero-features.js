@@ -174,23 +174,78 @@
   async function fetchHappyNews() {
     const query = '("good news" OR "positive news" OR inspiring OR "good things") when:7d';
     const rss = "https://news.google.com/rss/search?q=" + encodeURIComponent(query) + "&hl=en-GB&gl=GB&ceid=GB:en";
-    const url = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(rss);
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("The news feed could not be reached.");
-    const feed = await response.json();
-    if (!Array.isArray(feed.items)) throw new Error("The news feed returned no stories.");
+    const encodedRss = encodeURIComponent(rss);
+    const endpoints = [
+      { url: "https://api.rss2json.com/v1/api.json?rss_url=" + encodedRss, type: "json" },
+      { url: "https://api.allorigins.win/raw?url=" + encodedRss, type: "xml" },
+      { url: "https://corsproxy.io/?url=" + encodedRss, type: "xml" }
+    ];
+    let feedItems = [];
+    let lastError = null;
+
+    for (const endpoint of endpoints) {
+      try {
+        const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+        const timeout = controller ? setTimeout(function () { controller.abort(); }, 10000) : null;
+        let response;
+        try {
+          response = await fetch(endpoint.url, controller ? { signal: controller.signal, cache: "no-store" } : { cache: "no-store" });
+        } finally {
+          if (timeout) clearTimeout(timeout);
+        }
+        if (!response.ok) throw new Error("News provider returned HTTP " + response.status);
+        if (endpoint.type === "json") {
+          const data = await response.json();
+          if (data.status && data.status !== "ok") throw new Error(data.message || "RSS conversion failed");
+          if (!Array.isArray(data.items)) throw new Error("RSS converter returned no items");
+          feedItems = data.items;
+        } else {
+          const xmlText = await response.text();
+          const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+          if (xml.querySelector("parsererror")) throw new Error("News RSS could not be parsed");
+          feedItems = Array.from(xml.querySelectorAll("item")).map(function (item) {
+            return {
+              title: item.querySelector("title")?.textContent || "",
+              description: item.querySelector("description")?.textContent || "",
+              link: item.querySelector("link")?.textContent || "",
+              pubDate: item.querySelector("pubDate")?.textContent || "",
+              author: item.querySelector("source")?.textContent || ""
+            };
+          });
+          if (!feedItems.length) throw new Error("News RSS returned no stories");
+        }
+        if (feedItems.length) break;
+      } catch (error) {
+        lastError = error;
+        feedItems = [];
+      }
+    }
+
+    if (!feedItems.length) {
+      throw new Error("All happy-news sources were unavailable. " + (lastError && lastError.message ? lastError.message : ""));
+    }
+
     const positive = /\b(award|awarded|wins|won|success|breakthrough|discovery|record|reunited|rescued|rescue|saved|saving|protects|protected|restores|restored|reopens|opens|launches|launched|helps|helping|community|volunteer|donat|conserv|clean energy|renewable|cure|recovery|improves|improved|first ever|celebrat|inspiring|good news|hope|hopeful|kindness|progress|funding|plants trees|biodiversity|endangered species)\b/i;
     const negative = /\b(death|dead|killed|kill|war|attack|crisis|disaster|tragedy|injur|violence|shooting|bomb|terror|abuse|crash|flood|earthquake|hurricane|storm|fire|missing person|election|politic|scandal|court case|charged with|arrested|laid off|layoff|bankrupt|disease outbreak)\b/i;
     const seen = new Set();
-    return feed.items.filter(function (item) {
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return feedItems.filter(function (item) {
       const title = cleanFeedText(item.title);
       const summary = cleanFeedText(item.description);
       const key = title.toLowerCase();
+      const published = item.pubDate ? new Date(item.pubDate).getTime() : NaN;
       if (!title || seen.has(key) || !positive.test(title) || negative.test(title + " " + summary)) return false;
+      if (Number.isFinite(published) && published < cutoff) return false;
       seen.add(key);
       return true;
     }).slice(0, 4).map(function (item) {
-      return { title: cleanFeedText(item.title), summary: cleanFeedText(item.description).slice(0, 220), source: cleanFeedText(item.author || item.title.split(" - ").pop()), url: item.link || "", date: item.pubDate || "" };
+      return {
+        title: cleanFeedText(item.title),
+        summary: cleanFeedText(item.description).slice(0, 220),
+        source: cleanFeedText(item.author || item.title.split(" - ").pop()),
+        url: item.link || "",
+        date: item.pubDate || ""
+      };
     });
   }
   async function showHappyNews(respond) {
