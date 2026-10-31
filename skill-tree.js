@@ -1286,7 +1286,7 @@ function rebuildRootBranch(node) {
   if (!node || !node.branch) return;
   let start,end,bend;
   if (flatView) {
-    start=new THREE.Vector3(0,(flatIsNarrow()?5.7:5.4)-0.95,0);
+    start=new THREE.Vector3(0,(flatIsNarrow()?5.0:4.8)-0.95,0);
     end=node.group.position.clone();
     bend=0.18;
   } else {
@@ -1325,7 +1325,7 @@ function applyFlatRootLayout() {
   const xGap=narrow?2.6:5.8;
   const yGap=narrow?3.0:3.4;
   const topY=narrow?1.8:1.2;
-  zeroGroup.position.set(0,narrow?5.7:5.4,0);
+  zeroGroup.position.set(0,narrow?5.0:4.8,0);
   categoryOrbit.rotation.set(0,0,0);
   categoryNodes.forEach(function (node,index) {
     const row=Math.floor(index/columns);
@@ -1347,7 +1347,7 @@ function applyFlatRootLayout() {
 function applyFlatCategoryLayout(category) {
   if (!flatView || !category) return;
   const narrow=flatIsNarrow();
-  zeroGroup.position.set(0,flatIsNarrow()?5.7:5.4,0);
+  zeroGroup.position.set(0,flatIsNarrow()?5.0:4.8,0);
   categoryOrbit.rotation.set(0,0,0);
   category.group.position.set(0,3.3,0);
   category.group.rotation.set(0,0,0);
@@ -1903,7 +1903,7 @@ function pointerHandlers() {
       const distance=Math.hypot(values[0].x-values[1].x,values[0].y-values[1].y);
       const delta=distance-pinchDistance;
       if(Math.abs(delta)>0.5){
-        cameraRadius=Math.max(4.3,Math.min(28,cameraRadius+delta*0.035));
+        cameraRadius=Math.max(4.3,Math.min(28,cameraRadius+(flatView?-delta*0.035:delta*0.035)));
         pinchDistance=distance;
         maybeHandleZoomThreshold();
       }
