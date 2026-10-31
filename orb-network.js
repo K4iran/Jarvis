@@ -80,6 +80,10 @@ export function createOrb(canvas, options = {}) {
   const connectionCounts = new Uint8Array(count);
   let analyser = null;
   let audioData = null;
+  let voiceActivity = 0;
+  let audioEnvelope = 0;
+  let previousAudioEnvelope = 0;
+  let audioImpact = 0;
   let frame = 0;
   let destroyed = false;
   let resizeObserver = null;
@@ -199,6 +203,10 @@ export function createOrb(canvas, options = {}) {
     audioData = node ? new Uint8Array(node.frequencyBinCount) : null;
   }
 
+  function setVoiceActivity(level) {
+    voiceActivity = Math.max(0, Math.min(1, Number(level) || 0));
+  }
+
   function animate() {
     if (destroyed) return;
     const dt = Math.min(clock.getDelta(), 0.05);
@@ -215,13 +223,29 @@ export function createOrb(canvas, options = {}) {
     let bass = 0, mids = 0;
     if (analyser && audioData) {
       analyser.getByteFrequencyData(audioData);
-      for (let i = 0; i < Math.min(8, audioData.length); i++) bass += audioData[i] / 255;
-      for (let i = 8; i < Math.min(24, audioData.length); i++) mids += audioData[i] / 255;
-      bass /= 8; mids /= 16;
+      const bassEnd = Math.min(8, audioData.length);
+      const midsEnd = Math.min(24, audioData.length);
+      for (let i = 0; i < bassEnd; i++) bass += audioData[i] / 255;
+      for (let i = 8; i < midsEnd; i++) mids += audioData[i] / 255;
+      bass /= Math.max(1, bassEnd);
+      mids /= Math.max(1, midsEnd - 8);
     }
     const isVocal = activeState === "listening" || activeState === "speaking";
     const isListening = activeState === "listening";
     isSpeaking = activeState === "speaking";
+
+    // Use real bass/mid energy whenever Web Audio is available. Android's
+    // SpeechRecognition fallback supplies a short voice-activity envelope.
+    const measuredEnergy = analyser && audioData
+      ? Math.min(1, bass * 1.45 + mids * 0.72)
+      : voiceActivity;
+    const targetEnergy = isVocal ? measuredEnergy : 0;
+    const energyEase = targetEnergy > audioEnvelope ? 0.42 : 0.105;
+    audioEnvelope += (targetEnergy - audioEnvelope) * energyEase;
+    audioImpact = Math.max(audioImpact * 0.86, Math.max(0, audioEnvelope - previousAudioEnvelope) * 5.5);
+    previousAudioEnvelope = audioEnvelope;
+    voiceActivity *= 0.965;
+    const soundEnergy = isVocal ? audioEnvelope : 0;
     const speakingAmount = isSpeaking ? speakingExpansion(t) : 0;
     const pulse = isVocal || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
@@ -246,15 +270,22 @@ export function createOrb(canvas, options = {}) {
       const swirl = isVocal ? (1 - expandAmount) * (isSpeaking ? 5.8 : 4.8) : 0;
       const edgeFactor = Math.max(0, (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) - 0.58) / 0.42;
       let edgeX = 0, edgeY = 0, edgeZ = 0;
-      if (isListening) {
-        // Add temporary tangential movement without rewriting the particles'
-        // underlying directions, so the listening state cannot deform later states.
-        const edgeMotion = edgeFactor * (0.9 + 0.55 * Math.sin(t * 5.2 + p * 1.8));
-        edgeX = Math.cos(p + t * 1.8) * edgeMotion;
-        edgeY = Math.sin(p * 1.3 + t * 2.1) * edgeMotion;
-        edgeZ = Math.cos(p * 0.8 - t * 1.6) * edgeMotion;
-        const glow = 1 + edgeFactor * (0.45 + 1.15 * listeningBreath) * (0.88 + 0.12 * Math.sin(t * 2.2 + p * 1.5));
-        pointColors[j] = glow; pointColors[j + 1] = glow; pointColors[j + 2] = glow;
+      const edgeWave = Math.sin(p * 3.2 - t * (3.2 + soundEnergy * 10) + bass * 7);
+      const edgeFlutter = edgeFactor * soundEnergy * edgeWave;
+      const edgeFlash = edgeFactor * (soundEnergy * (1.15 + bass * 1.9) + audioImpact * 1.25);
+
+      if (isVocal) {
+        // Audio travels around the outer particle shell as a rolling ripple.
+        // Stronger low frequencies push the rim outward; sharp transients
+        // create a brief luminous flare that decays smoothly.
+        const edgeMotion = edgeFactor * (0.16 + soundEnergy * 1.65 + audioImpact * 0.85);
+        edgeX = Math.cos(p + t * (1.3 + soundEnergy * 2.8)) * edgeMotion + edgeFlutter * 0.75;
+        edgeY = Math.sin(p * 1.3 + t * (1.5 + soundEnergy * 2.5)) * edgeMotion + edgeFlutter * 0.55;
+        edgeZ = Math.cos(p * 0.8 - t * (1.2 + soundEnergy * 2.2)) * edgeMotion;
+        const glow = 1 + edgeFlash * (0.75 + 0.25 * Math.sin(t * 8 + p * 2));
+        pointColors[j] = 0.72 + glow * 0.22;
+        pointColors[j + 1] = 0.88 + glow * 0.18;
+        pointColors[j + 2] = 1.0 + glow * 0.24;
       } else {
         pointColors[j] = pointColors[j + 1] = pointColors[j + 2] = 1;
       }
@@ -280,7 +311,14 @@ export function createOrb(canvas, options = {}) {
       const speakingExpansionScale = isSpeaking
         ? 1.62 * (0.25 + 0.75 * speakingAmount)
         : 1;
-      const particleDesired = desired * speakingExpansionScale;
+      // Keep the inner cloud composed while the outermost particles breathe,
+      // ripple and flare in response to the actual sound envelope.
+      const edgeDisplacement = edgeFactor * (
+        soundEnergy * (1.0 + bass * 4.2) +
+        audioImpact * 2.8 +
+        edgeFlutter * 1.15
+      );
+      const particleDesired = desired * speakingExpansionScale + edgeDisplacement;
       const correction = (particleDesired - len) * (isSpeaking ? 0.10 : isListening ? 0.045 : isVocal ? 0.022 : 0.012);
       positions[j] += positions[j] / len * correction;
       positions[j + 1] += positions[j + 1] / len * correction;
@@ -399,6 +437,7 @@ export function createOrb(canvas, options = {}) {
   return {
     setState,
     setAnalyser,
+    setVoiceActivity,
     destroy() {
       if (destroyed) return;
       destroyed = true;
