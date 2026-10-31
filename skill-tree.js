@@ -550,6 +550,12 @@ function addIcon(group, type, color, scale) {
     [[-0.25,-0.05],[0,-0.05],[0.25,-0.05],[-0.25,-0.3],[0,-0.3],[0.25,-0.3]].forEach(function (p) {
       bar(p[0], p[1], 0.1, 0.11, 0.1, 0.08, solid);
     });
+  } else if (type === 'grid') {
+    for (let row = 0; row < 3; row++) for (let col = 0; col < 3; col++) {
+      const cell = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.08), (row + col) % 2 ? solid : glow);
+      cell.position.set((col - 1) * 0.31, (1 - row) * 0.31, 0.08);
+      root.add(cell);
+    }
   } else if (type === 'tasks' || type === 'sliders') {
     if (type === 'tasks') {
       [-0.34,0,0.34].forEach(function (y) {
