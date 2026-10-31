@@ -126,7 +126,7 @@ let perspectiveCamera = null;
 let flatCamera = null;
 let flatView = false;
 let savedOrbitRotation = 0;
-const FLAT_VIEW_HEIGHT = 13.4;
+const FLAT_VIEW_HEIGHT = 15.8;
 let worldRoot = null;
 let zeroGroup = null;
 let zeroPickMesh = null;
@@ -1950,7 +1950,7 @@ function pointerHandlers() {
 }
 
 function maybeHandleZoomThreshold() {
-  if(cameraTween)return;
+  if(cameraTween || flatView)return;
   if(viewMode==='skill'&&cameraRadius>8.6)handleZoomOut();
   else if(viewMode==='category'&&cameraRadius>13.8)handleZoomOut();
   else if(viewMode==='root'&&cameraRadius>25.5)handleZoomOut();
