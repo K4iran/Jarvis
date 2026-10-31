@@ -866,8 +866,9 @@ body.zen-mode-active #core{visibility:hidden!important}
 #zenRoot .zen-tree-stage:before{animation-name:zenUnifiedGlow!important;}
 #zenRoot .zen-trunk-volume{animation-name:zenUnifiedStem!important;}
 @keyframes zenUnifiedBreath{
-  0%,100%{transform:scale(.978);filter:brightness(.92) saturate(.98) drop-shadow(0 0 9px rgba(90,232,207,.18));}
-  50%{transform:scale(1.03);filter:brightness(1.24) saturate(1.15) drop-shadow(0 0 25px rgba(90,255,225,.4));}
+  /* Keep the buttons' centring translation while they breathe; replacing it with scale alone throws them off their anchors. */
+  0%,100%{transform:translate(-50%,-50%) scale(.978);filter:brightness(.92) saturate(.98) drop-shadow(0 0 9px rgba(90,232,207,.18));}
+  50%{transform:translate(-50%,-50%) scale(1.03);filter:brightness(1.24) saturate(1.15) drop-shadow(0 0 25px rgba(90,255,225,.4));}
 }
 @keyframes zenUnifiedGlow{0%,100%{opacity:.28;transform:scale(.96)}50%{opacity:.68;transform:scale(1.04)}}
 @keyframes zenUnifiedStem{0%,100%{opacity:.88;transform:scale(1,.985)}50%{opacity:1;transform:scale(1.018,1.025)}}
@@ -906,6 +907,16 @@ body.zen-mode-active #core{visibility:hidden!important}
  #zenRoot .zen-tree-svg,#zenRoot .zen-tree-stage:before,#zenRoot .zen-trunk-volume,#zenRoot .zen-node{animation:none!important;}
 }
 
+
+/* Keep every control fully inside the tree stage on narrow phone screens. */
+@media(max-width:680px){
+ #zenRoot .zen-node[data-branch="music"]{left:14%!important;top:24%!important}
+ #zenRoot .zen-node[data-branch="breathe"]{left:86%!important;top:24%!important}
+ #zenRoot .zen-node[data-branch="journal"]{left:14%!important;top:48%!important}
+ #zenRoot .zen-node[data-branch="ambient"]{left:86%!important;top:48%!important}
+ #zenRoot .zen-node[data-branch="timer"]{left:29%!important;top:78%!important}
+ #zenRoot .zen-node[data-branch="nutrition"]{left:71%!important;top:78%!important}
+}
 </style>  <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
   </script>
