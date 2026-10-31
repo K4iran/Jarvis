@@ -4480,7 +4480,7 @@ function startHelmetAnimation(){
    const alpha=p.alpha*pulse*(front?.28:.105)*(.55+depth*.45);
    const size=p.size*(.78+depth*.28);
    ctx.globalAlpha=alpha;
-   ctx.shadowColor='rgba(255,34,48,'+(front?.62:.28)+')';
+   ctx.shadowColor='rgba(255,34,48,'+(front ? 0.62 : 0.28)+')';
    ctx.shadowBlur=front?5.5:2.2;
    ctx.fillStyle=front?'rgba(255,57,68,1)':'rgba(178,24,36,1)';
    ctx.beginPath();ctx.arc(item.x,item.y,size,0,Math.PI*2);ctx.fill();
