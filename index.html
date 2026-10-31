@@ -978,6 +978,100 @@ body.zen-mode-active #core{visibility:hidden!important}
 </style>  <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
   </script>
+<style>
+
+/* BATTLE MODE — isolated tactical presentation layer */
+#battleMode{position:fixed;inset:0;z-index:70;overflow:hidden;color:#f2f4f8;background:#030407;font-family:Sora,system-ui,sans-serif;isolation:isolate}
+#battleMode[hidden]{display:none!important}
+#battleMode:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 50% 43%,rgba(80,8,13,.38),transparent 47%),radial-gradient(ellipse at 50% 100%,rgba(45,5,9,.28),transparent 55%),linear-gradient(180deg,#060608,#020305 70%,#050406)}
+#battleMode:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.16;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.05) 4px,transparent 5px);mix-blend-mode:screen}
+.bt-top{height:58px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 18px;border-bottom:1px solid rgba(255,55,65,.2);background:rgba(0,0,0,.34);position:relative;z-index:8}
+.bt-brand{font:10px "JetBrains Mono",monospace;letter-spacing:.22em;color:#d2a6a9}
+.bt-brand b{color:#ff525c;font-weight:400}
+.bt-top-actions{display:flex;align-items:center;gap:8px}
+.bt-small-btn{border:1px solid rgba(255,75,83,.38);background:rgba(28,7,10,.62);color:#f0c5c7;padding:8px 11px;font:9px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.bt-small-btn:hover{border-color:#ff4a55;background:rgba(82,8,14,.5)}
+.bt-layout{height:calc(100% - 116px);min-height:0;display:grid;grid-template-columns:minmax(220px,1fr) minmax(340px,1.18fr) minmax(220px,1fr);gap:clamp(10px,2vw,28px);align-items:center;padding:12px clamp(14px,2.2vw,32px);position:relative}
+.bt-panel{position:relative;z-index:4;min-width:0;max-height:100%;overflow:auto;padding:15px 15px 14px;border:1px solid rgba(255,64,72,.23);background:linear-gradient(145deg,rgba(24,8,11,.82),rgba(5,5,8,.72));box-shadow:inset 0 0 25px rgba(255,40,50,.035),0 10px 34px rgba(0,0,0,.35);backdrop-filter:blur(12px)}
+.bt-panel:before,.bt-panel:after{content:"";position:absolute;width:12px;height:12px;border-color:rgba(255,75,83,.8);border-style:solid;pointer-events:none}
+.bt-panel:before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.bt-panel:after{right:-1px;bottom:-1px;border-width:0 1px 1px 0}
+.bt-kicker{font:9px "JetBrains Mono",monospace;letter-spacing:.2em;color:#df555d;text-transform:uppercase}
+.bt-panel h2{margin:7px 0 10px;font-size:clamp(15px,1.45vw,19px);font-weight:400;letter-spacing:.12em;color:#fff0f0}
+.bt-muted{color:#a99497;font-size:11px;line-height:1.6}
+.bt-helmet-wrap{position:relative;min-width:0;width:100%;max-width:650px;aspect-ratio:1/1.06;margin:auto;display:grid;place-items:center}
+#battleHelmetCanvas{display:block;width:100%;height:100%;filter:drop-shadow(0 0 23px rgba(255,34,46,.16))}
+.bt-helmet-caption{position:absolute;left:0;right:0;bottom:4%;text-align:center;font:9px "JetBrains Mono",monospace;letter-spacing:.28em;color:rgba(255,105,111,.74);text-shadow:0 0 12px rgba(255,30,45,.35)}
+.bt-statusline{position:absolute;left:0;right:0;top:2%;text-align:center;font:9px "JetBrains Mono",monospace;letter-spacing:.2em;color:#a66b70}
+.bt-prompt-wrap{height:58px;display:flex;align-items:center;justify-content:center;gap:10px;padding:7px 14px;border-top:1px solid rgba(255,55,65,.2);background:rgba(0,0,0,.4);position:relative;z-index:8}
+#btPrompt{font-size:12px;text-align:center;line-height:1.55;color:#f3dfe0}
+.bt-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px}
+.bt-action{min-height:38px;border:1px solid rgba(255,68,77,.55);background:linear-gradient(135deg,rgba(104,12,20,.65),rgba(35,6,10,.8));color:#fff1f1;padding:8px 13px;font:10px "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.bt-action:hover{background:rgba(128,13,23,.75);box-shadow:0 0 18px rgba(255,40,48,.12)}
+.bt-action.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.04);color:#cdbfc0}
+.bt-choice-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.bt-choice-row .bt-action{flex:1;min-width:110px}
+.bt-objective{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px;line-height:1.55;color:#e8dfe0}
+.bt-objective input{margin:3px 0 0;accent-color:#ff4a55;flex:none}
+.bt-suggest{display:flex;gap:6px;align-items:flex-start;margin:7px 0;padding:7px 8px;background:rgba(255,255,255,.035);border-left:2px solid rgba(255,67,77,.55);font-size:10px;line-height:1.5;color:#d5c4c6}
+.bt-add-row{display:flex;gap:6px;margin-top:10px}
+.bt-input,.bt-textarea,.bt-select{width:100%;min-width:0;border:1px solid rgba(255,92,100,.25);background:rgba(0,0,0,.35);color:#f6e8e9;padding:9px 10px;font:11px Sora,system-ui,sans-serif;outline:none}
+.bt-input:focus,.bt-textarea:focus,.bt-select:focus{border-color:rgba(255,91,99,.75)}
+.bt-textarea{min-height:64px;resize:vertical;line-height:1.5}
+.bt-note{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:10px;line-height:1.55;color:#ddcdcf;overflow-wrap:anywhere}
+.bt-note small{display:block;margin-bottom:4px;color:#bc656c;font:8px "JetBrains Mono",monospace;letter-spacing:.12em}
+.bt-protocol{margin:7px 0;padding-left:16px;color:#e2d2d4;font-size:10px;line-height:1.7}
+.bt-callout{margin-top:10px;padding:10px;border:1px solid rgba(255,66,75,.2);background:rgba(91,9,17,.13);font-size:10px;line-height:1.65;color:#e8d9da}
+.bt-empty{font-size:10px;color:#977e81;line-height:1.6}
+.bt-countdown{position:absolute;inset:0;z-index:12;display:grid;place-items:center;background:rgba(0,0,0,.78);backdrop-filter:blur(9px);text-align:center}
+.bt-countdown[hidden]{display:none!important}
+.bt-count-number{font:clamp(70px,18vw,170px) "JetBrains Mono",monospace;color:#ff414c;text-shadow:0 0 18px rgba(255,35,48,.75),0 0 70px rgba(255,20,32,.35);animation:btCountPulse .7s ease both}
+.bt-count-word{margin-top:8px;font:12px "JetBrains Mono",monospace;letter-spacing:.38em;color:#f2c4c6}
+@keyframes btCountPulse{0%{transform:scale(1.35);opacity:0}35%{opacity:1}100%{transform:scale(1);opacity:1}}
+.bt-settings-overlay,.bt-postgame-overlay{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(12px)}
+.bt-settings-overlay[hidden],.bt-postgame-overlay[hidden]{display:none!important}
+.bt-settings-card,.bt-postgame-card{width:min(100%,560px);max-height:88dvh;overflow:auto;padding:20px;border:1px solid rgba(255,70,80,.35);background:linear-gradient(145deg,#1c090d,#080609 72%);box-shadow:0 24px 80px rgba(0,0,0,.65)}
+.bt-settings-card h2,.bt-postgame-card h2{margin:5px 0 15px;font-weight:400;letter-spacing:.12em;font-size:18px}
+.bt-settings-card label,.bt-postgame-card label{display:grid;gap:6px;margin:12px 0;color:#d0bfc1;font-size:10px}
+.bt-settings-card .bt-select,.bt-postgame-card .bt-select{min-height:39px}
+.bt-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bt-divider{height:1px;background:rgba(255,255,255,.09);margin:16px 0}
+.bt-track-state{font:9px "JetBrains Mono",monospace;color:#bc8185;letter-spacing:.08em;line-height:1.6}
+.bt-postgame-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
+.bt-inline-hint{margin:6px 0;color:#977f82;font-size:9px;line-height:1.55}
+#battleMode .bt-red{color:#ff6971}
+@media(max-width:899px){
+ #battleMode{overflow-y:auto}
+ .bt-top{position:sticky;top:0}
+ .bt-layout{display:block;height:auto;min-height:calc(100dvh - 116px);padding:0 12px 18px}
+ .bt-helmet-wrap{position:absolute;z-index:1;top:7%;left:50%;transform:translateX(-50%);width:min(96vw,520px);height:min(76vh,650px);opacity:.92;pointer-events:none}
+ .bt-panel{z-index:3;width:min(100%,520px);margin:0 auto;background:linear-gradient(145deg,rgba(19,7,10,.77),rgba(4,4,7,.72));}
+ #btLeftPanel{position:relative;margin-top:clamp(225px,46vh,380px)}
+ #btRightPanel{position:relative;margin-top:10px}
+ .bt-helmet-caption{bottom:0}
+ .bt-statusline{top:0}
+ .bt-prompt-wrap{position:sticky;bottom:0;min-height:58px;height:auto;flex-wrap:wrap}
+}
+@media(max-width:430px){
+ .bt-top{padding:0 10px;height:52px}
+ .bt-brand{font-size:8px;letter-spacing:.12em}
+ .bt-small-btn{padding:7px 8px;font-size:8px}
+ .bt-layout{padding:0 8px 16px}
+ #btLeftPanel{margin-top:clamp(205px,43vh,320px)}
+ .bt-panel{padding:12px}
+ .bt-prompt-wrap{padding:8px}
+ #btPrompt{font-size:11px}
+}
+@media(min-width:900px){
+ .bt-helmet-wrap{min-height:0}
+ .bt-prompt-wrap{height:58px}
+}
+@media(prefers-reduced-motion:reduce){
+ #battleMode:after{opacity:.08}
+ .bt-count-number{animation:none}
+}
+
+</style>
 </head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -993,7 +1087,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
 <header id="bar"><div class="br"><svg class="helmet-mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="helmetGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C7FAFF"/><stop offset=".48" stop-color="#58DFFF"/><stop offset="1" stop-color="#2879D8"/></linearGradient></defs><g fill="none" stroke="url(#helmetGlow)" stroke-linecap="round" stroke-linejoin="round"><path d="M24 3.5 10 9 5.5 20l3 15 8.5 8h14l8.5-8 3-15L38 9 24 3.5Z" stroke-width="1.5"/><path d="M10 14 16 8l8-2 8 2 6 6-3 13-6 8-5 3-5-3-6-8-3-13Z" stroke-width="1.15"/><path d="m10 17 7 1 5 4-3 5-7-2M38 17l-7 1-5 4 3 5 7-2M17 34l7-3 7 3M20 10l4 2 4-2" stroke-width="1.4"/><path d="m17 18 5 3m9-3-5 3" stroke-width="2.2"/><path d="M20 25h8" stroke-width=".9" opacity=".7"/></g><path d="m12 18 7 1 3 4-3 3-6-2ZM36 18l-7 1-3 4 3 3 6-2Z" fill="#58DFFF" opacity=".18"/></svg><div class="brand-copy"><b>Z.E.R.O.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
-<nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
+<nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button><button class="tab" id="battleModeLaunch" type="button" aria-label="Activate Battle Mode">BATTLE</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
 <main id="stage">
 <section id="center">
 <div class="core" id="core"><div class="halo" id="halo"></div><canvas id="gl" aria-label="Holographic particle orb" role="img"></canvas><canvas id="orbNetworkCanvas" aria-label="Animated particle network orb" role="img"></canvas>
@@ -1023,6 +1117,104 @@ body.zen-mode-active #core{visibility:hidden!important}
 <nav id="rail" aria-label="System panels"></nav>
 <section id="disp" class="fr" aria-label="Visualisation channel"><div class="hd"><span class="lbl" id="dt">Visualisation channel</span><button class="ib" id="dx" aria-label="Close view" hidden><svg class="ic"><use href="#i-x"/></svg></button></div><div id="dv"></div></section>
 </main></div>
+
+
+<button class="tab" id="battleModeLaunch" type="button" aria-label="Activate Battle Mode">BATTLE</button>
+<div id="battleMode" hidden aria-hidden="true">
+  <header class="bt-top">
+    <div class="bt-brand">Z.E.R.O. <b>/ BATTLE MODE</b> <span style="opacity:.55">· TACTICAL PREPARATION</span></div>
+    <div class="bt-top-actions">
+      <button class="bt-small-btn" type="button" id="btSettingsOpen">SETTINGS</button>
+      <button class="bt-small-btn" type="button" id="btExit">EXIT</button>
+    </div>
+  </header>
+  <main class="bt-layout">
+    <aside class="bt-panel" id="btLeftPanel">
+      <span class="bt-kicker" id="btLeftKicker">MISSION OBJECTIVES</span>
+      <h2 id="btLeftTitle">AWAITING BRIEFING</h2>
+      <div id="btObjectives" class="bt-empty">Your session objectives will appear here.</div>
+      <div id="btCustomObjective" hidden>
+        <div class="bt-add-row"><input class="bt-input" id="btObjectiveInput" maxlength="120" placeholder="Add a custom objective"><button class="bt-action" id="btAddObjective" type="button">ADD</button></div>
+      </div>
+      <div id="btScheduleOverride" hidden></div>
+    </aside>
+    <div class="bt-helmet-wrap">
+      <div class="bt-statusline" id="btHelmetStatus">PARTICLE RECONSTRUCTION INITIALISING</div>
+      <canvas id="battleHelmetCanvas" aria-label="Particle-reconstructed robotic helmet"></canvas>
+      <div class="bt-helmet-caption">J.A.R.V.I.S. // TACTICAL INTERFACE</div>
+    </div>
+    <aside class="bt-panel" id="btRightPanel">
+      <span class="bt-kicker" id="btRightKicker">MENTAL PROTOCOL</span>
+      <h2 id="btRightTitle">STAY COMPOSED</h2>
+      <div id="btMental" class="bt-empty">Confidence. Composure. Next play.</div>
+      <div class="bt-divider"></div>
+      <span class="bt-kicker">BASKETBALL NOTEBOOK</span>
+      <div id="btNotes"></div>
+      <textarea class="bt-textarea" id="btNoteInput" maxlength="1200" placeholder="Write a lesson, reminder or game note..."></textarea>
+      <div class="bt-add-row"><button class="bt-action" id="btSaveNote" type="button">SAVE NOTE</button></div>
+    </aside>
+  </main>
+  <footer class="bt-prompt-wrap">
+    <div id="btPrompt" role="status" aria-live="polite">Establishing tactical link, sir.</div>
+    <div class="bt-actions" id="btFooterActions"></div>
+  </footer>
+  <div class="bt-countdown" id="btCountdown" hidden>
+    <div><div class="bt-count-number" id="btCountNumber">3</div><div class="bt-count-word" id="btCountWord">PREPARE</div></div>
+  </div>
+</div>
+<div class="bt-settings-overlay" id="btSettingsOverlay" hidden>
+  <section class="bt-settings-card" role="dialog" aria-modal="true" aria-labelledby="btSettingsTitle">
+    <div class="bt-kicker">Z.E.R.O. / CONFIGURATION</div><h2 id="btSettingsTitle">BATTLE MODE SETTINGS</h2>
+    <label>Final launch music
+      <select class="bt-select" id="btSongSource"><option value="file">Built-in track (audio file)</option><option value="spotify">Spotify link</option></select>
+    </label>
+    <div id="btFileMusicSettings">
+      <label>Choose your Battle Mode song
+        <input class="bt-input" id="btAudioFile" type="file" accept="audio/*">
+      </label>
+      <div class="bt-track-state" id="btTrackName">No built-in track selected.</div>
+    </div>
+    <div id="btSpotifyMusicSettings" hidden>
+      <label>Spotify song link
+        <input class="bt-input" id="btSpotifyUrl" type="url" placeholder="https://open.spotify.com/track/...">
+      </label>
+      <p class="bt-inline-hint">At launch, JARVIS will open this Spotify link. Full in-app Spotify playback needs Spotify app credentials and user authorisation.</p>
+    </div>
+    <div class="bt-divider"></div>
+    <div class="bt-kicker">INTERNAL SCHEDULE</div>
+    <p class="bt-inline-hint">Add events directly to JARVIS. Google Calendar events are also checked when your Google account is connected.</p>
+    <div class="bt-settings-grid">
+      <label>Event title<input class="bt-input" id="btEventTitle" maxlength="100" placeholder="Basketball training"></label>
+      <label>Type<select class="bt-select" id="btEventType"><option value="auto">Auto-detect</option><option value="training">Training</option><option value="game">Game</option><option value="other">Other</option></select></label>
+      <label>Starts<input class="bt-input" id="btEventStart" type="datetime-local"></label>
+      <label>Ends<input class="bt-input" id="btEventEnd" type="datetime-local"></label>
+    </div>
+    <div class="bt-actions"><button class="bt-action" id="btSaveEvent" type="button">ADD TO JARVIS SCHEDULE</button></div>
+    <div class="bt-divider"></div>
+    <div id="btInternalEvents"></div>
+    <p class="bt-inline-hint">Battle notes, objectives and schedule entries are stored locally in this browser. Hoop Central statistics sync is not connected yet.</p>
+    <div class="bt-actions"><button class="bt-action secondary" id="btSettingsClose" type="button">CLOSE SETTINGS</button></div>
+  </section>
+</div>
+<div class="bt-postgame-overlay" id="battlePostgame" hidden>
+  <section class="bt-postgame-card" role="dialog" aria-modal="true" aria-labelledby="btPostTitle">
+    <div class="bt-kicker">POST-GAME DEBRIEF</div><h2 id="btPostTitle">WELCOME BACK, SIR.</h2>
+    <p class="bt-muted" id="btPostPrompt">I noticed you had a game earlier. How did it go?</p>
+    <label>How did your game go?
+      <textarea class="bt-textarea" id="btPostSummary" maxlength="1000" placeholder="A quick reflection — what happened and how did you feel?"></textarea>
+    </label>
+    <label>Result
+      <select class="bt-select" id="btPostResult"><option value="not-set">Prefer not to say</option><option value="win">Win</option><option value="loss">Loss</option><option value="other">Other</option></select>
+    </label>
+    <div class="bt-settings-grid">
+      <label>Points (optional)<input class="bt-input" id="btPostPoints" type="number" min="0" max="200" inputmode="numeric"></label>
+      <label>Assists (optional)<input class="bt-input" id="btPostAssists" type="number" min="0" max="100" inputmode="numeric"></label>
+      <label>Steals (optional)<input class="bt-input" id="btPostSteals" type="number" min="0" max="100" inputmode="numeric"></label>
+    </div>
+    <p class="bt-inline-hint">You can share stats whenever you feel like it. They will be saved in Battle Mode for now; Hoop Central logging can be connected later.</p>
+    <div class="bt-postgame-actions"><button class="bt-action secondary" id="btPostLater" type="button">NOT NOW</button><button class="bt-action" id="btPostSave" type="button">SAVE REFLECTION</button></div>
+  </section>
+</div>
 
 <div id="hangmanGame" class="hangman-shell" hidden aria-label="Hangman game">
   <svg id="hangmanWaveFrame" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
@@ -1838,7 +2030,7 @@ function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-ta
 function setView(v){view=v;if(v==='idle'){renderDisp();setTab('home')}else setTab('data')}
 $$('#bar [data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 $('#dx').onclick=()=>setView('idle');
-const settings=()=>[['rm','Reduce motion'],['cosmos','Binary rain background']].map(([k,n])=>`<div class="r" style="align-items:center"><span style="color:var(--t)">${n}</span><button class="sw" role="switch" data-t="${k}" aria-label="${n}" aria-checked="${S[k]}"></button></div>`).join('')+`<a href="legal.html" class="legal-settings-link"><span><b>LEGAL &amp; PRIVACY</b><small>Policies, data, AI providers and safety</small></span><span aria-hidden="true">↗</span></a>`;
+const settings=()=>[['rm','Reduce motion'],['cosmos','Binary rain background']].map(([k,n])=>`<div class="r" style="align-items:center"><span style="color:var(--t)">${n}</span><button class="sw" role="switch" data-t="${k}" aria-label="${n}" aria-checked="${S[k]}"></button></div>`).join('')+`<a href="legal.html" class="legal-settings-link"><span><b>LEGAL &amp; PRIVACY</b><small>Policies, data, AI providers and safety</small></span><span aria-hidden="true">↗</span></a><button type="button" class="btn" id="battleSettingsOpen">BATTLE MODE SETTINGS</button>`;
 function renderOv(){const p=P[openId];$('#ot').textContent=openId==='set'?'SETTINGS':p.l;$('#ob').innerHTML=openId==='set'?settings():`<p class="mut" style="margin:6px 0">${p.d}</p>${p.v()}<button class="btn" data-show="${openId}">SHOW IN VISUALISATION CHANNEL</button>`}
 function openOv(id){last=document.activeElement;openId=id;clearTimeout(ct);renderOv();const o=$('#ov');o.hidden=false;requestAnimationFrame(()=>{o.classList.add('on');$('#oc').focus()})}
 function closeOv(){if(!openId)return;openId=null;const o=$('#ov');o.classList.remove('on');ct=setTimeout(()=>o.hidden=true,260);last&&last.focus&&last.focus()}
@@ -2605,6 +2797,8 @@ async function run(t) {
       setState('standby');
     }
   };
+
+  if (window.JarvisBattleMode && await window.JarvisBattleMode.handleCommand(t, respond)) return;
 
   // Zen commands are handled locally; unmatched requests continue through Z.E.R.O.'s existing paths.
   let zenHandled = false;
@@ -3777,4 +3971,383 @@ import { createOrb } from './orb-network.js';
 })();
 </script>
 <script type="module" src="./skill-tree.js?v=locked-chain-orbs-1"></script>
+<script>
+
+(function(){
+'use strict';
+const KEY='jarvis.battle.v1';
+const $=s=>document.querySelector(s);
+const $=s=>Array.from(document.querySelectorAll(s));
+const root=$('#battleMode');
+if(!root||root.dataset.ready==='true')return;
+root.dataset.ready='true';
+const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{songSource:'file',spotifyUrl:'',trackName:''}});
+let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null;
+try{
+ const saved=JSON.parse(localStorage.getItem(KEY)||'null');
+ if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,saved.settings||{});data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
+}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){return false}}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function id(){return 'bt-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)}
+function dateKey(d){const x=d||new Date();return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')}
+function todayRange(){const a=new Date();a.setHours(0,0,0,0);const b=new Date(a);b.setDate(b.getDate()+1);return {start:a,end:b}}
+function timeLabel(value,allDay){if(!value)return 'Time not set';if(allDay)return 'All day';const d=new Date(value);return Number.isNaN(d.getTime())?'Time not set':d.toLocaleTimeString('en-GB',{hour:'numeric',minute:'2-digit'})}
+function eventEnd(e){return new Date(e.end||e.start||0)}
+function eventStart(e){return new Date(e.start||0)}
+function classify(e){const override=e.id&&data.eventTypes[e.id];if(override&&['training','game','other'].includes(override))return override;if(e.type&&['training','game','other'].includes(e.type))return e.type;const t=String(e.title||'').toLowerCase();if(/\b(game|match|fixture|tournament|league|cup)\b/.test(t))return 'game';if(/\b(training|practice|basketball|shootaround|shooting session|team session)\b/.test(t))return 'training';return 'other'}
+async function todayEvents(){
+ const range=todayRange();let events=data.schedule.filter(e=>dateKey(eventStart(e))===dateKey(new Date()));
+ const api=window.JarvisGoogleCalendar;
+ if(api&&api.isConnected()){
+  try{const remote=await api.listEvents({timeMin:range.start.toISOString(),timeMax:range.end.toISOString(),maxResults:100});events=events.concat(remote||[])}
+  catch(error){console.warn('Battle Mode could not read Google Calendar:',error)}
+ }
+ return events.filter(e=>e&&e.status!=='cancelled');
+}
+function scheduleSummary(events){
+ const now=Date.now();
+ const classified=events.map(e=>Object.assign({},e,{battleType:classify(e)}));
+ const upcoming=classified.filter(e=>e.battleType!=='other'&&eventEnd(e).getTime()>now).sort((a,b)=>eventStart(a)-eventStart(b));
+ const pastGames=classified.filter(e=>e.battleType==='game'&&eventEnd(e).getTime()<=now&&now-eventEnd(e).getTime()<12*60*60*1000).sort((a,b)=>eventEnd(b)-eventEnd(a));
+ return {classified,upcoming,pastGames};
+}
+function setPrompt(text){$('#btPrompt').textContent=text}
+function setActions(html){$('#btFooterActions').innerHTML=html}
+function show(){root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');startHelmetAnimation()}
+function hide(){root.hidden=true;root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0}
+function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
+async function startBattle(){
+ if(!root.hidden)return;
+ show();
+ const events=await todayEvents();
+ if(root.hidden)return;
+ const summary=scheduleSummary(events);
+ later(()=>{
+  $('#btHelmetStatus').textContent='RECONSTRUCTION COMPLETE / SYSTEM ONLINE';
+  if(summary.upcoming.length){
+   const event=summary.upcoming[0],type=event.battleType;
+   activeEvent=event;
+   const label=type==='game'?'GAME':'TRAINING';
+   setPrompt('I have detected '+(event.title||label)+' at '+timeLabel(event.start,event.allDay)+'. Preparing your '+label.toLowerCase()+' briefing, sir.');
+   showScheduleOverride(event,type);
+   beginBriefing(type,event);
+  }else if(summary.pastGames.length){
+   setPrompt('You have already had a game today, sir. Would you like to review it before preparing for your next session?');
+   setActions('<button class="bt-action" data-bt-action="postgame">POST-GAME CHECK-IN</button><button class="bt-action secondary" data-bt-action="choose-type">PREPARE NEXT SESSION</button>');
+  }else{
+   const any=summary.classified.length>0;
+   setPrompt(any?'I can see other events on your schedule, but no basketball session. What are we preparing for, sir?':"You don't have anything scheduled for today sir, what are we preparing for?");
+   setActions('<button class="bt-action" data-bt-action="choose-training">TRAINING</button><button class="bt-action" data-bt-action="choose-game">GAME</button>');
+  }
+ },3850);
+}
+function showScheduleOverride(event,type){
+ const host=$('#btScheduleOverride');host.hidden=false;
+ host.innerHTML='<label class="bt-muted">Event category <select class="bt-select" id="btEventOverride"><option value="training" '+(type==='training'?'selected':'')+'>Training</option><option value="game" '+(type==='game'?'selected':'')+'>Game</option><option value="other">Other</option></select></label>';
+ const sel=$('#btEventOverride');sel.onchange=()=>{if(event.id)data.eventTypes[event.id]=sel.value;save();if(sel.value==='other'){activeEvent=null;setPrompt('Understood. I will not assume this is basketball. What are we preparing for?');setActions('<button class="bt-action" data-bt-action="choose-training">TRAINING</button><button class="bt-action" data-bt-action="choose-game">GAME</button>')}else beginBriefing(sel.value,event)};
+}
+function showTypeChoices(){activeEvent=null;setPrompt("What are we preparing for today, sir?");setActions('<button class="bt-action" data-bt-action="choose-training">TRAINING</button><button class="bt-action" data-bt-action="choose-game">GAME</button>')}
+function memoryProfile(){
+ try{return JSON.parse(localStorage.getItem('jarvis_personal_memories_v1')||'{}')}catch(e){return {}}
+}
+function journalEntries(){
+ try{const z=JSON.parse(localStorage.getItem('jarvis.zen.v1')||'null');return z&&Array.isArray(z.journal)?z.journal.slice().sort((a,b)=>String(b.updated||'').localeCompare(String(a.updated||''))):[]}catch(e){return []}
+}
+function relevantJournal(){
+ const entries=journalEntries();
+ const related=entries.filter(e=>/\b(basketball|game|training|practice|shoot|shot|pass|turnover|defen[cs]e|confidence|pressure|court|coach|match)\b/i.test(String(e.text||'')));
+ return (related.length?related:[]).slice(0,3);
+}
+function makeSuggestions(type){
+ const memory=memoryProfile();
+ const position=String(memory['Basketball position']||memory.position||'point guard').toLowerCase();
+ const last=data.games[data.games.length-1];
+ let suggestions=type==='game'
+  ? ['Start with composed decisions; make the simple read before forcing a pass.','Take balanced, confident shots when the opportunity is there.','Communicate early and get back into the defensive possession.']
+  : ['Change pace with control; keep your handle purposeful.','Get your feet set and repeat your shooting mechanics on every rep.','Finish each drill with focus rather than rushing the next attempt.'];
+ if(position.includes('point')||position.includes('guard'))suggestions.unshift(type==='game'?'Set the tempo early and create good looks for teammates.':'Work on pace changes and reading the space in front of you.');
+ if(last&&last.improve){const clue=String(last.improve).trim().slice(0,110);if(clue)suggestions.unshift('Carry this lesson forward: '+clue)}
+ return Array.from(new Set(suggestions)).slice(0,4);
+}
+function motivationText(){
+ const memory=memoryProfile(),goal=memory['Long-term goal']||memory['Basketball goal']||memory['Main goal']||'the player you are working to become';
+ const last=data.games[data.games.length-1];
+ let base='You are building towards '+goal+'. Trust the work you have put in, then focus on the next decision.';
+ if(last&&last.result==='loss')base='Remember that last loss and how disappointing it felt. Use that feeling as a reminder of why you work — not as a label for who you are. You cannot change that result, but you can choose the effort and decisions you bring today.';
+ else if(last&&last.improve)base='Last time, you identified this as an area to improve: '+String(last.improve).slice(0,150)+'. You have a clear target now. Work on the next rep, not the last mistake.';
+ return base;
+}
+function renderNotebook(){
+ const notes=data.notes.slice().sort((a,b)=>(b.time||0)-(a.time||0)).slice(0,3);
+ const journal=relevantJournal();
+ let html='';
+ if(notes.length)html+=notes.map(n=>'<div class="bt-note"><small>NOTEBOOK / '+esc(new Date(n.time||Date.now()).toLocaleDateString('en-GB'))+'</small>'+esc(n.text)+'</div>').join('');
+ else html+='<p class="bt-empty">Your dedicated basketball notebook is ready. Add a lesson or reminder below.</p>';
+ if(journal.length){html+='<div class="bt-divider"></div><span class="bt-kicker">RELEVANT JOURNAL ENTRIES</span>'+journal.map(n=>'<div class="bt-note"><small>JARVIS JOURNAL / '+esc(n.date||'Saved entry')+'</small>'+esc(String(n.text||'').slice(0,210))+'</div>').join('')}
+ else html+='<p class="bt-empty">No basketball-related Journal entries found yet.</p>';
+ $('#btNotes').innerHTML=html;
+}
+function beginBriefing(type,event){
+ sessionType=type;activeEvent=event||activeEvent;
+ const label=type==='game'?'GAME DAY':'TRAINING';
+ $('#btLeftKicker').textContent='MISSION OBJECTIVES / '+label;
+ $('#btLeftTitle').textContent=label+' BRIEFING';
+ $('#btRightKicker').textContent='MENTAL PREPARATION';
+ $('#btRightTitle').textContent='STAY COMPOSED';
+ $('#btCustomObjective').hidden=false;
+ const suggestions=makeSuggestions(type);
+ const suggestedHtml=suggestions.map((s,i)=>'<div class="bt-suggest"><span>✦</span><span>'+esc(s)+'</span><button class="bt-action secondary" style="min-height:26px;padding:3px 7px;font-size:8px" data-bt-action="accept-suggestion" data-index="'+i+'">ADD</button></div>').join('');
+ const custom=data.objectives.map((o,i)=>'<label class="bt-objective"><input type="checkbox" data-custom-objective="'+i+'" '+(o.done?'checked':'')+'><span>'+esc(o.text)+'</span></label>').join('');
+ $('#btObjectives').innerHTML='<span class="bt-kicker">JARVIS SUGGESTIONS</span>'+suggestedHtml+'<div class="bt-divider"></div><span class="bt-kicker">YOUR OBJECTIVES</span>'+(custom||'<p class="bt-empty">No custom objectives yet. Add your own below.</p>');
+ $('#btMental').innerHTML='<div class="bt-callout"><span class="bt-kicker">CONFIDENCE</span><br>You do not need a perfect performance. Trust your preparation and commit to the next good decision.</div><div class="bt-callout"><span class="bt-kicker">PRESSURE RESET</span><ol class="bt-protocol"><li>Relax your shoulders and take a steady, natural breath.</li><li>Release the last play. It is finished.</li><li>Choose one cue: “next play”.</li><li>Put your attention on the next decision you can control.</li></ol></div><div class="bt-callout"><span class="bt-kicker">VISUALISATION</span><br>Picture yourself receiving the ball, reading the floor, staying composed and making the right play. See the whole sequence clearly — then see yourself responding calmly if it does not go perfectly.</div><div class="bt-callout"><span class="bt-kicker">WHY YOU WORK</span><br>'+esc(motivationText())+'</div>';
+ renderNotebook();
+ $('#btScheduleOverride').hidden=!activeEvent;
+ const protocol=type==='game'?'GAME-DAY PROTOCOL':'TRAINING PROTOCOL';
+ setPrompt('Briefing prepared, sir. Review your objectives, mental cues and notes. We launch when you are ready.');
+ setActions('<button class="bt-action secondary" data-bt-action="add-custom">ADD OBJECTIVE</button><button class="bt-action" data-bt-action="launch">BEGIN FINAL SEQUENCE</button>');
+}
+function addObjective(text){const clean=String(text||'').trim().slice(0,120);if(!clean)return;data.objectives.push({id:id(),text:clean,done:false});save();if(sessionType)beginBriefing(sessionType,activeEvent)}
+function saveNote(){const field=$('#btNoteInput'),text=field.value.trim();if(!text)return;data.notes.push({id:id(),text:text.slice(0,1200),time:Date.now()});data.notes=data.notes.slice(-80);save();field.value='';renderNotebook();setPrompt('Saved to your basketball notebook, sir.')}
+function toggleObjective(index,checked){const item=data.objectives[index];if(!item)return;item.done=!!checked;save()}
+function finishCountdown(){
+ const overlay=$('#btCountdown'),num=$('#btCountNumber'),word=$('#btCountWord');
+ overlay.hidden=false;let n=3;
+ const messages=['PREPARE','LOCK IN','FOCUS'];
+ const tick=()=>{
+  num.textContent=String(n);word.textContent=messages[3-n]||'FOCUS';
+  if(n>1){n--;later(tick,850);return}
+  later(()=>{
+   num.textContent='FOCUS';word.textContent='MAKE THE WORK COUNT';
+   const line=motivationText()+' The work is done one possession and one rep at a time. Let us make this session count, sir.';
+   speak(line);
+   playFinalTrack();
+   $('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';
+   setPrompt('Battle Mode engaged. Your selected track is launching.');
+   setActions('<button class="bt-action" data-bt-action="play-track">PLAY / OPEN MY TRACK</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>');
+  },450);
+ };
+ tick();
+}
+function speak(text){
+ const message=document.getElementById('msg');if(message)message.textContent=text;
+ if(typeof window.speakReply==='function'){try{window.speakReply(text,true);return}catch(e){}}
+ if('speechSynthesis'in window){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';speechSynthesis.speak(u)}catch(e){}}
+}
+function openDb(){
+ return new Promise((resolve,reject)=>{
+  if(!('indexedDB'in window)){reject(new Error('This browser does not support local audio storage.'));return}
+  const req=indexedDB.open('jarvis-battle-audio',1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('tracks'))req.result.createObjectStore('tracks')};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('Could not open local audio storage.'));
+ });
+}
+async function storeTrack(file){
+ const db=await openDb();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction('tracks','readwrite');tx.objectStore('tracks').put(file,'battle-track');
+  tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error||new Error('Could not save this audio file.'))};
+ });
+}
+async function loadTrack(){
+ const db=await openDb();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction('tracks','readonly'),req=tx.objectStore('tracks').get('battle-track');
+  req.onsuccess=()=>{const value=req.result||null;db.close();resolve(value)};
+  req.onerror=()=>{db.close();reject(req.error||new Error('Could not load the saved track.'))};
+ });
+}
+async function playFinalTrack(){
+ if(data.settings.songSource==='spotify'){
+  const url=data.settings.spotifyUrl;
+  if(url){const opened=window.open(url,'_blank','noopener');if(opened)return}
+  setPrompt('Spotify could not be opened automatically. Tap PLAY / OPEN MY TRACK to launch it.');
+  return;
+ }
+ try{
+  const blob=await loadTrack();
+  if(!blob){setPrompt('No built-in song is selected yet. Add one in Battle Mode Settings.');return}
+  if(currentAudio){currentAudio.pause();if(currentAudioUrl)URL.revokeObjectURL(currentAudioUrl)}
+  currentAudioUrl=URL.createObjectURL(blob);currentAudio=new Audio(currentAudioUrl);
+  currentAudio.volume=.9;
+  const p=currentAudio.play();if(p&&p.catch)p.catch(()=>setPrompt('Your browser blocked automatic playback. Tap PLAY / OPEN MY TRACK.'));
+ }catch(error){setPrompt('Your saved track could not be loaded. Check Battle Mode Settings.')}
+}
+async function manualPlayTrack(){if(data.settings.songSource==='spotify'){if(data.settings.spotifyUrl)window.open(data.settings.spotifyUrl,'_blank');return}await playFinalTrack()}
+function openSettings(){
+ const overlay=$('#btSettingsOverlay');overlay.hidden=false;
+ $('#btSongSource').value=data.settings.songSource||'file';
+ $('#btSpotifyUrl').value=data.settings.spotifyUrl||'';
+ $('#btTrackName').textContent=data.settings.trackName?'Selected: '+data.settings.trackName:'No built-in track selected.';
+ $('#btSpotifyMusicSettings').hidden=data.settings.songSource!=='spotify';
+ $('#btFileMusicSettings').hidden=data.settings.songSource==='spotify';
+ renderInternalEvents();
+}
+function closeSettings(){$('#btSettingsOverlay').hidden=true}
+function renderInternalEvents(){
+ const host=$('#btInternalEvents');
+ if(!data.schedule.length){host.innerHTML='<p class="bt-empty">No internal events added yet.</p>';return}
+ host.innerHTML=data.schedule.slice().sort((a,b)=>eventStart(a)-eventStart(b)).map(e=>'<div class="bt-note"><small>'+esc(e.type||'auto')+' / '+esc(new Date(e.start).toLocaleString('en-GB'))+'</small>'+esc(e.title)+' <button class="bt-action secondary" style="min-height:25px;padding:3px 7px;font-size:8px" data-bt-action="delete-event" data-id="'+esc(e.id)+'">REMOVE</button></div>').join('');
+}
+function saveInternalEvent(){
+ const title=$('#btEventTitle').value.trim(),start=$('#btEventStart').value,end=$('#btEventEnd').value,type=$('#btEventType').value;
+ if(!title||!start||!end||new Date(end)<=new Date(start)){alert('Add a title and valid start/end times.');return}
+ data.schedule.push({id:id(),title,start:new Date(start).toISOString(),end:new Date(end).toISOString(),type:type==='auto'?'':type,allDay:false});
+ save();$('#btEventTitle').value='';renderInternalEvents();
+}
+function openPostgame(event){
+ selectedPostEvent=event||null;
+ $('#btPostPrompt').textContent=event?'I noticed you had "'+(event.title||'a game')+'" earlier. How did it go?':'How did your game go, sir?';
+ $('#btPostSummary').value='';$('#btPostResult').value='not-set';$('#btPostPoints').value='';$('#btPostAssists').value='';$('#btPostSteals').value='';
+ $('#battlePostgame').hidden=false;
+}
+function savePostgame(){
+ const summary=$('#btPostSummary').value.trim(),result=$('#btPostResult').value;
+ const stats={};[['points','btPostPoints'],['assists','btPostAssists'],['steals','btPostSteals']].forEach(([k,id])=>{const value=$('#'+id).value;if(value!==''&&Number.isFinite(Number(value)))stats[k]=Number(value)});
+ data.games.push({id:id(),eventId:selectedPostEvent&&selectedPostEvent.id||'',title:selectedPostEvent&&selectedPostEvent.title||'Basketball session',time:Date.now(),summary,result,improve:summary,stats});
+ data.games=data.games.slice(-80);
+ if(selectedPostEvent&&selectedPostEvent.id)data.askedPostgame[selectedPostEvent.id]=dateKey();
+ save();$('#battlePostgame').hidden=true;setPrompt('Reflection saved, sir. I will use it to shape future briefings.');selectedPostEvent=null;
+}
+function markPostgameLater(){if(selectedPostEvent&&selectedPostEvent.id)data.askedPostgame[selectedPostEvent.id]=dateKey();save();$('#battlePostgame').hidden=true;selectedPostEvent=null}
+async function checkPostgame(eventsFromCalendar){
+ let events=Array.isArray(eventsFromCalendar)?eventsFromCalendar:[];
+ const range=todayRange();
+ events=events.concat(data.schedule);
+ if(!eventsFromCalendar){const api=window.JarvisGoogleCalendar;if(api&&api.isConnected()){try{events=events.concat(await api.listEvents({timeMin:range.start.toISOString(),timeMax:new Date().toISOString(),maxResults:100}))}catch(e){}}}
+ const now=Date.now();
+ const candidate=events.map(e=>Object.assign({},e,{battleType:classify(e)}))
+  .filter(e=>e.battleType==='game'&&e.end&&eventEnd(e).getTime()<=now&&now-eventEnd(e).getTime()<12*60*60*1000&&(!e.id||data.askedPostgame[e.id]!==dateKey()))
+  .sort((a,b)=>eventEnd(b)-eventEnd(a))[0];
+ if(candidate&&!$('#battlePostgame').hidden)return;
+ if(candidate){selectedPostEvent=candidate;openPostgame(candidate);if(candidate.id){data.askedPostgame[candidate.id]=dateKey();save()}}
+}
+function handleAction(action,el){
+ if(action==='close'){hide();return}
+ if(action==='choose-type'){showTypeChoices();return}
+ if(action==='choose-training'){beginBriefing('training',null);return}
+ if(action==='choose-game'){beginBriefing('game',null);return}
+ if(action==='launch'){finishCountdown();return}
+ if(action==='postgame'){openPostgame(activeEvent);return}
+ if(action==='accept-suggestion'){const suggestions=makeSuggestions(sessionType);const text=suggestions[Number(el.dataset.index)];if(text)addObjective(text);return}
+ if(action==='add-custom'){$('#btObjectiveInput').focus();return}
+ if(action==='delete-event'){data.schedule=data.schedule.filter(e=>e.id!==el.dataset.id);save();renderInternalEvents();return}
+ if(action==='play-track'){manualPlayTrack();return}
+}
+root.addEventListener('click',e=>{
+ const action=e.target.closest('[data-bt-action]');if(action){handleAction(action.dataset.btAction,action);return}
+ if(e.target.id==='btAddObjective'){addObjective($('#btObjectiveInput').value);$('#btObjectiveInput').value=''}
+});
+root.addEventListener('change',e=>{
+ const box=e.target.closest('[data-custom-objective]');if(box)toggleObjective(Number(box.dataset.customObjective),box.checked);
+});
+$('#btSaveNote').addEventListener('click',saveNote);
+$('#btExit').addEventListener('click',hide);
+$('#btSettingsOpen').addEventListener('click',openSettings);
+$('#btSettingsClose').addEventListener('click',closeSettings);
+$('#btSettingsOverlay').addEventListener('click',e=>{if(e.target.id==='btSettingsOverlay')closeSettings()});
+$('#btSongSource').addEventListener('change',e=>{
+ data.settings.songSource=e.target.value;save();
+ $('#btSpotifyMusicSettings').hidden=e.target.value!=='spotify';
+ $('#btFileMusicSettings').hidden=e.target.value==='spotify';
+});
+$('#btSpotifyUrl').addEventListener('change',e=>{const url=e.target.value.trim();if(url&&!/^https:\/\/open\.spotify\.com\/(track|album|playlist)\/[A-Za-z0-9]+/i.test(url)){alert('Use a Spotify track, album or playlist link.');return}data.settings.spotifyUrl=url;save()});
+$('#btAudioFile').addEventListener('change',async e=>{
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ if(!file.type.startsWith('audio/')){alert('Choose an audio file.');return}
+ try{await storeTrack(file);data.settings.trackName=file.name;data.settings.songSource='file';$('#btSongSource').value='file';$('#btTrackName').textContent='Selected: '+file.name;$('#btSpotifyMusicSettings').hidden=true;$('#btFileMusicSettings').hidden=false;save()}
+ catch(error){alert(error.message||'Could not save this audio file.')}
+});
+$('#btSaveEvent').addEventListener('click',saveInternalEvent);
+$('#btPostSave').addEventListener('click',savePostgame);
+$('#btPostLater').addEventListener('click',markPostgameLater);
+$('#battlePostgame').addEventListener('click',e=>{if(e.target.id==='battlePostgame')markPostgameLater()});
+$('#battleModeLaunch').addEventListener('click',startBattle);
+document.addEventListener('click',e=>{if(e.target.closest('#battleSettingsOpen'))openSettings()});
+window.addEventListener('jarvis:calendar-events',e=>checkPostgame(e.detail&&e.detail.events));
+window.addEventListener('storage',e=>{if(e.key==='jarvis.zen.v1'&& !root.hidden)renderNotebook()});
+window.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPostgame()});
+
+function startHelmetAnimation(){
+ const canvas=$('#battleHelmetCanvas'),ctx=canvas.getContext('2d');if(!ctx)return;
+ const mask=document.createElement('canvas');mask.width=560;mask.height=640;
+ const m=mask.getContext('2d');m.strokeStyle='#fff';m.fillStyle='#fff';m.lineCap='round';m.lineJoin='round';
+ function path(points,width,close,fill){m.beginPath();points.forEach((p,i)=>i?m.lineTo(p[0],p[1]):m.moveTo(p[0],p[1]));if(close)m.closePath();m.lineWidth=width;if(fill)m.fill();else m.stroke()}
+ // Outer shell, cheek plates, brow, jaw and chin — an original angular robotic faceplate.
+ path([[280,38],[365,61],[428,117],[456,202],[447,310],[409,409],[350,493],[280,546],[210,493],[151,409],[113,310],[104,202],[132,117],[195,61]],13,true,false);
+ path([[132,117],[184,102],[225,118],[280,143],[335,118],[376,102],[428,117]],10,false,false);
+ path([[154,153],[193,177],[221,221],[211,275],[171,306],[133,273],[120,211]],10,true,false);
+ path([[406,153],[367,177],[339,221],[349,275],[389,306],[427,273],[440,211]],10,true,false);
+ path([[207,145],[248,171],[280,187],[312,171],[353,145],[338,221],[280,245],[222,221]],11,true,false);
+ path([[150,302],[202,286],[243,312],[258,375],[224,431],[174,410]],10,true,false);
+ path([[410,302],[358,286],[317,312],[302,375],[336,431],[386,410]],10,true,false);
+ path([[174,410],[218,450],[280,466],[342,450],[386,410],[350,493],[280,529],[210,493]],12,true,false);
+ path([[207,451],[232,482],[280,495],[328,482],[353,451]],9,false,false);
+ path([[244,196],[267,214],[280,222],[293,214],[316,196]],9,false,false);
+ path([[264,222],[257,278],[280,315],[303,278],[296,222]],9,false,false);
+ path([[224,327],[252,344],[280,349],[308,344],[336,327]],9,false,false);
+ for(let i=0;i<5;i++){const y=365+i*13;path([[235,y],[260,y+2],[280,y+3],[300,y+2],[325,y]],4,false,false)}
+ path([[110,202],[77,247],[91,349],[128,390]],8,false,false);
+ path([[450,202],[483,247],[469,349],[432,390]],8,false,false);
+ path([[196,75],[229,55],[280,48],[331,55],[364,75]],7,false,false);
+ const pixels=m.getImageData(0,0,mask.width,mask.height).data,target=[];
+ for(let y=12;y<mask.height-10;y+=3)for(let x=12;x<mask.width-10;x+=3){if(pixels[(y*mask.width+x)*4+3]>70)target.push({x,y})}
+ const count=2400,points=[];
+ for(let i=0;i<count;i++){
+  const p=target[Math.floor(Math.random()*target.length)]||{x:280,y:320};
+  const a=Math.random()*Math.PI*2,r=Math.pow(Math.random(),.55)*170;
+  points.push({x:p.x,y:p.y,z:(Math.random()-.5)*40,sx:Math.cos(a)*r,sy:Math.sin(a)*r,sz:(Math.random()-.5)*100,size:.55+Math.random()*1.35,phase:Math.random()*Math.PI*2,bright:Math.random()});
+ }
+ let w=1,h=1,dpr=1,start=performance.now(),formedAt=0;
+ const resize=()=>{const rect=canvas.getBoundingClientRect();w=Math.max(1,rect.width);h=Math.max(1,rect.height);dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)};
+ resize();if(typeof ResizeObserver==='function'){const ro=new ResizeObserver(resize);ro.observe(canvas)}else window.addEventListener('resize',resize);
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function draw(now){
+  if(root.hidden){animationFrame=0;return}
+  const t=(now-start)/1000,form=clamp((t-.9)/2.9,0,1),mix=form*form*(3-2*form),scatter=Math.sin(form*Math.PI)*(1-form)*.42;
+  ctx.clearRect(0,0,w,h);
+  const scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=reduced?0:Math.sin(t*.38)*.045,rotX=reduced?0:Math.cos(t*.29)*.018,eyeOn=t>3.65;
+  ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
+  const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
+  for(let i=0;i<points.length;i++){
+   const p=points[i],dx=p.sx*(1-mix)+(p.x-280)*mix,dy=p.sy*(1-mix)+(p.y-320)*mix;
+   const sx=dx+Math.cos(p.phase+t*.8)*scatter*120,sy=dy+Math.sin(p.phase+t*.8)*scatter*120;
+   const z=p.sz*(1-mix)+p.z*mix,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
+   const perspective=1+z*.0009,alpha=(.25+.58*mix)*(.68+.32*Math.sin(t*1.2+p.phase));
+   ctx.fillStyle=p.bright>.88?'rgba(255,88,96,'+alpha+')':p.bright>.62?'rgba(218,222,230,'+alpha+')':'rgba(151,164,178,'+alpha+')';
+   ctx.globalAlpha=alpha;ctx.beginPath();ctx.arc(px*perspective,py*perspective,p.size*(.65+mix*.4),0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  // Faint metallic contours give the particle geometry a readable 3D face structure.
+  if(mix>.58){
+   const a=(mix-.58)*.22;ctx.strokeStyle='rgba(205,214,225,'+a+')';ctx.lineWidth=2;ctx.lineJoin='round';
+   ctx.beginPath();ctx.moveTo(-176,-203);ctx.lineTo(-126,-245);ctx.lineTo(0,-276);ctx.lineTo(126,-245);ctx.lineTo(176,-203);ctx.lineTo(159,-11);ctx.lineTo(112,117);ctx.lineTo(0,221);ctx.lineTo(-112,117);ctx.lineTo(-159,-11);ctx.closePath();ctx.stroke();
+  }
+  if(eyeOn){
+   const pulse=.72+.28*Math.sin(t*3.8),eye=(x)=>{ctx.save();ctx.translate(x,-43);ctx.rotate(x<0?.1:-.1);ctx.shadowColor='#ff1828';ctx.shadowBlur=32*pulse;ctx.fillStyle='rgba(255,23,38,'+(.72*pulse)+')';ctx.beginPath();ctx.moveTo(-62,-8);ctx.lineTo(55,-20);ctx.lineTo(37,10);ctx.lineTo(-45,16);ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(255,183,186,.85)';ctx.lineWidth=2;ctx.stroke();ctx.restore()};
+   eye(-83);eye(83);
+  }else if(t>2.8){
+   ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(-135,-62,105,32);ctx.fillRect(30,-62,105,32);
+  }
+  ctx.restore();
+  animationFrame=requestAnimationFrame(draw);
+ }
+ animationFrame=requestAnimationFrame(draw);
+ function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+}
+window.JarvisBattleMode=Object.freeze({
+ start:startBattle,
+ handleCommand:async function(text,respond){
+  const q=String(text||'').trim();
+  if(/\b(?:activate|start|open|launch|enter)\s+(?:the\s+)?battle(?:\s+mode)?\b/i.test(q)||/^(?:battle mode|battle)$/i.test(q)){
+   await startBattle();if(typeof respond==='function')await respond('Certainly, sir. Initiating Battle Mode.');return true
+  }
+  if(/\b(?:post.game check.in|how was my game|review my game)\b/i.test(q)){openPostgame(null);if(typeof respond==='function')await respond('Of course, sir. Your post-game check-in is ready.');return true}
+  return false
+ }
+});
+setTimeout(()=>checkPostgame(),2600);
+})();
+
+</script>
 </body></html>
