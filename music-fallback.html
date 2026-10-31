@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#030814">
+  <title>Opening music · Z.E.R.O.</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 42%,#101f3d,#030814 62%,#01030a);color:#eaf6ff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    main{width:min(430px,100%);padding:32px 26px;text-align:center;border:1px solid rgba(125,194,245,.22);border-radius:20px;background:rgba(6,17,34,.82);box-shadow:0 20px 80px rgba(0,0,0,.4),0 0 40px rgba(72,151,225,.08)}
+    .orb{width:42px;height:42px;margin:0 auto 20px;border:1px solid rgba(120,211,255,.7);border-radius:50%;box-shadow:0 0 25px rgba(75,178,255,.42),inset 0 0 18px rgba(94,202,255,.28);position:relative}
+    .orb:after{content:"";position:absolute;inset:13px;border-radius:50%;background:#dffaff;box-shadow:0 0 16px #72d9ff}
+    p{color:#9fb6ce;font-size:13px;line-height:1.6}
+    a{display:inline-block;margin-top:12px;color:#aee3ff;font-size:12px}
+    small{display:block;margin-top:18px;color:#71849b;font-size:10px;letter-spacing:.12em}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="orb" aria-hidden="true"></div>
+    <h1 id="message">The app wasn't available.</h1>
+    <p id="detail">Opening its web player now…</p>
+    <a id="manual" href="#">Open the web player</a>
+    <small>Z.E.R.O. · MUSIC HANDOFF</small>
+  </main>
+  <script>
+    (function(){
+      var params=new URLSearchParams(location.search);
+      var service=(params.get('service')||'music service').slice(0,60);
+      var target=params.get('url')||'';
+      var message=document.getElementById('message');
+      var manual=document.getElementById('manual');
+      try{
+        var parsed=new URL(target);
+        if(parsed.protocol!=='https:')throw new Error('Invalid destination');
+        message.textContent='The '+service+' app wasn’t available.';
+        manual.href=parsed.href;
+        manual.textContent='Open '+service+' web player';
+        window.setTimeout(function(){location.replace(parsed.href)},1150);
+      }catch(error){
+        message.textContent='Music link unavailable.';
+        document.getElementById('detail').textContent='Return to ZERO and choose a valid music service link in Settings.';
+        manual.hidden=true;
+      }
+    })();
+  </script>
+</body>
+</html>
