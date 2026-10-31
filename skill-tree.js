@@ -361,6 +361,12 @@ function loadDiscovery() {
     categoryIds.forEach(function (id) {
       if (!state.knownCategories.includes(id)) state.pendingCategories.push(id);
     });
+    categories.forEach(function (category) {
+      const containsNewSkill=category.skills.some(function (skill) {
+        return !state.knownSkills.includes(skill.id);
+      });
+      if (containsNewSkill) state.pendingCategories.push(category.id);
+    });
     skillIds.forEach(function (id) {
       if (!state.knownSkills.includes(id)) state.pendingSkills.push(id);
     });
@@ -397,8 +403,7 @@ function markSkillExplored(skill) {
 }
 
 function isCategoryNew(category) {
-  return discovery.pendingCategories.includes(category.id) ||
-    category.skills.some(function (skill) { return discovery.pendingSkills.includes(skill.id); });
+  return discovery.pendingCategories.includes(category.id);
 }
 
 function isSkillNew(skill) {
@@ -1566,6 +1571,7 @@ function registerSkill(categoryId,skill) {
   category.skills.push(safeSkill);
   discovery.knownSkills.push(safeSkill.id);
   discovery.pendingSkills.push(safeSkill.id);
+  if (!discovery.pendingCategories.includes(category.id)) discovery.pendingCategories.push(category.id);
   saveDiscovery();
   if(renderer&&treeOpen){
     const previousCategory=activeCategory&&activeCategory.id;
