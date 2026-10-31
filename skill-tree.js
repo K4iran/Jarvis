@@ -1418,10 +1418,12 @@ function launchSkill(skillNode) {
   }
 
   if (skill.launch === 'calendar') {
-    // Explicitly target the Android Google Calendar package. Chrome can launch
-    // the installed app via this intent URL; other browsers fall back to web.
-    const calendarIntent = 'intent://calendar.google.com/calendar/u/0/r#Intent;scheme=https;package=com.google.android.calendar;S.browser_fallback_url=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fu%2F0%2Fr;end';
-    window.location.href = calendarIntent;
+    // Keep the Skill Tree action on the same launch path as voice commands.
+    if (typeof window.zeroOpenGoogleCalendarApp === 'function') {
+      window.zeroOpenGoogleCalendarApp();
+    } else {
+      window.location.href = 'https://calendar.google.com/calendar/u/0/r';
+    }
     return;
   }
 
