@@ -175,6 +175,59 @@ body{background:#010207}
 .core canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
 /* The WebGL canvas stays full-size so its coordinates still align with the overlay.
    The 3D orb itself is scaled in its Three.js group, independently of the audio waves. */
+    /* Audio-reactive energy filaments */
+.filaments {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+  transform-origin: 50% 50%;
+}
+
+/* The wave layer's rotation is driven by the main animation loop so it
+   can smoothly accelerate and decelerate without interrupting liquid motion. */
+
+.filament {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.45;
+  opacity: .48;
+  filter: drop-shadow(0 0 3px rgba(54,74,255,.32))
+          drop-shadow(0 0 10px rgba(5,22,54,.72));
+}
+.filament-connections {
+  fill: none;
+  stroke: rgba(151,224,255,.22);
+  stroke-width: .55;
+  stroke-linecap: round;
+  opacity: var(--voice-links,0);
+  transition: opacity .45s ease;
+}
+
+.filament-cyan {
+  stroke: #9DEBFF;
+}
+
+.filament-blue {
+  stroke: #526DFF;
+  stroke-width: 1.15;
+  opacity: .6;
+}
+
+.filament-cyan-soft {
+  stroke: #69C9FF;
+  stroke-width: 1;
+  opacity: .48;
+}
+
+#core[data-s="listening"] .filament,
+#core[data-s="responding"] .filament {
+  opacity: 1;
+}
 .halo{position:absolute;inset:-1%;border-radius:50%;pointer-events:none;opacity:var(--h2,.35);background:radial-gradient(circle,rgba(174,241,255,.10) 0%,rgba(88,223,255,.085) 12%,rgba(39,141,255,.045) 27%,rgba(39,141,255,.018) 39%,transparent 53%)}
 .ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .ring .glassModule {
@@ -753,6 +806,40 @@ body.zen-mode-active #core{visibility:hidden!important}
 
 
 
+<svg class="filaments" id="filaments"
+     viewBox="0 0 400 400"
+     aria-hidden="true">
+  <defs>
+    <filter id="filamentGlow" x="-100%" y="-100%"
+            width="300%" height="300%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.045"
+                    numOctaves="2" seed="8" result="energyNoise"/>
+      <feDisplacementMap in="SourceGraphic" in2="energyNoise"
+                         scale="7" xChannelSelector="R"
+                         yChannelSelector="G" result="distortedEnergy"/>
+      <feGaussianBlur in="distortedEnergy" stdDeviation="5.5" result="wideMist"/>
+      <feGaussianBlur in="distortedEnergy" stdDeviation="1.7" result="softGlow"/>
+      <feFlood flood-color="#07192b" flood-opacity=".9" result="darkTint"/>
+      <feComposite in="darkTint" in2="wideMist" operator="in" result="shadowEnergy"/>
+      <feMerge>
+        <feMergeNode in="shadowEnergy"/>
+        <feMergeNode in="wideMist"/>
+        <feMergeNode in="softGlow"/>
+        <feMergeNode in="distortedEnergy"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <path id="filamentConnections" class="filament-connections" d=""/>
+  <g filter="url(#filamentGlow)">
+    <path class="filament filament-cyan" id="filament1" d=""/>
+    <path class="filament filament-blue" id="filament2" d=""/>
+    <path class="filament filament-cyan-soft" id="filament3" d=""/>
+    <path class="filament filament-cyan" id="filament4" d=""/>
+  </g>
+</svg>
+
+    
     
 
 
@@ -1117,6 +1204,17 @@ let filamentSpeechData = null;
 let filamentAnimationStarted = false;
 let filamentLevel = 0;
 let filamentVoiceActivity = 0;
+let filamentLastFrame = 0;
+
+/* Three layered filaments: one fewer contour for a cleaner silhouette. */
+const filamentIds = [
+  'filament1', 'filament2', 'filament4'
+];
+const filamentRadii = [162, 188, 214];
+const filamentWaves = [3, 4, 6];
+const filamentPhases = [0.2, 4.4, 5.4];
+const filamentSpeeds = [0, 0.15, 0];
+const filamentBaseOpacity = [0.72, 0.46, 0.34];
 
 function getFilamentAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -1229,6 +1327,7 @@ function filamentRms(analyser, data) {
 
 function drawFilamentFrame(now) {
   requestAnimationFrame(drawFilamentFrame);
+  filamentLastFrame = now;
 
   let target = 0;
   if (zeroSpeaking && filamentSpeechAnalyser) {
@@ -1238,13 +1337,112 @@ function drawFilamentFrame(now) {
     const rms = filamentRms(filamentMicAnalyser, filamentMicData);
     target = Math.max(0, Math.min(1, (rms - 0.028) * 24));
   } else if (wakeEnabled) {
-    // Android speech recognition owns the mic; use its speech events.
+    // Android speech recognition owns the mic, so use its live speech events
+    // instead of opening a second mic stream that can break recognition.
     target = filamentVoiceActivity;
   }
-
   filamentVoiceActivity *= 0.985;
   filamentLevel += (target - filamentLevel) *
     (target > filamentLevel ? 0.48 : 0.075);
+
+  const time = now / 1000;
+  /* Keep contours nearly circular and calm without sound. Only voice energy
+     creates the larger liquid bends and ripples. */
+  const amplitude = 0.95 + filamentLevel * 29;
+  const detailAmplitude = 0.45 + filamentLevel * 10;
+
+  const layerPoints = [];
+  filamentIds.forEach((id, layer) => {
+    const path = document.getElementById(id);
+    if (!path) return;
+
+    const points = [], coords = [];
+    const count = 180;
+    for (let i = 0; i <= count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const drift = angle + time * filamentSpeeds[layer];
+      const wave = Math.sin(
+        angle * filamentWaves[layer] + time * (0.8 + layer * 0.06)
+        + filamentPhases[layer]
+      );
+      const detail = Math.sin(
+        angle * (filamentWaves[layer] + 2) - time * (1.05 + layer * 0.08)
+        + filamentPhases[layer] * 1.7
+      );
+      const ripple = Math.sin(angle * 7 + time * (0.72 + layer * 0.05) + layer) *
+        (0.28 + filamentLevel * 5.5);
+      const radius = filamentRadii[layer] +
+        wave * amplitude + detail * detailAmplitude + ripple;
+      const x = 200 + Math.cos(drift) * radius;
+      const y = 200 + Math.sin(drift) * radius;
+      coords.push([x,y]);
+      points.push((i === 0 ? 'M ' : 'L ') +
+        x.toFixed(2) + ' ' + y.toFixed(2));
+    }
+    layerPoints[layer] = coords;
+
+    path.setAttribute('d', points.join(' ') + ' Z');
+    path.style.opacity = Math.min(
+      1, filamentBaseOpacity[layer] + filamentLevel * 0.20
+    ).toFixed(3);
+    path.style.strokeWidth = (
+      (layer % 3 === 0 ? 1.05 : layer % 3 === 1 ? 0.8 : 0.7)
+      + filamentLevel * 0.55
+    ).toFixed(2);
+    path.style.filter = filamentLevel > 0.025
+      ? 'drop-shadow(0 0 ' + (3 + filamentLevel * 5).toFixed(1) + 'px rgba(111,235,255,' + (0.38 + filamentLevel * 0.42).toFixed(2) + '))'
+      : '';
+  });
+
+  /* Denser faint bridges between neighbouring wave rings. Keep every bridge
+     outside the orb silhouette (radius 120px plus a safety margin). */
+  const links = [];
+  const orbClearRadius = 132;
+  for (let layer = 0; layer < layerPoints.length - 1; layer++) {
+    const inner = layerPoints[layer], outer = layerPoints[layer + 1];
+    if (!inner || !outer) continue;
+    for (let i = 0; i < 180; i += 5) {
+      const a = inner[i], b = outer[(i + (layer % 2 ? 3 : 0)) % 180];
+      if (!a || !b) continue;
+      const midX = (a[0] + b[0]) * .5;
+      const midY = (a[1] + b[1]) * .5;
+      /* Reject any connector that would touch or cross the orb's protected area. */
+      if (Math.hypot(midX - 200, midY - 200) < orbClearRadius) continue;
+      if (Math.hypot(a[0] - 200, a[1] - 200) < orbClearRadius ||
+          Math.hypot(b[0] - 200, b[1] - 200) < orbClearRadius) continue;
+      links.push(`M ${a[0].toFixed(1)} ${a[1].toFixed(1)} L ${b[0].toFixed(1)} ${b[1].toFixed(1)}`);
+    }
+  }
+  const connectionPath = document.getElementById('filamentConnections');
+  if (connectionPath) {
+    connectionPath.setAttribute('d', links.join(' '));
+    /* Keep the bridges delicate at rest, but let them clearly illuminate
+       with either live microphone input or Z.E.R.O.'s own speech. */
+    connectionPath.style.opacity = (0.10 + filamentLevel * 0.76).toFixed(3);
+    connectionPath.style.strokeWidth = (0.55 + filamentLevel * 1.15).toFixed(2);
+    connectionPath.style.filter = filamentLevel > 0.018
+      ? 'drop-shadow(0 0 ' + (1.5 + filamentLevel * 7).toFixed(1) + 'px rgba(111,235,255,' + (0.24 + filamentLevel * 0.72).toFixed(2) + '))'
+      : '';
+  }
+
+  /* The little response-box waveform mirrors the same live microphone /
+     playback level, then relaxes smoothly when the sound stops. */
+  const responseWave = document.getElementById('responseWave');
+  if (responseWave) {
+    const wavePoints = [];
+    for (let i = 0; i <= 42; i++) {
+      const x = 318 + i * 2.5;
+      const envelope = 0.35 + 0.65 * Math.sin(Math.PI * i / 42);
+      const y = 29 + Math.sin(i * 0.82 + time * 7.5) *
+        (1.4 + filamentLevel * 5.2) * envelope;
+      wavePoints.push((i === 0 ? 'M ' : 'L ') + x.toFixed(1) + ' ' + y.toFixed(1));
+    }
+    responseWave.setAttribute('d', wavePoints.join(' '));
+    responseWave.style.opacity = (0.42 + filamentLevel * 0.58).toFixed(2);
+    responseWave.style.filter = 'drop-shadow(0 0 ' +
+      (1.5 + filamentLevel * 4).toFixed(1) + 'px rgba(88,223,255,' +
+      (0.45 + filamentLevel * 0.5).toFixed(2) + '))';
+  }
 }
 
 function startFilamentAnimation() {
@@ -1640,7 +1838,10 @@ function setState(s){
     : 'Tap to enable Hey ZERO';
   }
   if(s==='responding'){pulse(1);cur.flash=1}
-  refresh();
+  let orbWaveClock=0,orbWaveActive=0;
+let waveRotation=0,waveAngularVelocity=0;
+const filamentLayer=document.getElementById('filaments');
+refresh();
 }
 
 const clearT=()=>{timers.forEach(clearTimeout);timers=[];busy=false};
@@ -2913,6 +3114,19 @@ function frame(now){
     if(dt>.034)slow++;else slow=Math.max(0,slow-1);
     if(slow>90&&dpr>1){dpr=Math.max(1,dpr*.85);fit();slow=0;}
     const motionAllowed=S.rm?0:1;
+    const activeVoice=state==='listening'||state==='responding';
+    const targetOrbWave=activeVoice?1:0;
+    orbWaveActive+=(targetOrbWave-orbWaveActive)*(1-Math.exp(-dt*(activeVoice?3.8:2.0)));
+    if(activeVoice)orbWaveClock+=dt*motionAllowed;
+    const targetWaveSpeed=activeVoice?Math.PI*2/1.55:0;
+    /* Keep the liquid wave animation alive; only add a smooth rotation layer. */
+    const spinEase=1-Math.exp(-dt*(activeVoice?5.5:1.15));
+    waveAngularVelocity+=(targetWaveSpeed-waveAngularVelocity)*spinEase;
+    waveRotation+=waveAngularVelocity*dt*motionAllowed;
+    if(filamentLayer){
+      filamentLayer.style.transform=`rotate(${waveRotation}rad)`;
+      filamentLayer.style.setProperty('--voice-links',activeVoice?'1':'0');
+    }
     const targetSpeaking=state==='responding'?1:(state==='processing'?.42:(state==='listening'?.12:0));
     const blendRate=targetSpeaking>speakingBlend?3.2:1.65;
     speakingBlend+=(targetSpeaking-speakingBlend)*(1-Math.exp(-dt*blendRate));
