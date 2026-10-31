@@ -22,6 +22,12 @@ const categories = [
         launch: 'hangman'
       },
       {
+        id: 'sudoku', name: 'Sudoku', status: 'Active', icon: 'grid',
+        description: 'An interactive number puzzle with Easy, Medium and Hard difficulties. Select a cell, choose a number, and use the highlighted row, column and box to guide each move.',
+        activation: '“Hey ZERO, let’s play Sudoku.”',
+        launch: 'sudoku'
+      },
+      {
         id: 'more-games', name: 'More Games', status: 'Coming Soon', icon: 'gamepad',
         description: 'Additional interactive game modules will appear here as they are added to ZERO.',
         activation: 'A voice command will be shown here when the next game is released.'
@@ -1356,6 +1362,7 @@ function showSkillPanel(skillNode) {
   const status=skill.status.toLowerCase();
   const launchLabel={
     hangman:'LAUNCH HANGMAN',
+    sudoku:'LAUNCH SUDOKU',
     calendar:'OPEN GOOGLE CALENDAR',
     conversation:'TRY A CONVERSATION',
     voice:'ACTIVATE VOICE INTERFACE',
@@ -1417,6 +1424,21 @@ function launchSkill(skillNode) {
     return;
   }
 
+  if (skill.launch === 'sudoku') {
+    launchFromTree=true;
+    overlay.hidden=true;
+    treeOpen=false;
+    if (navButton) navButton.setAttribute('aria-pressed','false');
+    if (window.ZeroExtraFeatures && typeof window.ZeroExtraFeatures.openSudoku === 'function') {
+      window.ZeroExtraFeatures.openSudoku('easy');
+    } else {
+      launchFromTree=false;
+      overlay.hidden=false;
+      showToast('Sudoku is not available right now.');
+    }
+    return;
+  }
+
   if (skill.launch === 'calendar') {
     // Keep the Skill Tree action on the same launch path as voice commands.
     if (typeof window.zeroOpenGoogleCalendarApp === 'function') {
@@ -1469,6 +1491,12 @@ function showSkillTree() {
   if (activeSkill && viewMode==='skill') showSkillPanel(activeSkill);
   startRenderLoop();
 }
+
+window.__zeroReturnToSkillTree = function () {
+  if (!launchFromTree) return;
+  launchFromTree = false;
+  showSkillTree();
+};
 
 function openSkillTree() {
   if (!overlay) return;
