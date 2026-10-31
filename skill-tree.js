@@ -1186,8 +1186,34 @@ function launchSkill(skillNode) {
   if (skill.launch === 'calendar') {
     overlay.hidden=true;treeOpen=false;
     if (navButton) navButton.setAttribute('aria-pressed','false');
-    if (window.JarvisCalendarPanel && typeof window.JarvisCalendarPanel.open === 'function') {
-      window.JarvisCalendarPanel.open();
+    const calendar=window.JarvisCalendarPanel;
+    if (calendar && typeof calendar.open === 'function') {
+      calendar.open();
+      const root=document.getElementById('jarvis-calendar-panel');
+      if (root) {
+        const top=root.querySelector('.jcp-top');
+        let back=root.querySelector('[data-zero-calendar-back]');
+        if (top && !back) {
+          back=document.createElement('button');
+          back.type='button';
+          back.dataset.zeroCalendarBack='true';
+          back.textContent='← BACK TO SKILL TREE';
+          back.setAttribute('aria-label','Return to Skill Tree');
+          top.appendChild(back);
+        }
+        if (back) {
+          back.hidden=false;
+          back.onclick=function(){
+            calendar.close();
+            showSkillTree();
+          };
+        }
+        const close=root.querySelector('.jcp-close');
+        if (close) close.onclick=function(){
+          calendar.close();
+          showSkillTree();
+        };
+      }
     } else if (typeof window.run === 'function') {
       window.run('open my calendar');
     }
