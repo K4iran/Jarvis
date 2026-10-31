@@ -1026,10 +1026,21 @@ body.zen-mode-active #core{visibility:hidden!important}
 .bt-protocol{margin:7px 0;padding-left:16px;color:#e2d2d4;font-size:10px;line-height:1.7}
 .bt-callout{margin-top:10px;padding:10px;border:1px solid rgba(255,66,75,.2);background:rgba(91,9,17,.13);font-size:10px;line-height:1.65;color:#e8d9da}
 .bt-empty{font-size:10px;color:#977e81;line-height:1.6}
-.bt-countdown{position:absolute;inset:0;z-index:12;display:grid;place-items:center;background:rgba(0,0,0,.78);backdrop-filter:blur(9px);text-align:center}
+.bt-countdown{position:absolute;inset:0;z-index:12;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 48%,rgba(65,5,12,.22),rgba(0,0,0,.48) 68%),linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.52));backdrop-filter:blur(1.5px);text-align:center;isolation:isolate}
 .bt-countdown[hidden]{display:none!important}
-.bt-count-number{font:clamp(70px,18vw,170px) "JetBrains Mono",monospace;color:#ff414c;text-shadow:0 0 18px rgba(255,35,48,.75),0 0 70px rgba(255,20,32,.35);animation:btCountPulse .7s ease both}
-.bt-count-word{margin-top:8px;font:12px "JetBrains Mono",monospace;letter-spacing:.38em;color:#f2c4c6}.bt-count-return{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);min-width:190px}.bt-count-return[hidden]{display:none!important}
+.bt-countdown:before{content:"";position:absolute;inset:-20%;z-index:-1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,90,100,.045) 4px,transparent 5px),radial-gradient(ellipse at 50% 50%,transparent 28%,rgba(0,0,0,.68) 78%);animation:btCineScan 7s linear infinite}
+.bt-countdown:after{content:"";position:absolute;left:-20%;right:-20%;top:50%;height:1px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,55,67,.08),rgba(255,180,184,.8),rgba(255,55,67,.08),transparent);box-shadow:0 0 25px 8px rgba(255,28,43,.12);animation:btCineFlare 5.2s ease-in-out infinite}
+.bt-cine-frame{position:absolute;inset:clamp(16px,4vw,48px);pointer-events:none;border:1px solid rgba(255,90,100,.19);box-shadow:inset 0 0 45px rgba(255,30,40,.035),0 0 40px rgba(255,20,30,.045)}
+.bt-cine-frame:before,.bt-cine-frame:after{content:"";position:absolute;left:0;right:0;height:clamp(24px,6vh,70px);background:#020204;opacity:.66}.bt-cine-frame:before{top:0}.bt-cine-frame:after{bottom:0}
+.bt-cine-corner{position:absolute;width:38px;height:38px;border-color:rgba(255,94,103,.9);border-style:solid;filter:drop-shadow(0 0 7px rgba(255,30,45,.65))}
+.bt-cine-corner.a{top:-1px;left:-1px;border-width:2px 0 0 2px}.bt-cine-corner.b{top:-1px;right:-1px;border-width:2px 2px 0 0}.bt-cine-corner.c{bottom:-1px;left:-1px;border-width:0 0 2px 2px}.bt-cine-corner.d{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.bt-cine-copy{position:absolute;top:clamp(34px,8vh,90px);left:0;right:0;text-align:center;color:rgba(255,184,188,.82);font:9px "JetBrains Mono",monospace;letter-spacing:.34em;text-shadow:0 0 14px rgba(255,38,52,.45)}
+.bt-cine-bottom{position:absolute;left:0;right:0;bottom:clamp(38px,8vh,88px);text-align:center;color:rgba(255,124,132,.72);font:8px "JetBrains Mono",monospace;letter-spacing:.25em}
+.bt-count-number{font:clamp(82px,20vw,190px) "JetBrains Mono",monospace;color:#fff0f1;text-shadow:0 0 12px rgba(255,235,236,.9),0 0 32px rgba(255,40,54,.95),0 0 100px rgba(255,15,30,.6);animation:btCountPulse .86s cubic-bezier(.16,.8,.22,1) both;position:relative}
+.bt-count-word{margin-top:8px;font:clamp(10px,1.4vw,13px) "JetBrains Mono",monospace;letter-spacing:.48em;color:#ffd9dc;text-shadow:0 0 16px rgba(255,38,52,.75)}.bt-cine-subtitle{margin-top:18px;color:rgba(255,125,134,.78);font:8px "JetBrains Mono",monospace;letter-spacing:.24em}
+.bt-count-return{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);min-width:190px}.bt-count-return[hidden]{display:none!important}
+#battleMode.bt-cinematic .bt-helmet-wrap{animation:btCinematicCamera 6s cubic-bezier(.2,.75,.2,1) both}#battleMode.bt-cinematic #battleHelmetCanvas{filter:drop-shadow(0 0 28px rgba(255,34,46,.28)) drop-shadow(0 0 72px rgba(255,12,28,.14))}
+@keyframes btCineScan{0%{transform:translateY(-3%);opacity:.35}50%{opacity:.8}100%{transform:translateY(3%);opacity:.35}}@keyframes btCineFlare{0%,100%{transform:translateY(-25vh) scaleX(.55);opacity:0}25%,72%{opacity:.75}50%{transform:translateY(25vh) scaleX(1.2);opacity:.35}}@keyframes btCinematicCamera{0%{filter:brightness(.55) contrast(1.1);transform:translateZ(0) scale(.94)}35%{filter:brightness(1.08) contrast(1.18);transform:translateZ(0) scale(1.035)}100%{filter:brightness(1.18) contrast(1.12);transform:translateZ(0) scale(1.075)}}
 @keyframes btCountPulse{0%{transform:scale(1.35);opacity:0}35%{opacity:1}100%{transform:scale(1);opacity:1}}
 .bt-settings-overlay,.bt-postgame-overlay{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(12px)}
 .bt-settings-overlay[hidden],.bt-postgame-overlay[hidden]{display:none!important}
@@ -1043,6 +1054,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 .bt-postgame-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
 .bt-inline-hint{margin:6px 0;color:#977f82;font-size:9px;line-height:1.55}
 #battleMode .bt-red{color:#ff6971}
+.profile-memory{display:grid;gap:14px;padding:8px 0}.profile-memory-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border:1px solid rgba(88,223,255,.2);background:linear-gradient(110deg,rgba(42,134,170,.1),rgba(5,15,24,.2));color:var(--t);font-size:9px;letter-spacing:.12em}.profile-memory-head b{font:9px "JetBrains Mono",monospace;color:var(--t)}.profile-memory-group h3{margin:4px 0 8px;color:var(--t);font:9px "JetBrains Mono",monospace;letter-spacing:.18em}.profile-memory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}.profile-memory-card{padding:11px 12px;border:1px solid rgba(130,180,210,.13);background:linear-gradient(145deg,rgba(15,32,43,.46),rgba(5,10,16,.36));min-width:0}.profile-memory-card span{display:block;color:var(--t);font:9px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase}.profile-memory-card p{margin:7px 0 0;color:var(--tx);font-size:12px;line-height:1.55;overflow-wrap:anywhere}.profile-memory-foot{color:var(--mut);font:8px "JetBrains Mono",monospace;letter-spacing:.05em}.profile-memory-empty{padding:22px;border:1px dashed rgba(88,223,255,.2);color:var(--mut);font-size:12px;line-height:1.6}.profile-memory-empty .mono{color:var(--t);font-size:9px;letter-spacing:.15em}
 @media(max-width:899px){
  #battleMode{overflow-y:auto}
  /* Mobile HUD cards stay out of the helmet's way until JARVIS references them. */
@@ -1099,7 +1111,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 </defs></svg>
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
-<header id="bar"><div class="br"><svg class="helmet-mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="helmetGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C7FAFF"/><stop offset=".48" stop-color="#58DFFF"/><stop offset="1" stop-color="#2879D8"/></linearGradient></defs><g fill="none" stroke="url(#helmetGlow)" stroke-linecap="round" stroke-linejoin="round"><path d="M24 3.5 10 9 5.5 20l3 15 8.5 8h14l8.5-8 3-15L38 9 24 3.5Z" stroke-width="1.5"/><path d="M10 14 16 8l8-2 8 2 6 6-3 13-6 8-5 3-5-3-6-8-3-13Z" stroke-width="1.15"/><path d="m10 17 7 1 5 4-3 5-7-2M38 17l-7 1-5 4 3 5 7-2M17 34l7-3 7 3M20 10l4 2 4-2" stroke-width="1.4"/><path d="m17 18 5 3m9-3-5 3" stroke-width="2.2"/><path d="M20 25h8" stroke-width=".9" opacity=".7"/></g><path d="m12 18 7 1 3 4-3 3-6-2ZM36 18l-7 1-3 4 3 3 6-2Z" fill="#58DFFF" opacity=".18"/></svg><div class="brand-copy"><b>Z.E.R.O.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
+<header id="bar"><div class="br"><div class="brand-copy"><b>Z.E.R.O.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
 <nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button><button class="tab" id="battleModeLaunch" type="button" aria-label="Activate Battle Mode">BATTLE</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
 <main id="stage">
 <section id="center">
@@ -1171,23 +1183,19 @@ body.zen-mode-active #core{visibility:hidden!important}
     <div class="bt-actions" id="btFooterActions"></div>
   </footer>
   <div class="bt-countdown" id="btCountdown" hidden>
-    <div><div class="bt-count-number" id="btCountNumber">3</div><div class="bt-count-word" id="btCountWord">PREPARE</div></div>
+    <div class="bt-cine-frame" aria-hidden="true"><i class="bt-cine-corner a"></i><i class="bt-cine-corner b"></i><i class="bt-cine-corner c"></i><i class="bt-cine-corner d"></i></div>
+    <div class="bt-cine-copy">Z.E.R.O. // FINAL SEQUENCE</div>
+    <div><div class="bt-count-number" id="btCountNumber">5</div><div class="bt-count-word" id="btCountWord">SYSTEMS CHECK</div><div class="bt-cine-subtitle" id="btCineSubtitle">NEURAL LINK // SYNCHRONISING</div></div>
+    <div class="bt-cine-bottom">TACTICAL INTERFACE • ALL SYSTEMS NOMINAL</div>
     <button class="bt-action bt-count-return" id="btCountReturn" data-bt-action="close" type="button" hidden>RETURN TO JARVIS</button>
   </div>
 </div>
 <div class="bt-settings-overlay" id="btSettingsOverlay" hidden>
   <section class="bt-settings-card" role="dialog" aria-modal="true" aria-labelledby="btSettingsTitle">
     <div class="bt-kicker">Z.E.R.O. / CONFIGURATION</div><h2 id="btSettingsTitle">BATTLE MODE SETTINGS</h2>
-    <label>Final launch music
-      <select class="bt-select" id="btSongSource"><option value="file">Built-in track (audio file)</option><option value="spotify">Spotify link</option></select>
-    </label>
-    <div id="btFileMusicSettings">
-      <label>Choose your Battle Mode song
-        <input class="bt-input" id="btAudioFile" type="file" accept="audio/*">
-      </label>
-      <div class="bt-track-state" id="btTrackName">No built-in track selected.</div>
-    </div>
-    <div id="btSpotifyMusicSettings" hidden>
+    <label>Music playback<select class="bt-select" id="btSongSource"><option value="file">Two built-in tracks (play inside ZERO)</option><option value="spotify">Spotify links (requires connection)</option></select></label>
+     <div id="btFileMusicSettings"><label>Opening track — starts after ZERO’s first sentence<input class="bt-input" id="btIntroAudioFile" type="file" accept="audio/*"></label><div class="bt-track-state" id="btIntroTrackName">No opening track selected.</div><label>Final track — starts after the cinematic sequence and final line<input class="bt-input" id="btFinalAudioFile" type="file" accept="audio/*"></label><div class="bt-track-state" id="btFinalTrackName">No final track selected.</div><p class="bt-inline-hint">Tracks are stored locally in this browser and play inside ZERO. Choose two separate audio files.</p></div>
+     <div id="btSpotifyMusicSettings" hidden>
       <label>Opening song — starts after ZERO's first sentence
         <input class="bt-input" id="btSpotifyIntroUrl" type="url" placeholder="https://open.spotify.com/track/...">
       </label>
@@ -1464,7 +1472,7 @@ const ZeroMemory = (() => {
     return true;
   }
 
-  return { remember, forget, clear, list, context, rememberIfMissing };
+  return { remember, forget, clear, list, context, rememberIfMissing, entries: () => Object.entries(read()) };
 })();
 
 // Keep the user's calendar-opening preference in ZERO's own persistent memory.
@@ -1497,8 +1505,9 @@ const LBL={standby:'STANDBY',listening:'WAKE WORD ACTIVE',processing:'PROCESSING
 const ST={standby:{glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5},listening:{glow:.95,wave:.9,proc:0,halo:.6,rate:1.25,core:.65},processing:{glow:1,wave:.3,proc:1,halo:.55,rate:12,core:.85},responding:{glow:1,wave:.15,proc:0,halo:.5,rate:1.15,core:.6}};
 const cur={glow:.85,wave:0,proc:0,halo:.35,rate:1,core:.5,flash:0};
 const chip=t=>`<span class="chip mono">${t}</span>`,row=(k,v,ok)=>`<div class="r"><span>${k}</span><b class="mono ${ok?'ok':''}">${v}</b></div>`;
+function profileMemoryHTML(){const entries=ZeroMemory.entries();if(!entries.length)return '<div class="profile-memory" data-memory-profile><div class="profile-memory-empty"><span class="mono">MEMORY CORE / EMPTY</span><p>Z.E.R.O. has not saved any personal details yet. Tell ZERO “remember that…” to add something here.</p></div></div>';const groups={'PERSONAL DETAILS':[],'BASKETBALL':[],'GOALS & PREFERENCES':[],'OTHER MEMORIES':[]};entries.forEach(([key,value])=>{const k=String(key).toLowerCase(),g=/basket|position|height|weight|team|shoot|game|training|court|player|jersey|ppg|assist|defen|handle/.test(k)?'BASKETBALL':/goal|prefer|like|dislike|style|routine|music|clothing|food|school|study/.test(k)?'GOALS & PREFERENCES':/name|age|birthday|location|calendar|personal|family/.test(k)?'PERSONAL DETAILS':'OTHER MEMORIES';groups[g].push([key,value])});const safe=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));return '<div class="profile-memory" data-memory-profile><div class="profile-memory-head"><span class="mono">MEMORY CORE / ACTIVE</span><b>'+entries.length+' SAVED '+(entries.length===1?'DETAIL':'DETAILS')+'</b></div>'+Object.entries(groups).filter(([,a])=>a.length).map(([h,a])=>'<section class="profile-memory-group"><h3>'+h+'</h3><div class="profile-memory-grid">'+a.map(([k,v])=>'<article class="profile-memory-card"><span>'+safe(k)+'</span><p>'+safe(v)+'</p></article>').join('')+'</div></section>').join('')+'<p class="profile-memory-foot">Stored locally in this browser • Only details ZERO has explicitly saved appear here</p></div>'}
 const P={
-profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'PERSONAL DETAILS',d:'',v:()=>`<p class="mut" style="margin:8px 0">Details you ask Z.E.R.O. to remember are kept in this browser.</p>`},
+profile:{l:'PERSONAL PROFILE',i:'#i-user',s:'ZERO MEMORY',d:'Everything Z.E.R.O. has saved about you in this browser.',v:()=>profileMemoryHTML()},
 lifeos:{l:'LIFEOS',i:'#i-life',s:'PERSONAL PROGRESSION',d:'Your LifeOS app, embedded inside ZERO and using its existing saved data.',v:()=>'<div class="lifeos-embed-wrap"><iframe id="lifeosFrame" class="lifeos-embed" src="https://k4iran.github.io/Jarvis/LifeOS.html" title="LifeOS personal progression tracker" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'},
 hoop:{l:'HOOP CENTRAL',i:'#i-hoop',s:'BASKETBALL STATS',d:'',v:()=>`<div class="kp">${['PPG','AST','STL','FG%'].map(k=>`<div><span class="lbl">${k}</span></div>`).join('')}</div>`},
 status:{l:'SYSTEM STATUS',i:'#i-stat',s:'LIVE INTERFACE',d:'',v:()=>[row('Interface','Loaded',1),row('Animation system',S.rm?'Reduced':'Active',1),row('Orb renderer',orbInfo,orbInfo!=='Unavailable'),row('Viewport',innerWidth+' × '+innerHeight+' px'),row('Interface mode',state.toUpperCase())].join('')}};
