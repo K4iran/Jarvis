@@ -1043,7 +1043,6 @@ body.zen-mode-active #core{visibility:hidden!important}
 #battleMode.bt-cinematic .bt-helmet-wrap{animation:btCinematicCamera 6s cubic-bezier(.2,.75,.2,1) both}#battleMode.bt-cinematic #battleHelmetCanvas{filter:drop-shadow(0 0 28px rgba(255,34,46,.28)) drop-shadow(0 0 72px rgba(255,12,28,.14))}
 @keyframes btCineScan{0%{transform:translateY(-3%);opacity:.35}50%{opacity:.8}100%{transform:translateY(3%);opacity:.35}}@keyframes btCineFlare{0%,100%{transform:translateY(-25vh) scaleX(.55);opacity:0}25%,72%{opacity:.75}50%{transform:translateY(25vh) scaleX(1.2);opacity:.35}}@keyframes btCinematicCamera{0%{filter:brightness(.55) contrast(1.1);transform:translateZ(0) scale(.94)}35%{filter:brightness(1.08) contrast(1.18);transform:translateZ(0) scale(1.035)}100%{filter:brightness(1.18) contrast(1.12);transform:translateZ(0) scale(1.075)}}
 @keyframes btCountPulse{0%{transform:scale(1.35);opacity:0}35%{opacity:1}100%{transform:scale(1);opacity:1}}
-.bt-spotify-dock{margin:14px 0 4px;padding:10px;border:1px solid rgba(29,185,84,.38);background:linear-gradient(145deg,rgba(13,31,22,.72),rgba(5,10,8,.82));box-shadow:0 0 22px rgba(29,185,84,.08);border-radius:8px;max-width:360px}.bt-spotify-dock[hidden]{display:none!important}.bt-spotify-label{display:flex;align-items:center;gap:7px;margin:0 0 8px;color:#b9e8c8;font:8px "JetBrains Mono",monospace;letter-spacing:.17em}.bt-spotify-label:before{content:"";width:6px;height:6px;border-radius:50%;background:#1ed760;box-shadow:0 0 9px rgba(30,215,96,.7)}.bt-spotify-frame{display:block;width:100%;height:152px;border:0;border-radius:7px;background:#121212}.bt-spotify-hint{margin:7px 1px 0;color:#a8aaa9;font-size:9px;line-height:1.45}@media(max-width:899px){.bt-spotify-dock{max-width:100%;margin-top:12px}}
 .bt-settings-overlay,.bt-postgame-overlay{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(12px)}
 .bt-settings-overlay[hidden],.bt-postgame-overlay[hidden]{display:none!important}
 .bt-settings-card,.bt-postgame-card{width:min(100%,560px);max-height:88dvh;overflow:auto;padding:20px;border:1px solid rgba(255,70,80,.35);background:linear-gradient(145deg,#1c090d,#080609 72%);box-shadow:0 24px 80px rgba(0,0,0,.65)}
@@ -1093,6 +1092,64 @@ body.zen-mode-active #core{visibility:hidden!important}
  .bt-helmet-wrap{min-height:0}
  .bt-prompt-wrap{height:58px}
 }
+
+#battleModeLaunch,#focusLaunch{position:fixed;top:calc(env(safe-area-inset-top,0px) + 70px);z-index:16;display:flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 17px;border:1px solid rgba(255,75,83,.62);border-radius:999px;background:linear-gradient(135deg,rgba(89,10,17,.96),rgba(24,5,9,.96));color:#ffe5e6;font:10px "JetBrains Mono",monospace;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 6px 28px rgba(0,0,0,.34),0 0 22px rgba(255,35,48,.14);backdrop-filter:blur(12px);cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+#battleModeLaunch{left:14px}
+#focusLaunch{left:174px;min-height:38px;padding:0 14px;border-color:rgba(255,112,119,.32);background:rgba(25,7,10,.84);color:#d8aeb1;font-size:9px}
+#battleModeLaunch:before{content:"";width:7px;height:7px;border-radius:50%;background:#ff5b64;box-shadow:0 0 12px #ff3445}
+#battleModeLaunch:hover,#focusLaunch:hover{border-color:rgba(255,150,155,.8);transform:translateY(-1px)}
+#battleModeLaunch:hover{background:linear-gradient(135deg,rgba(125,12,22,.96),rgba(38,5,11,.96))}
+@media(max-width:520px){#battleModeLaunch,#focusLaunch{top:calc(env(safe-area-inset-top,0px) + 64px);min-height:36px;padding:0 11px;font-size:9px}#battleModeLaunch{left:10px}#focusLaunch{left:145px}}
+@media(max-width:899px){
+ #battleMode{overflow:hidden}
+ #battleMode .bt-layout{display:block;position:relative;height:calc(100dvh - 116px);min-height:0;padding:0}
+ #battleMode .bt-helmet-wrap{position:absolute;z-index:1;top:12%;left:50%;transform:translateX(-50%);width:min(96vw,540px);height:min(72dvh,620px);opacity:.34;pointer-events:none}
+ #battleMode .bt-panel{position:absolute;z-index:4;width:auto;margin:0;background:linear-gradient(145deg,rgba(19,7,10,.9),rgba(4,4,7,.86));backdrop-filter:blur(13px)}
+ #battleMode #btLeftPanel{top:8px;left:10px;right:10px;max-height:47dvh;overflow-y:auto;padding:12px 13px}
+ #battleMode #btRightPanel{left:10px;right:10px;bottom:8px;max-height:22dvh;overflow-y:auto;padding:9px 12px}
+ #battleMode #btNotes,#battleMode #btNoteInput,#battleMode #btSaveNote{display:none!important}
+ #battleMode .bt-callout{margin-top:6px;padding:7px;font-size:9px;line-height:1.45}
+ #battleMode .bt-protocol{margin:4px 0;font-size:9px;line-height:1.4}
+ #battleMode .bt-suggest{margin:4px 0;padding:5px 6px;font-size:9px;line-height:1.35}
+ #battleMode .bt-objective{padding:5px 0;font-size:10px;line-height:1.35}
+ #battleMode .bt-panel h2{margin:4px 0 7px;font-size:15px}
+ #battleMode .bt-prompt-wrap{position:absolute;left:0;right:0;bottom:0;z-index:8;min-height:58px;height:auto;max-height:108px;flex-wrap:wrap;overflow:auto}
+ #battleMode .bt-actions{margin-top:5px}
+}
+@media(max-width:430px){
+ #battleMode .bt-top{padding:0 10px;height:52px}
+ #battleMode .bt-brand{font-size:8px;letter-spacing:.12em}
+ #battleMode .bt-small-btn{padding:7px 8px;font-size:8px}
+ #battleMode .bt-panel{padding:10px}
+ #battleMode #btLeftPanel{top:6px;left:8px;right:8px;max-height:48dvh}
+ #battleMode #btRightPanel{left:8px;right:8px;bottom:6px;max-height:21dvh}
+ #battleMode .bt-prompt-wrap{padding:7px}
+ #battleMode #btPrompt{font-size:10px}
+}
+.bt-cine-center{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;transform:translateY(-1vh)}
+.bt-cine-copy span{display:block;margin-top:8px;color:rgba(255,90,100,.62);font-size:7px;letter-spacing:.42em}
+.bt-cine-orbit{position:absolute;z-index:1;left:50%;top:50%;width:min(64vw,570px);aspect-ratio:1;transform:translate(-50%,-50%);border:1px solid rgba(255,65,78,.24);border-radius:50%;box-shadow:0 0 60px rgba(255,30,45,.09),inset 0 0 50px rgba(255,25,40,.06);animation:btOrbitSpin 22s linear infinite}
+.bt-cine-orbit:before,.bt-cine-orbit:after{content:"";position:absolute;inset:9%;border:1px dashed rgba(255,90,100,.25);border-radius:50%;transform:rotateX(68deg) rotate(25deg)}
+.bt-cine-orbit:after{inset:20%;border-style:solid;opacity:.55;transform:rotateY(68deg) rotate(-32deg)}
+.bt-cine-orbit i{position:absolute;left:50%;top:-5px;width:8px;height:8px;border-radius:50%;background:#fff0f0;box-shadow:0 0 12px 4px rgba(255,48,62,.8)}
+.bt-cine-orbit i:nth-child(2){left:auto;right:10%;top:76%;width:5px;height:5px}
+.bt-cine-orbit i:nth-child(3){left:12%;top:24%;width:4px;height:4px}
+.bt-cine-orbit b{position:absolute;inset:31%;border:1px solid rgba(255,115,123,.22);border-radius:50%;box-shadow:0 0 28px rgba(255,36,48,.12);animation:btOrbitPulse 2.4s ease-in-out infinite}
+.bt-cine-readout{position:absolute;z-index:3;top:50%;display:flex;flex-direction:column;gap:7px;width:92px;color:rgba(255,131,139,.6);font:7px "JetBrains Mono",monospace;letter-spacing:.18em}
+.bt-cine-readout.left{left:clamp(22px,7vw,100px);transform:translateY(-50%);text-align:left}
+.bt-cine-readout.right{right:clamp(22px,7vw,100px);transform:translateY(-50%);text-align:right}
+.bt-cine-readout b{font-size:10px;color:#ffdadd;text-shadow:0 0 12px rgba(255,40,54,.6)}
+.bt-cine-readout i{display:block;height:2px;background:linear-gradient(90deg,rgba(255,57,70,.75),transparent);transform-origin:left;animation:btReadout 1.8s ease-in-out infinite alternate}
+.bt-cine-readout.right i{background:linear-gradient(270deg,rgba(255,57,70,.75),transparent);transform-origin:right}
+.bt-cine-readout i:nth-of-type(2){width:75%;animation-delay:-.5s}.bt-cine-readout i:nth-of-type(3){width:58%;animation-delay:-.9s}.bt-cine-readout i:nth-of-type(4){width:88%;animation-delay:-1.2s}.bt-cine-readout i:nth-of-type(5){width:44%;animation-delay:-.3s}
+.bt-cine-progress{position:absolute;z-index:4;left:50%;bottom:clamp(86px,14vh,150px);transform:translateX(-50%);width:min(48vw,360px);height:3px;background:rgba(255,90,100,.13);box-shadow:0 0 14px rgba(255,30,45,.12);overflow:hidden}
+.bt-cine-progress span{display:block;width:0;height:100%;background:linear-gradient(90deg,#9b111d,#ff7c84,#fff0f0);box-shadow:0 0 14px rgba(255,60,70,.85);transition:width .65s ease}
+.bt-cine-orbit,.bt-cine-orbit:before,.bt-cine-orbit:after{pointer-events:none}
+@keyframes btOrbitSpin{to{rotate:360deg}}
+@keyframes btOrbitPulse{0%,100%{transform:scale(.88);opacity:.4}50%{transform:scale(1.13);opacity:1}}
+@keyframes btReadout{from{opacity:.28;filter:brightness(.7)}to{opacity:1;filter:brightness(1.5)}}
+@media(max-width:899px){.bt-cine-orbit{width:min(78vw,520px)}.bt-cine-readout{width:54px;gap:5px;font-size:6px}.bt-cine-readout.left{left:12px}.bt-cine-readout.right{right:12px}.bt-cine-progress{bottom:calc(76px + env(safe-area-inset-bottom));width:42vw}.bt-cine-copy{top:clamp(28px,6vh,60px);font-size:8px}.bt-cine-bottom{bottom:calc(32px + env(safe-area-inset-bottom))}}
+
 @media(prefers-reduced-motion:reduce){
  #battleMode:after{opacity:.08}
  .bt-count-number{animation:none}
@@ -1114,7 +1171,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
 <header id="bar"><div class="br"><div class="brand-copy"><b>Z.E.R.O.</b><span class="lbl hs">Voice commands and personal tools, in one place.</span></div></div>
-<nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button><button class="tab" id="battleModeLaunch" type="button" aria-label="Activate Battle Mode">BATTLE</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
+<nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-pressed="true" data-tab="home">Home</button><button class="tab" id="dataTab" type="button" aria-pressed="false" data-tab="data">Visuals &amp; Stats</button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span><button class="ib" id="gear" aria-label="Settings"><svg class="ic"><use href="#i-set"/></svg></button></div></header>
 <main id="stage">
 <section id="center">
 <div class="core" id="core"><div class="halo" id="halo"></div><canvas id="gl" aria-label="Holographic particle orb" role="img"></canvas><canvas id="orbNetworkCanvas" aria-label="Animated particle network orb" role="img"></canvas>
@@ -1159,7 +1216,7 @@ body.zen-mode-active #core{visibility:hidden!important}
       <span class="bt-kicker" id="btLeftKicker">MISSION OBJECTIVES</span>
       <h2 id="btLeftTitle">AWAITING BRIEFING</h2>
       <div id="btObjectives" class="bt-empty">Your session objectives will appear here.</div>
-      <section class="bt-spotify-dock" id="btSpotifyDock" hidden aria-label="Battle briefing music"><div class="bt-spotify-label">BRIEFING SOUNDTRACK</div><iframe class="bt-spotify-frame" id="btSpotifyEmbed" title="Spotify briefing soundtrack" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><p class="bt-spotify-hint">Tap play to start the track preview. Spotify playback availability depends on the track and your region.</p></section>
+
       <div id="btCustomObjective" hidden>
         <div class="bt-add-row"><input class="bt-input" id="btObjectiveInput" maxlength="120" placeholder="Add a custom objective"><button class="bt-action" id="btAddObjective" type="button">ADD</button></div>
       </div>
@@ -1187,8 +1244,12 @@ body.zen-mode-active #core{visibility:hidden!important}
   </footer>
   <div class="bt-countdown" id="btCountdown" hidden>
     <div class="bt-cine-frame" aria-hidden="true"><i class="bt-cine-corner a"></i><i class="bt-cine-corner b"></i><i class="bt-cine-corner c"></i><i class="bt-cine-corner d"></i></div>
-    <div class="bt-cine-copy">Z.E.R.O. // FINAL SEQUENCE</div>
-    <div><div class="bt-count-number" id="btCountNumber">5</div><div class="bt-count-word" id="btCountWord">SYSTEMS CHECK</div><div class="bt-cine-subtitle" id="btCineSubtitle">NEURAL LINK // SYNCHRONISING</div></div>
+    <div class="bt-cine-copy">Z.E.R.O. // FINAL SEQUENCE <span>TACTICAL NEURAL LINK</span></div>
+    <div class="bt-cine-orbit" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+    <div class="bt-cine-readout left" aria-hidden="true"><span>CORE</span><b>ONLINE</b><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="bt-cine-readout right" aria-hidden="true"><span>SYNC</span><b id="btCineSync">00%</b><i></i><i></i><i></i><i></i></div>
+    <div class="bt-cine-center"><div class="bt-count-number" id="btCountNumber">5</div><div class="bt-count-word" id="btCountWord">SYSTEMS CHECK</div><div class="bt-cine-subtitle" id="btCineSubtitle">NEURAL LINK // SYNCHRONISING</div></div>
+    <div class="bt-cine-progress"><span id="btCineProgress"></span></div>
     <div class="bt-cine-bottom">TACTICAL INTERFACE • ALL SYSTEMS NOMINAL</div>
     <button class="bt-action bt-count-return" id="btCountReturn" data-bt-action="close" type="button" hidden>RETURN TO JARVIS</button>
   </div>
@@ -1196,17 +1257,9 @@ body.zen-mode-active #core{visibility:hidden!important}
 <div class="bt-settings-overlay" id="btSettingsOverlay" hidden>
   <section class="bt-settings-card" role="dialog" aria-modal="true" aria-labelledby="btSettingsTitle">
     <div class="bt-kicker">Z.E.R.O. / CONFIGURATION</div><h2 id="btSettingsTitle">BATTLE MODE SETTINGS</h2>
-    <label>Music playback<select class="bt-select" id="btSongSource"><option value="file">Two built-in tracks (play inside ZERO)</option><option value="spotify">Spotify links (requires connection)</option></select></label>
-     <div id="btFileMusicSettings"><label>Opening track — starts after ZERO’s first sentence<input class="bt-input" id="btIntroAudioFile" type="file" accept="audio/*"></label><div class="bt-track-state" id="btIntroTrackName">No opening track selected.</div><label>Final track — starts after the cinematic sequence and final line<input class="bt-input" id="btFinalAudioFile" type="file" accept="audio/*"></label><div class="bt-track-state" id="btFinalTrackName">No final track selected.</div><p class="bt-inline-hint">Tracks are stored locally in this browser and play inside ZERO. Choose two separate audio files.</p></div>
-     <div id="btSpotifyMusicSettings" hidden>
-      <label>Briefing song — Spotify embedded player
-        <input class="bt-input" id="btSpotifyIntroUrl" type="url" placeholder="https://open.spotify.com/track/...">
-      </label>
-      <label>Final song — starts after the visual sequence and final line
-        <input class="bt-input" id="btSpotifyFinalUrl" type="url" placeholder="https://open.spotify.com/track/...">
-      </label>
-      <p class="bt-inline-hint">The briefing song appears as a compact Spotify player in the objectives panel. Tap play there; no Spotify API connection is used. Spotify may offer a 30-second preview or require playback access for the selected track.</p>
-    </div>
+    <label>Battle soundtrack — choose an audio file or a recording saved from Voice Recorder<input class="bt-input" id="btAudioFile" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg"></label>
+    <div class="bt-track-state" id="btTrackName">No soundtrack selected.</div>
+    <p class="bt-inline-hint">Choose one track from your files, including an audio recording made with your phone’s Voice Recorder. It is stored locally in this browser and starts when the countdown reaches FOCUS.</p>
     <div class="bt-divider"></div>
     <div class="bt-kicker">INTERNAL SCHEDULE</div>
     <p class="bt-inline-hint">Add events directly to JARVIS. Google Calendar events are also checked when your Google account is connected.</p>
@@ -3674,7 +3727,7 @@ addEventListener('pagehide',()=>{
 }catch(err){console.error(err);$('#core').classList.add('nogl');orbInfo='Unavailable'}})();
 </script>
 
-<button id="zenLaunch" type="button" aria-label="Enter Zen mode">Zen mode</button>
+<button id="battleModeLaunch" type="button" aria-label="Enter Battle Mode">Battle mode</button><button id="focusLaunch" type="button" aria-label="Focus button">Focus</button><button id="zenLaunch" type="button" aria-label="Enter Zen mode">Zen mode</button>
 <div id="zenRoot" hidden aria-label="Zen mode, Spirit Tree">
  <canvas id="zenParticles" aria-hidden="true"></canvas>
  <div class="zen-shell">
@@ -4077,11 +4130,11 @@ const $$=s=>Array.from(document.querySelectorAll(s));
 const root=$('#battleMode');
 if(!root||root.dataset.ready==='true')return;
 root.dataset.ready='true';
-const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{songSource:'file',spotifyUrl:'',spotifyIntroUrl:'',spotifyFinalUrl:'',trackName:'',introTrackName:'',finalTrackName:''}});
+const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{trackName:''}});
 let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,spotifyLaunchSucceeded=false,battleAudioContext=null,battleAudioAnalyser=null,battleAudioData=null,battleAudioSource=null,battleGain=null;
 try{
  const saved=JSON.parse(localStorage.getItem(KEY)||'null');
- if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,saved.settings||{});if(!data.settings.spotifyFinalUrl&&data.settings.spotifyUrl)data.settings.spotifyFinalUrl=data.settings.spotifyUrl;data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
+ if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,{trackName:(saved.settings&&saved.settings.trackName)||(saved.settings&&saved.settings.finalTrackName)||(saved.settings&&saved.settings.introTrackName)||''});data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
 }catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){return false}}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -4126,8 +4179,8 @@ function showPanelForSpeech(text){
  const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
  speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
 }
-function show(){clearTimeout(battleHideTimer);stopSpotifyBriefingEmbed();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
-function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();stopSpotifyBriefingEmbed();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
+function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
+function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
  if(!root.hidden)return;
@@ -4235,7 +4288,27 @@ function beginBriefing(type,event){
 function addObjective(text){const clean=String(text||'').trim().slice(0,120);if(!clean)return;data.objectives.push({id:id(),text:clean,done:false});save();if(sessionType)beginBriefing(sessionType,activeEvent)}
 function saveNote(){const field=$('#btNoteInput'),text=field.value.trim();if(!text)return;data.notes.push({id:id(),text:text.slice(0,1200),time:Date.now()});data.notes=data.notes.slice(-80);save();field.value='';renderNotebook();setPrompt('Saved to your basketball notebook, sir.')}
 function toggleObjective(index,checked){const item=data.objectives[index];if(!item)return;item.done=!!checked;save()}
-function finishCountdown(){const overlay=$('#btCountdown'),num=$('#btCountNumber'),word=$('#btCountWord'),subtitle=$('#btCineSubtitle');root.classList.add('bt-cinematic');overlay.hidden=false;let n=5;const messages=['SYSTEMS CHECK','POWERING CORE','SYNCING SYSTEMS','NEURAL LINK READY','FOCUS'],sublines=['DIAGNOSTIC SWEEP / 01','ENERGY CORE / ONLINE','TACTICAL DISPLAY / SYNCHRONISED','ALL SYSTEMS / NOMINAL','READY WHEN YOU ARE'];const tick=()=>{num.textContent=String(n);word.textContent=messages[5-n];subtitle.textContent=sublines[5-n];if(n>1){n--;later(tick,920);return}later(async()=>{num.textContent='FOCUS';word.textContent='MAKE THE WORK COUNT';subtitle.textContent='THE NEXT POSSESSION STARTS NOW';const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;const line=motivationText()+' The work is done one possession and one rep at a time. Let us make this session count, sir.';await speak(line);if(data.settings.songSource==='spotify')await playSpotifyStage('final');else await playFinalTrack();$('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';setPrompt('Battle Mode engaged. Your final sequence is complete, sir.');setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>')},700)};tick()}
+function finishCountdown(){
+ const overlay=$('#btCountdown'),num=$('#btCountNumber'),word=$('#btCountWord'),subtitle=$('#btCineSubtitle'),progress=$('#btCineProgress'),sync=$('#btCineSync');
+ root.classList.add('bt-cinematic');overlay.hidden=false;let n=5;
+ const messages=['SYSTEMS CHECK','POWERING CORE','SYNCING SYSTEMS','NEURAL LINK READY','FOCUS'];
+ const sublines=['DIAGNOSTIC SWEEP / 01','ENERGY CORE / ONLINE','TACTICAL DISPLAY / SYNCHRONISED','ALL SYSTEMS / NOMINAL','READY WHEN YOU ARE'];
+ const tick=()=>{
+  const pct=Math.round((5-n)*20);
+  num.textContent=String(n);word.textContent=messages[5-n];subtitle.textContent=sublines[5-n];
+  if(progress)progress.style.width=pct+'%';if(sync)sync.textContent=String(pct).padStart(2,'0')+'%';
+  if(n>1){n--;later(tick,920);return}
+  later(async()=>{
+   num.textContent='FOCUS';word.textContent='MAKE THE WORK COUNT';subtitle.textContent='THE NEXT POSSESSION STARTS NOW';
+   if(progress)progress.style.width='100%';if(sync)sync.textContent='100%';
+   const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;
+   await playFinalTrack();
+   $('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';setPrompt('Battle Mode engaged. Your final sequence is complete, sir.');
+   setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>');
+  },700)
+ };
+ tick()
+}
  let battleSpeechQueue=Promise.resolve();
 function speak(text){
  const message=document.getElementById('msg');if(message)message.textContent=text;
@@ -4262,34 +4335,15 @@ function openDb(){
   req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('Could not open local audio storage.'));
  });
 }
-async function storeTrack(file,stage){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction('tracks','readwrite');tx.objectStore('tracks').put(file,stage==='intro'?'battle-intro-track':'battle-final-track');tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error||new Error('Could not save this audio file.'))}})}
-async function loadTrack(stage){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction('tracks','readonly'),req=tx.objectStore('tracks').get(stage==='intro'?'battle-intro-track':'battle-final-track');req.onsuccess=()=>{const value=req.result||null;if(value||stage==='intro'){db.close();resolve(value);return}const legacy=indexedDB.open('jarvis-battle-audio',1);legacy.onsuccess=()=>{const db2=legacy.result,tx2=db2.transaction('tracks','readonly'),old=tx2.objectStore('tracks').get('battle-track');old.onsuccess=()=>{const value=old.result||null;db2.close();db.close();resolve(value)};old.onerror=()=>{db2.close();db.close();resolve(null)}};legacy.onerror=()=>{db.close();resolve(null)}};req.onerror=()=>{db.close();reject(req.error||new Error('Could not load saved audio.'))}})}
-function spotifyTrackUri(url){
- const match=String(url||'').match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/([A-Za-z0-9]+)/i);
- return match?'spotify:track:'+match[1]:null;
-}
-function renderSpotifyBriefingEmbed(){
- const dock=$('#btSpotifyDock'),frame=$('#btSpotifyEmbed'),uri=spotifyTrackUri(data.settings.spotifyIntroUrl);
- if(!dock||!frame)return false;
- if(data.settings.songSource!=='spotify'||!uri){dock.hidden=true;frame.removeAttribute('src');return false}
- const trackId=uri.slice('spotify:track:'.length),src='https://open.spotify.com/embed/track/'+trackId+'?utm_source=generator&theme=0';
- if(frame.getAttribute('src')!==src)frame.setAttribute('src',src);
- dock.hidden=false;
- return true;
-}
-function stopSpotifyBriefingEmbed(){const dock=$('#btSpotifyDock'),frame=$('#btSpotifyEmbed');if(dock)dock.hidden=true;if(frame)frame.removeAttribute('src')}
-async function playSpotifyStage(stage){const url=stage==='intro'?data.settings.spotifyIntroUrl:data.settings.spotifyFinalUrl,uri=spotifyTrackUri(url);if(!uri){setPrompt('Add a valid Spotify track for the '+(stage==='intro'?'opening':'final')+' music in Battle Mode Settings.');return false}if(typeof window.zeroSpotifyPlayTrack!=='function'){if(await playBattleTrack(stage))return true;setPrompt('Spotify is not connected yet. Add the two built-in tracks to play music inside ZERO. No external app will be opened.');return false}try{return await window.zeroSpotifyPlayTrack(uri)}catch(error){console.warn('ZERO Spotify playback failed:',error);setPrompt('Spotify could not start inside ZERO. Check the Spotify connection in Battle Mode Settings.');return false}}
+async function storeTrack(file){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction('tracks','readwrite');tx.objectStore('tracks').put(file,'battle-track');tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error||new Error('Could not save this audio file.'))}})}
+async function loadTrack(){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction('tracks','readonly'),store=tx.objectStore('tracks');const finish=value=>{db.close();resolve(value||null)};const req=store.get('battle-track');req.onsuccess=()=>{if(req.result){finish(req.result);return}const legacy=store.get('battle-final-track');legacy.onsuccess=()=>{if(legacy.result){finish(legacy.result);return}const older=store.get('battle-intro-track');older.onsuccess=()=>finish(older.result);older.onerror=()=>finish(null)};legacy.onerror=()=>finish(null)};req.onerror=()=>{db.close();reject(req.error||new Error('Could not load the saved soundtrack.'))}})}
 function unlockBattleAudio(){const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;try{if(!battleAudioContext){battleAudioContext=new C();battleAudioAnalyser=battleAudioContext.createAnalyser();battleAudioAnalyser.fftSize=512;battleAudioAnalyser.smoothingTimeConstant=.86;battleAudioData=new Uint8Array(battleAudioAnalyser.fftSize);battleGain=battleAudioContext.createGain();battleAudioAnalyser.connect(battleGain);battleGain.connect(battleAudioContext.destination)}const p=battleAudioContext.resume();if(p&&p.catch)p.catch(()=>{});return true}catch(e){console.warn('Battle audio unlock failed:',e);return false}}
-async function playBattleTrack(stage){try{if(!unlockBattleAudio()){setPrompt('This browser could not initialise in-page audio.');return false}const blob=await loadTrack(stage);if(!blob){setPrompt('Choose a separate '+(stage==='intro'?'opening':'final')+' track in Battle Mode Settings.');return false}const buffer=await battleAudioContext.decodeAudioData((await blob.arrayBuffer()).slice(0)),now=battleAudioContext.currentTime,old=battleAudioSource;if(old){battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(battleGain.gain.value,now);battleGain.gain.linearRampToValueAtTime(0,now+.32);try{old.stop(now+.34)}catch(e){}}const source=battleAudioContext.createBufferSource();source.buffer=buffer;source.connect(battleAudioAnalyser);const startAt=now+(old?.36:0);battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(0,startAt);battleGain.gain.linearRampToValueAtTime(.9,startAt+1.5);const state={paused:false,ended:false};currentAudio=state;battleAudioSource=source;source.onended=()=>{if(battleAudioSource===source){state.paused=true;state.ended=true;battleAudioSource=null}};source.start(startAt);return true}catch(e){console.warn('Battle Mode audio failed:',e);setPrompt('The selected track could not be decoded. Try another audio file.');return false}}
-async function playFinalTrack(){if(data.settings.songSource==='spotify')return playSpotifyStage('final');return playBattleTrack('final')}
-async function manualPlayTrack(){if(data.settings.songSource==='spotify')return playSpotifyStage('final');return playBattleTrack('final')}
+async function playBattleTrack(){try{if(!unlockBattleAudio()){setPrompt('This browser could not initialise in-page audio.');return false}const blob=await loadTrack();if(!blob){setPrompt('Choose your Battle Mode soundtrack in Settings.');return false}const buffer=await battleAudioContext.decodeAudioData((await blob.arrayBuffer()).slice(0)),now=battleAudioContext.currentTime,old=battleAudioSource;if(old){battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(battleGain.gain.value,now);battleGain.gain.linearRampToValueAtTime(0,now+.32);try{old.stop(now+.34)}catch(e){}}const source=battleAudioContext.createBufferSource();source.buffer=buffer;source.connect(battleAudioAnalyser);const startAt=now+(old?.36:0);battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(0,startAt);battleGain.gain.linearRampToValueAtTime(.9,startAt+1.5);const state={paused:false,ended:false};currentAudio=state;battleAudioSource=source;source.onended=()=>{if(battleAudioSource===source){state.paused=true;state.ended=true;battleAudioSource=null}};source.start(startAt);return true}catch(e){console.warn('Battle Mode audio failed:',e);setPrompt('The selected soundtrack could not be decoded. Try another audio file.');return false}}
+async function playFinalTrack(){return playBattleTrack()}
+async function manualPlayTrack(){return playBattleTrack()}
 function openSettings(){
  const overlay=$('#btSettingsOverlay');overlay.hidden=false;
- $('#btSongSource').value=data.settings.songSource||'file';
- $('#btSpotifyIntroUrl').value=data.settings.spotifyIntroUrl||'';$('#btSpotifyFinalUrl').value=data.settings.spotifyFinalUrl||data.settings.spotifyUrl||'';
- $('#btIntroTrackName').textContent=data.settings.introTrackName?'Selected: '+data.settings.introTrackName:'No opening track selected.';$('#btFinalTrackName').textContent=data.settings.finalTrackName?'Selected: '+data.settings.finalTrackName:'No final track selected.';
- $('#btSpotifyMusicSettings').hidden=data.settings.songSource!=='spotify';
- $('#btFileMusicSettings').hidden=data.settings.songSource==='spotify';
+ $('#btTrackName').textContent=data.settings.trackName?'Selected: '+data.settings.trackName:'No soundtrack selected.';
  renderInternalEvents();
 }
 function closeSettings(){$('#btSettingsOverlay').hidden=true}
@@ -4357,14 +4411,8 @@ $('#btExit').addEventListener('click',hide);
 $('#btSettingsOpen').addEventListener('click',openSettings);
 $('#btSettingsClose').addEventListener('click',closeSettings);
 $('#btSettingsOverlay').addEventListener('click',e=>{if(e.target.id==='btSettingsOverlay')closeSettings()});
-$('#btSongSource').addEventListener('change',e=>{
- data.settings.songSource=e.target.value;save();
- $('#btSpotifyMusicSettings').hidden=e.target.value!=='spotify';
- $('#btFileMusicSettings').hidden=e.target.value==='spotify';
- renderSpotifyBriefingEmbed();
-});
-['btSpotifyIntroUrl','btSpotifyFinalUrl'].forEach(id=>$('#'+id).addEventListener('change',e=>{const url=e.target.value.trim();if(url&&!/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/[A-Za-z0-9]+/i.test(url)){alert('Use a Spotify track link.');return}data.settings[id==='btSpotifyIntroUrl'?'spotifyIntroUrl':'spotifyFinalUrl']=url;save();if(id==='btSpotifyIntroUrl')renderSpotifyBriefingEmbed()}));
-[['btIntroAudioFile','intro'],['btFinalAudioFile','final']].forEach(([id,stage])=>$('#'+id).addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('audio/')){alert('Choose an audio file.');return}try{await storeTrack(file,stage);const key=stage==='intro'?'introTrackName':'finalTrackName';data.settings[key]=file.name;data.settings.songSource='file';$('#btSongSource').value='file';$('#'+(stage==='intro'?'btIntroTrackName':'btFinalTrackName')).textContent='Selected: '+file.name;$('#btSpotifyMusicSettings').hidden=true;$('#btFileMusicSettings').hidden=false;save()}catch(error){alert(error.message||'Could not save this audio file.')}}));
+ $('#btAudioFile').addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('audio/')){alert('Choose an audio file.');return}try{await storeTrack(file);data.settings.trackName=file.name;save();$('#btTrackName').textContent='Selected: '+file.name;setPrompt('Battle soundtrack saved locally, sir.');}catch(error){alert(error.message||'Could not save this audio file.')}});
+
  $('#btSaveEvent').addEventListener('click',saveInternalEvent);
 $('#btPostSave').addEventListener('click',savePostgame);
 $('#btPostLater').addEventListener('click',markPostgameLater);
