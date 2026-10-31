@@ -1358,6 +1358,22 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
         x.fillText(Math.random()<.5?'0':'1',q.x,yy);
       }
     }
+    // Clear the binary rain beneath the visible main orb so it never shows through it.
+    const core = document.getElementById('core');
+    const app = document.getElementById('app');
+    if (core && !(app && app.classList.contains('game-active'))) {
+      const rect = core.getBoundingClientRect();
+      const opacity = Number(getComputedStyle(core).opacity || 1);
+      if (rect.width > 0 && rect.height > 0 && opacity > 0.05) {
+        x.save();
+        x.globalCompositeOperation = 'destination-out';
+        x.beginPath();
+        x.ellipse(rect.left + rect.width / 2, rect.top + rect.height / 2,
+          rect.width * 0.53 + 9, rect.height * 0.53 + 9, 0, 0, Math.PI * 2);
+        x.fill();
+        x.restore();
+      }
+    }
   }
   addEventListener('resize',size,{passive:true});
   size(); raf=requestAnimationFrame(frame);
@@ -2942,6 +2958,9 @@ async function run(t) {
     return;
   }
 
+  // Interactive local tools: weather, positive news and Sudoku.
+  if (window.ZeroExtraFeatures && await window.ZeroExtraFeatures.handleCommand(t, respond)) return;
+
   // Handle Hangman locally before the general AI fallback, so game turns never depend on model memory.
   const hangmanResult = handleHangmanCommand(t);
   if (hangmanResult.handled) {
@@ -3993,6 +4012,7 @@ setInterval(zenUpdateRingState,250);
 })();
 
 </script>
+<script src="./zero-features.js?v=weather-sudoku-news-1"></script>
 <script type="module">
 import { createOrb } from './orb-network.js';
 
@@ -4029,7 +4049,7 @@ import { createOrb } from './orb-network.js';
   }
 })();
 </script>
-<script type="module" src="./skill-tree.js?v=calendar-app-launch-4"></script>
+<script type="module" src="./skill-tree.js?v=weather-sudoku-news-1"></script>
 <script>
 
 (function(){
