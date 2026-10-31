@@ -1117,17 +1117,6 @@ let filamentSpeechData = null;
 let filamentAnimationStarted = false;
 let filamentLevel = 0;
 let filamentVoiceActivity = 0;
-let filamentLastFrame = 0;
-
-/* Three layered filaments: one fewer contour for a cleaner silhouette. */
-const filamentIds = [
-  'filament1', 'filament2', 'filament4'
-];
-const filamentRadii = [162, 188, 214];
-const filamentWaves = [3, 4, 6];
-const filamentPhases = [0.2, 4.4, 5.4];
-const filamentSpeeds = [0, 0.15, 0];
-const filamentBaseOpacity = [0.72, 0.46, 0.34];
 
 function getFilamentAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -2874,7 +2863,6 @@ function updateParticles(cloud,seeds,inner,isRing,time){
   for(let i=0;i<count;i++){
     const at=i*3,x=positions[at],y=positions[at+1],z=positions[at+2],seed=seeds[i];
     const depth=clamp((z+1.15)/2.3,0,1);
-    const radialDistance=clamp(Math.sqrt(x*x+y*y+z*z)/shellRadius,0,1.25);
     const edgeMask=!inner&&!isRing?clamp((Math.hypot(x,y)/shellRadius-.54)/.44,0,1):0;
     const edgeAudio=filamentLevel*edgeMask;
     let r,g,b;
@@ -2958,7 +2946,6 @@ function frame(now){
     tilt.rotation.y+=dt*motionAllowed*(state==='responding'?.34:.105);
     tilt.rotation.x=Math.sin(tt*.115)*.035;
     const visualTime=tt*(state==='processing'?1.45:1);
-    const waveTime=waveElapsed>=0?waveElapsed:-1;
     deform(outerBase.positions,outerBase.seeds,N,1,visualTime,amplitude,0,0,outerPositions,filamentLevel);
     deform(innerBase.positions,innerBase.seeds,M,.66,visualTime,amplitude*.86,2.2,1,innerPositions,0);
     updateParticles(outerCloud,outerBase.seeds,false,false,visualTime);
