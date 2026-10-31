@@ -157,8 +157,8 @@ function moveUnit(u,dt){if(u.frozen>0){u.frozen-=dt;return}if(u.stun>0){u.stun-=
  let nx=u.pos.x+u.vel.x*dt,nz=u.pos.z+u.vel.z*dt;let floorY=groundHeight(nx,nz);if(collides(nx,nz,u.pos.y,u)){if(!collides(nx,u.pos.z,u.pos.y,u))nz=u.pos.z;else if(!collides(u.pos.x,nz,u.pos.y,u))nx=u.pos.x;else{nx=u.pos.x;nz=u.pos.z}}
  u.pos.x=clamp(nx,-46,46);u.pos.z=clamp(nz,-46,46);
  // Ladder auto-climb when moving into a ladder.
- for(const l of ladders){if(Math.hypot(u.pos.x-l.x,u.pos.z-l.z)<1.6&&u.pos.y<l.top-.08){u.climb=true;u.pos.y=Math.min(l.top,u.pos.y+6*dt);u.jumpV=0}}
- if(!u.climb||u.pos.y>=5){u.climb=false;u.jumpV-=30*dt;u.pos.y=Math.max(floorY,u.pos.y+u.jumpV*dt);if(u.pos.y===floorY&&u.jumpV<0)u.jumpV=0}
+ u.climb=false;for(const l of ladders){if(Math.hypot(u.pos.x-l.x,u.pos.z-l.z)<1.6&&u.pos.y<l.top-.08){u.climb=true;u.pos.y=Math.min(l.top,u.pos.y+6*dt);u.jumpV=0}}
+ if(!u.climb){u.jumpV-=30*dt;u.pos.y=Math.max(floorY,u.pos.y+u.jumpV*dt);if(u.pos.y===floorY&&u.jumpV<0)u.jumpV=0}
  for(const p of pads){if(Math.hypot(u.pos.x-p.x,u.pos.z-p.z)<1.5&&u.pos.y<.8){if(p.type==='jump'){u.jumpV=20;u.padLand=p.land;u.padSteer=.9}else{u.boost=1.2}}}
  if(u.padSteer>0&&u.padLand){u.padSteer-=dt;u.pos.x+=(u.padLand.x-u.pos.x)*Math.min(1,dt*2);u.pos.z+=(u.padLand.z-u.pos.z)*Math.min(1,dt*2)}
  u.group.position.set(u.pos.x,u.pos.y,u.pos.z);u.ring.rotation.z=performance.now()*.00055+u.id;u.ring2.rotation.y=performance.now()*.0008+u.id*.7;u.shell.rotation.y+=dt*.22;u.shell.rotation.x+=dt*.13;u.nodes.forEach((n,k)=>{const a=performance.now()*.0012+u.id+k*Math.PI/2;n.position.set(Math.cos(a)*1.22,Math.sin(a*1.7)*.18,Math.sin(a)*1.22)});
