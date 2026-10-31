@@ -976,7 +976,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 @media(prefers-reduced-motion:reduce){#zenRoot .zen-affirmation-next span:last-child{transition:none;}}
 
 </style>  <script type="importmap">
-    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
   </script>
 <style>
 
@@ -1152,7 +1152,7 @@ body.zen-mode-active #core{visibility:hidden!important}
     </aside>
     <div class="bt-helmet-wrap">
       <div class="bt-statusline" id="btHelmetStatus">ARMOUR SYSTEM INITIALISING</div>
-      <canvas id="battleHelmetCanvas" aria-label="Particle-reconstructed robotic helmet"></canvas>
+      <canvas id="battleHelmetCanvas" aria-label="Detailed metallic three-dimensional robotic helmet"></canvas>
       <div class="bt-helmet-caption">J.A.R.V.I.S. // TACTICAL INTERFACE</div>
     </div>
     <aside class="bt-panel" id="btRightPanel">
@@ -4042,7 +4042,7 @@ function showPanelForSpeech(text){
  const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
  speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
 }
-function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
+function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='3D ARMOUR SYSTEM INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
 function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();if(window.JarvisBattleHelmet3D)window.JarvisBattleHelmet3D.stop();root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
