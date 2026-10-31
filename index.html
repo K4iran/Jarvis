@@ -1450,10 +1450,14 @@ const ZeroMemory = (() => {
 
 // Keep the user's calendar-opening preference in ZERO's own persistent memory.
 // Do not overwrite a value they have already saved or edited.
-ZeroMemory.rememberIfMissing(
-  'Calendar access preference',
-  'When I ask to open my calendar, launch the Google Calendar app. Use ZERO’s connected Google Calendar for event lookups and creating or editing events.'
-);
+try {
+  ZeroMemory.rememberIfMissing(
+    'Calendar access preference',
+    'When I ask to open my calendar, launch the Google Calendar app. Use ZERO’s connected Google Calendar for event lookups and creating or editing events.'
+  );
+} catch (error) {
+  console.warn('ZERO could not save the default Calendar preference.', error);
+}
 
 // Shared launcher for the Skill Tree and supported voice commands.
 window.zeroOpenGoogleCalendarApp = function () {
@@ -2867,6 +2871,8 @@ async function run(t) {
     /^(?:calendar|my calendar|open calendar|open my calendar)$/.test(calendarText);
   if (calendarAppIntent && !calendarCreateIntent && !calendarReadIntent) {
     say('Opening Google Calendar.');
+    busy = false;
+    setState('standby');
     if (typeof window.zeroOpenGoogleCalendarApp === 'function') {
       window.zeroOpenGoogleCalendarApp();
     } else {
