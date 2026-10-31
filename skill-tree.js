@@ -557,7 +557,9 @@ function addIcon(group, type, color, scale) {
       sphere(p[0],p[1],p[2],index===0?0.13:0.075,index===0?glow:solid);
       if (index > 0) addLine(root, [[0,0,0.12],p], color, 0.68);
     });
-    addLine(root, [pts[1],pts[5],pts[3],pts[6],pts[2]], color, 0.45);
+    addLine(root, type === 'memory'
+      ? [pts[1],pts[3],pts[5],pts[4],pts[2]]
+      : [pts[1],pts[5],pts[3],pts[6],pts[2]], color, 0.45);
     if (type === 'spark') {
       addLine(root, [[0,0.64,0],[0,0.9,0]], color, 1);
       addLine(root, [[-0.13,0.77,0],[0.13,0.77,0]], color, 1);
