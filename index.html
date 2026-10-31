@@ -332,6 +332,10 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 .hm-key:disabled{opacity:.3;cursor:default}
 .hm-key.good{border-color:rgba(82,220,185,.65);color:#8bf3d0}
 .hm-key.bad{border-color:rgba(255,112,143,.55);color:#ff9cb1}
+.hm-voice-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.hm-speak{min-height:38px;padding:0 17px;border:1px solid rgba(104,211,255,.58);border-radius:999px;background:linear-gradient(120deg,rgba(25,104,151,.32),rgba(36,54,112,.34));color:#dff8ff;font:10px ui-monospace,monospace;letter-spacing:.12em;cursor:pointer;box-shadow:0 0 18px rgba(70,178,255,.12),inset 0 0 12px rgba(90,190,255,.08)}
+.hm-speak:active{transform:scale(.97)}
+#hmVoiceStatus{color:#789db5;font:10px ui-monospace,monospace;text-align:center}
 .hm-input-row{display:flex;gap:8px;margin-top:14px}
 #hmGuessInput{min-width:0;flex:1;height:42px;padding:0 12px;border:1px solid rgba(101,183,225,.32);outline:none;background:rgba(2,9,18,.72);color:#e2f9ff;font:12px ui-monospace,monospace}
 #hmGuessInput:focus{border-color:#70d9ff;box-shadow:0 0 16px rgba(88,223,255,.12)}
@@ -804,6 +808,10 @@ body.zen-mode-active #core{visibility:hidden!important}
       </div>
     </div>
     <div id="hmKeyboard" class="hm-keyboard" aria-label="Letter guesses"></div>
+    <div class="hm-voice-row">
+      <button id="hmSpeak" class="hm-speak" type="button" aria-label="Speak a Hangman guess">🎙 SPEAK A GUESS</button>
+      <span id="hmVoiceStatus" role="status" aria-live="polite">Tap to speak a letter or word</span>
+    </div>
     <form id="hmInputForm" class="hm-input-row">
       <input id="hmGuessInput" type="text" maxlength="32" autocomplete="off" autocapitalize="characters" placeholder="Type a letter…" aria-label="Type a letter or word"/>
       <button class="hm-submit" type="submit">GUESS</button>
@@ -1757,6 +1765,15 @@ recognition.onstart=()=>{
   }
 };
 
+// Hangman requests a fresh capture through the existing microphone pipeline.
+window.__zeroStartVoiceCapture = () => {
+  if (wakeEnabled) stopWake();
+  const micButton = document.getElementById('mic');
+  if (!micButton) return false;
+  micButton.click();
+  return !!wakeEnabled;
+};
+
 document.addEventListener('visibilitychange',()=>{
   if(!wakeEnabled||!recognition)return;
   if(document.visibilityState==='visible')restartRecognition();
@@ -2051,10 +2068,8 @@ function handleHangmanCommand(text) {
   if (/\b(harder|easier|change difficulty|make it harder|make it easier)\b/.test(q)) {
     return { handled:true, reply:'Difficulty adapts between rounds using your results over several games, so I will keep this round fair.' };
   }
-  if (/^(?:guess |letter |my guess is |i guess )?[a-z]$/i.test(q)) {
-    const letter = q.match(/[a-z]/i)[0];
-    return submitHangmanGuess(letter);
-  }
+  // Only accept a bare letter here; searching the full phrase picked the G in "guess".
+  if (/^[a-z]$/i.test(q)) return submitHangmanGuess(q);
   const guess = q.match(/^(?:guess|letter|my guess is|i guess|i'll guess|try)\s+([a-z]+)$/i);
   if (guess) return submitHangmanGuess(guess[1]);
   if (/^[a-z]{2,}$/i.test(q) && q.length <= 28) return submitHangmanGuess(q);
@@ -2070,6 +2085,13 @@ document.getElementById('hmInputForm').addEventListener('submit', event => {
   input.focus();
 });
 document.getElementById('hmExit').addEventListener('click', () => run('exit'));
+document.getElementById('hmSpeak').addEventListener('click', () => {
+  const status = document.getElementById('hmVoiceStatus');
+  const started = typeof window.__zeroStartVoiceCapture === 'function' && window.__zeroStartVoiceCapture();
+  status.textContent = started
+    ? 'Microphone starting — say a letter or the whole word.'
+    : 'Could not start the microphone. Check browser permission, then try again.';
+});
 
 
 
@@ -3420,5 +3442,5 @@ import { createOrb } from './orb-network.js';
   }
 })();
 </script>
-<script type="module" src="./skill-tree.js?v=c7aea8f"></script>
+<script type="module" src="./skill-tree.js?v=detail-voice-fix-1"></script>
 </body></html>
