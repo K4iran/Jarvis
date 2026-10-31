@@ -1176,6 +1176,24 @@ function animateUnlockEffects(dt) {
 function playPendingUnlocks(category) {
   if (!category) return;
   const current = category.category;
+
+  // Dedicated versioned first-visit animation for Calendar. This deliberately uses
+  // its own migration flag so an earlier cached build cannot consume the animation
+  // before the updated effect is visible to the user.
+  if (current.id === 'productivity' && !discovery.calendarUnlockV2Played) {
+    const calendarNode = category.skills.find(function (node) {
+      return node.skill && node.skill.id === 'google-calendar';
+    });
+    if (calendarNode) makeUnlockEffect(calendarNode,category);
+    discovery.calendarUnlockV2Played = true;
+    discovery.pendingSkills = discovery.pendingSkills.filter(function (id) {
+      return id !== 'google-calendar';
+    });
+    if (!discovery.playedSkills.includes('google-calendar')) {
+      discovery.playedSkills.push('google-calendar');
+    }
+  }
+
   if (discovery.pendingCategories.includes(current.id) && !discovery.playedCategories.includes(current.id)) {
     discovery.playedCategories.push(current.id);
     makeUnlockEffect({position:new THREE.Vector3(0,0,0),radius:0.76,color:current.color},category);
