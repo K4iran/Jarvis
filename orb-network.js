@@ -106,7 +106,18 @@ export function createOrb(canvas, options = {}) {
     const vocalMotion = activeState === "listening" || activeState === "speaking";
     const speakingPulse = activeState === "speaking" ? speakingExpansion(t) : 0;
     const outward = activeState === "speaking" ? speakingPulse : vocalMotion ? Math.max(0, Math.sin(t * 7.4)) : 0;
-    const sampleStep = Math.max(1, Math.floor(count / 600));
+    // Reduce link density at the listening orb's smallest point, where the
+    // tighter network was causing avoidable rendering load.
+    const listeningBreath = activeState === "listening"
+      ? 0.5 - 0.5 * Math.cos(t * (Math.PI * 2 / 8.0))
+      : 1;
+    const linkBudget = activeState === "listening"
+      ? Math.floor(maxLines * (0.28 + 0.52 * listeningBreath))
+      : maxLines;
+    const sampleTarget = activeState === "listening"
+      ? Math.floor(180 + 300 * listeningBreath)
+      : 600;
+    const sampleStep = Math.max(1, Math.floor(count / sampleTarget));
     for (let i = 0; i < count; i += sampleStep) {
       const ai = i * 3;
       for (let j = i + sampleStep; j < count; j += sampleStep) {
@@ -128,10 +139,10 @@ export function createOrb(canvas, options = {}) {
           links.push([i, j]);
           connectionCounts[i]++;
           connectionCounts[j]++;
-          if (links.length >= maxLines) break;
+          if (links.length >= linkBudget) break;
         }
       }
-      if (links.length >= maxLines) break;
+      if (links.length >= linkBudget) break;
     }
     const used = links.length * 6;
     for (let k = 0; k < links.length; k++) {
@@ -157,9 +168,9 @@ export function createOrb(canvas, options = {}) {
   }
 
   function speakingExpansion(t) {
-    // Five-second cycle: two seconds gently pulsing at maximum size,
-    // two seconds smoothly moving between sizes, then one second at 25%.
-    const cycle = 5.0;
+    // Six-and-a-half-second cycle: two seconds at maximum, two seconds
+    // contracting, a half-second minimum hold, then a smooth two-second rise.
+    const cycle = 6.5;
     const phase = t % cycle;
     if (phase < 2.0) {
       return 0.975 + 0.025 * (0.5 + 0.5 * Math.sin(phase * Math.PI * 2));
@@ -169,7 +180,9 @@ export function createOrb(canvas, options = {}) {
       const eased = x * x * (3 - 2 * x);
       return 1 - eased;
     }
-    return 0;
+    if (phase < 4.5) return 0;
+    const x = (phase - 4.5) / 2.0;
+    return x * x * (3 - 2 * x);
   }
 
   function setState(state) {
@@ -212,7 +225,7 @@ export function createOrb(canvas, options = {}) {
     const pulse = isVocal || current.links > 0.7 ? mids : 0;
     for (let i = 0; i < count; i++) {
       const j = i * 3, p = phases[i], wave = Math.sin(t * (0.9 + speeds[i]) + p);
-      const listeningBreath = 0.5 - 0.5 * Math.cos(t * 1.05);
+      const listeningBreath = 0.5 - 0.5 * Math.cos(t * (Math.PI * 2 / 8.0));
       const vocalCycle = Math.sin(t * 7.4);
       const expandAmount = isSpeaking ? speakingAmount : isListening ? Math.max(0, vocalCycle) : 0;
       // A quicker, deeper inhale/exhale; each particle lags slightly so the
@@ -220,7 +233,7 @@ export function createOrb(canvas, options = {}) {
       const expansion = isSpeaking
         ? 1 + 0.035 * speakingAmount * Math.sin(t * Math.PI * 2.0)
         : isListening
-          ? 0.72 + 0.95 * listeningBreath + 0.025 * Math.sin(t * 1.8 + p * 0.7)
+          ? 0.78 + 1.12 * listeningBreath + 0.025 * Math.sin(t * 1.8 + p * 0.7)
           : target.electrons
           ? 1 + 0.09 * Math.sin(t * 1.8 + p * 0.2) + 0.045 * Math.sin(t * 3.1 + p)
           : 1 + 0.115 * Math.sin(t * 0.62) + 0.035 * Math.sin(t * 1.35 + p * 0.35);
