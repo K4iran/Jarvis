@@ -438,11 +438,12 @@
   async function openWeather(city) {
     const requestedCity=String(city || weatherCity || "Edinburgh").trim() || "Edinburgh";
     weatherCity = requestedCity;
-    try { localStorage.setItem("zero.weather.city.v1", weatherCity); } catch (error) {}
     open("weather");
     panel.innerHTML = head("LIVE WEATHER / FETCHING", "Weather") + '<div class="zf-status">Checking current conditions for ' + escapeHtml(requestedCity) + '…</div>';
     try {
       const result=await fetchWeather(requestedCity);
+      weatherCity = result.place.name || requestedCity;
+      try { localStorage.setItem("zero.weather.city.v1", weatherCity); } catch (error) {}
       renderWeather(requestedCity,result);
       return { ok:true, result:result };
     } catch (error) {
