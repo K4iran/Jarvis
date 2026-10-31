@@ -859,14 +859,16 @@ body.zen-mode-active #core{visibility:hidden!important}
   animation-timing-function:cubic-bezier(.45,0,.55,1)!important;
   animation-iteration-count:infinite!important;
 }
-#zenRoot .zen-tree-svg,
-#zenRoot .zen-node{
-  animation-name:zenUnifiedBreath!important;
-}
+#zenRoot .zen-tree-svg{animation-name:zenUnifiedTreeBreath!important;}
+#zenRoot .zen-node{animation-name:zenUnifiedBreath!important;}
 #zenRoot .zen-tree-stage:before{animation-name:zenUnifiedGlow!important;}
 #zenRoot .zen-trunk-volume{animation-name:zenUnifiedStem!important;}
+/* The tree keeps its own centred SVG transform; only the absolutely positioned buttons need the centring translation. */
+@keyframes zenUnifiedTreeBreath{
+  0%,100%{transform:scale(.978);filter:brightness(.92) saturate(.98) drop-shadow(0 0 9px rgba(90,232,207,.18));}
+  50%{transform:scale(1.03);filter:brightness(1.24) saturate(1.15) drop-shadow(0 0 25px rgba(90,255,225,.4));}
+}
 @keyframes zenUnifiedBreath{
-  /* Keep the buttons' centring translation while they breathe; replacing it with scale alone throws them off their anchors. */
   0%,100%{transform:translate(-50%,-50%) scale(.978);filter:brightness(.92) saturate(.98) drop-shadow(0 0 9px rgba(90,232,207,.18));}
   50%{transform:translate(-50%,-50%) scale(1.03);filter:brightness(1.24) saturate(1.15) drop-shadow(0 0 25px rgba(90,255,225,.4));}
 }
