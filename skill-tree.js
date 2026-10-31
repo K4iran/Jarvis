@@ -51,6 +51,12 @@ const categories = [
         launch: 'weather'
       },
       {
+        id: 'happy-news', name: 'Happy News', status: 'Active', icon: 'heart',
+        description: 'A short briefing of recent uplifting stories, filtered to leave out ambiguous or negative headlines.',
+        activation: '“Hey ZERO, show me happy news.”',
+        launch: 'happy-news'
+      },
+      {
         id: 'task-lists', name: 'Task Lists', status: 'Coming Soon', icon: 'tasks',
         description: 'A built-in task list and preparation checklist for everyday plans and things to remember before leaving.',
         activation: 'A voice command will be shown here when task lists are released.'
@@ -1700,13 +1706,30 @@ function launchSkill(skillNode) {
     treeOpen=false;
     if (navButton) navButton.setAttribute('aria-pressed','false');
     if (window.ZeroExtraFeatures && typeof window.ZeroExtraFeatures.openWeather === 'function') {
-      window.ZeroExtraFeatures.openWeather('Edinburgh');
+      window.ZeroExtraFeatures.openWeather();
     } else {
       launchFromTree=false;
       overlay.hidden=false;
       treeOpen=true;
       if (navButton) navButton.setAttribute('aria-pressed','true');
       showToast('Weather is not available right now.');
+    }
+    return;
+  }
+
+  if (skill.launch === 'happy-news') {
+    launchFromTree=true;
+    overlay.hidden=true;
+    treeOpen=false;
+    if (navButton) navButton.setAttribute('aria-pressed','false');
+    if (window.ZeroExtraFeatures && typeof window.ZeroExtraFeatures.openHappyNews === 'function') {
+      window.ZeroExtraFeatures.openHappyNews();
+    } else {
+      launchFromTree=false;
+      overlay.hidden=false;
+      treeOpen=true;
+      if (navButton) navButton.setAttribute('aria-pressed','true');
+      showToast('Happy News is not available right now.');
     }
     return;
   }
