@@ -4391,7 +4391,7 @@ function startHelmetAnimation(){
   if(root.hidden){animationFrame=0;return}
   const t=(now-start)/1000,form=clamp((t-.9)/2.9,0,1),mix=form*form*(3-2*form),scatter=Math.sin(form*Math.PI)*(1-form)*.42;
   ctx.clearRect(0,0,w,h);
-  const scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=reduced ? .22 : .22+Math.sin(t*.38)*.025,rotX=reduced ? -.015 : -.015+Math.cos(t*.29)*.012,eyeOn=t>3.65;
+  const scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=(reduced ? .22 : .22+Math.sin(t*.38)*.025),rotX=(reduced ? -.015 : -.015+Math.cos(t*.29)*.012),eyeOn=t>3.65;
   ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
   const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
   const projected=new Array(points.length);
@@ -4399,7 +4399,7 @@ function startHelmetAnimation(){
    const p=points[i],dx=p.sx*(1-mix)+(p.x-280)*mix,dy=p.sy*(1-mix)+(p.y-320)*mix;
    // Tiny independent motion gives the particles life while keeping their
    // anchor positions fixed, so the helmet never melts or loses its shape.
-   const drift=mix*(reduced?.0:1),sx=dx+Math.cos(p.phase+t*.92)*drift*1.35+Math.cos(p.phase+t*.8)*scatter*120,
+   const drift=mix*(reduced ? 0 : 1),sx=dx+Math.cos(p.phase+t*.92)*drift*1.35+Math.cos(p.phase+t*.8)*scatter*120,
          sy=dy+Math.sin(p.phase+t*.84)*drift*1.35+Math.sin(p.phase+t*.8)*scatter*120;
    const z=p.sz*(1-mix)+p.z*mix,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
    const perspective=1+z*.0009,alpha=(.25+.58*mix)*(.68+.32*Math.sin(t*1.2+p.phase));
