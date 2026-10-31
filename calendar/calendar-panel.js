@@ -53,7 +53,15 @@
   document.body.appendChild(root);
 
   const status = root.querySelector(".jcp-status");
+  const connectButton = root.querySelector('[data-action="connect"]');
   const eventsNode = root.querySelector('[data-role="events"]');
+
+  function updateConnectionUI(api) {
+    const connected = Boolean(api && api.isConnected());
+    connectButton.hidden = connected;
+    connectButton.textContent = connected ? "Google Calendar connected" : "Connect Google Calendar";
+    connectButton.disabled = false;
+  }
   const form = root.querySelector('[data-role="form"]');
   let editingId = null;
   let latestEvents = [];
@@ -133,14 +141,24 @@
   }
   async function refresh() {
     const api = window.JarvisGoogleCalendar;
+    updateConnectionUI(api);
     if (!api) { say("Calendar adapter has not been loaded yet."); return; }
     if (!api.isConnected()) { say("Tap Connect Google Calendar to authorise access."); return; }
-    try { say("Loading your events…"); renderEvents(await api.listEvents({})); say("Calendar synced."); }
-    catch (error) { say(error.message || "Could not load calendar."); }
+    try {
+      say("Loading your events…");
+      renderEvents(await api.listEvents({}));
+      updateConnectionUI(api);
+      say("Calendar synced.");
+    } catch (error) {
+      updateConnectionUI(api);
+      say(error.message || "Could not load calendar.");
+    }
   }
   root.querySelector(".jcp-close").addEventListener("click", hide);
-  root.querySelector('[data-action="connect"]').addEventListener("click", async () => {
+  connectButton.addEventListener("click", async () => {
     try {
+      connectButton.disabled = true;
+      connectButton.textContent = "Connecting…";
       const api = window.JarvisGoogleCalendar;
       if (!api) throw new Error("Calendar adapter has not been loaded.");
       const ready = await (window.JarvisGoogleCalendarReady || api.init());
@@ -149,7 +167,10 @@
       say("Google Calendar connected.");
       window.dispatchEvent(new CustomEvent("jarvis:calendar-connected"));
       await refresh();
-    } catch (error) { say(error.message || "Google Calendar connection failed."); }
+    } catch (error) {
+      updateConnectionUI(window.JarvisGoogleCalendar);
+      say(error.message || "Google Calendar connection failed.");
+    }
   });
   root.querySelector('[data-action="refresh"]').addEventListener("click", refresh);
   root.querySelector('[data-action="new"]').addEventListener("click", () => openForm(null));
@@ -179,6 +200,7 @@
   window.addEventListener("jarvis:calendar-events", event => {
     show();
     renderEvents(event.detail && event.detail.events);
+    updateConnectionUI(window.JarvisGoogleCalendar);
     say("Calendar synced.");
   });
   window.JarvisCalendarPanel = Object.freeze({ open: show, close: hide, refresh, newEvent: () => openForm(null) });
