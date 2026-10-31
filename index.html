@@ -4383,29 +4383,37 @@ function startHelmetAnimation(){
    detailLinks.push([a[0]+dx*u,a[1]+dy*u,a[0]+dx*v,a[1]+dy*v]);
   }
  }
- let w=1,h=1,dpr=1,start=performance.now(),formedAt=0;
+ let w=1,h=1,dpr=1,start=performance.now();
+ const scanStart=.32,scanDuration=2.78;
+ function smoothstep(a,b,x){const q=clamp((x-a)/(b-a),0,1);return q*q*(3-2*q)}
  const resize=()=>{const rect=canvas.getBoundingClientRect();w=Math.max(1,rect.width);h=Math.max(1,rect.height);dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)};
  resize();if(typeof ResizeObserver==='function'){const ro=new ResizeObserver(resize);ro.observe(canvas)}else window.addEventListener('resize',resize);
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  function draw(now){
   if(root.hidden){animationFrame=0;return}
-  const t=(now-start)/1000,form=clamp((t-.9)/2.9,0,1),mix=form*form*(3-2*form),scatter=Math.sin(form*Math.PI)*(1-form)*.42;
+  const t=(now-start)/1000,scanRaw=(t-scanStart)/scanDuration,scanProgress=clamp(scanRaw,0,1),scanX=-235+smoothstep(0,1,scanProgress)*470,scanVisible=t>=scanStart?clamp(1-(scanRaw-1)/.22,0,1):0,scatter=Math.sin(scanProgress*Math.PI)*(1-scanProgress)*.30;
   ctx.clearRect(0,0,w,h);
-  const scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=(reduced ? .22 : .22+Math.sin(t*.38)*.025),rotX=(reduced ? -.015 : -.015+Math.cos(t*.29)*.012),eyeOn=t>3.65;
+  const turn=smoothstep(1,1.30,scanRaw),scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=.045+turn*.12+(reduced?0:Math.sin(t*.38)*.008),rotX=-.015+(reduced?0:Math.cos(t*.29)*.006),eyeOn=t>3.48;
   ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
   const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
+  if(scanVisible>.001){
+   ctx.save();ctx.globalCompositeOperation='lighter';
+   const beam=ctx.createLinearGradient(scanX-25,0,scanX+25,0);
+   beam.addColorStop(0,'rgba(255,28,38,0)');beam.addColorStop(.34,'rgba(255,45,56,.10)');beam.addColorStop(.5,'rgba(255,112,120,.72)');beam.addColorStop(.66,'rgba(255,45,56,.10)');beam.addColorStop(1,'rgba(255,28,38,0)');
+   ctx.fillStyle=beam;ctx.fillRect(scanX-25,-330,50,660);ctx.shadowColor='rgba(255,45,56,.95)';ctx.shadowBlur=18;ctx.strokeStyle='rgba(255,213,216,.95)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(scanX,-320);ctx.lineTo(scanX,260);ctx.stroke();ctx.restore();
+  }
   const projected=new Array(points.length);
   for(let i=0;i<points.length;i++){
-   const p=points[i],dx=p.sx*(1-mix)+(p.x-280)*mix,dy=p.sy*(1-mix)+(p.y-320)*mix;
-   // Tiny independent motion gives the particles life while keeping their
-   // anchor positions fixed, so the helmet never melts or loses its shape.
-   const drift=mix*(reduced ? 0 : 1),sx=dx+Math.cos(p.phase+t*.92)*drift*1.35+Math.cos(p.phase+t*.8)*scatter*120,
-         sy=dy+Math.sin(p.phase+t*.84)*drift*1.35+Math.sin(p.phase+t*.8)*scatter*120;
-   const z=p.sz*(1-mix)+p.z*mix,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
-   const perspective=1+z*.0009,alpha=(.25+.58*mix)*(.68+.32*Math.sin(t*1.2+p.phase));
+   const p=points[i],targetX=p.x-280,reveal=smoothstep(targetX-44,targetX+44,scanX),band=scanVisible*Math.exp(-Math.pow((targetX-scanX)/27,2)),dx=p.sx*(1-reveal)+targetX*reveal,dy=p.sy*(1-reveal)+(p.y-320)*reveal;
+   // Particles only leave the orb after the scan reaches their target position.
+   // Once formed, their anchors remain stable so the helmet never melts.
+   const drift=reveal*(reduced?0:1),sx=dx+Math.cos(p.phase+t*.92)*drift*1.35+Math.cos(p.phase+t*.8)*scatter*42+Math.cos(p.phase+t*1.4)*band*2.8,
+         sy=dy+Math.sin(p.phase+t*.84)*drift*1.35+Math.sin(p.phase+t*.8)*scatter*42+Math.sin(p.phase+t*1.25)*band*2.2;
+   const z=p.sz*(1-reveal)+p.z*reveal,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
+   const perspective=1+z*.0009,alpha=(.24+.58*reveal)*(.68+.32*Math.sin(t*1.2+p.phase));
    const side=Math.max(0,Math.min(1,(p.x-104)/352));
-   const cr=Math.round(255-200*side),cg=Math.round(220-212*side),cb=Math.round(225-212*side);
-   projected[i]={x:px*perspective,y:py*perspective,alpha,cr,cg,cb,size:p.size*(.65+mix*.4)};
+   const cr=Math.round(176+58*(1-side)+21*p.bright+21*band),cg=Math.round(10+22*p.bright+105*band),cb=Math.round(18+25*p.bright+110*band);
+   projected[i]={x:px*perspective,y:py*perspective,alpha,cr,cg,cb,size:p.size*(.65+reveal*.4),reveal,band};
   }
   // Subtle connecting filaments: each line breathes independently in
   // brightness, with the same left-to-right colour treatment as the nodes.
@@ -4414,42 +4422,38 @@ function startHelmetAnimation(){
    const [ia,ib]=links[k],a=projected[ia],b=projected[ib];
    if(!a||!b)continue;
    const shimmer=.24+.22*(.5+.5*Math.sin(t*1.7+k*.19));
-   const alpha=shimmer*mix*Math.min(1,Math.min(a.alpha,b.alpha)*1.8);
+   const alpha=shimmer*Math.min(a.reveal,b.reveal)*Math.min(1,Math.min(a.alpha,b.alpha)*1.8);
    ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+alpha+')';
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
   }
   // Distinct Iron-Man-inspired panel seams, eye surrounds, cheek geometry,
   // nose bridge and mouth vents, rendered as broken particle connections.
+  ctx.save();ctx.beginPath();ctx.rect(-235,-330,Math.max(0,scanX+250),660);ctx.clip();
   for(let k=0;k<detailLinks.length;k++){
-   const d=detailLinks[k],a={x:d[0]-280,y:d[1]-320},b={x:d[2]-280,y:d[3]-320};
-   const shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31));
-   ctx.strokeStyle='rgba(255,105,115,'+((.34+.22*(.5+.5*Math.sin(t*1.35+k*.31)))*mix)+')';ctx.lineWidth=1.35;
+   const d=detailLinks[k],a={x:d[0]-280,y:d[1]-320},b={x:d[2]-280,y:d[3]-320},midX=(a.x+b.x)*.5;
+   const lineReveal=smoothstep(midX-44,midX+44,scanX),shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31));
+   ctx.strokeStyle='rgba(255,105,115,'+((.34+.22*(.5+.5*Math.sin(t*1.35+k*.31)))*lineReveal)+')';ctx.lineWidth=1.35;
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
   }
+  ctx.restore();
   for(let i=0;i<projected.length;i++){
    const p=projected[i];ctx.fillStyle='rgba('+p.cr+','+p.cg+','+p.cb+','+p.alpha+')';
    ctx.globalAlpha=p.alpha;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
   }
   ctx.globalAlpha=1;
   // Crisp, angular outer shell: a bright edge plus a restrained red halo.
-  if(mix>.16){
-   const edge=clamp((mix-.16)/.84,0,1),outline=[[0,-282],[85,-259],[148,-203],[176,-118],[167,-10],[129,89],[70,173],[0,226],[-70,173],[-129,89],[-167,-10],[-176,-118],[-148,-203],[-85,-259]];
-   ctx.save();ctx.globalAlpha=edge;
+  if(scanProgress>.01){
+   const edge=clamp(scanProgress*1.2,0,1),outline=[[0,-282],[85,-259],[148,-203],[176,-118],[167,-10],[129,89],[70,173],[0,226],[-70,173],[-129,89],[-167,-10],[-176,-118],[-148,-203],[-85,-259]];
+   ctx.save();ctx.beginPath();ctx.rect(-235,-315,Math.max(0,scanX+250),650);ctx.clip();ctx.globalAlpha=edge;
    ctx.shadowColor='rgba(255,34,48,.9)';ctx.shadowBlur=15;
    ctx.strokeStyle='rgba(255,55,67,.72)';ctx.lineWidth=3.1;ctx.lineJoin='round';ctx.beginPath();outline.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
    ctx.shadowBlur=2;ctx.strokeStyle='rgba(255,190,194,.72)';ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
   }
-  if(eyeOn){
-   const pulse=.72+.28*Math.sin(t*3.8);
-   const eye=(x)=>{ctx.save();ctx.translate(x,-43);ctx.rotate(.1);
-    ctx.shadowColor='#ff1828';ctx.shadowBlur=32*pulse;
-    ctx.fillStyle='rgba(255,23,38,'+(.72*pulse)+')';ctx.beginPath();
-    ctx.moveTo(-62,-8);ctx.lineTo(55,-20);ctx.lineTo(37,10);ctx.lineTo(-45,16);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='rgba(255,183,186,.85)';ctx.lineWidth=2;ctx.stroke();ctx.restore()};
-   eye(-83);eye(83);
-  }else if(t>2.8){
-   ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(-135,-62,105,32);ctx.fillRect(30,-62,105,32);
-  }
+  const eyeShape=()=>{ctx.beginPath();ctx.moveTo(-54,-3);ctx.lineTo(50,-12);ctx.lineTo(35,1);ctx.lineTo(-43,8);ctx.closePath()};
+  const eyeSocket=(x)=>{ctx.save();ctx.translate(x,-43);if(x>0)ctx.scale(-1,1);ctx.fillStyle='rgba(2,0,3,.94)';eyeShape();ctx.fill();ctx.restore()};
+  const eye=(x,pulse)=>{ctx.save();ctx.translate(x,-43);if(x>0)ctx.scale(-1,1);ctx.shadowColor='#ff1828';ctx.shadowBlur=30*pulse;ctx.fillStyle='rgba(255,25,39,'+(.88*pulse)+')';eyeShape();ctx.fill();ctx.shadowBlur=5;ctx.strokeStyle='rgba(255,230,231,.96)';ctx.lineWidth=1.15;ctx.beginPath();ctx.moveTo(-39,1);ctx.lineTo(36,-7);ctx.stroke();ctx.restore()};
+  if(eyeOn){const pulse=.78+.22*Math.sin(t*3.8);eye(-83,pulse);eye(83,pulse)}
+  else if(t>2.9){eyeSocket(-83);eyeSocket(83)}
   ctx.restore();
   animationFrame=requestAnimationFrame(draw);
  }
