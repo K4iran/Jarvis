@@ -73,7 +73,7 @@
   }
   function getWeatherCity(text) {
     const cleaned = String(text || "").replace(/^\s*(?:(?:hey[\s,]+)?zero)\b[\s,:-]*/i, "").trim();
-    const match = cleaned.match(/\b(?:weather|forecast|temperature|conditions)\b.*?\b(?:in|for|at)\s+(.+?)\s*$/i) ||
+    const match = cleaned.match(/\b(?:weather|forecast|temperature|conditions|rain|raining|sunny|cloudy|windy)\b.*?\b(?:in|for|at)\s+(.+?)\s*$/i) ||
       cleaned.match(/\b(?:in|for|at)\s+(.+?)\s+(?:weather|forecast)\b/i);
     if (match && match[1]) return match[1].replace(/[?.!]+$/g, "").trim();
     return "Edinburgh";
@@ -407,7 +407,7 @@
       await showHappyNews(respond);
       return true;
     }
-    if (/\b(?:weather|forecast|temperature|conditions)\b/.test(q)) {
+    if (/\b(?:weather|forecast|temperature|conditions|rain|raining|sunny|cloudy|windy)\b/.test(q)) {
       const city = getWeatherCity(raw);
       open("weather");
       panel.innerHTML = head("LIVE WEATHER / FETCHING", "Weather") + '<div class="zf-status">Checking current conditions for ' + escapeHtml(city) + '…</div>';
