@@ -4328,7 +4328,7 @@ function startHelmetAnimation(){
  path([[196,75],[229,55],[280,48],[331,55],[364,75]],7,false,false);
  const pixels=m.getImageData(0,0,mask.width,mask.height).data,target=[];
  for(let y=12;y<mask.height-10;y+=3)for(let x=12;x<mask.width-10;x+=3){if(pixels[(y*mask.width+x)*4+3]>70)target.push({x,y})}
- const count=8500,points=[];
+ const count=6375,points=[];
  for(let i=0;i<count;i++){
   const p=target[Math.floor(Math.random()*target.length)]||{x:280,y:320};
   // Begin as a compact 3D orb, then unfold into the fixed helmet surface.
@@ -4336,9 +4336,9 @@ function startHelmetAnimation(){
   const faceZ=(x,y)=>{
    const nx=(x-280)/176,ny=(y-320)/282;
    const nose=Math.exp(-Math.pow((x-280)/43,2)-Math.pow((y-258)/105,2))*30;
-   const cheek=Math.exp(-Math.pow((Math.abs(nx)-.53)/.22,2)-Math.pow((ny-.12)/.42,2))*13;
-   const side=-Math.pow(Math.abs(nx),1.7)*23;
-   return nose+cheek+side+(y>400?7:0);
+   const cheek=Math.exp(-Math.pow((Math.abs(nx)-.53)/.22,2)-Math.pow((ny-.12)/.42,2))*21;
+   const side=-Math.pow(Math.abs(nx),1.7)*38;
+   return nose+cheek+side+(y>400?11:0);
   };
   points.push({x:p.x,y:p.y,z:faceZ(p.x,p.y)+(Math.random()-.5)*5,sx:Math.cos(a)*v*r,sy:u*r,sz:Math.sin(a)*v*r,size:.65+Math.random()*1.3,phase:Math.random()*Math.PI*2,bright:Math.random()});
  }
@@ -4348,11 +4348,11 @@ function startHelmetAnimation(){
  for(let i=0;i<points.length;i++){
   const p=points[i],gx=Math.floor(p.x/cellSize),gy=Math.floor(p.y/cellSize);
   let made=0;
-  for(let oy=-1;oy<=1&&made<4;oy++)for(let ox=-1;ox<=1&&made<4;ox++){
+  for(let oy=-1;oy<=1&&made<2;oy++)for(let ox=-1;ox<=1&&made<2;ox++){
    const bucket=grid.get((gx+ox)+','+(gy+oy));if(!bucket)continue;
    for(const j of bucket){
     const q=points[j],dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy;
-    if(d2>18&&d2<cellSize*cellSize*.82){links.push([i,j]);made++;if(made>=4)break}
+    if(d2>18&&d2<cellSize*cellSize*.82){links.push([i,j]);made++;if(made>=2)break}
    }
   }
   const key=cellKey(p.x,p.y);if(!grid.has(key))grid.set(key,[]);grid.get(key).push(i);
@@ -4388,7 +4388,16 @@ function startHelmetAnimation(){
   [[105,311],[126,304],[139,319]],
   [[455,311],[434,304],[421,319]],
   [[118,203],[136,194],[151,204]],
-  [[442,203],[424,194],[409,204]]
+  [[442,203],[424,194],[409,204]],
+   [[84,231],[105,218],[132,225],[145,248],[143,282],[125,309],[101,315],[84,292],[78,260],[84,231]],
+   [[476,231],[455,218],[428,225],[415,248],[417,282],[435,309],[459,315],[476,292],[482,260],[476,231]],
+   [[91,247],[108,234],[128,240],[136,259],[132,283],[115,298],[96,286],[91,247]],
+   [[469,247],[452,234],[432,240],[424,259],[428,283],[445,298],[464,286],[469,247]],
+   [[103,259],[116,251],[127,260],[126,276],[113,286],[102,276],[103,259]],
+   [[457,259],[444,251],[433,260],[434,276],[447,286],[458,276],[457,259]],
+   [[113,263],[120,268],[113,275]],[[447,263],[440,268],[447,275]],
+   [[88,300],[108,310],[129,302]],[[472,300],[452,310],[431,302]],
+   [[92,224],[113,212],[137,218]],[[468,224],[447,212],[423,218]]
  ];
  const detailLinks=[];
  for(const path of detailPaths)for(let k=1;k<path.length;k++){
@@ -4408,7 +4417,7 @@ function startHelmetAnimation(){
   if(root.hidden){animationFrame=0;return}
   const t=(now-start)/1000,scanRaw=(t-scanStart)/scanDuration,scanProgress=clamp(scanRaw,0,1),scanX=-235+smoothstep(0,1,scanProgress)*470,scanVisible=t>=scanStart?clamp(1-(scanRaw-1)/.22,0,1):0,scatter=Math.sin(scanProgress*Math.PI)*(1-scanProgress)*.30;
   ctx.clearRect(0,0,w,h);
-  const turn=smoothstep(1,1.30,scanRaw),scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=.045+turn*.12+(reduced?0:Math.sin(t*.38)*.008),rotX=-.015+(reduced?0:Math.cos(t*.29)*.006),eyeOn=t>3.48;
+  const turn=smoothstep(1,1.30,scanRaw),scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=.075+turn*.19+(reduced?0:Math.sin(t*.38)*.008),rotX=-.028+(reduced?0:Math.cos(t*.29)*.006),eyeOn=t>3.48;
   ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
   const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
   if(scanVisible>.001){
@@ -4425,7 +4434,7 @@ function startHelmetAnimation(){
    const drift=reveal*(reduced?0:1),sx=dx+Math.cos(p.phase+t*.92)*drift*1.35+Math.cos(p.phase+t*.8)*scatter*42+Math.cos(p.phase+t*1.4)*band*2.8,
          sy=dy+Math.sin(p.phase+t*.84)*drift*1.35+Math.sin(p.phase+t*.8)*scatter*42+Math.sin(p.phase+t*1.25)*band*2.2;
    const z=p.sz*(1-reveal)+p.z*reveal,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
-   const perspective=1+z*.0009,alpha=(.24+.58*reveal)*(.68+.32*Math.sin(t*1.2+p.phase));
+   const perspective=1+z*.00165,alpha=(.24+.58*reveal)*(.68+.32*Math.sin(t*1.2+p.phase));
    const side=Math.max(0,Math.min(1,(p.x-104)/352));
    // Preserve the existing left-side peak; progressively shade toward the right.
    const directionalLight=1-.985*smoothstep(.02,1,side),baseRed=176+58*(1-side)+21*p.bright;
@@ -4434,11 +4443,11 @@ function startHelmetAnimation(){
   }
   // Subtle connecting filaments: each line breathes independently in
   // brightness, with the same left-to-right colour treatment as the nodes.
-  ctx.lineWidth=.62;
+  ctx.lineWidth=.42;
   for(let k=0;k<links.length;k++){
    const [ia,ib]=links[k],a=projected[ia],b=projected[ib];
    if(!a||!b)continue;
-   const shimmer=.24+.22*(.5+.5*Math.sin(t*1.7+k*.19));
+   const shimmer=.10+.10*(.5+.5*Math.sin(t*1.7+k*.19));
    const alpha=shimmer*Math.min(a.reveal,b.reveal)*Math.min(1,Math.min(a.alpha,b.alpha)*1.8);
    ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+alpha+')';
    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
@@ -4446,11 +4455,11 @@ function startHelmetAnimation(){
   // Distinct Iron-Man-inspired panel seams, eye surrounds, cheek geometry,
   // nose bridge and mouth vents, rendered as broken particle connections.
   ctx.save();ctx.beginPath();ctx.rect(-235,-330,Math.max(0,scanX+250),660);ctx.clip();
-  for(let k=0;k<detailLinks.length;k++){
-   const d=detailLinks[k],a={x:d[0]-280,y:d[1]-320},b={x:d[2]-280,y:d[3]-320},midX=(a.x+b.x)*.5;
-   const lineReveal=smoothstep(midX-44,midX+44,scanX),shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31)),side=Math.max(0,Math.min(1,(midX+176)/352)),light=1-.985*smoothstep(.02,1,side);
-   ctx.strokeStyle='rgba('+Math.round(255*light)+','+Math.round(105*light)+','+Math.round(115*light)+','+((.34+.22*(.5+.5*Math.sin(t*1.35+k*.31)))*lineReveal)+')';ctx.lineWidth=1.35;
-   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  for(let k=0;k<detailPaths.length;k++){
+   const path=detailPaths[k],xs=path.map(p=>p[0]),midX=(Math.min(...xs)+Math.max(...xs))*.5-280;
+   const lineReveal=smoothstep(midX-44,midX+44,scanX),side=Math.max(0,Math.min(1,(midX+176)/352)),light=1-.985*smoothstep(.02,1,side);
+   ctx.save();ctx.globalAlpha=lineReveal;ctx.strokeStyle='rgba('+Math.round(255*light)+','+Math.round(24*light)+','+Math.round(38*light)+',.96)';ctx.lineWidth=k>=17?1.8:2.25;ctx.shadowColor='rgba(255,12,28,.9)';ctx.shadowBlur=k>=17?5:8;
+   ctx.beginPath();path.forEach((p,i)=>i?ctx.lineTo(p[0]-280,p[1]-320):ctx.moveTo(p[0]-280,p[1]-320));ctx.stroke();ctx.restore();
   }
   ctx.restore();
   for(let i=0;i<projected.length;i++){
