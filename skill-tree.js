@@ -301,7 +301,7 @@ function mountZenMusicSettings() {
     delete host.dataset.zeroMusicPanel;
     return;
   }
-  if (host.dataset.zeroMusicPanel === 'true') return;
+  if (host.querySelector('[data-zero-music-settings="zen"]')) return;
   const header = host.querySelector('.zen-panel-head');
   if (!header) return;
   host.dataset.zeroMusicPanel = 'true';
@@ -1074,7 +1074,7 @@ function updateCamera(dt) {
   camera.lookAt(cameraTarget);
   zeroFade += (zeroFadeTarget-zeroFade)*Math.min(1,dt*1.6);
   if(zeroGroup){
-    zeroGroup.scale.setScalar(0.72+zeroFade*0.28);
+    zeroGroup.scale.setScalar(0.05+zeroFade*0.95);
     zeroGroup.visible=zeroFade>0.025;
     zeroGroup.traverse(function (object) {
       if (object.material && object.userData.zeroOpacity == null) object.userData.zeroOpacity=object.material.opacity;
@@ -1227,7 +1227,8 @@ function showSkillTree() {
   overlay.hidden=false;
   treeOpen=true;
   if (navButton) navButton.setAttribute('aria-pressed','true');
-  if (renderer) renderer.setSize(overlay.clientWidth,overlay.clientHeight,false);
+  resizeRenderer();
+  if (activeSkill && viewMode==='skill') showSkillPanel(activeSkill);
   startRenderLoop();
 }
 
@@ -1235,16 +1236,20 @@ function openSkillTree() {
   if (!overlay) return;
   returnToRoot(false);
   categoryOrbit && (categoryOrbit.rotation.y=0);
+  revealJobs=[];
   if (zeroGroup) {
-    zeroGroup.scale.setScalar(0.08);
-    zeroFade=1;zeroFadeTarget=1;
+    zeroGroup.scale.setScalar(0.05);
+    zeroFade=0.04;zeroFadeTarget=1;
   }
   overlay.hidden=false;
   treeOpen=true;
   if (navButton) navButton.setAttribute('aria-pressed','true');
+  resizeRenderer();
   cameraRadius=21;
   cameraTarget.set(0,0,0);
   cameraTween=null;
+  cameraYaw=0.08;
+  cameraPitch=0.1;
   rootRevealStarted=false;
   categoryNodes.forEach(function (node) {
     node.group.scale.setScalar(0);
@@ -1252,13 +1257,9 @@ function openSkillTree() {
     node.group.visible=true;
     node.skillsGroup.visible=false;
   });
-  const start=performance.now();
-  revealJobs.push({
-    type:'zero',node:zeroGroup,start:start,duration:850,from:0.08,to:1
-  });
   setTimeout(function () {
     if (treeOpen && !rootRevealStarted) revealCategoryBranches();
-  },520);
+  },650);
   startRenderLoop();
 }
 
@@ -1292,9 +1293,17 @@ function raycastNode(clientX,clientY) {
   const raycaster=new THREE.Raycaster();
   raycaster.setFromCamera(pointer,camera);
   const hits=raycaster.intersectObjects(pickMeshes,false);
-  if(!hits.length)return;
-  const node=hits[0].object.userData.pickTarget;
-  if(!node)return;
+  const isPickable=function(node){
+    if(!node)return false;
+    if(node.kind==='zero')return true;
+    if(node.kind==='category')return viewMode==='root'&&node.group.visible;
+    if(node.kind==='skill')return viewMode==='category'&&activeCategory&&node.categoryId===activeCategory.id&&
+      activeCategory.skillsGroup.visible&&node.group.visible&&node.group.scale.x>0.05;
+    return false;
+  };
+  const selected=hits.find(function(hit){return isPickable(hit.object.userData.pickTarget)});
+  if(!selected)return;
+  const node=selected.object.userData.pickTarget;
   if(node.kind==='zero'){
     if(viewMode==='root')closeSkillTree();
     else returnToRoot(true);
@@ -1433,6 +1442,15 @@ function startRenderLoop() {
   }
 }
 
+function resizeRenderer() {
+  if (!renderer || !camera || !overlay) return;
+  const width=Math.max(1,overlay.clientWidth || window.innerWidth || 1);
+  const height=Math.max(1,overlay.clientHeight || window.innerHeight || 1);
+  camera.aspect=width/height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width,height,false);
+}
+
 function initRenderer() {
   const canvas=document.getElementById('zeroSkillCanvas');
   try{
@@ -1440,20 +1458,15 @@ function initRenderer() {
       canvas:canvas,alpha:true,antialias:true,powerPreference:'high-performance'
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.8));
-    renderer.setSize(overlay.clientWidth,overlay.clientHeight,false);
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     scene=new THREE.Scene();
-    camera=new THREE.PerspectiveCamera(46,overlay.clientWidth/Math.max(1,overlay.clientHeight),0.1,300);
+    camera=new THREE.PerspectiveCamera(46,1,0.1,300);
+    resizeRenderer();
     camera.position.set(0,2,21);
     buildWorld();
     pointerHandlers();
-    window.addEventListener('resize',function(){
-      if(!renderer||!camera||!overlay)return;
-      const width=Math.max(1,overlay.clientWidth),height=Math.max(1,overlay.clientHeight);
-      camera.aspect=width/height;camera.updateProjectionMatrix();
-      renderer.setSize(width,height,false);
-    });
+    window.addEventListener('resize',resizeRenderer);
   }catch(error){
     console.error('ZERO Skill Tree could not initialise WebGL:',error);
     const notice=document.createElement('p');
