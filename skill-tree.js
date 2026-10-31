@@ -1494,10 +1494,12 @@ function resizeRenderer() {
 
 function initRenderer() {
   const canvas=document.getElementById('zeroSkillCanvas');
+  let failedStage='creating the WebGL renderer';
   try{
     renderer=new THREE.WebGLRenderer({
       canvas:canvas,alpha:true,antialias:true,powerPreference:'high-performance'
     });
+    failedStage='configuring the renderer';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.8));
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
@@ -1505,14 +1507,16 @@ function initRenderer() {
     camera=new THREE.PerspectiveCamera(46,1,0.1,300);
     resizeRenderer();
     camera.position.set(0,2,21);
+    failedStage='building the 3D scene';
     buildWorld();
+    failedStage='connecting the 3D controls';
     pointerHandlers();
     window.addEventListener('resize',resizeRenderer);
   }catch(error){
-    console.error('ZERO Skill Tree could not initialise WebGL:',error);
+    console.error('ZERO Skill Tree initialisation failed during '+failedStage+':',error);
     const notice=document.createElement('p');
     notice.className='st-no-webgl';
-    notice.textContent='This device or browser could not start the 3D view. Try opening ZERO in an updated browser with hardware acceleration enabled.';
+    notice.textContent='3D view failed while '+failedStage+'. '+(error&&error.message?error.message:String(error));
     overlay.appendChild(notice);
   }
 }
