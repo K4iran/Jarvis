@@ -1043,6 +1043,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 #battleMode.bt-cinematic .bt-helmet-wrap{animation:btCinematicCamera 6s cubic-bezier(.2,.75,.2,1) both}#battleMode.bt-cinematic #battleHelmetCanvas{filter:drop-shadow(0 0 28px rgba(255,34,46,.28)) drop-shadow(0 0 72px rgba(255,12,28,.14))}
 @keyframes btCineScan{0%{transform:translateY(-3%);opacity:.35}50%{opacity:.8}100%{transform:translateY(3%);opacity:.35}}@keyframes btCineFlare{0%,100%{transform:translateY(-25vh) scaleX(.55);opacity:0}25%,72%{opacity:.75}50%{transform:translateY(25vh) scaleX(1.2);opacity:.35}}@keyframes btCinematicCamera{0%{filter:brightness(.55) contrast(1.1);transform:translateZ(0) scale(.94)}35%{filter:brightness(1.08) contrast(1.18);transform:translateZ(0) scale(1.035)}100%{filter:brightness(1.18) contrast(1.12);transform:translateZ(0) scale(1.075)}}
 @keyframes btCountPulse{0%{transform:scale(1.35);opacity:0}35%{opacity:1}100%{transform:scale(1);opacity:1}}
+.bt-spotify-dock{margin:14px 0 4px;padding:10px;border:1px solid rgba(29,185,84,.38);background:linear-gradient(145deg,rgba(13,31,22,.72),rgba(5,10,8,.82));box-shadow:0 0 22px rgba(29,185,84,.08);border-radius:8px;max-width:360px}.bt-spotify-dock[hidden]{display:none!important}.bt-spotify-label{display:flex;align-items:center;gap:7px;margin:0 0 8px;color:#b9e8c8;font:8px "JetBrains Mono",monospace;letter-spacing:.17em}.bt-spotify-label:before{content:"";width:6px;height:6px;border-radius:50%;background:#1ed760;box-shadow:0 0 9px rgba(30,215,96,.7)}.bt-spotify-frame{display:block;width:100%;height:152px;border:0;border-radius:7px;background:#121212}.bt-spotify-hint{margin:7px 1px 0;color:#a8aaa9;font-size:9px;line-height:1.45}@media(max-width:899px){.bt-spotify-dock{max-width:100%;margin-top:12px}}
 .bt-settings-overlay,.bt-postgame-overlay{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(12px)}
 .bt-settings-overlay[hidden],.bt-postgame-overlay[hidden]{display:none!important}
 .bt-settings-card,.bt-postgame-card{width:min(100%,560px);max-height:88dvh;overflow:auto;padding:20px;border:1px solid rgba(255,70,80,.35);background:linear-gradient(145deg,#1c090d,#080609 72%);box-shadow:0 24px 80px rgba(0,0,0,.65)}
@@ -1158,6 +1159,7 @@ body.zen-mode-active #core{visibility:hidden!important}
       <span class="bt-kicker" id="btLeftKicker">MISSION OBJECTIVES</span>
       <h2 id="btLeftTitle">AWAITING BRIEFING</h2>
       <div id="btObjectives" class="bt-empty">Your session objectives will appear here.</div>
+      <section class="bt-spotify-dock" id="btSpotifyDock" hidden aria-label="Battle briefing music"><div class="bt-spotify-label">BRIEFING SOUNDTRACK</div><iframe class="bt-spotify-frame" id="btSpotifyEmbed" title="Spotify briefing soundtrack" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><p class="bt-spotify-hint">Tap play to start the track preview. Spotify playback availability depends on the track and your region.</p></section>
       <div id="btCustomObjective" hidden>
         <div class="bt-add-row"><input class="bt-input" id="btObjectiveInput" maxlength="120" placeholder="Add a custom objective"><button class="bt-action" id="btAddObjective" type="button">ADD</button></div>
       </div>
@@ -1197,13 +1199,13 @@ body.zen-mode-active #core{visibility:hidden!important}
     <label>Music playback<select class="bt-select" id="btSongSource"><option value="file">Two built-in tracks (play inside ZERO)</option><option value="spotify">Spotify links (requires connection)</option></select></label>
      <div id="btFileMusicSettings"><label>Opening track — starts after ZERO’s first sentence<input class="bt-input" id="btIntroAudioFile" type="file" accept="audio/*"></label><div class="bt-track-state" id="btIntroTrackName">No opening track selected.</div><label>Final track — starts after the cinematic sequence and final line<input class="bt-input" id="btFinalAudioFile" type="file" accept="audio/*"></label><div class="bt-track-state" id="btFinalTrackName">No final track selected.</div><p class="bt-inline-hint">Tracks are stored locally in this browser and play inside ZERO. Choose two separate audio files.</p></div>
      <div id="btSpotifyMusicSettings" hidden>
-      <label>Opening song — starts after ZERO's first sentence
+      <label>Briefing song — Spotify embedded player
         <input class="bt-input" id="btSpotifyIntroUrl" type="url" placeholder="https://open.spotify.com/track/...">
       </label>
       <label>Final song — starts after the visual sequence and final line
         <input class="bt-input" id="btSpotifyFinalUrl" type="url" placeholder="https://open.spotify.com/track/...">
       </label>
-      <p class="bt-inline-hint">Both tracks are intended to play inside ZERO without switching apps. Connect Spotify playback to ZERO to enable this. Spotify Premium and your approval are required; no client secret is needed with the PKCE sign-in flow.</p>
+      <p class="bt-inline-hint">The briefing song appears as a compact Spotify player in the objectives panel. Tap play there; no Spotify API connection is used. Spotify may offer a 30-second preview or require playback access for the selected track.</p>
     </div>
     <div class="bt-divider"></div>
     <div class="bt-kicker">INTERNAL SCHEDULE</div>
@@ -4218,12 +4220,13 @@ function beginBriefing(type,event){
  $('#btScheduleOverride').hidden=!activeEvent;
  setPrompt('Briefing prepared, sir. Review your objectives, mental cues and notes. We launch when you are ready.');
  setActions('<button class="bt-action secondary" data-bt-action="add-custom">ADD OBJECTIVE</button><button class="bt-action" data-bt-action="launch">BEGIN FINAL SEQUENCE</button>');
- const openingLine='Sir, I have prepared your '+(type==='game'?'game-day':'training')+' briefing.';
- const briefingRest='Your briefing is ready, sir. Take a moment to review your objectives and mental cues on screen. Let me know when you are ready to begin.';
- speak(openingLine).then(async()=>{
-  if(data.settings.songSource==='spotify')await playSpotifyStage('intro');else await playBattleTrack('intro');
-  await speak(briefingRest);
- });
+ if(data.settings.songSource==='spotify'){
+  const ready=renderSpotifyBriefingEmbed();
+  setPrompt(ready?'Briefing ready, sir. Your soundtrack is ready in the objectives panel. Tap play when you are ready.':'Add a Spotify track in Battle Mode Settings to enable the briefing soundtrack.');
+ }else{
+  stopSpotifyBriefingEmbed();
+  playBattleTrack('intro');
+ }
 }
 function addObjective(text){const clean=String(text||'').trim().slice(0,120);if(!clean)return;data.objectives.push({id:id(),text:clean,done:false});save();if(sessionType)beginBriefing(sessionType,activeEvent)}
 function saveNote(){const field=$('#btNoteInput'),text=field.value.trim();if(!text)return;data.notes.push({id:id(),text:text.slice(0,1200),time:Date.now()});data.notes=data.notes.slice(-80);save();field.value='';renderNotebook();setPrompt('Saved to your basketball notebook, sir.')}
@@ -4261,6 +4264,16 @@ function spotifyTrackUri(url){
  const match=String(url||'').match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/([A-Za-z0-9]+)/i);
  return match?'spotify:track:'+match[1]:null;
 }
+function renderSpotifyBriefingEmbed(){
+ const dock=$('#btSpotifyDock'),frame=$('#btSpotifyEmbed'),uri=spotifyTrackUri(data.settings.spotifyIntroUrl);
+ if(!dock||!frame)return false;
+ if(data.settings.songSource!=='spotify'||!uri){dock.hidden=true;frame.removeAttribute('src');return false}
+ const trackId=uri.slice('spotify:track:'.length),src='https://open.spotify.com/embed/track/'+trackId+'?utm_source=generator&theme=0';
+ if(frame.getAttribute('src')!==src)frame.setAttribute('src',src);
+ dock.hidden=false;
+ return true;
+}
+function stopSpotifyBriefingEmbed(){const dock=$('#btSpotifyDock'),frame=$('#btSpotifyEmbed');if(dock)dock.hidden=true;if(frame)frame.removeAttribute('src')}
 async function playSpotifyStage(stage){const url=stage==='intro'?data.settings.spotifyIntroUrl:data.settings.spotifyFinalUrl,uri=spotifyTrackUri(url);if(!uri){setPrompt('Add a valid Spotify track for the '+(stage==='intro'?'opening':'final')+' music in Battle Mode Settings.');return false}if(typeof window.zeroSpotifyPlayTrack!=='function'){if(await playBattleTrack(stage))return true;setPrompt('Spotify is not connected yet. Add the two built-in tracks to play music inside ZERO. No external app will be opened.');return false}try{return await window.zeroSpotifyPlayTrack(uri)}catch(error){console.warn('ZERO Spotify playback failed:',error);setPrompt('Spotify could not start inside ZERO. Check the Spotify connection in Battle Mode Settings.');return false}}
 function unlockBattleAudio(){const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;try{if(!battleAudioContext){battleAudioContext=new C();battleAudioAnalyser=battleAudioContext.createAnalyser();battleAudioAnalyser.fftSize=512;battleAudioAnalyser.smoothingTimeConstant=.86;battleAudioData=new Uint8Array(battleAudioAnalyser.fftSize);battleGain=battleAudioContext.createGain();battleAudioAnalyser.connect(battleGain);battleGain.connect(battleAudioContext.destination)}const p=battleAudioContext.resume();if(p&&p.catch)p.catch(()=>{});return true}catch(e){console.warn('Battle audio unlock failed:',e);return false}}
 async function playBattleTrack(stage){try{if(!unlockBattleAudio()){setPrompt('This browser could not initialise in-page audio.');return false}const blob=await loadTrack(stage);if(!blob){setPrompt('Choose a separate '+(stage==='intro'?'opening':'final')+' track in Battle Mode Settings.');return false}const buffer=await battleAudioContext.decodeAudioData((await blob.arrayBuffer()).slice(0)),now=battleAudioContext.currentTime,old=battleAudioSource;if(old){battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(battleGain.gain.value,now);battleGain.gain.linearRampToValueAtTime(0,now+.32);try{old.stop(now+.34)}catch(e){}}const source=battleAudioContext.createBufferSource();source.buffer=buffer;source.connect(battleAudioAnalyser);const startAt=now+(old?.36:0);battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(0,startAt);battleGain.gain.linearRampToValueAtTime(.9,startAt+1.5);const state={paused:false,ended:false};currentAudio=state;battleAudioSource=source;source.onended=()=>{if(battleAudioSource===source){state.paused=true;state.ended=true;battleAudioSource=null}};source.start(startAt);return true}catch(e){console.warn('Battle Mode audio failed:',e);setPrompt('The selected track could not be decoded. Try another audio file.');return false}}
@@ -4344,8 +4357,9 @@ $('#btSongSource').addEventListener('change',e=>{
  data.settings.songSource=e.target.value;save();
  $('#btSpotifyMusicSettings').hidden=e.target.value!=='spotify';
  $('#btFileMusicSettings').hidden=e.target.value==='spotify';
+ renderSpotifyBriefingEmbed();
 });
-['btSpotifyIntroUrl','btSpotifyFinalUrl'].forEach(id=>$('#'+id).addEventListener('change',e=>{const url=e.target.value.trim();if(url&&!/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/[A-Za-z0-9]+/i.test(url)){alert('Use a Spotify track link.');return}data.settings[id==='btSpotifyIntroUrl'?'spotifyIntroUrl':'spotifyFinalUrl']=url;save()}));
+['btSpotifyIntroUrl','btSpotifyFinalUrl'].forEach(id=>$('#'+id).addEventListener('change',e=>{const url=e.target.value.trim();if(url&&!/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/[A-Za-z0-9]+/i.test(url)){alert('Use a Spotify track link.');return}data.settings[id==='btSpotifyIntroUrl'?'spotifyIntroUrl':'spotifyFinalUrl']=url;save();if(id==='btSpotifyIntroUrl')renderSpotifyBriefingEmbed()}));
 [['btIntroAudioFile','intro'],['btFinalAudioFile','final']].forEach(([id,stage])=>$('#'+id).addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('audio/')){alert('Choose an audio file.');return}try{await storeTrack(file,stage);const key=stage==='intro'?'introTrackName':'finalTrackName';data.settings[key]=file.name;data.settings.songSource='file';$('#btSongSource').value='file';$('#'+(stage==='intro'?'btIntroTrackName':'btFinalTrackName')).textContent='Selected: '+file.name;$('#btSpotifyMusicSettings').hidden=true;$('#btFileMusicSettings').hidden=false;save()}catch(error){alert(error.message||'Could not save this audio file.')}}));
  $('#btSaveEvent').addEventListener('click',saveInternalEvent);
 $('#btPostSave').addEventListener('click',savePostgame);
