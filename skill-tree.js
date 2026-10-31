@@ -984,10 +984,12 @@ function playPendingUnlocks(category) {
   saveDiscovery();
 }
 
-function cameraTo(target,radius,duration,onComplete) {
+function cameraTo(target,radius,duration,onComplete,targetYaw,targetPitch) {
   cameraTween = {
     fromTarget:cameraTarget.clone(),toTarget:target.clone(),
     fromRadius:cameraRadius,toRadius:radius,
+    fromYaw:cameraYaw,toYaw:typeof targetYaw==='number'?targetYaw:cameraYaw,
+    fromPitch:cameraPitch,toPitch:typeof targetPitch==='number'?targetPitch:cameraPitch,
     start:performance.now(),duration:duration || 1000,onComplete:onComplete || null
   };
 }
@@ -1012,12 +1014,14 @@ function enterCategory(category) {
   });
   category.skillsGroup.visible = true;
   category.group.scale.setScalar(1);
-  zeroFadeTarget = 0.1;
+  zeroFadeTarget = 0.12;
   const focus = worldPosition(category.group);
+  const facingYaw=Math.atan2(focus.x,focus.z);
+  const facingPitch=Math.atan2(focus.y,Math.max(0.01,Math.hypot(focus.x,focus.z)))*0.55;
   cameraTo(focus,8.7,1150,function () {
     revealSkillBranches(category);
     playPendingUnlocks(category);
-  });
+  },facingYaw,facingPitch);
 }
 
 function returnToRoot(animate) {
@@ -1033,9 +1037,9 @@ function returnToRoot(animate) {
     node.group.scale.setScalar(1);
   });
   zeroFadeTarget=1;
-  if (animate !== false) cameraTo(new THREE.Vector3(0,0,0),21,1100);
+  if (animate !== false) cameraTo(new THREE.Vector3(0,0,0),21,1100,null,0.08,0.1);
   else {
-    cameraTarget.set(0,0,0);cameraRadius=21;cameraTween=null;
+    cameraTarget.set(0,0,0);cameraRadius=21;cameraTween=null;cameraYaw=0.08;cameraPitch=0.1;
   }
   refreshNewBadges();
 }
@@ -1045,6 +1049,7 @@ function selectSkill(skillNode) {
   markSkillExplored(skillNode.skill);
   viewMode='skill';
   activeSkill=skillNode;
+  zeroFadeTarget=0;
   hideSkillPanel();
   const destination=worldPosition(skillNode.group);
   cameraTo(destination,5.25,1250,function () {
@@ -1059,9 +1064,13 @@ function updateCamera(dt) {
     const eased=raw<0.5?4*raw*raw*raw:1-Math.pow(-2*raw+2,3)/2;
     cameraTarget.lerpVectors(tween.fromTarget,tween.toTarget,eased);
     cameraRadius=tween.fromRadius+(tween.toRadius-tween.fromRadius)*eased;
+    cameraYaw=tween.fromYaw+(tween.toYaw-tween.fromYaw)*eased;
+    cameraPitch=tween.fromPitch+(tween.toPitch-tween.fromPitch)*eased;
     if(raw>=1){
       cameraTarget.copy(tween.toTarget);
       cameraRadius=tween.toRadius;
+      cameraYaw=tween.toYaw;
+      cameraPitch=tween.toPitch;
       cameraTween=null;
       if(tween.onComplete)tween.onComplete();
     }
@@ -1152,6 +1161,7 @@ function closePanelToCategory() {
   if (!activeCategory) return;
   viewMode='category';
   activeSkill=null;
+  zeroFadeTarget=0.12;
   hideSkillPanel();
   cameraTo(worldPosition(activeCategory.group),8.7,850);
 }
