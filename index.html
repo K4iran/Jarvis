@@ -976,7 +976,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 @media(prefers-reduced-motion:reduce){#zenRoot .zen-affirmation-next span:last-child{transition:none;}}
 
 </style>  <script type="importmap">
-    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
   </script>
 <style>
 
@@ -1151,8 +1151,8 @@ body.zen-mode-active #core{visibility:hidden!important}
       <div id="btScheduleOverride" hidden></div>
     </aside>
     <div class="bt-helmet-wrap">
-      <div class="bt-statusline" id="btHelmetStatus">ARMOUR SYSTEM INITIALISING</div>
-      <canvas id="battleHelmetCanvas" aria-label="Detailed metallic three-dimensional robotic helmet"></canvas>
+      <div class="bt-statusline" id="btHelmetStatus">PARTICLE RECONSTRUCTION INITIALISING</div>
+      <canvas id="battleHelmetCanvas" aria-label="Particle-reconstructed robotic helmet"></canvas>
       <div class="bt-helmet-caption">J.A.R.V.I.S. // TACTICAL INTERFACE</div>
     </div>
     <aside class="bt-panel" id="btRightPanel">
@@ -4042,8 +4042,8 @@ function showPanelForSpeech(text){
  const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
  speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
 }
-function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='3D ARMOUR SYSTEM INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
-function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();if(window.JarvisBattleHelmet3D)window.JarvisBattleHelmet3D.stop();root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
+function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
+function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
  if(!root.hidden)return;
@@ -4052,7 +4052,7 @@ async function startBattle(){
  if(root.hidden)return;
  const summary=scheduleSummary(events);
  later(()=>{
-  $('#btHelmetStatus').textContent='3D ARMOUR SYSTEM ONLINE';
+  $('#btHelmetStatus').textContent='RECONSTRUCTION COMPLETE / SYSTEM ONLINE';
   if(summary.upcoming.length){
    const event=summary.upcoming[0],type=event.battleType;
    activeEvent=event;
@@ -4303,16 +4303,158 @@ window.addEventListener('storage',e=>{if(e.key==='jarvis.zen.v1'&& !root.hidden)
 window.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPostgame()});
 
 function startHelmetAnimation(){
- const canvas=$('#battleHelmetCanvas');if(!canvas)return;
- $('#btHelmetStatus').textContent='LOADING 3D ARMOUR SYSTEM';
- let attempts=0;
- const boot=()=>{
-  if(root.hidden)return;
-  if(window.JarvisBattleHelmet3D){window.JarvisBattleHelmet3D.start(canvas);return}
-  if(++attempts<100){setTimeout(boot,100);return}
-  $('#btHelmetStatus').textContent='3D ARMOUR SYSTEM UNAVAILABLE';
- };
- boot();
+ const canvas=$('#battleHelmetCanvas'),ctx=canvas.getContext('2d');if(!ctx)return;
+ const mask=document.createElement('canvas');mask.width=560;mask.height=640;
+ const m=mask.getContext('2d');m.strokeStyle='#fff';m.fillStyle='#fff';m.lineCap='round';m.lineJoin='round';
+ // Dense particle silhouette: the helmet is formed from particles, not solid metal.
+ m.beginPath();[[280,38],[365,61],[428,117],[456,202],[447,310],[409,409],[350,493],[280,546],[210,493],[151,409],[113,310],[104,202],[132,117],[195,61]].forEach((p,i)=>i?m.lineTo(p[0],p[1]):m.moveTo(p[0],p[1]));m.closePath();m.fill();
+ function path(points,width,close,fill){m.beginPath();points.forEach((p,i)=>i?m.lineTo(p[0],p[1]):m.moveTo(p[0],p[1]));if(close)m.closePath();m.lineWidth=width;if(fill)m.fill();else m.stroke()}
+ // Outer shell, cheek plates, brow, jaw and chin — an original angular robotic faceplate.
+ path([[280,38],[365,61],[428,117],[456,202],[447,310],[409,409],[350,493],[280,546],[210,493],[151,409],[113,310],[104,202],[132,117],[195,61]],13,true,false);
+ path([[132,117],[184,102],[225,118],[280,143],[335,118],[376,102],[428,117]],10,false,false);
+ path([[154,153],[193,177],[221,221],[211,275],[171,306],[133,273],[120,211]],10,true,false);
+ path([[406,153],[367,177],[339,221],[349,275],[389,306],[427,273],[440,211]],10,true,false);
+ path([[207,145],[248,171],[280,187],[312,171],[353,145],[338,221],[280,245],[222,221]],11,true,false);
+ path([[150,302],[202,286],[243,312],[258,375],[224,431],[174,410]],10,true,false);
+ path([[410,302],[358,286],[317,312],[302,375],[336,431],[386,410]],10,true,false);
+ path([[174,410],[218,450],[280,466],[342,450],[386,410],[350,493],[280,529],[210,493]],12,true,false);
+ path([[207,451],[232,482],[280,495],[328,482],[353,451]],9,false,false);
+ path([[244,196],[267,214],[280,222],[293,214],[316,196]],9,false,false);
+ path([[264,222],[257,278],[280,315],[303,278],[296,222]],9,false,false);
+ path([[224,327],[252,344],[280,349],[308,344],[336,327]],9,false,false);
+ for(let i=0;i<5;i++){const y=365+i*13;path([[235,y],[260,y+2],[280,y+3],[300,y+2],[325,y]],4,false,false)}
+ path([[110,202],[77,247],[91,349],[128,390]],8,false,false);
+ path([[450,202],[483,247],[469,349],[432,390]],8,false,false);
+ path([[196,75],[229,55],[280,48],[331,55],[364,75]],7,false,false);
+ const pixels=m.getImageData(0,0,mask.width,mask.height).data,target=[];
+ for(let y=12;y<mask.height-10;y+=3)for(let x=12;x<mask.width-10;x+=3){if(pixels[(y*mask.width+x)*4+3]>70)target.push({x,y})}
+ const count=8500,points=[];
+ for(let i=0;i<count;i++){
+  const p=target[Math.floor(Math.random()*target.length)]||{x:280,y:320};
+  // Begin as a compact 3D orb, then unfold into the fixed helmet surface.
+  const a=Math.random()*Math.PI*2,u=Math.random()*2-1,v=Math.sqrt(1-u*u),r=27+Math.random()*12;
+  const faceZ=(x,y)=>{
+   const nx=(x-280)/176,ny=(y-320)/282;
+   const nose=Math.exp(-Math.pow((x-280)/43,2)-Math.pow((y-258)/105,2))*30;
+   const cheek=Math.exp(-Math.pow((Math.abs(nx)-.53)/.22,2)-Math.pow((ny-.12)/.42,2))*13;
+   const side=-Math.pow(Math.abs(nx),1.7)*23;
+   return nose+cheek+side+(y>400?7:0);
+  };
+  points.push({x:p.x,y:p.y,z:faceZ(p.x,p.y)+(Math.random()-.5)*5,sx:Math.cos(a)*v*r,sy:u*r,sz:Math.sin(a)*v*r,size:.65+Math.random()*1.3,phase:Math.random()*Math.PI*2,bright:Math.random()});
+ }
+ // Build a sparse, local particle lattice once. Nearby links keep the helmet's
+ // panel geometry legible without turning the whole mask into a wireframe.
+ const links=[],cellSize=18,grid=new Map(),cellKey=(x,y)=>Math.floor(x/cellSize)+','+Math.floor(y/cellSize);
+ for(let i=0;i<points.length;i++){
+  const p=points[i],gx=Math.floor(p.x/cellSize),gy=Math.floor(p.y/cellSize);
+  let made=0;
+  for(let oy=-1;oy<=1&&made<4;oy++)for(let ox=-1;ox<=1&&made<4;ox++){
+   const bucket=grid.get((gx+ox)+','+(gy+oy));if(!bucket)continue;
+   for(const j of bucket){
+    const q=points[j],dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy;
+    if(d2>18&&d2<cellSize*cellSize*.82){links.push([i,j]);made++;if(made>=4)break}
+   }
+  }
+  const key=cellKey(p.x,p.y);if(!grid.has(key))grid.set(key,[]);grid.get(key).push(i);
+ }
+ // Stronger facial construction lines are themselves made from short,
+ // separated particle-like links rather than continuous solid strokes.
+ const detailPaths=[
+  [[132,117],[184,102],[225,118],[280,143],[335,118],[376,102],[428,117]],
+  [[154,153],[193,177],[221,221],[211,275],[171,306],[133,273],[120,211],[154,153]],
+  [[406,153],[367,177],[339,221],[349,275],[389,306],[427,273],[440,211],[406,153]],
+  [[207,145],[248,171],[280,187],[312,171],[353,145],[338,221],[280,245],[222,221],[207,145]],
+  [[150,302],[202,286],[243,312],[258,375],[224,431],[174,410],[150,302]],
+  [[410,302],[358,286],[317,312],[302,375],[336,431],[386,410],[410,302]],
+  [[174,410],[218,450],[280,466],[342,450],[386,410],[350,493],[280,529],[210,493],[174,410]],
+  [[244,196],[267,214],[280,222],[293,214],[316,196]],
+  [[264,222],[257,278],[280,315],[303,278],[296,222]],
+  [[224,327],[252,344],[280,349],[308,344],[336,327]],
+  [[235,365],[260,367],[280,368],[300,367],[325,365]],
+  [[235,378],[260,380],[280,381],[300,380],[325,378]],
+  [[235,391],[260,393],[280,394],[300,393],[325,391]],
+  [[196,75],[229,55],[280,48],[331,55],[364,75]]
+ ];
+ const detailLinks=[];
+ for(const path of detailPaths)for(let k=1;k<path.length;k++){
+  const a=path[k-1],b=path[k],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy),steps=Math.max(1,Math.ceil(len/9));
+  for(let s=0;s<steps;s++){
+   const u=s/steps,v=Math.min(1,(s+.48)/steps);
+   detailLinks.push([a[0]+dx*u,a[1]+dy*u,a[0]+dx*v,a[1]+dy*v]);
+  }
+ }
+ let w=1,h=1,dpr=1,start=performance.now(),formedAt=0;
+ const resize=()=>{const rect=canvas.getBoundingClientRect();w=Math.max(1,rect.width);h=Math.max(1,rect.height);dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)};
+ resize();if(typeof ResizeObserver==='function'){const ro=new ResizeObserver(resize);ro.observe(canvas)}else window.addEventListener('resize',resize);
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function draw(now){
+  if(root.hidden){animationFrame=0;return}
+  const t=(now-start)/1000,form=clamp((t-.9)/2.9,0,1),mix=form*form*(3-2*form),scatter=Math.sin(form*Math.PI)*(1-form)*.42;
+  ctx.clearRect(0,0,w,h);
+  const scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=(reduced ? .22 : .22+Math.sin(t*.38)*.025),rotX=(reduced ? -.015 : -.015+Math.cos(t*.29)*.012),eyeOn=t>3.65;
+  ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
+  const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
+  const projected=new Array(points.length);
+  for(let i=0;i<points.length;i++){
+   const p=points[i],dx=p.sx*(1-mix)+(p.x-280)*mix,dy=p.sy*(1-mix)+(p.y-320)*mix;
+   // Tiny independent motion gives the particles life while keeping their
+   // anchor positions fixed, so the helmet never melts or loses its shape.
+   const drift=mix*(reduced ? 0 : 1),sx=dx+Math.cos(p.phase+t*.92)*drift*1.35+Math.cos(p.phase+t*.8)*scatter*120,
+         sy=dy+Math.sin(p.phase+t*.84)*drift*1.35+Math.sin(p.phase+t*.8)*scatter*120;
+   const z=p.sz*(1-mix)+p.z*mix,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
+   const perspective=1+z*.0009,alpha=(.25+.58*mix)*(.68+.32*Math.sin(t*1.2+p.phase));
+   const side=Math.max(0,Math.min(1,(p.x-104)/352));
+   const cr=Math.round(255-200*side),cg=Math.round(220-212*side),cb=Math.round(225-212*side);
+   projected[i]={x:px*perspective,y:py*perspective,alpha,cr,cg,cb,size:p.size*(.65+mix*.4)};
+  }
+  // Subtle connecting filaments: each line breathes independently in
+  // brightness, with the same left-to-right colour treatment as the nodes.
+  ctx.lineWidth=.62;
+  for(let k=0;k<links.length;k++){
+   const [ia,ib]=links[k],a=projected[ia],b=projected[ib];
+   if(!a||!b)continue;
+   const shimmer=.24+.22*(.5+.5*Math.sin(t*1.7+k*.19));
+   const alpha=shimmer*mix*Math.min(1,Math.min(a.alpha,b.alpha)*1.8);
+   ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+alpha+')';
+   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  }
+  // Distinct Iron-Man-inspired panel seams, eye surrounds, cheek geometry,
+  // nose bridge and mouth vents, rendered as broken particle connections.
+  for(let k=0;k<detailLinks.length;k++){
+   const d=detailLinks[k],a={x:d[0]-280,y:d[1]-320},b={x:d[2]-280,y:d[3]-320};
+   const shimmer=.10+.09*(.5+.5*Math.sin(t*1.35+k*.31));
+   ctx.strokeStyle='rgba(255,105,115,'+((.34+.22*(.5+.5*Math.sin(t*1.35+k*.31)))*mix)+')';ctx.lineWidth=1.35;
+   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  }
+  for(let i=0;i<projected.length;i++){
+   const p=projected[i];ctx.fillStyle='rgba('+p.cr+','+p.cg+','+p.cb+','+p.alpha+')';
+   ctx.globalAlpha=p.alpha;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  // Crisp, angular outer shell: a bright edge plus a restrained red halo.
+  if(mix>.16){
+   const edge=clamp((mix-.16)/.84,0,1),outline=[[0,-282],[85,-259],[148,-203],[176,-118],[167,-10],[129,89],[70,173],[0,226],[-70,173],[-129,89],[-167,-10],[-176,-118],[-148,-203],[-85,-259]];
+   ctx.save();ctx.globalAlpha=edge;
+   ctx.shadowColor='rgba(255,34,48,.9)';ctx.shadowBlur=15;
+   ctx.strokeStyle='rgba(255,55,67,.72)';ctx.lineWidth=3.1;ctx.lineJoin='round';ctx.beginPath();outline.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
+   ctx.shadowBlur=2;ctx.strokeStyle='rgba(255,190,194,.72)';ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
+  }
+  if(eyeOn){
+   const pulse=.72+.28*Math.sin(t*3.8);
+   const eye=(x)=>{ctx.save();ctx.translate(x,-43);ctx.rotate(.1);
+    ctx.shadowColor='#ff1828';ctx.shadowBlur=32*pulse;
+    ctx.fillStyle='rgba(255,23,38,'+(.72*pulse)+')';ctx.beginPath();
+    ctx.moveTo(-62,-8);ctx.lineTo(55,-20);ctx.lineTo(37,10);ctx.lineTo(-45,16);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(255,183,186,.85)';ctx.lineWidth=2;ctx.stroke();ctx.restore()};
+   eye(-83);eye(83);
+  }else if(t>2.8){
+   ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(-135,-62,105,32);ctx.fillRect(30,-62,105,32);
+  }
+  ctx.restore();
+  animationFrame=requestAnimationFrame(draw);
+ }
+ animationFrame=requestAnimationFrame(draw);
+ function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 }
 window.JarvisBattleMode=Object.freeze({
  start:startBattle,
@@ -4329,5 +4471,4 @@ setTimeout(()=>checkPostgame(),2600);
 })();
 
 </script>
-<script type="module" src="./battle-helmet.js"></script>
 </body></html>
