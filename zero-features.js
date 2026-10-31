@@ -415,7 +415,7 @@
         const result = await fetchWeather(city);
         renderWeather(city, result);
         const current = result.data.current, info = weatherDescription(current.weather_code);
-        await respond("In " + result.place.name + ", it is " + Math.round(current.temperature_2m) + " degrees and " + info[0].toLowerCase() + ". It feels like " + Math.round(current.apparent_temperature) + " degrees. Today&#39;s high is " + Math.round(result.data.daily.temperature_2m_max[0]) + " and the low is " + Math.round(result.data.daily.temperature_2m_min[0]) + " degrees. The interactive hourly graph and forecast are on screen.");
+        await respond("In " + result.place.name + ", it is " + Math.round(current.temperature_2m) + " degrees and " + info[0].toLowerCase() + ". It feels like " + Math.round(current.apparent_temperature) + " degrees. Today's high is " + Math.round(result.data.daily.temperature_2m_max[0]) + " and the low is " + Math.round(result.data.daily.temperature_2m_min[0]) + " degrees. The interactive hourly graph and forecast are on screen.");
       } catch (error) {
         panel.innerHTML = head("LIVE WEATHER", "Weather") + '<div class="zf-status">' + escapeHtml(error.message || "Weather is unavailable.") + '</div>';
         await respond("I could not load the weather. " + (error.message || "Please try again."));
