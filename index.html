@@ -1188,10 +1188,13 @@ body.zen-mode-active #core{visibility:hidden!important}
       <div class="bt-track-state" id="btTrackName">No built-in track selected.</div>
     </div>
     <div id="btSpotifyMusicSettings" hidden>
-      <label>Spotify song link
-        <input class="bt-input" id="btSpotifyUrl" type="url" placeholder="https://open.spotify.com/track/...">
+      <label>Opening song — starts after ZERO's first sentence
+        <input class="bt-input" id="btSpotifyIntroUrl" type="url" placeholder="https://open.spotify.com/track/...">
       </label>
-      <p class="bt-inline-hint">Battle Mode opens the selected track directly in Spotify. If the app opens without playing, use PLAY / OPEN MY TRACK. Fully remote playback control requires Spotify account authorisation.</p>
+      <label>Final song — starts after the visual sequence and final line
+        <input class="bt-input" id="btSpotifyFinalUrl" type="url" placeholder="https://open.spotify.com/track/...">
+      </label>
+      <p class="bt-inline-hint">Both tracks are intended to play inside ZERO without switching apps. Connect Spotify playback to ZERO to enable this. Spotify Premium and your approval are required; no client secret is needed with the PKCE sign-in flow.</p>
     </div>
     <div class="bt-divider"></div>
     <div class="bt-kicker">INTERNAL SCHEDULE</div>
@@ -4060,11 +4063,11 @@ const $$=s=>Array.from(document.querySelectorAll(s));
 const root=$('#battleMode');
 if(!root||root.dataset.ready==='true')return;
 root.dataset.ready='true';
-const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{songSource:'file',spotifyUrl:'',trackName:''}});
+const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{songSource:'file',spotifyUrl:'',spotifyIntroUrl:'',spotifyFinalUrl:'',trackName:''}});
 let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,spotifyLaunchSucceeded=false,battleAudioContext=null,battleAudioAnalyser=null,battleAudioData=null;
 try{
  const saved=JSON.parse(localStorage.getItem(KEY)||'null');
- if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,saved.settings||{});data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
+ if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,saved.settings||{});if(!data.settings.spotifyFinalUrl&&data.settings.spotifyUrl)data.settings.spotifyFinalUrl=data.settings.spotifyUrl;data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
 }catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){return false}}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -4202,7 +4205,12 @@ function beginBriefing(type,event){
  $('#btScheduleOverride').hidden=!activeEvent;
  setPrompt('Briefing prepared, sir. Review your objectives, mental cues and notes. We launch when you are ready.');
  setActions('<button class="bt-action secondary" data-bt-action="add-custom">ADD OBJECTIVE</button><button class="bt-action" data-bt-action="launch">BEGIN FINAL SEQUENCE</button>');
- speak('Sir, I have prepared your '+(type==='game'?'game-day':'training')+' briefing. Your key priorities are: '+suggestions.slice(0,2).join('. ')+'. Stay composed. Release the last play, trust your preparation and focus on the next decision. Picture yourself making the right read and responding calmly if things do not go perfectly. '+motivationText()+' Review your panels, then begin the final sequence when you are ready.');
+ const openingLine='Sir, I have prepared your '+(type==='game'?'game-day':'training')+' briefing.';
+ const briefingRest='Your key priorities are: '+suggestions.slice(0,2).join('. ')+'. Stay composed. Release the last play, trust your preparation and focus on the next decision. Picture yourself making the right read and responding calmly if things do not go perfectly. '+motivationText()+' Review your panels, then begin the final sequence when you are ready.';
+ speak(openingLine).then(async()=>{
+  if(data.settings.songSource==='spotify')await playSpotifyStage('intro');
+  await speak(briefingRest);
+ });
 }
 function addObjective(text){const clean=String(text||'').trim().slice(0,120);if(!clean)return;data.objectives.push({id:id(),text:clean,done:false});save();if(sessionType)beginBriefing(sessionType,activeEvent)}
 function saveNote(){const field=$('#btNoteInput'),text=field.value.trim();if(!text)return;data.notes.push({id:id(),text:text.slice(0,1200),time:Date.now()});data.notes=data.notes.slice(-80);save();field.value='';renderNotebook();setPrompt('Saved to your basketball notebook, sir.')}
@@ -4214,24 +4222,36 @@ function finishCountdown(){
  const tick=()=>{
   num.textContent=String(n);word.textContent=messages[3-n]||'FOCUS';
   if(n>1){n--;later(tick,850);return}
-  later(()=>{
+  later(async()=>{
    num.textContent='FOCUS';word.textContent='MAKE THE WORK COUNT';const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;
    const line=motivationText()+' The work is done one possession and one rep at a time. Let us make this session count, sir.';
-   speak(line);
-   const trackLaunched=data.settings.songSource==='spotify'?spotifyLaunchSucceeded:true;
-   if(data.settings.songSource!=='spotify')playFinalTrack();
+   await speak(line);
+   if(data.settings.songSource==='spotify')await playSpotifyStage('final');
+   else await playFinalTrack();
    $('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';
-   setPrompt(trackLaunched?'Battle Mode engaged. Your selected track is opening.':'Spotify could not be opened. Tap PLAY / OPEN MY TRACK to try again.');
-   setActions('<button class="bt-action" data-bt-action="play-track">PLAY / OPEN MY TRACK</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>');
+   setPrompt('Battle Mode engaged. Your final sequence is complete, sir.');
+   setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>');
   },450);
  };
  tick();
 }
+let battleSpeechQueue=Promise.resolve();
 function speak(text){
  const message=document.getElementById('msg');if(message)message.textContent=text;
  showPanelForSpeech(text);
- if(typeof window.speakReply==='function'){try{window.speakReply(text,true);return}catch(e){}}
- if('speechSynthesis'in window){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';speechSynthesis.speak(u)}catch(e){}}
+ const run=async()=>{
+  if(typeof window.speakReply==='function'){
+   try{await window.speakReply(text,true);return}catch(error){console.warn('Battle speech service failed:',error)}
+  }
+  if('speechSynthesis'in window){
+   await new Promise(resolve=>{
+    try{const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.onend=resolve;u.onerror=resolve;window.speechSynthesis.speak(u)}
+    catch(error){resolve()}
+   });
+  }
+ };
+ battleSpeechQueue=battleSpeechQueue.catch(()=>{}).then(run);
+ return battleSpeechQueue;
 }
 function openDb(){
  return new Promise((resolve,reject)=>{
@@ -4256,27 +4276,23 @@ async function loadTrack(){
   req.onerror=()=>{db.close();reject(req.error||new Error('Could not load the saved track.'))};
  });
 }
-function spotifyLaunchTarget(url){
- const match=String(url||'').match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?(track|album|playlist)\/([A-Za-z0-9]+)/i);
- if(!match)return null;
- const kind=match[1].toLowerCase(),trackId=match[2],webUrl='https://open.spotify.com/'+kind+'/'+trackId;
- const androidIntent='intent://'+kind+'/'+trackId+'#Intent;scheme=spotify;package=com.spotify.music;S.browser_fallback_url='+encodeURIComponent(webUrl)+';end';
- return {webUrl:webUrl,androidIntent:androidIntent};
+function spotifyTrackUri(url){
+ const match=String(url||'').match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/([A-Za-z0-9]+)/i);
+ return match?'spotify:track:'+match[1]:null;
 }
-// Launch directly during the user's tap. A delayed about:blank redirect loses
-// Android's user-activation handoff and can leave Spotify with no destination.
-function launchSpotifyTrack(){
- const target=spotifyLaunchTarget(data.settings.spotifyUrl);
- if(!target){setPrompt('Add a valid Spotify track, album or playlist link in Battle Mode Settings first.');return false}
- const isAndroid=/Android/i.test(navigator.userAgent||'');
- const destination=isAndroid?target.androidIntent:target.webUrl;
- try{
-  const opened=window.open(destination,'_blank');
-  if(opened){try{opened.opener=null}catch(e){}return true}
- }catch(e){}
- // If pop-ups are blocked, navigate to the universal Spotify URL as a fallback.
- try{window.location.assign(target.webUrl);return true}catch(e){}
- return false;
+async function playSpotifyStage(stage){
+ const url=stage==='intro'?data.settings.spotifyIntroUrl:data.settings.spotifyFinalUrl;
+ const uri=spotifyTrackUri(url);
+ if(!uri){setPrompt('Add a valid Spotify track for the '+(stage==='intro'?'opening':'final')+' music in Battle Mode Settings.');return false}
+ if(typeof window.zeroSpotifyPlayTrack!=='function'){
+  setPrompt('Spotify background playback needs to be connected to ZERO first. No external app will be opened.');
+  return false;
+ }
+ try{return await window.zeroSpotifyPlayTrack(uri)}catch(error){
+  console.warn('ZERO Spotify playback failed:',error);
+  setPrompt('Spotify could not start inside ZERO. Check the Spotify connection in Battle Mode Settings.');
+  return false;
+ }
 }
 function connectBattleAudioAnalyser(audio){
  try{
@@ -4292,11 +4308,7 @@ function connectBattleAudioAnalyser(audio){
  }catch(error){console.warn('Battle audio visualiser unavailable:',error)}
 }
 async function playFinalTrack(){
- if(data.settings.songSource==='spotify'){
-  const launched=launchSpotifyTrack();
-  if(!launched)setPrompt('Spotify could not be launched automatically. Tap PLAY / OPEN MY TRACK to try again.');
-  return;
- }
+ if(data.settings.songSource==='spotify'){await playSpotifyStage('final');return}
  try{
   const blob=await loadTrack();
   if(!blob){setPrompt('No built-in song is selected yet. Add one in Battle Mode Settings.');return}
@@ -4306,11 +4318,11 @@ async function playFinalTrack(){
   const p=currentAudio.play();if(p&&p.catch)p.catch(()=>setPrompt('Your browser blocked automatic playback. Tap PLAY / OPEN MY TRACK.'));
  }catch(error){setPrompt('Your saved track could not be loaded. Check Battle Mode Settings.')}
 }
-async function manualPlayTrack(){if(data.settings.songSource==='spotify'){const launched=launchSpotifyTrack();if(!launched)setPrompt('Spotify could not be opened. Check the saved link and try again.');return}await playFinalTrack()}
+async function manualPlayTrack(){if(data.settings.songSource==='spotify'){await playSpotifyStage('final');return}await playFinalTrack()}
 function openSettings(){
  const overlay=$('#btSettingsOverlay');overlay.hidden=false;
  $('#btSongSource').value=data.settings.songSource||'file';
- $('#btSpotifyUrl').value=data.settings.spotifyUrl||'';
+ $('#btSpotifyIntroUrl').value=data.settings.spotifyIntroUrl||'';$('#btSpotifyFinalUrl').value=data.settings.spotifyFinalUrl||data.settings.spotifyUrl||'';
  $('#btTrackName').textContent=data.settings.trackName?'Selected: '+data.settings.trackName:'No built-in track selected.';
  $('#btSpotifyMusicSettings').hidden=data.settings.songSource!=='spotify';
  $('#btFileMusicSettings').hidden=data.settings.songSource==='spotify';
@@ -4360,7 +4372,7 @@ function handleAction(action,el){
  if(action==='choose-type'){showTypeChoices();return}
  if(action==='choose-training'){beginBriefing('training',null);return}
  if(action==='choose-game'){beginBriefing('game',null);return}
- if(action==='launch'){spotifyLaunchSucceeded=data.settings.songSource==='spotify'?launchSpotifyTrack():false;finishCountdown();return}
+ if(action==='launch'){finishCountdown();return}
  if(action==='postgame'){openPostgame(activeEvent);return}
  if(action==='accept-suggestion'){const suggestions=makeSuggestions(sessionType);const text=suggestions[Number(el.dataset.index)];if(text)addObjective(text);return}
  if(action==='edit-objective'){const item=data.objectives[Number(el.dataset.index)];if(!item)return;const revised=prompt('Edit this objective:',item.text);if(revised===null)return;const clean=revised.trim().slice(0,120);if(clean){item.text=clean;save();if(sessionType)beginBriefing(sessionType,activeEvent)}return}
@@ -4386,7 +4398,7 @@ $('#btSongSource').addEventListener('change',e=>{
  $('#btSpotifyMusicSettings').hidden=e.target.value!=='spotify';
  $('#btFileMusicSettings').hidden=e.target.value==='spotify';
 });
-$('#btSpotifyUrl').addEventListener('change',e=>{const url=e.target.value.trim();if(url&&!/^https:\/\/open\.spotify\.com\/(track|album|playlist)\/[A-Za-z0-9]+/i.test(url)){alert('Use a Spotify track, album or playlist link.');return}data.settings.spotifyUrl=url;save()});
+['btSpotifyIntroUrl','btSpotifyFinalUrl'].forEach(id=>$('#'+id).addEventListener('change',e=>{const url=e.target.value.trim();if(url&&!/^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?track\/[A-Za-z0-9]+/i.test(url)){alert('Use a Spotify track link.');return}data.settings[id==='btSpotifyIntroUrl'?'spotifyIntroUrl':'spotifyFinalUrl']=url;save()}));
 $('#btAudioFile').addEventListener('change',async e=>{
  const file=e.target.files&&e.target.files[0];if(!file)return;
  if(!file.type.startsWith('audio/')){alert('Choose an audio file.');return}
