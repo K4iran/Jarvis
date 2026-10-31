@@ -1351,10 +1351,10 @@ function applyFlatCategoryLayout(category) {
   category.group.position.set(0,3.3,0);
   category.group.rotation.set(0,0,0);
   rebuildRootBranch(category);
-  const columns=narrow?2:Math.min(3,Math.max(1,category.skills.length));
-  const xGap=narrow?2.55:3.5;
-  const yGap=3.0;
-  const topY=-1.8;
+  const columns=category.skills.length>1?2:1;
+  const xGap=narrow?2.55:3.6;
+  const yGap=2.8;
+  const topY=-2.4;
   category.skills.forEach(function (skill,index) {
     const row=Math.floor(index/columns);
     const rowStart=row*columns;
