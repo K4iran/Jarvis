@@ -4739,16 +4739,15 @@ function pct(m,a){return a?Math.round(m/a*100):null}
 function fmt(v){return v==null?'—':v+'%'}
 function statsFor(d,mode){
  const shots=d.shots.filter(s=>s.md===mode),events=d.events.filter(e=>e.md===mode);
- const made=shots.filter(s=>s.m),threes=shots.filter(s=>s.p===3),made3=threes.filter(s=>s.m);
- const free=events.filter(e=>e.k==='ft');
- const out={shots:shots.length,fg:pct(made.length,shots.length),fgm:made.length,three:pct(made3.length,threes.length),threeM:made3.length,threeA:threes.length,ft:pct(free.filter(e=>e.m).length,free.length),ftM:free.filter(e=>e.m).length,ftA:free.length,events:events};
+ const made=shots.filter(s=>s.m),threes=shots.filter(s=>s.p===3),made3=threes.filter(s=>s.m),free=events.filter(e=>e.k==='ft');
+ const out={shots:shots.length,fg:pct(made.length,shots.length),fgm:made.length,three:pct(made3.length,threes.length),threeM:made3.length,threeA:threes.length,ft:pct(free.filter(e=>e.m).length,free.length),ftM:free.filter(e=>e.m).length,ftA:free.length};
  const games={};
  shots.filter(s=>mode==='g').forEach(s=>{const k=String(s.g||0);if(!games[k])games[k]={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0};if(s.m)games[k].pts+=s.p});
  events.filter(e=>mode==='g').forEach(e=>{const k=String(e.g||0);if(!games[k])games[k]={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0};if(e.k==='ft'&&e.m)games[k].pts++;else if(['reb','ast','stl','blk','tov'].includes(e.k))games[k][e.k]++});
  const rows=Object.values(games),avg=k=>rows.length?(rows.reduce((a,b)=>a+b[k],0)/rows.length).toFixed(1):'—';
- out.gp=rows.length;out.ppg=avg('pts');out.apg=avg('ast');out.rpg=avg('reb');out.tpg=avg('tov');
- const zoneRows=ZONES.map((name,i)=>{const z=shots.filter(s=>s.z===i),m=z.filter(s=>s.m).length;return{name,attempts:z.length,makes:m,pct:pct(m,z.length)}}).filter(z=>z.attempts>=4).sort((a,b)=>(b.pct||0)-(a.pct||0));
- out.bestZone=zoneRows[0]||null;
+ out.gp=rows.length;out.ppg=avg('pts');out.apg=avg('ast');out.rpg=avg('reb');out.spg=avg('stl');out.bpg=avg('blk');out.tpg=avg('tov');
+ out.zones=ZONES.map((name,i)=>{const z=shots.filter(s=>s.z===i),m=z.filter(s=>s.m).length;return{name,attempts:z.length,makes:m,pct:pct(m,z.length)}}).filter(z=>z.attempts>0).sort((a,b)=>(b.pct||0)-(a.pct||0));
+ out.bestZone=out.zones.filter(z=>z.attempts>=4)[0]||null;
  return out;
 }
 function courtSvg(shots){
@@ -4774,12 +4773,13 @@ function render(type){
  const overall=statsFor(d,'g'),strength=s.bestZone;
  let html='<div class="bt-intel-kicker">ZERO / PERFORMANCE INTELLIGENCE</div><div class="bt-intel-title">'+(profile.name?profile.name.toUpperCase()+' / ':'')+label+'</div>';
  html+='<div class="bt-intel-grid">'+stat('FG%',fmt(s.fg),s.fgm+'/'+s.shots)+stat('3PT%',fmt(s.three),s.threeM+'/'+s.threeA)+stat('FT%',fmt(s.ft),s.ftM+'/'+s.ftA)+'</div>';
- if(mode==='g')html+='<div class="bt-intel-grid">'+stat('PPG',s.ppg,s.gp+' games')+stat('APG',s.apg)+stat('RPG',s.rpg)+'</div>';
+ if(mode==='g')html+='<div class="bt-intel-grid">'+stat('PPG',s.ppg,s.gp+' games')+stat('APG',s.apg)+stat('RPG',s.rpg)+'</div><div class="bt-intel-grid">'+stat('SPG',s.spg)+stat('BPG',s.bpg)+stat('TPG',s.tpg)+'</div>';
  html+='<div class="bt-intel-copy">'+(mode==='g'?'Game performance summary, using only recorded game shots and events.':'Practice shooting summary, kept separate from your game statistics.')+'</div>';
  if(type==='game'||type==='training'){
   html+='<div class="bt-intel-label">'+(mode==='g'?'GAME':'PRACTICE')+' SHOT MAP / '+s.shots+' SHOTS</div>'+courtSvg(d.shots.filter(q=>q.md===mode));
   if(strength)html+='<div class="bt-intel-strength"><b>RECORDED STRENGTH</b><br>'+strength.name+': '+strength.pct+'% ('+strength.makes+'/'+strength.attempts+'). Keep looking for this opportunity when the defence gives it to you.</div>';
   else html+='<div class="bt-intel-muted">Not enough attempts in a single zone yet to identify a reliable shooting strength.</div>';
+  if(s.zones.length)html+='<div class="bt-intel-label">ZONE BREAKDOWN / ACCURACY</div>'+s.zones.map(function(z){return '<div class="bt-intel-copy">'+z.name+' — '+z.pct+'% ('+z.makes+'/'+z.attempts+')</div>'}).join('');
   if(!s.shots.length)html+='<div class="bt-intel-muted">No shots have been recorded for this session type yet. The chart will populate as you log attempts.</div>';
  }
  panel.innerHTML=html;panel.hidden=false;status();
