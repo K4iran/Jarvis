@@ -1216,6 +1216,7 @@ body.zen-mode-active #core{visibility:hidden!important}
       <span class="bt-kicker" id="btLeftKicker">MISSION OBJECTIVES</span>
       <h2 id="btLeftTitle">AWAITING BRIEFING</h2>
       <div id="btObjectives" class="bt-empty">Your session objectives will appear here.</div>
+      <div id="btPerformanceSummary" class="bt-intel-panel" hidden></div>
 
       <div id="btCustomObjective" hidden>
         <div class="bt-add-row"><input class="bt-input" id="btObjectiveInput" maxlength="120" placeholder="Add a custom objective"><button class="bt-action" id="btAddObjective" type="button">ADD</button></div>
@@ -1272,7 +1273,11 @@ body.zen-mode-active #core{visibility:hidden!important}
     <div class="bt-actions"><button class="bt-action" id="btSaveEvent" type="button">ADD TO JARVIS SCHEDULE</button></div>
     <div class="bt-divider"></div>
     <div id="btInternalEvents"></div>
-    <p class="bt-inline-hint">Battle notes, objectives and schedule entries are stored locally in this browser. Hoop Central statistics sync is not connected yet.</p>
+    <div class="bt-divider"></div>
+    <div class="bt-kicker">HOOP CENTRAL LINK</div>
+    <p class="bt-inline-hint" id="btHoopCentralStatus">Checking for Hoop Central data in this browser...</p>
+    <label>Import a Hoop Central JSON export<input class="bt-input" id="btHoopCentralImport" type="file" accept=".json,application/json"></label>
+    <p class="bt-inline-hint">On the same browser origin, ZERO can read Hoop Central's local player data directly. Otherwise, export from Hoop Central and import the JSON file here. Your data stays in this browser.</p>
     <div class="bt-actions"><button class="bt-action secondary" id="btSettingsClose" type="button">CLOSE SETTINGS</button></div>
   </section>
 </div>
@@ -4179,7 +4184,7 @@ function showPanelForSpeech(text){
  const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
  speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
 }
-function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
+function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';const intelPanel=$('#btPerformanceSummary');if(intelPanel){intelPanel.hidden=true;intelPanel.innerHTML=''}$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
 function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
@@ -4250,12 +4255,9 @@ function motivationText(){
 }
 function renderNotebook(){
  const notes=data.notes.slice().sort((a,b)=>(b.time||0)-(a.time||0)).slice(0,3);
- const journal=relevantJournal();
  let html='';
- if(notes.length)html+=notes.map(n=>'<div class="bt-note"><small>NOTEBOOK / '+esc(new Date(n.time||Date.now()).toLocaleDateString('en-GB'))+'</small>'+esc(n.text)+'</div>').join('');
- else html+='<p class="bt-empty">Your dedicated basketball notebook is ready. Add a lesson or reminder below.</p>';
- if(journal.length){html+='<div class="bt-divider"></div><span class="bt-kicker">RELEVANT JOURNAL ENTRIES</span>'+journal.map(n=>'<div class="bt-note"><small>JARVIS JOURNAL / '+esc(n.date||'Saved entry')+'</small>'+esc(String(n.text||'').slice(0,210))+'</div>').join('')}
- else html+='<p class="bt-empty">No basketball-related Journal entries found yet.</p>';
+ if(notes.length)html+=notes.map(n=>'<div class="bt-note"><small>CUSTOM NOTE / '+esc(new Date(n.time||Date.now()).toLocaleDateString('en-GB'))+'</small>'+esc(n.text)+'</div>').join('');
+ else html+='<p class="bt-empty">No custom notes yet. Add your own reminder below.</p>';
  $('#btNotes').innerHTML=html;
 }
 function beginBriefing(type,event){
@@ -4270,9 +4272,10 @@ function beginBriefing(type,event){
  const suggestions=makeSuggestions(type);
  const suggestedHtml=suggestions.map((s,i)=>'<div class="bt-suggest"><span>✦</span><span>'+esc(s)+'</span><button class="bt-action secondary" style="min-height:26px;padding:3px 7px;font-size:8px" data-bt-action="accept-suggestion" data-index="'+i+'">ADD</button></div>').join('');
  const custom=data.objectives.map((o,i)=>'<div class="bt-objective"><label style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0"><input type="checkbox" data-custom-objective="'+i+'" '+(o.done?'checked':'')+'><span>'+esc(o.text)+'</span></label><button class="bt-action secondary" style="min-height:25px;padding:3px 6px;font-size:8px" data-bt-action="edit-objective" data-index="'+i+'">EDIT</button><button class="bt-action secondary" style="min-height:25px;padding:3px 6px;font-size:8px" data-bt-action="delete-objective" data-index="'+i+'">REMOVE</button></div>').join('');
- $('#btObjectives').innerHTML='<span class="bt-kicker">JARVIS SUGGESTIONS</span>'+suggestedHtml+'<div class="bt-divider"></div><span class="bt-kicker">YOUR OBJECTIVES</span>'+(custom||'<p class="bt-empty">No custom objectives yet. Add your own below.</p>');
+ $('#btObjectives').innerHTML='<span class="bt-kicker">YOUR OBJECTIVES</span>'+(custom||'<p class="bt-empty">No custom objectives yet. Add your own below.</p>');
  const protocol=type==='game'?['Arrive with enough time to settle in and check your kit and water.','Warm up progressively and get comfortable with the ball.','Choose one simple first-possession cue: communicate, make the read, and play composed.']:['Check your shoes, water and anything you need for practice.','Choose one skill priority before the first drill.','Focus on quality repetitions, listen to coaching feedback and finish with a clear takeaway.'];
  $('#btMental').innerHTML='<div class="bt-callout"><span class="bt-kicker">CONFIDENCE</span><br>You do not need a perfect performance. Trust your preparation and commit to the next good decision.</div><div class="bt-callout"><span class="bt-kicker">PRESSURE RESET</span><ol class="bt-protocol"><li>Relax your shoulders and take a steady, natural breath.</li><li>Release the last play. It is finished.</li><li>Choose one cue: “next play”.</li><li>Put your attention on the next decision you can control.</li></ol></div><div class="bt-callout"><span class="bt-kicker">VISUALISATION</span><br>Picture yourself receiving the ball, reading the floor, staying composed and making the right play. See the whole sequence clearly — then see yourself responding calmly if it does not go perfectly.</div><div class="bt-callout"><span class="bt-kicker">'+(type==='game'?'GAME-DAY':'TRAINING-DAY')+' PROTOCOL</span><ol class="bt-protocol">'+protocol.map(step=>'<li>'+esc(step)+'</li>').join('')+'</ol></div><div class="bt-callout"><span class="bt-kicker">WHY YOU WORK</span><br>'+esc(motivationText())+'</div>';
+ if(window.ZERO_HOOP_CENTRAL_RENDER)window.ZERO_HOOP_CENTRAL_RENDER(type);
  renderNotebook();
  $('#btScheduleOverride').hidden=!activeEvent;
  setPrompt('Briefing prepared, sir. Review your objectives, mental cues and notes. We launch when you are ready.');
@@ -4650,4 +4653,144 @@ setTimeout(()=>checkPostgame(),2600);
 })();
 
 </script>
+
+<style>
+.bt-intel-panel{margin-top:13px;padding-top:12px;border-top:1px solid rgba(255,75,88,.24);color:#f3e9eb}
+.bt-intel-panel[hidden]{display:none!important}
+.bt-intel-kicker{font:8px "JetBrains Mono",monospace;letter-spacing:.16em;color:#ff6872;text-transform:uppercase}
+.bt-intel-title{font:700 13px Sora,system-ui,sans-serif;letter-spacing:.08em;color:#fff;margin:5px 0 8px}
+.bt-intel-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:8px 0}
+.bt-intel-stat{min-width:0;padding:7px 6px;background:linear-gradient(145deg,rgba(75,11,20,.35),rgba(5,5,9,.7));border:1px solid rgba(255,85,100,.18);border-radius:7px}
+.bt-intel-stat b{display:block;color:#ff6671;font:700 16px "JetBrains Mono",monospace}
+.bt-intel-stat small{display:block;color:#bcaeb1;font:8px "JetBrains Mono",monospace;letter-spacing:.07em;margin-top:3px}
+.bt-intel-copy{font-size:10px;line-height:1.5;color:#d7cacc;margin:7px 0}
+.bt-intel-court{display:block;width:100%;max-height:220px;border:1px solid rgba(255,65,83,.24);border-radius:8px;background:radial-gradient(ellipse at 50% 50%,rgba(103,9,22,.25),rgba(3,3,7,.95) 70%);margin:8px 0}
+.bt-intel-label{font:8px "JetBrains Mono",monospace;letter-spacing:.12em;color:#ff8b93;margin:7px 0 4px}
+.bt-intel-strength{padding:8px;border-left:2px solid #ff465b;background:rgba(105,10,22,.16);font-size:10px;line-height:1.5;color:#f2e5e7;margin-top:7px}
+.bt-intel-muted{color:#ad9ea1;font-size:9px;line-height:1.45}
+@media(max-width:899px){.bt-intel-grid{gap:4px}.bt-intel-stat{padding:6px 4px}.bt-intel-stat b{font-size:14px}.bt-intel-court{max-height:170px}}
+</style>
+<script>
+(function(){
+'use strict';
+const STORE='zero.hoopCentral.v1';
+const ZONES=['Left corner 3','Left wing 3','Top of key 3','Right wing 3','Right corner 3','Left mid-range','Top mid-range','Right mid-range','Paint'];
+const $=s=>document.querySelector(s);
+function normalise(raw,source){
+ if(!raw||typeof raw!=='object')throw new Error('This file is not a valid Hoop Central export.');
+ const profile=raw.profile||raw.p||{};
+ const shots=Array.isArray(raw.shots)?raw.shots:null;
+ const events=Array.isArray(raw.events)?raw.events:(Array.isArray(raw.ev)?raw.ev:null);
+ if(!shots||!events)throw new Error('The export is missing the shot or game-event data.');
+ const cleanShots=shots.filter(s=>s&&Number.isFinite(Number(s.x))&&Number.isFinite(Number(s.y))).map(s=>({
+  x:Number(s.x),y:Number(s.y),m:s.m?1:0,md:s.md==='g'?'g':'p',p:Number(s.p)===3?3:2,z:Number.isInteger(Number(s.z))?Number(s.z):-1,
+  t:Number(s.t)||0,g:Number(s.g)||0,c:String(s.c||'')
+ }));
+ const cleanEvents=events.filter(e=>e&&typeof e.k==='string').map(e=>({
+  k:e.k,m:e.m?1:0,md:e.md==='g'?'g':'p',t:Number(e.t)||0,g:Number(e.g)||0
+ }));
+ return {
+  version:1,source:source||'import',updatedAt:raw.exportedAt||new Date().toISOString(),
+  profile:{name:String(profile.name||''),number:String(profile.number||profile.num||''),position:String(profile.position||profile.pos||'PG'),age:String(profile.age||''),height:String(profile.height||profile.ht||'')},
+  shots:cleanShots,events:cleanEvents
+ };
+}
+function fromLive(){
+ try{
+  const raw=localStorage.getItem('hc');if(!raw)return null;
+  const parsed=JSON.parse(raw);
+  if(!parsed||!Array.isArray(parsed.shots)||!Array.isArray(parsed.ev))return null;
+  return normalise(parsed,'live');
+ }catch(e){return null}
+}
+function fromSaved(){
+ try{const raw=localStorage.getItem(STORE);if(!raw)return null;const d=JSON.parse(raw);if(d&&d.version===1&&Array.isArray(d.shots)&&Array.isArray(d.events))return d}catch(e){}
+ return null;
+}
+function current(){
+ const live=fromLive();if(live)return live;
+ return fromSaved();
+}
+function status(){
+ const el=$('#btHoopCentralStatus');if(!el)return;
+ const live=fromLive(),saved=fromSaved();
+ if(live)el.textContent='LIVE LINK DETECTED — '+live.shots.length+' shots and '+live.events.length+' game events available from Hoop Central in this browser.';
+ else if(saved)el.textContent='IMPORTED BACKUP AVAILABLE — '+saved.shots.length+' shots and '+saved.events.length+' game events. Import a newer export whenever you update Hoop Central.';
+ else el.textContent='NO DATA LINKED YET — open Hoop Central in this browser or import a JSON export from its player profile.';
+}
+function importFile(file){
+ if(!file)return;
+ if(file.size>5*1024*1024){alert('That export is larger than 5 MB.');return}
+ const reader=new FileReader();
+ reader.onload=function(){
+  try{
+   const raw=JSON.parse(String(reader.result||''));
+   if(raw.format!=='hoop-central-zero-export'||raw.version!==1)throw new Error('This is not a supported Hoop Central ZERO export.');
+   const clean=normalise(raw,'import');
+   localStorage.setItem(STORE,JSON.stringify(clean));
+   status();alert('Hoop Central data imported into ZERO.');
+   if(window.ZERO_HOOP_CENTRAL_RENDER)window.ZERO_HOOP_CENTRAL_RENDER('game');
+  }catch(e){alert(e.message||'Could not read that Hoop Central export.')}
+ };
+ reader.onerror=function(){alert('Could not read that file.')};
+ reader.readAsText(file);
+}
+function pct(m,a){return a?Math.round(m/a*100):null}
+function fmt(v){return v==null?'—':v+'%'}
+function statsFor(d,mode){
+ const shots=d.shots.filter(s=>s.md===mode),events=d.events.filter(e=>e.md===mode);
+ const made=shots.filter(s=>s.m),threes=shots.filter(s=>s.p===3),made3=threes.filter(s=>s.m);
+ const free=events.filter(e=>e.k==='ft');
+ const out={shots:shots.length,fg:pct(made.length,shots.length),fgm:made.length,three:pct(made3.length,threes.length),threeM:made3.length,threeA:threes.length,ft:pct(free.filter(e=>e.m).length,free.length),ftM:free.filter(e=>e.m).length,ftA:free.length,events:events};
+ const games={};
+ shots.filter(s=>mode==='g').forEach(s=>{const k=String(s.g||0);if(!games[k])games[k]={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0};if(s.m)games[k].pts+=s.p});
+ events.filter(e=>mode==='g').forEach(e=>{const k=String(e.g||0);if(!games[k])games[k]={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0};if(e.k==='ft'&&e.m)games[k].pts++;else if(['reb','ast','stl','blk','tov'].includes(e.k))games[k][e.k]++});
+ const rows=Object.values(games),avg=k=>rows.length?(rows.reduce((a,b)=>a+b[k],0)/rows.length).toFixed(1):'—';
+ out.gp=rows.length;out.ppg=avg('pts');out.apg=avg('ast');out.rpg=avg('reb');out.tpg=avg('tov');
+ const zoneRows=ZONES.map((name,i)=>{const z=shots.filter(s=>s.z===i),m=z.filter(s=>s.m).length;return{name,attempts:z.length,makes:m,pct:pct(m,z.length)}}).filter(z=>z.attempts>=4).sort((a,b)=>(b.pct||0)-(a.pct||0));
+ out.bestZone=zoneRows[0]||null;
+ return out;
+}
+function courtSvg(shots){
+ const marks=shots.slice(-150).map(s=>{
+  const x=Math.max(0,Math.min(500,s.x)),y=Math.max(0,Math.min(470,s.y));
+  return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="20" fill="#ff1838" opacity="'+(s.m?.2:.09)+'" filter="url(#hcGlow)"/>'+
+   (s.m?'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.6" fill="#fff0f2" stroke="#ff4059" stroke-width="1.5"/>':'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.3" fill="#ff6477" fill-opacity=".35" stroke="#ff536c" stroke-width="1"/>');
+ }).join('');
+ return '<svg class="bt-intel-court" viewBox="0 0 500 470" role="img" aria-label="Holographic basketball shot chart"><defs><filter id="hcGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="8"/></filter></defs><rect x="2" y="2" width="496" height="466" rx="4" fill="#09050a" stroke="#ff4059" stroke-opacity=".8" stroke-width="2"/><rect x="170" y="0" width="160" height="190" fill="#ff1938" fill-opacity=".035" stroke="#ff6475" stroke-opacity=".48"/><path d="M190 190A60 60 0 0 0 310 190M210 52A40 40 0 0 0 290 52M30 0V141.5A237.5 237.5 0 0 0 470 141.5V0" fill="none" stroke="#ff7887" stroke-opacity=".65" stroke-width="2.5"/><circle cx="250" cy="52" r="7" fill="none" stroke="#ff9da8" stroke-width="2"/>'+marks+'</svg>';
+}
+function stat(label,value,small){
+ return '<div class="bt-intel-stat"><b>'+value+'</b><small>'+label+(small?' · '+small:'')+'</small></div>';
+}
+function render(type){
+ const panel=$('#btPerformanceSummary');if(!panel)return;
+ const d=current();
+ if(!d){
+  panel.hidden=false;
+  panel.innerHTML='<div class="bt-intel-kicker">PERFORMANCE INTELLIGENCE</div><div class="bt-intel-title">HOOP CENTRAL LINK NOT FOUND</div><p class="bt-intel-muted">Open Hoop Central in this browser or import its JSON export in Battle Mode settings. ZERO will not invent ratings or shooting statistics.</p>';
+  status();return;
+ }
+ const mode=type==='game'?'g':'p',label=mode==='g'?'GAME DATA':'PRACTICE DATA',s=statsFor(d,mode),profile=d.profile||{};
+ const overall=statsFor(d,'g'),strength=s.bestZone;
+ let html='<div class="bt-intel-kicker">ZERO / PERFORMANCE INTELLIGENCE</div><div class="bt-intel-title">'+(profile.name?profile.name.toUpperCase()+' / ':'')+label+'</div>';
+ html+='<div class="bt-intel-grid">'+stat('FG%',fmt(s.fg),s.fgm+'/'+s.shots)+stat('3PT%',fmt(s.three),s.threeM+'/'+s.threeA)+stat('FT%',fmt(s.ft),s.ftM+'/'+s.ftA)+'</div>';
+ if(mode==='g')html+='<div class="bt-intel-grid">'+stat('PPG',s.ppg,s.gp+' games')+stat('APG',s.apg)+stat('RPG',s.rpg)+'</div>';
+ html+='<div class="bt-intel-copy">'+(mode==='g'?'Game performance summary, using only recorded game shots and events.':'Practice shooting summary, kept separate from your game statistics.')+'</div>';
+ if(type==='game'||type==='training'){
+  html+='<div class="bt-intel-label">'+(mode==='g'?'GAME':'PRACTICE')+' SHOT MAP / '+s.shots+' SHOTS</div>'+courtSvg(d.shots.filter(q=>q.md===mode));
+  if(strength)html+='<div class="bt-intel-strength"><b>RECORDED STRENGTH</b><br>'+strength.name+': '+strength.pct+'% ('+strength.makes+'/'+strength.attempts+'). Keep looking for this opportunity when the defence gives it to you.</div>';
+  else html+='<div class="bt-intel-muted">Not enough attempts in a single zone yet to identify a reliable shooting strength.</div>';
+  if(!s.shots.length)html+='<div class="bt-intel-muted">No shots have been recorded for this session type yet. The chart will populate as you log attempts.</div>';
+ }
+ panel.innerHTML=html;panel.hidden=false;status();
+}
+window.ZERO_HOOP_CENTRAL={get:current,refresh:status};
+window.ZERO_HOOP_CENTRAL_RENDER=render;
+document.addEventListener('change',function(e){if(e.target&&e.target.id==='btHoopCentralImport'){importFile(e.target.files&&e.target.files[0]);e.target.value=''}});
+window.addEventListener('storage',function(e){if(e.key==='hc'||e.key===STORE){status();const panel=$('#btPerformanceSummary');if(panel&&!panel.hidden){const type=panel.textContent.indexOf('GAME DATA')>=0?'game':'training';render(type)}}});
+document.addEventListener('DOMContentLoaded',status);
+status();
+})();
+</script>
+
 </body></html>
