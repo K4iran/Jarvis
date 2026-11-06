@@ -143,7 +143,7 @@ body{background:#010207}
 .stat{display:flex;align-items:center;gap:7px;font:400 10px "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--m)}
 .stat i{width:7px;height:7px;border-radius:50%;background:var(--b);box-shadow:0 0 8px var(--b)}.stat[data-s=listening] i,.stat[data-s=responding] i{background:var(--c);box-shadow:0 0 10px var(--c)}.stat[data-s=processing] i{background:#fff;box-shadow:0 0 10px #fff}
 #clk{display:none!important}
-@media(max-width:699px){.brand-copy .hs{display:none}}@media(max-width:560px){#bar{flex-wrap:nowrap;gap:5px;padding:5px 8px}.br{gap:5px}.br b{font-size:11px;letter-spacing:.18em}.br svg.helmet-mark{width:26px;height:26px}.tabs{order:0;width:auto;margin:0 2px 0 auto;gap:2px}.tab{flex:none;padding:5px 6px;font-size:8px;letter-spacing:0}.rt{margin-left:0;gap:2px}.rt .stat{display:none}.ib{width:34px;height:38px}}
+@media(max-width:699px){.brand-copy .hs{display:none}}@media(max-width:560px){#bar{flex-wrap:nowrap;gap:5px;padding:5px 8px}.br{gap:5px}.br b{font-size:11px;letter-spacing:.18em}.br svg.helmet-mark{width:26px;height:26px}.tabs{order:0;width:auto;margin:0 2px 0 auto;gap:2px}.tab{flex:none;min-height:44px;padding:8px 7px;font-size:9px;letter-spacing:0}.rt{margin-left:0;gap:2px}.rt .stat{display:none}.ib{width:44px;height:44px;min-width:44px;min-height:44px}}
 .ib{width:44px;height:44px;display:grid;place-items:center;background:none;border:1px solid transparent;border-radius:50%;cursor:pointer;transition:.25s;flex:none}.ib:hover{border-color:var(--ln2);background:rgba(88,223,255,.08)}.ib:active{transform:scale(.93)}
 .ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;color:var(--c);flex:none}
 #stage{flex:1;display:grid;gap:14px;padding:10px 14px 22px;align-content:start}
@@ -1439,38 +1439,25 @@ window.JarvisGoogleCalendarReady = window.JarvisGoogleCalendar.init().catch(erro
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
 
-/* Subtle binary rain backdrop: dim green digits moving quickly behind the interface. */
+/* Subtle binary rain backdrop. It pauses when motion is reduced or the page is hidden. */
 (function initCosmos(){
   const c = $('#cosmos');
   if (!c) return;
   const x = c.getContext('2d', { alpha: true });
   if (!x) return;
-  let w=0,h=0,d=1,last=0,raf=0;
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+  let w=0,h=0,d=1,last=0,raf=0,running=false;
   const rand=(a,b)=>a+Math.random()*(b-a);
   let streams=[];
-  function size(){
-    w=innerWidth; h=innerHeight;
-    d=Math.min(devicePixelRatio||1,1.5);
-    c.width=Math.round(w*d); c.height=Math.round(h*d);
-    c.style.width=w+'px'; c.style.height=h+'px';
-    x.setTransform(d,0,0,d,0,0);
-    const gap=w<600?24:30;
-    const count=Math.ceil(w/gap);
-    streams=Array.from({length:count},(_,i)=>({
-      x:i*gap+rand(-4,4), y:rand(-h,h), speed:rand(105,205),
-      length:Math.floor(rand(4,10))
-    }));
-  }
-  function frame(t){
-    raf=requestAnimationFrame(frame);
+  const shouldAnimate=()=>!S.rm&&!motionQuery.matches&&S.cosmos&&!document.hidden;
+  function draw(t){
     const dt=last?Math.min((t-last)/1000,.04):0;
     last=t;
     x.clearRect(0,0,w,h);
     x.font='11px "JetBrains Mono", ui-monospace, monospace';
     x.textAlign='center';
     for(const q of streams){
-      if(!reduced) q.y+=q.speed*dt;
+      if(shouldAnimate()) q.y+=q.speed*dt;
       if(q.y-q.length*17>h){
         q.y=rand(-h*.5,-20); q.speed=rand(105,205); q.length=Math.floor(rand(4,10));
       }
@@ -1500,9 +1487,45 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
       }
     }
   }
+  function stop(){
+    running=false;
+    if(raf)cancelAnimationFrame(raf);
+    raf=0;last=0;
+    draw(performance.now());
+  }
+  function frame(t){
+    if(!running||!shouldAnimate()){stop();return;}
+    draw(t);
+    raf=requestAnimationFrame(frame);
+  }
+  function syncMotion(){
+    document.documentElement.classList.toggle('rm',S.rm||motionQuery.matches);
+    if(!shouldAnimate()){stop();return;}
+    if(running)return;
+    running=true;last=0;
+    raf=requestAnimationFrame(frame);
+  }
+  function size(){
+    w=innerWidth; h=innerHeight;
+    d=Math.min(devicePixelRatio||1,1.5);
+    c.width=Math.round(w*d); c.height=Math.round(h*d);
+    c.style.width=w+'px'; c.style.height=h+'px';
+    x.setTransform(d,0,0,d,0,0);
+    const gap=w<600?24:30;
+    const count=Math.ceil(w/gap);
+    streams=Array.from({length:count},(_,i)=>({
+      x:i*gap+rand(-4,4), y:rand(-h,h), speed:rand(105,205),
+      length:Math.floor(rand(4,10))
+    }));
+    if(!running)draw(performance.now());
+  }
   addEventListener('resize',size,{passive:true});
-  size(); raf=requestAnimationFrame(frame);
-  addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
+  document.addEventListener('visibilitychange',syncMotion);
+  if(motionQuery.addEventListener)motionQuery.addEventListener('change',syncMotion);
+  else if(motionQuery.addListener)motionQuery.addListener(syncMotion);
+  window.__zeroUpdateCosmosMotion=syncMotion;
+  size();syncMotion();
+  addEventListener('pagehide',()=>{stop();document.removeEventListener('visibilitychange',syncMotion);},{once:true});
 })();
 let state='standby',view='idle',openId=null,last=null,ct=0,busy=false,timers=[],ii=0,orbInfo='Unavailable',pulse=()=>{},ripple=()=>{},burst=()=>Promise.resolve();
 
@@ -2226,14 +2249,14 @@ function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-ta
 function setView(v){view=v;if(v==='idle'){renderDisp();setTab('home')}else setTab('data')}
 $$('#bar [data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 $('#dx').onclick=()=>setView('idle');
-const settings=()=>[['rm','Reduce motion'],['cosmos','Binary rain background']].map(([k,n])=>`<div class="r" style="align-items:center"><span style="color:var(--t)">${n}</span><button class="sw" role="switch" data-t="${k}" aria-label="${n}" aria-checked="${S[k]}"></button></div>`).join('')+`<a href="legal.html" class="legal-settings-link"><span><b>LEGAL &amp; PRIVACY</b><small>Policies, data, AI providers and safety</small></span><span aria-hidden="true">↗</span></a><button type="button" class="btn" id="battleSettingsOpen">BATTLE MODE SETTINGS</button>`;
+const settings=()=>[['rm','Reduce motion'],['cosmos','Binary rain background']].map(([k,n])=>`<div class="r" style="align-items:center"><span style="color:var(--t)">${n}</span><button class="sw" role="switch" data-t="${k}" aria-label="${n}" aria-checked="${k==='rm'?(S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches):S[k]}"></button></div>`).join('')+`<a href="legal.html" class="legal-settings-link"><span><b>LEGAL &amp; PRIVACY</b><small>Policies, data, AI providers and safety</small></span><span aria-hidden="true">↗</span></a><button type="button" class="btn" id="battleSettingsOpen">BATTLE MODE SETTINGS</button>`;
 function renderOv(){const p=P[openId];$('#ot').textContent=openId==='set'?'SETTINGS':p.l;$('#ob').innerHTML=openId==='set'?settings():`<p class="mut" style="margin:6px 0">${p.d}</p>${p.v()}<button class="btn" data-show="${openId}">SHOW IN VISUALISATION CHANNEL</button>`}
 function openOv(id){last=document.activeElement;openId=id;clearTimeout(ct);renderOv();const o=$('#ov');o.hidden=false;requestAnimationFrame(()=>{o.classList.add('on');$('#oc').focus()})}
 function closeOv(){if(!openId)return;openId=null;const o=$('#ov');o.classList.remove('on');ct=setTimeout(()=>o.hidden=true,260);last&&last.focus&&last.focus()}
 $('#gear').onclick=()=>openOv('set');
 $('#ov').onclick=e=>{if(e.target.id==='ov'||e.target.closest('#oc'))return closeOv();const t=e.target.closest('[data-t]');if(t){S[t.dataset.t]=!S[t.dataset.t];t.setAttribute('aria-checked',S[t.dataset.t]);apply();return}const s=e.target.closest('[data-show]');if(s){setView(s.dataset.show);closeOv()}};
 $('#ov').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=$$('#ov button'),a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
-function apply(){document.documentElement.classList.toggle('rm',S.rm);const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos}
+function apply(){const reduceMotion=S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches;document.documentElement.classList.toggle('rm',reduceMotion);const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos;if(window.__zeroUpdateCosmosMotion)window.__zeroUpdateCosmosMotion()}
 const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv()};
 
 let wakeEnabled=false, recognition=null, wakeArmed=false, conversationMode=false, recognitionRestartTimer=0;
