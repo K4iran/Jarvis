@@ -273,77 +273,187 @@ function createAvatarParticles() {
   const previous = avatarRoot.getObjectByName('Holographic particle skin');
   if (previous) {
     avatarRoot.remove(previous);
-    previous.geometry.dispose();
-    previous.material.dispose();
+    if (previous.geometry) previous.geometry.dispose();
+    if (previous.material) previous.material.dispose();
   }
+
   avatarRoot.updateMatrixWorld(true);
-  const positions = [];
-  const sizes = [];
-  const alphas = [];
-  const point = new THREE.Vector3();
-  const maxPoints = 2800;
-  let added = 0;
+  const rootInverse = new THREE.Matrix4().copy(avatarRoot.matrixWorld).invert();
+  const meshes = [];
+  let totalTriangleCount = 0;
   avatarRoot.traverse(object => {
-    if (added >= maxPoints || !object.isMesh || !object.geometry || object.name === 'Holographic particle skin') return;
-    const attribute = object.geometry.getAttribute('position');
-    if (!attribute) return;
-    const count = attribute.count;
-    const targetForMesh = Math.min(360,maxPoints-added);
-    const step = Math.max(1,Math.floor(count / targetForMesh));
-    for (let i=0;i<count && added<maxPoints;i+=step) {
-      point.fromBufferAttribute(attribute,i);
-      object.localToWorld(point);
-      avatarRoot.worldToLocal(point);
-      const jitter = 0.003 + Math.random()*0.009;
-      positions.push(
-        point.x + (Math.random()-0.5)*jitter,
-        point.y + (Math.random()-0.5)*jitter,
-        point.z + (Math.random()-0.5)*jitter
-      );
-      sizes.push(1.4 + Math.random()*1.7);
-      alphas.push(0.34 + Math.random()*0.62);
-      added++;
+    if (!object.isMesh || !object.geometry) return;
+    object.visible = true;
+    meshes.push(object);
+    const position = object.geometry.getAttribute('position');
+    const index = object.geometry.index;
+    totalTriangleCount += index ? Math.floor(index.count / 3) : Math.floor((position ? position.count : 0) / 3);
+  });
+
+  if (!meshes.length || !totalTriangleCount) return;
+  const triangleStride = Math.max(1,Math.ceil(totalTriangleCount / 18000));
+  const triangles = [];
+  const cumulativeAreas = [];
+  let totalArea = 0;
+  const a = new THREE.Vector3();
+  const b = new THREE.Vector3();
+  const c = new THREE.Vector3();
+  const ab = new THREE.Vector3();
+  const ac = new THREE.Vector3();
+  const na = new THREE.Vector3();
+  const nb = new THREE.Vector3();
+  const nc = new THREE.Vector3();
+
+  meshes.forEach(mesh => {
+    const source = mesh.geometry;
+    if (!source.getAttribute('normal')) source.computeVertexNormals();
+    const positions = source.getAttribute('position');
+    const normals = source.getAttribute('normal');
+    const index = source.index;
+    const triangleCount = index ? Math.floor(index.count / 3) : Math.floor(positions.count / 3);
+    const relativeMatrix = new THREE.Matrix4().copy(rootInverse).multiply(mesh.matrixWorld);
+    const normalMatrix = new THREE.Matrix3().getNormalMatrix(relativeMatrix);
+    const sourceMaterial = Array.isArray(mesh.material)
+      ? mesh.material.find(material => material && material.color)
+      : mesh.material;
+    const color = sourceMaterial && sourceMaterial.color
+      ? sourceMaterial.color
+      : new THREE.Color(0x78dcff);
+    const colorValues = [color.r,color.g,color.b];
+
+    for (let triangle=0;triangle<triangleCount;triangle+=triangleStride) {
+      const offset = triangle*3;
+      const ia = index ? index.getX(offset) : offset;
+      const ib = index ? index.getX(offset+1) : offset+1;
+      const ic = index ? index.getX(offset+2) : offset+2;
+      a.fromBufferAttribute(positions,ia).applyMatrix4(relativeMatrix);
+      b.fromBufferAttribute(positions,ib).applyMatrix4(relativeMatrix);
+      c.fromBufferAttribute(positions,ic).applyMatrix4(relativeMatrix);
+      ab.subVectors(b,a);
+      ac.subVectors(c,a);
+      const area = ab.cross(ac).length()*0.5;
+      if (area < 0.000001) continue;
+
+      na.fromBufferAttribute(normals,ia).applyMatrix3(normalMatrix).normalize();
+      nb.fromBufferAttribute(normals,ib).applyMatrix3(normalMatrix).normalize();
+      nc.fromBufferAttribute(normals,ic).applyMatrix3(normalMatrix).normalize();
+      triangles.push({
+        a:[a.x,a.y,a.z],b:[b.x,b.y,b.z],c:[c.x,c.y,c.z],
+        na:[na.x,na.y,na.z],nb:[nb.x,nb.y,nb.z],nc:[nc.x,nc.y,nc.z],
+        color:colorValues,area
+      });
+      totalArea += area;
+      cumulativeAreas.push(totalArea);
     }
   });
-  if (!positions.length) return;
+
+  if (!triangles.length || totalArea <= 0) return;
+  const isSmallDevice = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
+  const particleCount = isSmallDevice ? 8500 : 15000;
+  const positions = new Float32Array(particleCount*3);
+  const normals = new Float32Array(particleCount*3);
+  const colors = new Float32Array(particleCount*3);
+  const sizes = new Float32Array(particleCount);
+  const alphas = new Float32Array(particleCount);
+
+  for (let i=0;i<particleCount;i++) {
+    const target = Math.random()*totalArea;
+    let low = 0, high = cumulativeAreas.length-1;
+    while (low < high) {
+      const middle = (low+high)>>1;
+      if (cumulativeAreas[middle] < target) low = middle+1;
+      else high = middle;
+    }
+    const triangle = triangles[low];
+    const root = Math.sqrt(Math.random());
+    const wa = 1-root;
+    const wb = root*(1-Math.random());
+    const wc = 1-wa-wb;
+    const base = i*3;
+    for (let axis=0;axis<3;axis++) {
+      positions[base+axis] = triangle.a[axis]*wa + triangle.b[axis]*wb + triangle.c[axis]*wc;
+      normals[base+axis] = triangle.na[axis]*wa + triangle.nb[axis]*wb + triangle.nc[axis]*wc;
+      colors[base+axis] = triangle.color[axis];
+    }
+    const normalLength = Math.hypot(normals[base],normals[base+1],normals[base+2]) || 1;
+    normals[base] /= normalLength;
+    normals[base+1] /= normalLength;
+    normals[base+2] /= normalLength;
+    sizes[i] = 2.0 + Math.random()*2.1;
+    alphas[i] = 0.72 + Math.random()*0.25;
+  }
+
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
-  geometry.setAttribute('aSize',new THREE.Float32BufferAttribute(sizes,1));
-  geometry.setAttribute('aAlpha',new THREE.Float32BufferAttribute(alphas,1));
+  geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
+  geometry.setAttribute('aNormal',new THREE.BufferAttribute(normals,3));
+  geometry.setAttribute('aColor',new THREE.BufferAttribute(colors,3));
+  geometry.setAttribute('aSize',new THREE.BufferAttribute(sizes,1));
+  geometry.setAttribute('aAlpha',new THREE.BufferAttribute(alphas,1));
+
   const material = new THREE.ShaderMaterial({
     transparent:true,
-    depthWrite:false,
+    depthWrite:true,
     depthTest:true,
-    blending:THREE.AdditiveBlending,
-    uniforms:{uPixelRatio:{value:Math.min(window.devicePixelRatio || 1,1.8)}},
-    vertexShader:`
-      attribute float aSize;
-      attribute float aAlpha;
-      uniform float uPixelRatio;
-      varying float vAlpha;
-      void main(){
-        vec4 viewPosition = modelViewMatrix * vec4(position,1.0);
-        gl_Position = projectionMatrix * viewPosition;
-        gl_PointSize = aSize * uPixelRatio * (5.2 / max(1.0,-viewPosition.z));
-        vAlpha = aAlpha;
-      }
-    `,
-    fragmentShader:`
-      varying float vAlpha;
-      void main(){
-        float d = length(gl_PointCoord - vec2(0.5));
-        float glow = 1.0 - smoothstep(0.12,0.5,d);
-        float alpha = glow * vAlpha * 0.86;
-        if(alpha < 0.025) discard;
-        gl_FragColor = vec4(0.48,0.86,1.0,alpha);
-      }
-    `
+    blending:THREE.NormalBlending,
+    uniforms:{
+      uPixelRatio:{value:Math.min(window.devicePixelRatio || 1,1.8)},
+      uLightDirection:{value:new THREE.Vector3(-0.42,0.78,0.46).normalize()}
+    },
+    vertexShader:
+      'attribute vec3 aNormal;\n' +
+      'attribute vec3 aColor;\n' +
+      'attribute float aSize;\n' +
+      'attribute float aAlpha;\n' +
+      'uniform float uPixelRatio;\n' +
+      'uniform vec3 uLightDirection;\n' +
+      'varying vec3 vNormal;\n' +
+      'varying vec3 vColor;\n' +
+      'varying vec3 vViewPosition;\n' +
+      'varying vec3 vLightDirection;\n' +
+      'varying float vAlpha;\n' +
+      'void main(){\n' +
+      '  vec4 viewPosition = modelViewMatrix * vec4(position,1.0);\n' +
+      '  gl_Position = projectionMatrix * viewPosition;\n' +
+      '  gl_PointSize = aSize * uPixelRatio * (6.0 / max(1.0,-viewPosition.z));\n' +
+      '  vNormal = normalize(normalMatrix * aNormal);\n' +
+      '  vColor = aColor;\n' +
+      '  vViewPosition = -viewPosition.xyz;\n' +
+      '  vLightDirection = normalize(mat3(viewMatrix) * uLightDirection);\n' +
+      '  vAlpha = aAlpha;\n' +
+      '}\n',
+    fragmentShader:
+      'varying vec3 vNormal;\n' +
+      'varying vec3 vColor;\n' +
+      'varying vec3 vViewPosition;\n' +
+      'varying vec3 vLightDirection;\n' +
+      'varying float vAlpha;\n' +
+      'void main(){\n' +
+      '  float distanceFromCentre = length(gl_PointCoord - vec2(0.5));\n' +
+      '  float particleShape = 1.0 - smoothstep(0.27,0.5,distanceFromCentre);\n' +
+      '  if(particleShape < 0.025) discard;\n' +
+      '  vec3 N = normalize(vNormal);\n' +
+      '  vec3 L = normalize(vLightDirection);\n' +
+      '  vec3 V = normalize(vViewPosition);\n' +
+      '  vec3 H = normalize(L + V);\n' +
+      '  float diffuse = max(dot(N,L),0.0);\n' +
+      '  float wrappedLight = max((dot(N,L)+0.34)/1.34,0.0);\n' +
+      '  float specular = pow(max(dot(N,H),0.0),28.0)*0.24;\n' +
+      '  float rim = pow(1.0-max(dot(N,V),0.0),2.1)*0.2;\n' +
+      '  vec3 lighting = vColor*(0.34 + wrappedLight*0.78 + diffuse*0.12);\n' +
+      '  lighting += vec3(0.48,0.78,1.0)*(specular + rim);\n' +
+      '  float alpha = particleShape*vAlpha*0.94;\n' +
+      '  gl_FragColor = vec4(lighting,alpha);\n' +
+      '}\n'
   });
+
   const particles = new THREE.Points(geometry,material);
   particles.name = 'Holographic particle skin';
   particles.frustumCulled = false;
   particles.renderOrder = 5;
   avatarRoot.add(particles);
+
+  // The meshes are now sampling sources only; the visible avatar is particles alone.
+  meshes.forEach(mesh => { mesh.visible = false; });
 }
 
 function createDefaultAvatar() {
@@ -385,13 +495,18 @@ function createDefaultAvatar() {
 function removeAvatar() {
   if (avatarRoot) {
     scene.remove(avatarRoot);
+    const geometries = new Set();
+    const materials = new Set();
     avatarRoot.traverse(object => {
-      if (object.isMesh) {
-        if (object.geometry && object.geometry.dispose) object.geometry.dispose();
-        const materials = Array.isArray(object.material) ? object.material : [object.material];
-        materials.forEach(material => { if (material && material.dispose) material.dispose(); });
+      if (object.geometry) geometries.add(object.geometry);
+      if (object.material) {
+        (Array.isArray(object.material) ? object.material : [object.material]).forEach(material => {
+          if (material) materials.add(material);
+        });
       }
     });
+    geometries.forEach(geometry => geometry.dispose());
+    materials.forEach(material => material.dispose());
   }
   avatarRoot = null;
   clothingGroup = null;
@@ -446,49 +561,116 @@ function applyGarments(look) {
 
 function setupScene() {
   const small = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
-  renderer = new THREE.WebGLRenderer({canvas:sceneCanvas,alpha:true,antialias:!small,powerPreference:'low-power'});
+  renderer = new THREE.WebGLRenderer({canvas:sceneCanvas,alpha:false,antialias:!small,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,small ? 1.35 : 1.8));
-  renderer.setClearColor(0x000000,0);
+  renderer.setClearColor(0xf1f3f5,1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  renderer.toneMappingExposure = 1.08;
+
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x06111e,0.024);
+  const roomWhite = new THREE.Color(0xf1f3f5);
+  scene.background = roomWhite;
+  scene.fog = new THREE.Fog(roomWhite,15,34);
+
   camera = new THREE.PerspectiveCamera(37,1,0.1,70);
   camera.position.set(0,2.48,7.3);
+  camera.zoom = 1;
   camera.lookAt(0,1.47,0);
+  camera.updateProjectionMatrix();
 
-  scene.add(new THREE.HemisphereLight(0x9adfff,0x081321,1.25));
-  const key = new THREE.DirectionalLight(0xc8efff,2.1);
-  key.position.set(-3.4,5.5,4.8);scene.add(key);
-  const fill = new THREE.PointLight(0x178cff,2.2,10);
-  fill.position.set(2.6,1.1,1.5);scene.add(fill);
-  const rim = new THREE.PointLight(0x4fe5ff,2.8,11);
-  rim.position.set(-2.2,2.5,-2.6);scene.add(rim);
+  scene.add(new THREE.HemisphereLight(0xffffff,0xc7d0d7,1.75));
+  const key = new THREE.DirectionalLight(0xffffff,2.35);
+  key.position.set(-3.4,6,4.8);
+  scene.add(key);
+  const fill = new THREE.PointLight(0xc5eaff,0.72,12);
+  fill.position.set(3,2.2,2.5);
+  scene.add(fill);
+  const rim = new THREE.PointLight(0x8bdfff,1.05,13);
+  rim.position.set(-2.8,3,-3.5);
+  scene.add(rim);
 
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshPhysicalMaterial({color:0x071421,metalness:0.68,roughness:0.18,transparent:true,opacity:0.28,clearcoat:1,clearcoatRoughness:0.08,side:THREE.DoubleSide,depthWrite:false}));
-  floor.rotation.x = -Math.PI/2;floor.position.y = 0.015;floor.receiveShadow = true;scene.add(floor);
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(40,40),
+    new THREE.MeshStandardMaterial({color:0xf4f6f7,roughness:0.92,metalness:0})
+  );
+  floor.rotation.x = -Math.PI/2;
+  floor.position.y = 0;
+  scene.add(floor);
 
-  const platformMaterial = new THREE.MeshPhysicalMaterial({color:0x092238,metalness:0.72,roughness:0.18,transparent:true,opacity:0.84,clearcoat:1,emissive:0x04182a,emissiveIntensity:0.9});
-  const platform = new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.62,0.22,8,1),platformMaterial);
-  platform.position.y=0.31;platform.receiveShadow=true;scene.add(platform);
-  const top = new THREE.Mesh(new THREE.CylinderGeometry(1.44,1.44,0.018,64),new THREE.MeshPhysicalMaterial({color:0x173d56,metalness:0.65,roughness:0.13,transparent:true,opacity:0.62,clearcoat:1,clearcoatRoughness:0.06}));
-  top.position.y=0.43;scene.add(top);
+  const backWall = new THREE.Mesh(
+    new THREE.PlaneGeometry(18,9),
+    new THREE.MeshStandardMaterial({color:0xe9edf0,roughness:1,metalness:0,side:THREE.DoubleSide})
+  );
+  backWall.position.set(0,4.5,-5.5);
+  scene.add(backWall);
+
+  const leftWall = new THREE.Mesh(
+    new THREE.PlaneGeometry(11,9),
+    new THREE.MeshStandardMaterial({color:0xe5eaee,roughness:1,metalness:0,side:THREE.DoubleSide})
+  );
+  leftWall.position.set(-8,4.5,0);
+  leftWall.rotation.y = Math.PI/2;
+  scene.add(leftWall);
+
+  const rightWall = new THREE.Mesh(
+    new THREE.PlaneGeometry(11,9),
+    new THREE.MeshStandardMaterial({color:0xf7f8f9,roughness:1,metalness:0,side:THREE.DoubleSide})
+  );
+  rightWall.position.set(8,4.5,0);
+  rightWall.rotation.y = -Math.PI/2;
+  scene.add(rightWall);
+
+  const ceiling = new THREE.Mesh(
+    new THREE.PlaneGeometry(18,11),
+    new THREE.MeshStandardMaterial({color:0xf8f9fa,roughness:1,metalness:0,side:THREE.DoubleSide})
+  );
+  ceiling.rotation.x = Math.PI/2;
+  ceiling.position.set(0,9,-0.0);
+  scene.add(ceiling);
+
+  const platformMaterial = new THREE.MeshStandardMaterial({color:0xe7edf1,roughness:0.42,metalness:0.12});
+  const platform = new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.62,0.22,64),platformMaterial);
+  platform.position.y = 0.31;
+  scene.add(platform);
+
+  const platformTop = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.44,1.44,0.018,64),
+    new THREE.MeshStandardMaterial({color:0xfafcfd,roughness:0.28,metalness:0.08})
+  );
+  platformTop.position.y = 0.43;
+  scene.add(platformTop);
+
+  const contactShadow = new THREE.Mesh(
+    new THREE.CircleGeometry(0.72,64),
+    new THREE.MeshBasicMaterial({color:0x73818a,transparent:true,opacity:0.12,depthWrite:false})
+  );
+  contactShadow.rotation.x = -Math.PI/2;
+  contactShadow.position.set(0,0.444,0);
+  contactShadow.scale.set(0.76,0.3,1);
+  scene.add(contactShadow);
 
   function ring(radius,tube,color,opacity,y) {
-    const material = new THREE.MeshBasicMaterial({color,transparent:true,opacity,blending:THREE.AdditiveBlending,depthWrite:false});
+    const material = new THREE.MeshBasicMaterial({color,transparent:true,opacity,depthWrite:false});
     const mesh = new THREE.Mesh(new THREE.TorusGeometry(radius,tube,8,96),material);
-    mesh.rotation.x=Math.PI/2;mesh.position.y=y;scene.add(mesh);return mesh;
+    mesh.rotation.x = Math.PI/2;
+    mesh.position.y = y;
+    scene.add(mesh);
+    return mesh;
   }
-  ring(1.48,0.012,0x58cfff,0.42,0.365);
+  ring(1.48,0.009,0x55cfff,0.58,0.365);
+  ring(1.39,0.004,0x9beaff,0.34,0.448);
 
   createDefaultAvatar();
   applyGarments(defaultLook());
+
   const resize = () => {
     const width = Math.max(1,Math.round(window.innerWidth || stage.clientWidth || 1));
     const height = Math.max(1,Math.round(window.innerHeight || stage.clientHeight || 1));
     renderer.setSize(width,height,false);
-    camera.aspect = width/height;camera.updateProjectionMatrix();
+    camera.aspect = width/height;
+    camera.zoom = 1;
+    camera.updateProjectionMatrix();
   };
   const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
   if (observer) observer.observe(stage);
