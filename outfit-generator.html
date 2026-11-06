@@ -44,15 +44,8 @@
       </aside>
 
       <section class="stage" id="stage" aria-label="Holographic outfit preview">
-        <div class="room-glass room-back" aria-hidden="true"></div>
-        <div class="room-glass room-left" aria-hidden="true"></div>
-        <div class="room-glass room-right" aria-hidden="true"></div>
         <canvas id="scene" aria-label="Rotatable holographic avatar on a glass platform"></canvas>
         <div class="scene-fallback" id="sceneFallback" aria-hidden="true">
-          <div class="fallback-wall fallback-wall-back"></div>
-          <div class="fallback-wall fallback-wall-left"></div>
-          <div class="fallback-wall fallback-wall-right"></div>
-          <div class="fallback-floor-grid"></div>
           <div class="fallback-platform"><i></i><b></b></div>
           <svg class="fallback-avatar" viewBox="0 0 300 650" role="presentation">
             <defs><linearGradient id="holoBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5fbff" stop-opacity=".88"/><stop offset=".5" stop-color="#5dcfff" stop-opacity=".34"/><stop offset="1" stop-color="#167dce" stop-opacity=".68"/></linearGradient><filter id="holoGlow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>

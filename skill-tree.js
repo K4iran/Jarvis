@@ -17,19 +17,19 @@ const categories = [
     skills: [
       {
         id: 'hangman', name: 'Hangman', status: 'Active', icon: 'hangman',
-        description: 'A local word-guessing game. ZERO selects a word, then accepts letter or whole-word guesses by voice, touch or keyboard. The difficulty adapts between rounds.',
+        description: 'Guess a hidden word by voice, touch or keyboard. Difficulty adapts between rounds.',
         activation: '“Hey ZERO, let’s play Hangman.”',
         launch: 'hangman'
       },
       {
         id: 'sudoku', name: 'Sudoku', status: 'Active', icon: 'grid',
-        description: 'An interactive number puzzle with Easy, Medium and Hard difficulties. Select a cell, choose a number, and use the highlighted row, column and box to guide each move.',
+        description: 'Solve number puzzles at Easy, Medium or Hard, with row, column and box guidance.',
         activation: '“Hey ZERO, let’s play Sudoku.”',
         launch: 'sudoku'
       },
       {
         id: 'more-games', name: 'More Games', status: 'Coming Soon', icon: 'gamepad',
-        description: 'Additional interactive game modules will appear here as they are added to ZERO.',
+        description: 'More game modes will appear here as they become available.',
         activation: 'A voice command will be shown here when the next game is released.'
       }
     ]
@@ -40,25 +40,25 @@ const categories = [
     skills: [
       {
         id: 'google-calendar', name: 'Google Calendar', status: 'Available', icon: 'calendar',
-        description: 'Connect your Google account to view upcoming events and create calendar entries from ZERO. Calendar access stays with your authorised Google connection.',
+        description: 'View upcoming events and create entries through your authorised Google account.',
         activation: '“Hey ZERO, open my calendar.”',
         launch: 'calendar'
       },
       {
         id: 'weather', name: 'Weather', status: 'Active', icon: 'weather',
-        description: 'Live weather for a city, including current temperature, feels-like temperature, conditions, rain chances, a daily outlook and an interactive hourly temperature graph.',
+        description: 'Check a city’s current conditions and hourly forecast.',
         activation: '“Hey ZERO, what’s the weather in Istanbul?”',
         launch: 'weather'
       },
       {
         id: 'happy-news', name: 'Happy News', status: 'Active', icon: 'heart',
-        description: 'A short briefing of recent uplifting stories, filtered to leave out ambiguous or negative headlines.',
+        description: 'A short briefing of recent uplifting stories.',
         activation: '“Hey ZERO, show me happy news.”',
         launch: 'happy-news'
       },
       {
         id: 'task-lists', name: 'Task Lists', status: 'Coming Soon', icon: 'tasks',
-        description: 'A built-in task list and preparation checklist for everyday plans and things to remember before leaving.',
+        description: 'Keep simple task lists and checklists for everyday plans.',
         activation: 'A voice command will be shown here when task lists are released.'
       }
     ]
@@ -69,13 +69,13 @@ const categories = [
     skills: [
       {
         id: 'ai-conversation', name: 'AI Conversation', status: 'Active', icon: 'spark',
-        description: 'Talk naturally with ZERO, ask questions, get explanations and work through ideas using its connected AI assistant.',
+        description: 'Talk with ZERO, ask questions and explore ideas.',
         activation: '“Hey ZERO, explain…” followed by your question.',
         launch: 'conversation'
       },
       {
         id: 'command-understanding', name: 'Command Understanding', status: 'Active', icon: 'network',
-        description: 'ZERO recognises supported local requests and routes them to the right feature, including Hangman, Zen and Calendar.',
+        description: 'Routes supported requests to features such as Hangman, Zen and Calendar.',
         activation: '“Hey ZERO, open Zen.” or “Hey ZERO, show my calendar.”',
         launch: 'conversation'
       }
@@ -87,13 +87,13 @@ const categories = [
     skills: [
       {
         id: 'speech-recognition', name: 'Speech Recognition', status: 'Active', icon: 'microphone',
-        description: 'Turns spoken commands into text using the device browser’s speech-recognition support, when microphone permission is granted.',
+        description: 'Turns speech into text when browser support and microphone permission are available.',
         activation: 'Tap the microphone and speak a command beginning with “Hey ZERO”.',
         launch: 'voice'
       },
       {
         id: 'voice-responses', name: 'Voice Responses', status: 'Active', icon: 'sound',
-        description: 'ZERO can speak its replies aloud through the configured speech output when voice mode is enabled.',
+        description: 'Hear ZERO’s replies when voice mode is enabled.',
         activation: 'Activate the voice interface, then speak naturally.',
         launch: 'voice'
       }
@@ -105,13 +105,13 @@ const categories = [
     skills: [
       {
         id: 'preferences', name: 'Preferences', status: 'Active', icon: 'sliders',
-        description: 'Adjust ZERO’s interface preferences and saved Zen music service. Preferences are stored locally in this browser.',
+        description: 'Adjust interface and Zen music preferences saved in this browser.',
         activation: '“Hey ZERO, open settings.”',
         launch: 'settings'
       },
       {
         id: 'personal-memory', name: 'Personal Memory', status: 'Active', icon: 'memory',
-        description: 'Save, recall and remove selected details using ZERO’s local personal-memory commands.',
+        description: 'Save, recall and remove details stored in this browser.',
         activation: '“Hey ZERO, remember that…” or “Hey ZERO, what do you remember?”',
         launch: 'memory'
       }
@@ -123,7 +123,7 @@ const categories = [
     skills: [
       {
         id: 'outfit-generator', name: 'Outfit Generator', status: 'Active', icon: 'spark',
-        description: 'Create coordinated outfits from a written brief, then preview each look on a holographic mannequin or custom GLB avatar in a reflective glass studio.',
+        description: 'Create outfits from a brief and preview them on a holographic avatar.',
         activation: '“Hey ZERO, open the outfit generator.”',
         launch: 'outfit-generator'
       }
@@ -563,8 +563,8 @@ function addNavAndOverlay() {
   overlay.innerHTML =
     '<canvas id="zeroSkillCanvas" aria-label="Interactive three-dimensional ZERO Skill Tree. Drag to look around and select an orb."></canvas>' +
     '<div class="st-vignette" aria-hidden="true"></div>' +
-    '<div class="st-topline"><div class="st-brand"><strong>Z.E.R.O. / SKILL TREE</strong><span>CAPABILITIES &amp; SYSTEM MAP</span></div>' +
-    '<div class="st-toolbar"><span class="st-hint" id="zeroTreeHint">DRAG TO LOOK · ZOOM OUT TO RETURN</span>' +
+    '<div class="st-topline"><div class="st-brand"><strong>Z.E.R.O. Skill Tree</strong></div>' +
+    '<div class="st-toolbar"><span class="st-hint" id="zeroTreeHint">Drag to look · zoom out to return</span>' +
     '<button type="button" class="st-tool-button st-back-button" id="zeroTreeBack" hidden>BACK</button>' +
     '<button type="button" class="st-tool-button st-view-toggle" id="zeroViewToggle" aria-pressed="false">2D VIEW</button>' +
     '<button type="button" class="st-tool-button st-zoom-button" id="zeroZoomOut" aria-label="Zoom out">−</button>' +
@@ -814,25 +814,45 @@ function addHolographicLock(group, radius) {
   lock.renderOrder=9; group.add(lock); return lock;
 }
 function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
+  const nodeMeta = group.userData.node;
+  const nodeKind = nodeMeta && nodeMeta.kind;
+  const isCategory = nodeKind === 'category';
+  const keepAmbientParticles = isCenter || isCategory;
   const visualColor = locked ? '#9aaab5' : color;
   const colorValue = new THREE.Color(visualColor);
+
+  // Capability orbs stay visually quiet: one clean shell and their icon.
+  // The central ZERO orb and category orbs retain a restrained ambient effect.
   const shellMaterial = new THREE.MeshPhysicalMaterial({
-    color: colorValue, emissive: colorValue, emissiveIntensity: isCenter ? 0.8 : (locked ? 0.24 : 0.46),
-    metalness: 0.2, roughness: 0.25, clearcoat: 0.9, transparent: true,
-    opacity: isCenter ? 0.18 : (locked ? 0.3 : 0.22), depthWrite: false
+    color: colorValue,
+    emissive: colorValue,
+    emissiveIntensity: isCenter ? 0.62 : (locked ? 0.16 : 0.28),
+    metalness: 0.12,
+    roughness: 0.38,
+    clearcoat: 0.55,
+    transparent: true,
+    opacity: isCenter ? 0.16 : (locked ? 0.24 : 0.18),
+    depthWrite: false
   });
-  const shell = new THREE.Mesh(new THREE.SphereGeometry(radius, 34, 28), shellMaterial);
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 24), shellMaterial);
   group.add(shell);
 
-  const wire = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.06, 22, 18),
-    new THREE.MeshBasicMaterial({ color: colorValue, wireframe: true, transparent: true, opacity: isCenter ? 0.14 : (locked ? 0.24 : 0.12), depthWrite: false })
-  );
-  group.add(wire);
+  let wire = null;
+  if (keepAmbientParticles) {
+    wire = new THREE.Mesh(
+      new THREE.SphereGeometry(radius * 1.035, 18, 14),
+      new THREE.MeshBasicMaterial({
+        color: colorValue,
+        wireframe: true,
+        transparent: true,
+        opacity: isCenter ? 0.09 : 0.07,
+        depthWrite: false
+      })
+    );
+    group.add(wire);
+  }
 
-  // The centre of ZERO carries its wordmark; smaller orbs use a faceted,
-  // category-coloured energy crystal instead of a plain white sphere.
-  let core;
+  let core = null;
   if (isCenter) {
     const wordmark = makeLabelSprite('Z.E.R.O.', '#eafaff', 34);
     wordmark.material.opacity = 1;
@@ -844,128 +864,78 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
     core = wordmark;
   } else if (locked) {
     core = addHolographicLock(group, radius);
-
-    const crystalMaterial = new THREE.MeshBasicMaterial({
-      color: colorValue, transparent: true, opacity: 0.88,
-      blending: THREE.AdditiveBlending, depthWrite: false
-    });
-    core = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(radius * 0.145, 1),
-      crystalMaterial
-    );
-    core.rotation.set(0.35, 0.55, 0.2);
-    group.add(core);
-
-    const nucleusRing = new THREE.Mesh(
-      new THREE.TorusGeometry(radius * 0.23, Math.max(0.012, radius * 0.018), 6, 40),
+    const crystal = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(radius * 0.12, 1),
       new THREE.MeshBasicMaterial({
-        color: colorValue, transparent: true, opacity: 0.78,
-        blending: THREE.AdditiveBlending, depthWrite: false
+        color: colorValue,
+        transparent: true,
+        opacity: 0.72,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
       })
     );
-    nucleusRing.rotation.set(0.72, 0.35, 0.18);
-    group.add(nucleusRing);
+    crystal.rotation.set(0.35, 0.55, 0.2);
+    group.add(crystal);
   }
 
   const rings = [];
-  for (let i = 0; i < 3; i++) {
+  const ringCount = isCenter ? 2 : (isCategory ? 1 : 0);
+  for (let i = 0; i < ringCount; i++) {
     const ringMesh = new THREE.Mesh(
-      new THREE.TorusGeometry(radius * (1.22 + i * 0.13), Math.max(0.009, radius * 0.012), 6, 72),
-      new THREE.MeshBasicMaterial({ color: colorValue, transparent: true, opacity: 0.34 - i * 0.07, depthWrite: false, blending: THREE.AdditiveBlending })
+      new THREE.TorusGeometry(radius * (1.18 + i * 0.12), Math.max(0.008, radius * 0.009), 5, 56),
+      new THREE.MeshBasicMaterial({
+        color: colorValue,
+        transparent: true,
+        opacity: isCenter ? 0.2 - i * 0.06 : 0.13,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      })
     );
     ringMesh.rotation.set(0.5 + i * 0.55, 0.2 + i * 0.8, i * 0.63);
     group.add(ringMesh);
     rings.push(ringMesh);
   }
 
-  const particleCount = isCenter ? 1450 : 320;
-  const positions = new Float32Array(particleCount * 3);
-  const colors = new Float32Array(particleCount * 3);
-  const pale = new THREE.Color('#dff8ff');
-  for (let i = 0; i < particleCount; i++) {
-    const y = 1 - (i / (particleCount - 1)) * 2;
-    const radial = Math.sqrt(Math.max(0, 1 - y * y));
-    const theta = Math.PI * (3 - Math.sqrt(5)) * i;
-    const r = radius * (0.72 + Math.random() * 0.42);
-    positions[i * 3] = Math.cos(theta) * radial * r;
-    positions[i * 3 + 1] = y * r;
-    positions[i * 3 + 2] = Math.sin(theta) * radial * r;
-    const mix = 0.26 + Math.random() * 0.56;
-    const c = colorValue.clone().lerp(pale, mix);
-    colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+  // Only ZERO and category orbs keep a small number of slow ambient motes.
+  let strayOrbit = null;
+  if (keepAmbientParticles) {
+    strayOrbit = new THREE.Group();
+    const strayCount = isCenter ? 64 : 24;
+    const strayPositions = new Float32Array(strayCount * 3);
+    const strayColors = new Float32Array(strayCount * 3);
+    const pale = new THREE.Color('#f1fbff');
+    for (let i = 0; i < strayCount; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const orbitRadius = radius * (1.2 + Math.random() * 0.42);
+      strayPositions[i * 3] = Math.sin(phi) * Math.cos(theta) * orbitRadius;
+      strayPositions[i * 3 + 1] = Math.cos(phi) * orbitRadius;
+      strayPositions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * orbitRadius;
+      const moteColor = colorValue.clone().lerp(pale, 0.42 + Math.random() * 0.28);
+      strayColors[i * 3] = moteColor.r;
+      strayColors[i * 3 + 1] = moteColor.g;
+      strayColors[i * 3 + 2] = moteColor.b;
+    }
+    const strayGeometry = new THREE.BufferGeometry();
+    strayGeometry.setAttribute('position', new THREE.BufferAttribute(strayPositions, 3));
+    strayGeometry.setAttribute('color', new THREE.BufferAttribute(strayColors, 3));
+    const strayParticles = new THREE.Points(strayGeometry, new THREE.PointsMaterial({
+      size: isCenter ? 0.022 : 0.016,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.48,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true
+    }));
+    strayOrbit.add(strayParticles);
+    strayOrbit.rotation.set(Math.random() * 1.1, Math.random() * 1.1, Math.random() * 1.1);
+    group.add(strayOrbit);
   }
-  const particleGeometry = new THREE.BufferGeometry();
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  const particles = new THREE.Points(
-    particleGeometry,
-    new THREE.PointsMaterial({ size: isCenter ? 0.034 : 0.027, vertexColors: true, transparent: true, opacity: 0.82, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true })
-  );
-  group.add(particles);
 
-  // A second, finer particle layer adds depth without making the orbs cluttered.
-  const detailCount = isCenter ? 520 : 145;
-  const detailPositions = new Float32Array(detailCount * 3);
-  const detailColors = new Float32Array(detailCount * 3);
-  const detailPale = new THREE.Color('#f2fbff');
-  for (let i = 0; i < detailCount; i++) {
-    const y = 1 - (i / Math.max(1, detailCount - 1)) * 2;
-    const radial = Math.sqrt(Math.max(0, 1 - y * y));
-    const theta = Math.PI * (3 - Math.sqrt(5)) * i + Math.random() * 0.16;
-    const r = radius * (1.13 + Math.random() * 0.16);
-    detailPositions[i * 3] = Math.cos(theta) * radial * r;
-    detailPositions[i * 3 + 1] = y * r;
-    detailPositions[i * 3 + 2] = Math.sin(theta) * radial * r;
-    const c = colorValue.clone().lerp(detailPale, 0.42 + Math.random() * 0.42);
-    detailColors[i * 3] = c.r;
-    detailColors[i * 3 + 1] = c.g;
-    detailColors[i * 3 + 2] = c.b;
-  }
-  const detailGeometry = new THREE.BufferGeometry();
-  detailGeometry.setAttribute('position', new THREE.BufferAttribute(detailPositions, 3));
-  detailGeometry.setAttribute('color', new THREE.BufferAttribute(detailColors, 3));
-  const detailParticles = new THREE.Points(detailGeometry, new THREE.PointsMaterial({
-    size: isCenter ? 0.021 : 0.018, vertexColors: true, transparent: true,
-    opacity: 0.58, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true
-  }));
-  group.add(detailParticles);
-
-  // Loose energy motes drift around each orb on independent orbital paths.
-  const strayOrbit = new THREE.Group();
-  // Only ZERO itself and the larger category orbs carry loose drifting motes.
-  // Individual capability/game orbs keep their clean particle shells.
-  const nodeKind = group.userData.node && group.userData.node.kind;
-  const keepStrayParticles = isCenter || nodeKind === 'category';
-  const strayCount = keepStrayParticles ? (isCenter ? 120 : 68) : 0;
-  const strayPositions = new Float32Array(strayCount * 3);
-  const strayColors = new Float32Array(strayCount * 3);
-  for (let i = 0; i < strayCount; i++) {
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    const orbitRadius = radius * (1.22 + Math.random() * 0.62);
-    strayPositions[i * 3] = Math.sin(phi) * Math.cos(theta) * orbitRadius;
-    strayPositions[i * 3 + 1] = Math.cos(phi) * orbitRadius;
-    strayPositions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * orbitRadius;
-    const moteColor = colorValue.clone().lerp(new THREE.Color('#f1fbff'), 0.48 + Math.random() * 0.42);
-    strayColors[i * 3] = moteColor.r;
-    strayColors[i * 3 + 1] = moteColor.g;
-    strayColors[i * 3 + 2] = moteColor.b;
-  }
-  const strayGeometry = new THREE.BufferGeometry();
-  strayGeometry.setAttribute('position', new THREE.BufferAttribute(strayPositions, 3));
-  strayGeometry.setAttribute('color', new THREE.BufferAttribute(strayColors, 3));
-  const strayParticles = new THREE.Points(strayGeometry, new THREE.PointsMaterial({
-    size: isCenter ? 0.026 : 0.021, vertexColors: true, transparent: true,
-    opacity: 0.76, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true
-  }));
-  strayOrbit.add(strayParticles);
-  strayOrbit.rotation.set(Math.random() * 1.1, Math.random() * 1.1, Math.random() * 1.1);
-  group.add(strayOrbit);
-  group.userData.strayOrbit = strayOrbit;
-
-  const nodeMeta = group.userData.node;
-  const categoryAura = !isCenter && nodeMeta && nodeMeta.kind === 'category'
-    ? addCategoryAura(group, radius, color, nodeMeta.id) : null;
+  const categoryAura = !isCenter && isCategory
+    ? addCategoryAura(group, radius, color, nodeMeta.id)
+    : null;
   if (!locked && icon && icon !== 'zero') addIcon(group, icon, color, radius * 0.65);
   if (label) {
     const labelSprite = makeLabelSprite(label, '#e9f6ff', 28);
@@ -978,18 +948,18 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
     new THREE.SphereGeometry(radius * 1.34, 18, 14),
     new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.001, depthWrite: false, color: '#ffffff' })
   );
-  hit.userData.pickTarget = group.userData.node || null;
+  hit.userData.pickTarget = nodeMeta || null;
   hit.userData.nodeGroup = group;
   group.add(hit);
   group.userData.hitMesh = hit;
   group.userData.rings = rings;
   group.userData.categoryAura = categoryAura;
-  group.userData.particles = particles;
+  group.userData.particles = null;
+  group.userData.strayOrbit = strayOrbit;
   group.userData.shell = shell;
 
-  return { shell: shell, wire: wire, core: core, rings: rings, particles: particles, hit: hit };
+  return { shell: shell, wire: wire, core: core, rings: rings, particles: null, hit: hit };
 }
-
 function createNebula(color, x, y, z, scale, opacity) {
   const canvas = document.createElement('canvas');
   canvas.width = 256; canvas.height = 256;
@@ -1103,7 +1073,7 @@ function buildWorld() {
     pickMeshes.push(node.mesh);
     node.nameSprite = node.group.userData.labelSprite;
     node.nameSprite.material.opacity = 0;
-    node.newBadge = makeLabelSprite('NEW','#ffe08a',20);
+    node.newBadge = makeLabelSprite('New','#ffe08a',20);
     node.newBadge.scale.set(0.62,0.22,1);
     node.newBadge.position.set(0.9,1.1,0.1);
     node.group.add(node.newBadge);

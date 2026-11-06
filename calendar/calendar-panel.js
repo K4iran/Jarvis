@@ -1,4 +1,4 @@
-/* JARVIS Calendar panel — staged UI, not yet loaded by the live page.
+/* Z.E.R.O. Calendar panel.
  * Expects calendar/config.js and calendar/google-calendar.js to load first.
  * Does not store tokens or credentials.
  */
@@ -13,15 +13,15 @@
     #jarvis-calendar-panel *{box-sizing:border-box}
     #jarvis-calendar-panel .jcp-shell{max-width:760px;margin:0 auto}
     #jarvis-calendar-panel .jcp-top{display:flex;align-items:center;justify-content:space-between;gap:16px}
-    #jarvis-calendar-panel h2{font-size:clamp(24px,5vw,34px);font-weight:500;letter-spacing:.08em;margin:8px 0}
-    #jarvis-calendar-panel .jcp-muted{color:#89aebe}
+    #jarvis-calendar-panel h2{font-size:clamp(24px,5vw,32px);font-weight:600;letter-spacing:0;margin:0}
+    #jarvis-calendar-panel .jcp-muted{color:#a7b6c4;font:13px/1.5 system-ui,sans-serif}
     #jarvis-calendar-panel button,#jarvis-calendar-panel input,#jarvis-calendar-panel textarea{
       font:inherit;color:inherit;border:1px solid rgba(104,204,255,.35);border-radius:10px;background:rgba(20,52,75,.45);padding:10px 12px}
     #jarvis-calendar-panel button{cursor:pointer}
     #jarvis-calendar-panel button:hover{background:rgba(42,117,157,.45)}
     #jarvis-calendar-panel .jcp-actions{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
-    #jarvis-calendar-panel .jcp-event{border:1px solid rgba(104,204,255,.2);border-radius:12px;padding:14px;margin:10px 0;background:rgba(11,29,45,.7)}
-    #jarvis-calendar-panel .jcp-event-title{font-size:17px}
+    #jarvis-calendar-panel .jcp-event{border:0;border-radius:4px;padding:12px 0;margin:10px 0;background:transparent}
+    #jarvis-calendar-panel .jcp-event-title{font-size:16px;font-weight:600}
     #jarvis-calendar-panel .jcp-form{display:grid;gap:10px;margin-top:16px}
     #jarvis-calendar-panel .jcp-form[hidden]{display:none!important}
     #jarvis-calendar-panel .jcp-form label{display:grid;gap:5px;color:#9dc5d5}
@@ -32,10 +32,10 @@
 
   const root = document.createElement("section");
   root.id = "jarvis-calendar-panel";
-  root.setAttribute("aria-label", "JARVIS Calendar");
+  root.setAttribute("aria-label", "Z.E.R.O. Calendar");
   root.innerHTML = `
     <div class="jcp-shell">
-      <div class="jcp-top"><div><div class="jcp-muted">J.A.R.V.I.S. / PERSONAL SYSTEMS</div><h2>CALENDAR</h2></div><button class="jcp-close" type="button" aria-label="Close calendar">×</button></div>
+      <div class="jcp-top"><h2>Calendar</h2><button class="jcp-close" type="button" aria-label="Close calendar">×</button></div>
       <p class="jcp-muted">Google Calendar · upcoming events</p>
       <div class="jcp-status" role="status" aria-live="polite">Connect Google Calendar to load your events.</div>
       <div class="jcp-actions"><button type="button" data-action="connect">Connect Google Calendar</button><button type="button" data-action="refresh">Refresh events</button><button type="button" data-action="new">+ New event</button></div>
