@@ -28,17 +28,17 @@
       </div>
       <div class="top-actions">
         <span id="engineStatus" hidden>STYLE ENGINE READY</span>
-        <label class="avatar-upload" for="avatarFile">CUSTOM AVATAR <span>＋</span></label>
-        <input id="avatarFile" type="file" accept=".glb,model/gltf-binary" hidden>
-        <button class="reset-avatar" id="resetAvatar" type="button">RESET MODEL</button>
+        <button class="avatar-upload" id="customAvatarButton" type="button">CUSTOM AVATAR <span>＋</span></button>
+        <button class="reset-avatar" id="resetAvatar" type="button">RESET AVATAR</button>
       </div>
     </header>
 
     <main class="workspace">
       <aside class="composer" aria-label="Outfit controls">
-        <textarea id="outfitBrief" rows="2" maxlength="700" aria-label="Describe an outfit" placeholder="Describe a look…"></textarea>
+        <label class="brief-label" for="outfitBrief"><span>STYLE BRIEF</span><small>DESCRIBE THE LOOK YOU WANT</small></label>
+        <textarea id="outfitBrief" rows="3" maxlength="700" aria-label="Describe an outfit" placeholder="e.g. Dark oversized hoodie, washed black cargos, clean white trainers…"></textarea>
         <button class="generate-button" id="generateButton" type="button">
-          <span class="generate-icon">✳</span><span class="generate-label">GENERATE</span><span class="generate-arrow">↗</span>
+          <span class="generate-icon">✳</span><span class="generate-label">GENERATE IDEAS</span><span class="generate-arrow">↗</span>
         </button>
         <div class="generation-status" id="generationStatus" role="status" aria-live="polite">READY</div>
       </aside>
@@ -70,16 +70,37 @@
       </section>
     </main>
 
-    <footer class="look-rail">
-      <div class="rail-label"><span class="eyebrow">03 / LOOK HISTORY</span><strong>YOUR LOOKS</strong></div>
-      <div class="rail-controls">
-        <button id="previousLook" type="button" aria-label="Previous look">←</button>
-        <button id="autoplayLooks" type="button" aria-pressed="false">AUTO <i></i></button>
-        <button id="nextLook" type="button" aria-label="Next look">→</button>
+    <section class="idea-rail" aria-label="Generated outfit ideas">
+      <div class="idea-heading"><div class="rail-label"><span class="eyebrow">01 / OUTFIT CONCEPTS</span><strong>CHOOSE A LOOK</strong></div><button class="history-open" id="openHistory" type="button">LOOK HISTORY ↗</button></div>
+      <div class="idea-strip" id="ideaStrip"><div class="empty-strip">YOUR GENERATED IDEAS WILL APPEAR HERE</div></div>
+      <div class="idea-foot"><span id="ideaCount">03 IDEAS</span><span>SELECT AN IDEA TO PREVIEW</span></div>
+    </section>
+    <section class="history-modal" id="historyModal" aria-hidden="true">
+      <div class="history-dialog" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+        <div class="history-heading"><div><span class="eyebrow">02 / ARCHIVE</span><strong id="historyTitle">LOOK HISTORY</strong></div><button id="closeHistory" type="button" aria-label="Close look history">×</button></div>
+        <div class="look-strip history-strip" id="lookStrip"><div class="empty-strip">YOUR PREVIOUS LOOKS WILL APPEAR HERE</div></div>
+        <div class="rail-foot"><span id="historyCount">01 / 01</span><span>RECENT + SAVED LOOKS</span></div>
       </div>
-      <div class="look-strip" id="lookStrip"><div class="empty-strip">GENERATED LOOKS WILL APPEAR HERE</div></div>
-      <div class="rail-foot"><span id="historyCount">01 / 01</span><span>RECENT + SAVED LOOKS</span></div>
-    </footer>
+    </section>
+    <section class="avatar-modal" id="avatarModal" aria-hidden="true">
+      <div class="avatar-dialog" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
+        <div class="history-heading"><div><span class="eyebrow">03 / AVATAR STUDIO</span><strong id="avatarTitle">CUSTOMISE YOUR AVATAR</strong></div><button id="closeAvatar" type="button" aria-label="Close avatar studio">×</button></div>
+        <p class="avatar-intro">Build an in-app holographic avatar. Changes stay on this device.</p>
+        <div class="avatar-option-group"><span>HAIRSTYLE</span><div class="avatar-choice-row">
+          <button type="button" class="avatar-choice active" data-hair="short">SHORT</button>
+          <button type="button" class="avatar-choice" data-hair="textured">TEXTURED</button>
+          <button type="button" class="avatar-choice" data-hair="long">LONG</button>
+          <button type="button" class="avatar-choice" data-hair="none">NONE</button>
+        </div></div>
+        <div class="avatar-option-group"><span>HOLOGRAM TONE</span><div class="avatar-choice-row">
+          <button type="button" class="tone-choice active" data-tone="#82e6ff" aria-label="Ice blue"></button>
+          <button type="button" class="tone-choice" data-tone="#9c9cff" aria-label="Violet"></button>
+          <button type="button" class="tone-choice" data-tone="#8cebd1" aria-label="Mint"></button>
+          <button type="button" class="tone-choice" data-tone="#f0f4ff" aria-label="White"></button>
+        </div></div>
+        <button class="avatar-apply" id="applyAvatar" type="button">APPLY AVATAR</button>
+      </div>
+    </section>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./outfit-generator.js?v=particle-room-1"></script>
