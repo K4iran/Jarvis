@@ -136,6 +136,7 @@ let styleAdded = false;
 let navButton = null;
 let overlay = null;
 let panel = null;
+let panelHideTimer = 0;
 let toast = null;
 let renderer = null;
 let scene = null;
@@ -848,20 +849,30 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
   const shell = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 24), shellMaterial);
   group.add(shell);
 
-  let wire = null;
-  if (keepAmbientParticles) {
-    wire = new THREE.Mesh(
-      new THREE.SphereGeometry(radius * 1.035, 18, 14),
-      new THREE.MeshBasicMaterial({
-        color: colorValue,
-        wireframe: true,
-        transparent: true,
-        opacity: isCenter ? 0.09 : 0.07,
-        depthWrite: false
-      })
-    );
-    group.add(wire);
-  }
+  const wire = new THREE.Mesh(
+    new THREE.SphereGeometry(radius * 1.035, 32, 24),
+    new THREE.MeshBasicMaterial({
+      color: colorValue,
+      wireframe: true,
+      transparent: true,
+      opacity: isCenter ? 0.1 : (isCategory ? 0.12 : 0.095),
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    })
+  );
+  group.add(wire);
+
+  const facetFrame = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(radius * 0.94, 1)),
+    new THREE.LineBasicMaterial({color:colorValue,transparent:true,opacity:locked ? 0.12 : 0.2,depthWrite:false,blending:THREE.AdditiveBlending})
+  );
+  group.add(facetFrame);
+  const innerCore = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(radius * 0.28, 1),
+    new THREE.MeshBasicMaterial({color:colorValue,wireframe:true,transparent:true,opacity:locked ? 0.12 : 0.2,depthWrite:false,blending:THREE.AdditiveBlending})
+  );
+  innerCore.rotation.set(0.3,0.55,0.18);
+  group.add(innerCore);
 
   let core = null;
   if (isCenter) {
@@ -890,7 +901,7 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
   }
 
   const rings = [];
-  const ringCount = isCenter ? 2 : (isCategory ? 1 : 0);
+  const ringCount = isCenter ? 3 : (isCategory ? 2 : 1);
   for (let i = 0; i < ringCount; i++) {
     const ringMesh = new THREE.Mesh(
       new THREE.TorusGeometry(radius * (1.18 + i * 0.12), Math.max(0.008, radius * 0.009), 5, 56),
@@ -1693,11 +1704,13 @@ function positionPanel(skillNode) {
   const projected=world.project(camera);
   const width=overlay.clientWidth;
   const height=overlay.clientHeight;
-  let x=(projected.x*0.5+0.5)*width+48;
-  let y=(-projected.y*0.5+0.5)*height-90;
-  if(x+350>width)x=(projected.x*0.5+0.5)*width-360;
-  x=Math.max(14,Math.min(width-354,x));
-  y=Math.max(76,Math.min(height-245,y));
+  const panelWidth=Math.min(420,Math.max(280,width-32));
+  const panelHeight=Math.min(470,Math.max(280,height-112));
+  let x=(projected.x*0.5+0.5)*width+58;
+  let y=(-projected.y*0.5+0.5)*height-112;
+  if(x+panelWidth>width-14)x=(projected.x*0.5+0.5)*width-panelWidth-58;
+  x=Math.max(14,Math.min(width-panelWidth-14,x));
+  y=Math.max(76,Math.min(height-panelHeight-16,y));
   panel.style.left=x+'px';
   panel.style.top=y+'px';
 }
@@ -1725,14 +1738,25 @@ function showSkillPanel(skillNode) {
     '<span class="st-panel-label">VOICE ACTIVATION</span>' +
     '<div class="st-activation">' + escapeHtml(skill.activation) + '</div>' +
     (launchLabel ? '<button type="button" class="st-launch" data-zero-launch="' + escapeHtml(skill.id) + '">' + launchLabel + '</button>' : '');
+  clearTimeout(panelHideTimer);
   panel.hidden=false;
+  panel.classList.remove('is-visible');
   positionPanel(skillNode);
+  requestAnimationFrame(function(){
+    if(panel && !panel.hidden) panel.classList.add('is-visible');
+  });
 }
 
 function hideSkillPanel() {
   if (!panel) return;
-  panel.hidden=true;
-  panel.innerHTML='';
+  clearTimeout(panelHideTimer);
+  panel.classList.remove('is-visible');
+  panelHideTimer=window.setTimeout(function(){
+    if(!panel.classList.contains('is-visible')){
+      panel.hidden=true;
+      panel.innerHTML='';
+    }
+  },280);
 }
 
 function closePanelToCategory() {
