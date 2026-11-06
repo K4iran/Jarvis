@@ -1192,6 +1192,38 @@ body.zen-mode-active #core{visibility:hidden!important}
 }
 
 </style>
+
+<style id="zero-clean-interface-pass">
+/* Keep the existing identity, but remove decorative panel chrome and AI-template styling. */
+#bar{border-bottom:0!important;background:transparent!important}
+.response-holo{border:0!important;background:rgba(7,13,23,.9)!important;box-shadow:none!important}
+.response-holo::before{border:0!important;background:none!important}
+.response-holo .arcPanel{stroke:none!important;fill:none!important}
+#zenRoot .zen-panel{border:0!important;border-radius:5px!important;background:rgba(8,17,12,.92)!important;box-shadow:none!important}
+#zenRoot .zen-eyebrow{display:none!important}
+#zenRoot .zen-affirmation-text,#zenRoot .zen-saved-heading h3{letter-spacing:0!important}
+#battleMode .bt-panel,.bt-panel,.bt-settings-panel,.bt-settings-card{border:0!important;border-radius:5px!important;background:rgba(9,11,16,.94)!important;box-shadow:none!important}
+.bt-divider{display:none!important}
+.bt-kicker,.bt-intel-kicker{display:none!important}
+.bt-action,.bt-small-btn{border:0!important;border-radius:4px!important;background:rgba(255,65,75,.13)!important;box-shadow:none!important;font:500 12px/1.3 system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important}
+.profile-memory-head,.profile-memory-card,.profile-memory-empty{border:0!important;background:transparent!important;box-shadow:none!important;font-family:inherit!important;letter-spacing:0!important;text-transform:none!important}
+.profile-memory-card span,.profile-memory-foot{font-family:inherit!important;letter-spacing:0!important;text-transform:none!important}
+.lifeos-embed{border:0!important;border-radius:0!important}
+.sheet,.hangman-layout{border:0!important;border-radius:5px!important;box-shadow:none!important;background:rgba(8,14,22,.96)!important}
+.kp div{border:0!important}
+#battleModeLaunch,#focusLaunch,#zenLaunch{border:0!important;border-radius:4px!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#battleModeLaunch{background:#351014!important}
+#focusLaunch{background:#171c25!important}
+#zenLaunch{background:#102319!important}
+.stat,.mono,.lbl,.hm-kicker,.hm-label{font-family:inherit!important;letter-spacing:0!important;text-transform:none!important}
+.lbl{font-size:12px!important}
+.stat{font-size:12px!important}
+.hm-kicker,.hm-label{font-size:12px!important}
+@media(prefers-reduced-motion:reduce){
+ .response-holo,.bt-panel,.zen-panel{transition:none!important}
+}
+</style>
+
 </head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -1279,7 +1311,7 @@ body.zen-mode-active #core{visibility:hidden!important}
     <div class="bt-helmet-wrap">
       <div class="bt-statusline" id="btHelmetStatus">PARTICLE RECONSTRUCTION INITIALISING</div>
       <canvas id="battleHelmetCanvas" aria-label="Particle-reconstructed robotic helmet"></canvas>
-      <div class="bt-helmet-caption">J.A.R.V.I.S. // TACTICAL INTERFACE</div>
+      <div class="bt-helmet-caption">Z.E.R.O. tactical interface</div>
     </div>
     <aside class="bt-panel" id="btRightPanel">
       <span class="bt-kicker" id="btRightKicker">MENTAL PROTOCOL</span>
@@ -1305,7 +1337,7 @@ body.zen-mode-active #core{visibility:hidden!important}
     <div class="bt-cine-center"><div class="bt-count-number" id="btCountNumber">5</div><div class="bt-count-word" id="btCountWord">SYSTEMS CHECK</div><div class="bt-cine-subtitle" id="btCineSubtitle">NEURAL LINK // SYNCHRONISING</div></div>
     <div class="bt-cine-progress"><span id="btCineProgress"></span></div>
     <div class="bt-cine-bottom">TACTICAL INTERFACE • ALL SYSTEMS NOMINAL</div>
-    <button class="bt-action bt-count-return" id="btCountReturn" data-bt-action="close" type="button" hidden>RETURN TO JARVIS</button>
+    <button class="bt-action bt-count-return" id="btCountReturn" data-bt-action="close" type="button" hidden>RETURN TO Z.E.R.O.</button>
   </div>
 </div>
 <div class="bt-settings-overlay" id="btSettingsOverlay" hidden>
@@ -1316,14 +1348,14 @@ body.zen-mode-active #core{visibility:hidden!important}
     <p class="bt-inline-hint">Choose one track from your files, including an audio recording made with your phone’s Voice Recorder. It is stored locally in this browser and starts when the countdown reaches FOCUS.</p>
     <div class="bt-divider"></div>
     <div class="bt-kicker">INTERNAL SCHEDULE</div>
-    <p class="bt-inline-hint">Add events directly to JARVIS. Google Calendar events are also checked when your Google account is connected.</p>
+    <p class="bt-inline-hint">Add events directly to Z.E.R.O. Google Calendar events are also checked when your Google account is connected.</p>
     <div class="bt-settings-grid">
       <label>Event title<input class="bt-input" id="btEventTitle" maxlength="100" placeholder="Basketball training"></label>
       <label>Type<select class="bt-select" id="btEventType"><option value="auto">Auto-detect</option><option value="training">Training</option><option value="game">Game</option><option value="other">Other</option></select></label>
       <label>Starts<input class="bt-input" id="btEventStart" type="datetime-local"></label>
       <label>Ends<input class="bt-input" id="btEventEnd" type="datetime-local"></label>
     </div>
-    <div class="bt-actions"><button class="bt-action" id="btSaveEvent" type="button">ADD TO JARVIS SCHEDULE</button></div>
+    <div class="bt-actions"><button class="bt-action" id="btSaveEvent" type="button">ADD TO Z.E.R.O. SCHEDULE</button></div>
     <div class="bt-divider"></div>
     <div id="btInternalEvents"></div>
     <div class="bt-divider"></div>
@@ -4383,7 +4415,7 @@ function finishCountdown(){
    const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;
    await playFinalTrack();
    $('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';setPrompt('Battle Mode engaged. Your final sequence is complete, sir.');
-   setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="close">RETURN TO JARVIS</button>');
+   setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="close">RETURN TO Z.E.R.O.</button>');
   },700)
  };
  tick()
