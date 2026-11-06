@@ -67,6 +67,11 @@ textarea::placeholder{color:#567284}
 #scene{position:absolute;z-index:1;inset:0;width:100%;height:100%;display:block;touch-action:none}
 .scan-sweep{position:absolute;z-index:2;left:0;right:0;top:-25%;height:15%;pointer-events:none;opacity:0;background:linear-gradient(180deg,transparent,rgba(94,211,255,.10),rgba(156,237,255,.25),transparent);filter:blur(5px)}
 .stage.transitioning .scan-sweep{opacity:1;animation:scanThrough .82s cubic-bezier(.2,.7,.2,1) both}
+.transition-tiles{position:absolute;z-index:3;inset:12% 12% 20%;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(9,1fr);gap:3px;pointer-events:none;perspective:900px}
+.transition-tiles span{border:1px solid rgba(132,226,255,.36);background:linear-gradient(145deg,rgba(183,244,255,.42),rgba(44,148,207,.22));opacity:0;box-shadow:0 0 10px rgba(65,184,242,.13)}
+.stage.transitioning .transition-tiles span{animation:tileDissolve .76s ease var(--delay,0s) both}
+@keyframes tileDissolve{0%{opacity:0;transform:translateZ(0) scale(.86)}18%{opacity:.82}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),-190px) scale(.16);filter:blur(3px)}}
+
 .stage.transitioning:after{animation:glitchGlow .82s ease both}
 @keyframes scanThrough{0%{top:-25%;opacity:0}24%{opacity:1}100%{top:115%;opacity:0}}
 @keyframes glitchGlow{0%,100%{opacity:.22}35%{opacity:.7}55%{opacity:.38}}
