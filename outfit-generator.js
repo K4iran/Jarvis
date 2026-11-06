@@ -26,7 +26,10 @@ let lookHistory = [];
 let savedLooks = loadSavedLooks();
 let activeLookIndex = 0;
 let ideaDeck = [];
-let avatarConfig = {hair:'short',tone:'#82e6ff'};
+const avatarConfigKey='zero.avatar.config.v1';
+let avatarConfig=(()=>{
+  try{return {...{hair:'short',tone:'#82e6ff'},...JSON.parse(localStorage.getItem(avatarConfigKey)||'{}')}}catch(error){return {hair:'short',tone:'#82e6ff'}}
+})();
 let autoTimer = 0;
 let isGenerating = false;
 let avatarRoot = null;
@@ -571,10 +574,10 @@ function createDefaultAvatar() {
   const limb=(start,end,radiusA,radiusB)=>{
     const a=new THREE.Vector3(...start),b=new THREE.Vector3(...end),direction=new THREE.Vector3().subVectors(b,a);
     const length=direction.length();
-    const mesh=new THREE.Mesh(new THREE.CapsuleGeometry((radiusA+radiusB)*0.5,Math.max(0.04,length-radiusA-radiusB),8,16),hologram);
+    const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),hologram);
     mesh.position.copy(a).add(b).multiplyScalar(0.5);
     mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
-    mesh.scale.set(radiusA/((radiusA+radiusB)*0.5),1,radiusB/((radiusA+radiusB)*0.5));
+    mesh.scale.set(radiusA,length*0.66,radiusB);
     body.add(mesh);
     joint(radiusA,start,[1,1,0.94]);joint(radiusB,end,[1,1,0.94]);
   };
@@ -1053,12 +1056,14 @@ function resetAvatar() {
   if(!renderer||!scene)return;
   removeAvatar();customAvatarName='';
   avatarConfig={hair:'short',tone:'#82e6ff'};
+  try{localStorage.setItem(avatarConfigKey,JSON.stringify(avatarConfig));}catch(error){}
   createDefaultAvatar();
   applyGarments(lookHistory[activeLookIndex]||defaultLook());
   $('stageTitle').textContent='HOLOGRAPHIC AVATAR';
   showToast('Default holographic avatar restored.');
 }
 function applyAvatarConfig(){
+  try{localStorage.setItem(avatarConfigKey,JSON.stringify(avatarConfig));}catch(error){}
   document.querySelectorAll('[data-hair]').forEach(button=>button.classList.toggle('active',button.dataset.hair===avatarConfig.hair));
   document.querySelectorAll('[data-tone]').forEach(button=>button.classList.toggle('active',button.dataset.tone===avatarConfig.tone));
   removeAvatar();customAvatarName='';createDefaultAvatar();
