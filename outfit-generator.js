@@ -435,7 +435,7 @@ function createAvatarParticles() {
 
   if (!triangles.length || totalArea <= 0) return;
   const isSmallDevice = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
-  const particleCount = isSmallDevice ? 18500 : 36000;
+  const particleCount = isSmallDevice ? 48000 : 88000;
   const positions = new Float32Array(particleCount*3);
   const normals = new Float32Array(particleCount*3);
   const colors = new Float32Array(particleCount*3);
@@ -465,8 +465,8 @@ function createAvatarParticles() {
     normals[base] /= normalLength;
     normals[base+1] /= normalLength;
     normals[base+2] /= normalLength;
-    sizes[i] = isSmallDevice ? 0.95 + Math.random()*0.55 : 1.1 + Math.random()*0.8;
-    alphas[i] = 0.82 + Math.random()*0.16;
+    sizes[i] = isSmallDevice ? 1.35 + Math.random()*0.75 : 1.45 + Math.random()*0.85;
+    alphas[i] = 0.94 + Math.random()*0.06;
   }
 
   const geometry = new THREE.BufferGeometry();
@@ -500,7 +500,7 @@ function createAvatarParticles() {
       'void main(){\n' +
       '  vec4 viewPosition = modelViewMatrix * vec4(position,1.0);\n' +
       '  gl_Position = projectionMatrix * viewPosition;\n' +
-      '  gl_PointSize = aSize * uPixelRatio * (6.0 / max(1.0,-viewPosition.z));\n' +
+      '  gl_PointSize = aSize * uPixelRatio * (8.0 / max(1.0,-viewPosition.z));\n' +
       '  vNormal = normalize(normalMatrix * aNormal);\n' +
       '  vColor = aColor;\n' +
       '  vViewPosition = -viewPosition.xyz;\n' +
