@@ -1252,6 +1252,20 @@ body.zen-mode-active #core{visibility:hidden!important}
 #app div[class*="panel"],#battleMode div[class*="panel"],#zenRoot div[class*="panel"],#zeroSkillTree div[class*="panel"]{box-shadow:none!important}
 </style>
 
+<style id="zero-zen-cleanup">
+/* Zen affirmation surfaces: keep the content, remove the ornamental card treatment. */
+#zenRoot .zen-affirmation-card,#zenRoot .zen-saved-section{border:0!important;border-radius:5px!important;background:rgba(14,17,25,.94)!important;box-shadow:none!important}
+#zenRoot .zen-affirmation-card:before{display:none!important}
+#zenRoot .zen-affirmation-mark{border:0!important;border-radius:4px!important;background:none!important}
+#zenRoot .zen-affirmation-category{font:500 12px/1.4 system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important}
+#zenRoot .zen-affirmation-count{font:12px/1.4 system-ui,sans-serif!important;letter-spacing:0!important}
+#zenRoot .zen-affirmation-rule,#zenRoot .zen-affirmation-foot,#zenRoot .zen-saved-kicker{display:none!important}
+#zenRoot .zen-affirmation-note{font-style:normal!important;letter-spacing:0!important}
+#zenRoot .zen-affirmation-next{border:0!important;border-radius:4px!important;background:#574637!important;box-shadow:none!important;letter-spacing:0!important}
+#zenRoot .zen-saved-total{display:block!important;min-width:0!important;width:auto!important;height:auto!important;border:0!important;border-radius:0!important;background:none!important;font:12px/1.4 system-ui,sans-serif!important}
+#zenRoot .zen-saved-affirmation{padding:10px 0!important;border:0!important;border-radius:0!important;background:none!important}
+</style>
+
 </head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -1364,7 +1378,7 @@ body.zen-mode-active #core{visibility:hidden!important}
     <div class="bt-cine-readout right" aria-hidden="true"><span>SYNC</span><b id="btCineSync">00%</b><i></i><i></i><i></i><i></i></div>
     <div class="bt-cine-center"><div class="bt-count-number" id="btCountNumber">5</div><div class="bt-count-word" id="btCountWord">SYSTEMS CHECK</div><div class="bt-cine-subtitle" id="btCineSubtitle">NEURAL LINK // SYNCHRONISING</div></div>
     <div class="bt-cine-progress"><span id="btCineProgress"></span></div>
-    <div class="bt-cine-bottom">TACTICAL INTERFACE • ALL SYSTEMS NOMINAL</div>
+    <div class="bt-cine-bottom">Tactical interface · systems ready</div>
     <button class="bt-action bt-count-return" id="btCountReturn" data-bt-action="close" type="button" hidden>RETURN TO Z.E.R.O.</button>
   </div>
 </div>
