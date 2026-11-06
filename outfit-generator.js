@@ -193,14 +193,22 @@ function fallbackLook() {
     navy:'#263C59',blue:'#477DA8',red:'#A94C50',green:'#557B68',
     beige:'#C8B89F',brown:'#765B48',cream:'#E5DCCB',purple:'#77658D'
   };
-  Object.keys(colourMap).forEach(colour=>{
-    if(new RegExp('\\b'+colour+'\\b').test(text)){
-      if(/trouser|pant|cargo|jean|denim|short/.test(text)) modifier.bottom=colourMap[colour];
-      else if(/shoe|trainer|sneaker|boot/.test(text)) modifier.shoes=colourMap[colour];
-      else if(/jacket|coat|overshirt|layer/.test(text)) modifier.outerwear=colourMap[colour];
-      else modifier.top=colourMap[colour];
+  const colourFor = pattern => {
+    for (const colour of Object.keys(colourMap)) {
+      const word = '\\b' + colour + '\\b';
+      if (new RegExp(word + '\\s+(?:' + pattern + ')').test(text) ||
+          new RegExp('(?:' + pattern + ')\\s+' + word).test(text)) return colourMap[colour];
     }
-  });
+    return null;
+  };
+  modifier.top = colourFor('hoodie|shirt|tee|t-shirt|jersey|sweater|jumper|top') || modifier.top;
+  modifier.bottom = colourFor('trousers|pants|cargo|jeans|denim|shorts|joggers') || modifier.bottom;
+  modifier.shoes = colourFor('shoes|trainers|sneakers|boots') || modifier.shoes;
+  modifier.outerwear = colourFor('jacket|coat|overshirt|puffer|bomber') || modifier.outerwear;
+  if (!/(hoodie|shirt|tee|t-shirt|jersey|sweater|jumper|top|trousers|pants|cargo|jeans|denim|shorts|joggers|shoes|trainers|sneakers|boots|jacket|coat|overshirt|puffer|bomber)/.test(text)) {
+    const firstColour = Object.keys(colourMap).find(colour=>new RegExp('\\\\b'+colour+'\\\\b').test(text));
+    if (firstColour) modifier.top = colourMap[firstColour];
+  }
 
   const topName = /hoodie|hooded/.test(text) ? 'Relaxed heavyweight hoodie'
     : /jersey|basketball|sportswear|athletic/.test(text) ? 'Technical performance jersey'
@@ -1102,7 +1110,7 @@ function init() {
     applyLook(lookHistory[0]);
     renderHistory();
     renderSavedLooks();
-    engineStatus.textContent = typeof window.parent.__zeroGenerateOutfit === 'function' ? 'ZERO AI CONNECTED' : 'LOCAL STYLING MODE';
+    engineStatus.textContent = 'LOCAL STYLING MODE';
     setStatus('READY WHEN YOU ARE');
     animate();
   } catch (error) {
