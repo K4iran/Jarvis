@@ -304,3 +304,9 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
  .history-dialog,.avatar-dialog{padding:15px}
  .history-strip .look-card{flex-basis:100%}
 }
+
+/* Compatibility fallback: keep the avatar visible when the browser cannot create WebGL2. */
+.scene-fallback{background:radial-gradient(ellipse at 50% 42%,#fbfdfe 0%,#f1f5f7 62%,#e8eef1 100%)}
+.fallback-avatar{width:min(42vw,430px);height:min(78vh,650px);filter:drop-shadow(0 0 9px rgba(50,178,225,.25)) drop-shadow(0 0 24px rgba(50,178,225,.12))}
+.scene-unavailable .scene-fallback{opacity:1;visibility:visible}
+.scene-unavailable #scene{opacity:0}
