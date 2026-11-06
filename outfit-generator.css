@@ -238,3 +238,56 @@ textarea{min-height:64px;padding:8px;font-size:10px}
   .composer{max-height:31dvh}
   .garment-row{min-height:31px}
 }
+
+/* Refined showroom: keep the avatar dominant and the HUD quiet */
+.stage.scene-ready .scene-fallback{display:block!important;opacity:.38}
+.scene-fallback{opacity:1}
+.fallback-wall{border:0;background:linear-gradient(135deg,rgba(195,231,244,.075),rgba(37,102,139,.018) 48%,rgba(145,205,231,.065));box-shadow:inset 0 0 70px rgba(145,213,238,.055)}
+.fallback-wall-back{background:linear-gradient(180deg,rgba(153,218,242,.07),rgba(23,83,119,.015))}
+.fallback-wall-left,.fallback-wall-right{background:linear-gradient(90deg,rgba(108,185,220,.045),rgba(160,222,244,.012))}
+.fallback-platform{border:0;background:radial-gradient(ellipse,rgba(57,178,245,.24),rgba(9,37,60,.56) 65%,rgba(7,21,34,.5));box-shadow:0 0 28px rgba(39,173,255,.48),0 0 95px rgba(31,138,255,.25),inset 0 0 26px rgba(141,232,255,.2)}
+.fallback-platform:before{border:1px solid rgba(137,232,255,.45)}
+.composer,.look-panel{border:0!important;outline:0!important;box-shadow:none!important;background:linear-gradient(145deg,rgba(3,13,23,.66),rgba(3,13,23,.24))!important;backdrop-filter:blur(10px);border-radius:2px;padding:12px}
+.composer:before,.composer:after,.look-panel:before,.look-panel:after{display:none!important}
+.composer{width:clamp(160px,17vw,220px);max-height:44dvh}
+.look-panel{width:clamp(170px,18vw,235px);max-height:48dvh}
+.panel-heading{margin-bottom:8px}
+.panel-heading h1,.panel-heading h2{font-size:13px;margin:4px 0}
+.panel-heading p,.panel-footnote,.styling-note,.look-meta{display:none!important}
+.eyebrow{font-size:7px;letter-spacing:.13em}
+.field-label{margin:7px 0 5px;font-size:7px}
+textarea{min-height:55px;max-height:76px;padding:8px;border:0!important;border-radius:2px;background:rgba(1,8,16,.42);font-size:9px;resize:none;box-shadow:none!important}
+.field-block,.select-grid,.palette-field{display:none!important}
+.generate-button{min-height:34px;margin-top:7px;border:0!important;border-radius:2px;background:linear-gradient(100deg,rgba(20,105,155,.65),rgba(20,62,104,.48));box-shadow:0 0 20px rgba(46,161,225,.12);font-size:7px}
+.generation-status{min-height:14px;padding-top:5px;font-size:6px}
+.look-heading{margin-bottom:5px}
+.garment-list{gap:0}
+.garment-row{min-height:37px;border:0!important;grid-template-columns:17px minmax(0,1fr);gap:7px}
+.garment-swatch{width:14px;height:14px;border:0;box-shadow:0 0 9px rgba(64,160,210,.12)}
+.garment-copy strong{font-size:8px}
+.garment-copy small{font-size:7px;margin-top:2px}
+.garment-slot{display:none}
+.look-actions{margin-top:5px}
+.save-button,.share-button{min-height:27px;border:0!important;background:rgba(30,112,158,.28);font-size:7px}
+.share-button{background:transparent}
+.look-rail{border:0;background:linear-gradient(0deg,rgba(3,10,18,.6),transparent);box-shadow:none;backdrop-filter:none}
+.look-card{border:0;background:rgba(4,14,24,.35)}
+.look-card.active{border:0;background:rgba(26,93,132,.22);box-shadow:none}
+.rail-controls button{border:0;background:rgba(14,40,58,.3)}
+@media(max-width:720px){
+ .composer,.look-panel{width:clamp(138px,42vw,190px);max-height:29dvh;padding:8px;background:linear-gradient(145deg,rgba(3,13,23,.58),rgba(3,13,23,.18))!important}
+ .composer{left:7px;bottom:calc(75px + env(safe-area-inset-bottom,0px))}
+ .look-panel{right:7px;bottom:calc(75px + env(safe-area-inset-bottom,0px))}
+ .panel-heading h1,.panel-heading h2{font-size:11px}
+ .panel-heading .eyebrow{font-size:6px}
+ .composer textarea{min-height:40px;font-size:8px}
+ .composer .generate-button{min-height:30px}
+ .look-heading{margin-bottom:3px}
+ .garment-row{min-height:29px;grid-template-columns:13px minmax(0,1fr);gap:5px}
+ .garment-swatch{width:11px;height:11px}
+ .garment-copy strong{font-size:7px}
+ .garment-copy small{font-size:6px}
+ .look-actions{display:none}
+ .look-rail{background:linear-gradient(0deg,rgba(3,10,18,.55),transparent);border:0}
+ .look-card{background:rgba(4,14,24,.28)}
+}
