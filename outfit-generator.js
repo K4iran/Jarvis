@@ -25,6 +25,8 @@ let selectedStyle = 'Streetwear';
 let lookHistory = [];
 let savedLooks = loadSavedLooks();
 let activeLookIndex = 0;
+let ideaDeck = [];
+let avatarConfig = {hair:'short',tone:'#82e6ff'};
 let autoTimer = 0;
 let isGenerating = false;
 let avatarRoot = null;
@@ -176,7 +178,7 @@ function parseLookReply(reply) {
   throw new Error('Z.E.R.O. replied, but its outfit response was not valid structured data.');
 }
 
-function fallbackLook() {
+function fallbackLook(variant = 0) {
   const base = paletteByStyle[selectedStyle] || paletteByStyle.Streetwear;
   const brief = $('outfitBrief').value.trim();
   const text = brief.toLowerCase();
@@ -232,7 +234,7 @@ function fallbackLook() {
     : /jacket|layer|overshirt/.test(text) ? 'Relaxed lightweight jacket'
     : 'Textured overshirt';
 
-  return normaliseLook({
+  const look = normaliseLook({
     title:brief ? brief.slice(0,32) : selectedStyle + ' / ' + $('occasion').value,
     vibe:brief || selectedStyle + ' styling for ' + $('occasion').value.toLowerCase(),
     style:selectedStyle,
@@ -245,6 +247,25 @@ function fallbackLook() {
     ],
     styling_note:'Your description has been translated into a coordinated outfit with matching colours, silhouettes and finishing details.'
   });
+  const palettes = [
+    null,
+    {top:'#35424F',bottom:'#171D25',shoes:'#DDE5E9',outerwear:'#667A88',accent:'#64D9FF'},
+    {top:'#B5A48D',bottom:'#45413B',shoes:'#E4D9C9',outerwear:'#6B705B',accent:'#D1A47A'}
+  ];
+  if (variant > 0) {
+    const palette = palettes[variant % palettes.length];
+    look.palette = {...look.palette,...palette};
+    look.items.forEach(item=>{
+      const slot = item.slot==='TOP'?'top':item.slot==='BOTTOM'?'bottom':item.slot==='FOOTWEAR'?'shoes':item.slot==='LAYER'?'outerwear':null;
+      if (slot && palette[slot]) item.color = palette[slot];
+    });
+    const tops = ['Relaxed heavyweight crewneck','Structured boxy overshirt','Textured relaxed-fit hoodie'];
+    const bottoms = ['Wide straight-leg trousers','Relaxed utility cargos','Clean tapered denim'];
+    look.items.find(item=>item.slot==='TOP').name = tops[variant % tops.length];
+    look.items.find(item=>item.slot==='BOTTOM').name = bottoms[variant % bottoms.length];
+    look.title = (brief ? brief.slice(0,20) : selectedStyle).toUpperCase() + ' / OPTION ' + (variant+1);
+  }
+  return look;
 }
 function buildGenerationPrompt() {
   const brief = $('outfitBrief').value.trim() || 'Create a fresh, cohesive outfit in this style direction.';
@@ -260,35 +281,34 @@ function buildGenerationPrompt() {
   ].join('\n');
 }
 
-async function generateOutfit() {
+async async function generateOutfit() {
   if (isGenerating) return;
   isGenerating = true;
   generateButton.disabled = true;
-  generateLabel.textContent = 'COMPOSING';
-  setStatus('COMPOSING YOUR LOOK');
+  generateLabel.textContent = 'COMPOSING IDEAS';
+  setStatus('COMPOSING THREE OUTFIT IDEAS');
   stage.classList.remove('transitioning');
-
   try {
-    const look = fallbackLook();
-    transitionToLook(() => {
-      lookHistory.unshift(look);
-      lookHistory = lookHistory.slice(0,12);
-      activeLookIndex = 0;
-      applyLook(look);
+    ideaDeck = [fallbackLook(0),fallbackLook(1),fallbackLook(2)];
+    lookHistory = [...ideaDeck,...lookHistory].slice(0,12);
+    activeLookIndex = 0;
+    transitionToLook(()=>{
+      applyLook(ideaDeck[0]);
+      renderIdeas();
       renderHistory();
       engineStatus.textContent = 'LOCAL STYLING ACTIVE';
-      setStatus('OUTFIT GENERATED / LOCAL STYLE MODE');
+      setStatus('THREE IDEAS READY / LOCAL STYLE MODE');
     });
   } catch (error) {
     console.error('Local outfit composition failed.',error);
-    setStatus('COULD NOT COMPOSE THIS LOOK');
-    showToast('The outfit could not be composed. Please try a shorter description.');
+    setStatus('COULD NOT COMPOSE THESE IDEAS');
+    showToast('The outfit ideas could not be composed. Try a shorter description.');
   } finally {
-    setTimeout(() => {
-      isGenerating = false;
-      generateButton.disabled = false;
-      generateLabel.textContent = 'GENERATE OUTFIT';
-    }, reducedMotion ? 0 : 880);
+    setTimeout(()=>{
+      isGenerating=false;
+      generateButton.disabled=false;
+      generateLabel.textContent='GENERATE IDEAS';
+    },reducedMotion?0:880);
   }
 }
 function createMaterial(color, emissive, opacity) {
@@ -529,35 +549,68 @@ function createDefaultAvatar() {
   const body = new THREE.Group();
   body.name = 'Holographic body';
   avatarRoot.add(body);
+  const tone = new THREE.Color(avatarConfig.tone || '#82e6ff');
   const hologram = new THREE.MeshPhysicalMaterial({
-    color:0x8bdfff,emissive:0x0b6b9e,emissiveIntensity:0.62,metalness:0.12,roughness:0.3,
-    transparent:true,opacity:0.16,clearcoat:0.5,side:THREE.DoubleSide,depthWrite:false
+    color:tone,emissive:tone.clone().multiplyScalar(0.16),emissiveIntensity:0.68,metalness:0.08,roughness:0.34,
+    transparent:true,opacity:0.2,clearcoat:0.65,side:THREE.DoubleSide,depthWrite:false
   });
-  const addBody = mesh => body.add(mesh);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.165,24,20),hologram);
-  head.position.set(0,2.78,0);
-  addBody(head);
-  addBody(addCapsule(body,0.075,0.13,[0,2.59,0],hologram,0));
-  addBody(addCapsule(body,0.29,0.36,[0,2.03,0],hologram,0));
-  addBody(addCapsule(body,0.25,0.19,[0,1.54,0],hologram,0));
-  addBody(addCapsule(body,0.145,0.48,[-0.155,1.07,0],hologram,-0.015));
-  addBody(addCapsule(body,0.145,0.48,[0.155,1.07,0],hologram,0.015));
-  addBody(addCapsule(body,0.115,0.48,[-0.16,0.49,0],hologram,0));
-  addBody(addCapsule(body,0.115,0.48,[0.16,0.49,0],hologram,0));
-  addBody(addCapsule(body,0.115,0.43,[-0.37,2.13,0],hologram,-0.12));
-  addBody(addCapsule(body,0.105,0.40,[-0.43,1.66,0],hologram,-0.17));
-  addBody(addCapsule(body,0.115,0.43,[0.37,2.13,0],hologram,0.12));
-  addBody(addCapsule(body,0.105,0.40,[0.43,1.66,0],hologram,0.17));
-  addBody(addSphere(body,0.085,[-0.45,1.39,0],hologram));
-  addBody(addSphere(body,0.085,[0.45,1.39,0],hologram));
+  const joint = (radius,position,scale)=>addSphere(body,radius,position,hologram,scale);
+  const head = joint(0.165,[0,2.79,0],[0.91,1.08,0.91]);
+  joint(0.075,[0,2.59,0],[0.82,1.1,0.82]);
+  // One continuous sculpted torso profile gives a shoulder-to-waist transition.
+  const torsoProfile = [
+    new THREE.Vector2(0.17,-0.49),new THREE.Vector2(0.24,-0.44),new THREE.Vector2(0.29,-0.32),
+    new THREE.Vector2(0.27,-0.17),new THREE.Vector2(0.30,0.02),new THREE.Vector2(0.36,0.24),
+    new THREE.Vector2(0.34,0.38),new THREE.Vector2(0.25,0.47),new THREE.Vector2(0.12,0.50),new THREE.Vector2(0,0.50)
+  ];
+  const torso = new THREE.Mesh(new THREE.LatheGeometry(torsoProfile,32),hologram);
+  torso.position.y=1.99;body.add(torso);
+  joint(0.245,[0,1.51,0],[1.12,0.62,0.78]);
+  joint(0.105,[-0.31,2.27,0],[1.45,1.1,1.0]);
+  joint(0.105,[0.31,2.27,0],[1.45,1.1,1.0]);
+  const limb=(start,end,radiusA,radiusB)=>{
+    const a=new THREE.Vector3(...start),b=new THREE.Vector3(...end),direction=new THREE.Vector3().subVectors(b,a);
+    const length=direction.length();
+    const mesh=new THREE.Mesh(new THREE.CapsuleGeometry((radiusA+radiusB)*0.5,Math.max(0.04,length-radiusA-radiusB),8,16),hologram);
+    mesh.position.copy(a).add(b).multiplyScalar(0.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
+    mesh.scale.set(radiusA/((radiusA+radiusB)*0.5),1,radiusB/((radiusA+radiusB)*0.5));
+    body.add(mesh);
+    joint(radiusA,start,[1,1,0.94]);joint(radiusB,end,[1,1,0.94]);
+  };
+  limb([-0.34,2.23,0],[-0.43,1.68,0],0.115,0.09);
+  limb([-0.43,1.68,0],[-0.46,1.25,0],0.09,0.075);
+  limb([0.34,2.23,0],[0.43,1.68,0],0.115,0.09);
+  limb([0.43,1.68,0],[0.46,1.25,0],0.09,0.075);
+  limb([-0.16,1.48,0],[-0.17,0.79,0],0.15,0.115);
+  limb([-0.17,0.79,0],[-0.17,0.18,0],0.115,0.075);
+  limb([0.16,1.48,0],[0.17,0.79,0],0.15,0.115);
+  limb([0.17,0.79,0],[0.17,0.18,0],0.115,0.075);
+  joint(0.12,[-0.17,0.11,0.11],[1.35,0.48,1.9]);
+  joint(0.12,[0.17,0.11,0.11],[1.35,0.48,1.9]);
+  if (avatarConfig.hair !== 'none') {
+    const hairMaterial = hologram.clone();
+    hairMaterial.color = new THREE.Color(0x173b55);
+    hairMaterial.emissive = new THREE.Color(avatarConfig.tone);
+    hairMaterial.emissiveIntensity = 0.32;
+    const capScale = avatarConfig.hair === 'long' ? [1.02,0.62,1.02] : avatarConfig.hair === 'textured' ? [1.08,0.62,1.04] : [1.0,0.48,1.0];
+    addSphere(body,0.17,[0,2.91,-0.015],hairMaterial,capScale);
+    if (avatarConfig.hair === 'long') {
+      addSphere(body,0.13,[0,2.72,-0.09],hairMaterial,[1.0,1.45,0.72]);
+      addSphere(body,0.075,[-0.145,2.78,0],hairMaterial,[0.8,1.5,0.8]);
+      addSphere(body,0.075,[0.145,2.78,0],hairMaterial,[0.8,1.5,0.8]);
+    }
+    if (avatarConfig.hair === 'textured') {
+      for(let i=0;i<7;i++) addSphere(body,0.045,[-0.12+i*0.04,2.98+(i%2)*0.018,0.035],hairMaterial,[1,0.8,1]);
+    }
+  }
   scene.add(avatarRoot);
-  avatarWidthFactor = 1;
-  clothingGroup = new THREE.Group();
-  clothingGroup.name = 'Generated outfit layers';
+  avatarWidthFactor=1;
+  clothingGroup=new THREE.Group();
+  clothingGroup.name='Generated outfit layers';
   avatarRoot.add(clothingGroup);
   return avatarRoot;
 }
-
 function removeAvatar() {
   if (avatarRoot) {
     scene.remove(avatarRoot);
@@ -872,44 +925,55 @@ function applyLook(look) {
 }
 
 function renderHistory() {
-  const strip = $('lookStrip');
+  const strip=$('lookStrip');
   strip.replaceChildren();
-  const recentEntries = lookHistory.map((look,index)=>({look,index,saved:false}));
-  const savedEntries = savedLooks
-    .filter(saved=>!lookHistory.some(recent=>recent.title===saved.title))
-    .map(look=>({look,saved:true}));
-  const entries = recentEntries.concat(savedEntries);
-  if (!entries.length) {
-    const empty = document.createElement('div');empty.className='empty-strip';empty.textContent='GENERATED LOOKS WILL APPEAR HERE';strip.appendChild(empty);
-  } else {
-    entries.forEach(entry=>{
-      const look = entry.look;
-      const button = document.createElement('button');
-      button.type='button';
-      button.className='look-card'+(!entry.saved && entry.index===activeLookIndex?' active':'');
-      const avatar = document.createElement('span');avatar.className='mini-avatar';
-      avatar.style.setProperty('--mini-top',look.palette.top);avatar.style.setProperty('--mini-bottom',look.palette.bottom);
-      const info = document.createElement('span');
-      const title = document.createElement('strong');title.textContent=look.title;
-      const meta = document.createElement('small');meta.textContent=(entry.saved?'SAVED · ':'')+look.style;
-      info.append(title,meta);button.append(avatar,info);
-      button.addEventListener('click',()=>{
-        if (!entry.saved) {
-          selectHistoryLook(entry.index);
-          return;
-        }
-        lookHistory.unshift(JSON.parse(JSON.stringify(look)));
-        lookHistory = lookHistory.slice(0,12);
-        activeLookIndex = 0;
-        selectHistoryLook(0);
-      });
-      strip.appendChild(button);
+  const entries=lookHistory.map((look,index)=>({look,index,saved:false})).concat(
+    savedLooks.filter(saved=>!lookHistory.some(recent=>recent.title===saved.title)).map(look=>({look,saved:true}))
+  );
+  if(!entries.length){
+    const empty=document.createElement('div');empty.className='empty-strip';empty.textContent='YOUR PREVIOUS LOOKS WILL APPEAR HERE';strip.appendChild(empty);
+  } else entries.forEach(entry=>{
+    const look=entry.look,button=document.createElement('button');
+    button.type='button';button.className='look-card'+(!entry.saved&&entry.index===activeLookIndex?' active':'');
+    const avatar=document.createElement('span');avatar.className='mini-avatar';
+    avatar.style.setProperty('--mini-top',look.palette.top);avatar.style.setProperty('--mini-bottom',look.palette.bottom);
+    const info=document.createElement('span'),title=document.createElement('strong'),meta=document.createElement('small');
+    title.textContent=look.title;meta.textContent=(entry.saved?'SAVED · ':'')+look.style;
+    info.append(title,meta);button.append(avatar,info);
+    button.addEventListener('click',()=>{
+      if(!entry.saved){selectHistoryLook(entry.index);closeHistory();return;}
+      lookHistory.unshift(JSON.parse(JSON.stringify(look)));lookHistory=lookHistory.slice(0,12);activeLookIndex=0;selectHistoryLook(0);closeHistory();
     });
-  }
-  $('historyCount').textContent = String(activeLookIndex+1).padStart(2,'0') + ' / ' + String(Math.max(1,lookHistory.length)).padStart(2,'0');
-  $('previousLook').disabled = lookHistory.length < 2;
-  $('nextLook').disabled = lookHistory.length < 2;
+    strip.appendChild(button);
+  });
+  $('historyCount').textContent=String(activeLookIndex+1).padStart(2,'0')+' / '+String(Math.max(1,lookHistory.length)).padStart(2,'0');
 }
+function renderIdeas() {
+  const strip=$('ideaStrip');strip.replaceChildren();
+  ideaDeck.forEach((look,index)=>{
+    const button=document.createElement('button');button.type='button';
+    button.className='idea-card'+(index===0?' active':'');
+    const swatch=document.createElement('span');swatch.className='idea-swatch';
+    [look.palette.top,look.palette.bottom,look.palette.shoes,look.palette.outerwear].forEach(color=>{
+      const chip=document.createElement('i');chip.style.background=color;swatch.appendChild(chip);
+    });
+    const title=document.createElement('strong');title.textContent=look.title;
+    const meta=document.createElement('small');meta.textContent='CONCEPT 0'+(index+1)+' · '+look.style.toUpperCase();
+    button.append(swatch,title,meta);
+    button.addEventListener('click',()=>{
+      activeLookIndex=lookHistory.findIndex(item=>item===look);
+      if(activeLookIndex<0){lookHistory.unshift(look);activeLookIndex=0;}
+      document.querySelectorAll('.idea-card').forEach((card,i)=>card.classList.toggle('active',i===index));
+      transitionToLook(()=>applyLook(look));renderHistory();
+    });
+    strip.appendChild(button);
+  });
+  $('ideaCount').textContent=String(ideaDeck.length).padStart(2,'0')+' IDEAS';
+}
+function openHistory(){const modal=$('historyModal');modal.classList.add('open');modal.setAttribute('aria-hidden','false');renderHistory();}
+function closeHistory(){const modal=$('historyModal');modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
+function openAvatarStudio(){const modal=$('avatarModal');modal.classList.add('open');modal.setAttribute('aria-hidden','false');}
+function closeAvatarStudio(){const modal=$('avatarModal');modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
 
 function transitionToLook(apply) {
   clearTimeout(transitionApplyTimer);
@@ -982,61 +1046,26 @@ function setStyle(style) {
 }
 
 async function loadCustomAvatar(file) {
-  if (!file) return;
-  if (file.size > 50*1024*1024) { showToast('Please choose a GLB file under 50 MB.');return; }
-  if (!file.name.toLowerCase().endsWith('.glb')) { showToast('Custom avatars currently need to be a single-file .glb model.');return; }
-  setStatus('LOADING CUSTOM AVATAR');
-  const url = URL.createObjectURL(file);
-  const loader = new GLTFLoader();
-  loader.load(url,gltf=>{
-    URL.revokeObjectURL(url);
-    removeAvatar();
-    avatarRoot = new THREE.Group();
-    avatarRoot.position.y = 0.44;
-    const model = gltf.scene;
-    const bounds = new THREE.Box3().setFromObject(model);
-    const size = bounds.getSize(new THREE.Vector3());
-    const center = bounds.getCenter(new THREE.Vector3());
-    const normalScale = 3.05 / Math.max(0.1,size.y);
-    model.scale.setScalar(normalScale);
-    model.position.set(-center.x*normalScale,-bounds.min.y*normalScale,-center.z*normalScale);
-    const hologram = new THREE.MeshPhysicalMaterial({color:0x8bdfff,emissive:0x075a91,emissiveIntensity:0.82,metalness:0.2,roughness:0.22,transparent:true,opacity:0.42,clearcoat:1,side:THREE.DoubleSide,depthWrite:false});
-    model.traverse(object=>{
-      if (!object.isMesh) return;
-      object.material = hologram.clone();
-      object.castShadow = true;
-    });
-    avatarRoot.add(model);
-    scene.add(avatarRoot);
-    avatarWidthFactor = clamp((size.x*normalScale)/0.82,0.72,1.45);
-    clothingGroup = new THREE.Group();
-    clothingGroup.name = 'Generated outfit preview layers';
-    avatarRoot.add(clothingGroup);
-    customAvatarName = file.name.replace(/\.glb$/i,'');
-    $('stageTitle').textContent = 'CUSTOM AVATAR / GLB';
-    applyGarments(lookHistory[activeLookIndex] || defaultLook());
-    setStatus('CUSTOM AVATAR LOADED / SESSION ONLY');
-    showToast('Custom avatar loaded. Outfit layers are a visual styling preview.');
-  },undefined,error=>{
-    URL.revokeObjectURL(url);
-    console.error('Custom avatar failed to load.',error);
-    setStatus('CUSTOM AVATAR COULD NOT BE LOADED');
-    showToast('That GLB could not be opened. Try exporting it again as a single-file GLB.');
-  });
+  // External gallery/file imports are intentionally replaced by the in-app avatar studio.
+  if(file) showToast('Choose your avatar inside the Custom Avatar studio.');
 }
-
 function resetAvatar() {
-  if (!renderer || !scene) return;
-  removeAvatar();
-  customAvatarName = '';
+  if(!renderer||!scene)return;
+  removeAvatar();customAvatarName='';
+  avatarConfig={hair:'short',tone:'#82e6ff'};
   createDefaultAvatar();
-  const current = lookHistory[activeLookIndex] || defaultLook();
-  applyGarments(current);
-  $('stageTitle').textContent = 'HOLOGRAPHIC AVATAR';
-  $('avatarFile').value = '';
-  showToast('Particle avatar restored.');
+  applyGarments(lookHistory[activeLookIndex]||defaultLook());
+  $('stageTitle').textContent='HOLOGRAPHIC AVATAR';
+  showToast('Default holographic avatar restored.');
 }
-
+function applyAvatarConfig(){
+  document.querySelectorAll('[data-hair]').forEach(button=>button.classList.toggle('active',button.dataset.hair===avatarConfig.hair));
+  document.querySelectorAll('[data-tone]').forEach(button=>button.classList.toggle('active',button.dataset.tone===avatarConfig.tone));
+  removeAvatar();customAvatarName='';createDefaultAvatar();
+  applyGarments(lookHistory[activeLookIndex]||defaultLook());
+  $('stageTitle').textContent='CUSTOM HOLOGRAPHIC AVATAR';
+  closeAvatarStudio();showToast('Your avatar has been updated.');
+}
 function initTransitionTiles() {
   const host = $('transitionTiles');
   if (!host || host.childElementCount) return;
@@ -1058,12 +1087,19 @@ function bindEvents() {
   generateButton.addEventListener('click',generateOutfit);
   $('previousLook').addEventListener('click',()=>stepHistory(-1));
   $('nextLook').addEventListener('click',()=>stepHistory(1));
-  $('autoplayLooks').addEventListener('click',toggleAutoplay);
-  $('avatarFile').addEventListener('change',event=>loadCustomAvatar(event.target.files && event.target.files[0]));
+  $('openHistory').addEventListener('click',openHistory);
+  $('closeHistory').addEventListener('click',closeHistory);
+  $('historyModal').addEventListener('click',event=>{if(event.target===$('historyModal'))closeHistory();});
+  $('customAvatarButton').addEventListener('click',openAvatarStudio);
+  $('closeAvatar').addEventListener('click',closeAvatarStudio);
+  $('avatarModal').addEventListener('click',event=>{if(event.target===$('avatarModal'))closeAvatarStudio();});
+  document.querySelectorAll('[data-hair]').forEach(button=>button.addEventListener('click',()=>{avatarConfig.hair=button.dataset.hair;document.querySelectorAll('[data-hair]').forEach(item=>item.classList.toggle('active',item===button));}));
+  document.querySelectorAll('[data-tone]').forEach(button=>button.addEventListener('click',()=>{avatarConfig.tone=button.dataset.tone;document.querySelectorAll('[data-tone]').forEach(item=>item.classList.toggle('active',item===button));}));
+  $('applyAvatar').addEventListener('click',applyAvatarConfig);
   $('resetAvatar').addEventListener('click',resetAvatar);
   $('backButton').addEventListener('click',()=>window.parent.postMessage({type:'ZERO_OUTFIT_CLOSE'},window.location.origin));
   window.addEventListener('keydown',event=>{
-    if (event.key === 'Escape') window.parent.postMessage({type:'ZERO_OUTFIT_CLOSE'},window.location.origin);
+    if (event.key === 'Escape') {closeHistory();closeAvatarStudio();window.parent.postMessage({type:'ZERO_OUTFIT_CLOSE'},window.location.origin);}
     if (event.key === 'ArrowLeft' && !/TEXTAREA|INPUT|SELECT/.test(document.activeElement.tagName)) stepHistory(-1);
     if (event.key === 'ArrowRight' && !/TEXTAREA|INPUT|SELECT/.test(document.activeElement.tagName)) stepHistory(1);
   });
@@ -1108,6 +1144,8 @@ function init() {
     stage.classList.add('scene-ready');
     if (!lookHistory.length) lookHistory = [defaultLook()];
     applyLook(lookHistory[0]);
+    ideaDeck=[lookHistory[0],fallbackLook(1),fallbackLook(2)];
+    renderIdeas();
     renderHistory();
     renderSavedLooks();
     engineStatus.textContent = 'LOCAL STYLING MODE';
