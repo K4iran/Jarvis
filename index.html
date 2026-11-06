@@ -254,6 +254,42 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
 .mic .ic{width:30px;height:30px}.mic .rg{position:absolute;inset:-9px;width:calc(100% + 18px);height:calc(100% + 18px);pointer-events:none;fill:none;stroke:var(--c);stroke-opacity:.45}
 .mic:hover{box-shadow:0 0 28px rgba(88,223,255,.3);transform:scale(1.04)}.mic:active{transform:scale(.95)}
 .mic[aria-pressed=true]{background:radial-gradient(circle,rgba(88,223,255,.35),rgba(9,19,33,.8));box-shadow:0 0 40px rgba(88,223,255,.5);color:#fff}
+/* Z.E.R.O. voice and command controls — layered glass hardware, not bare icons. */
+.ctl{gap:24px;align-items:start}
+.voice-control,.keyboard-control{position:relative;min-width:96px}
+.mic{isolation:isolate;overflow:visible;width:88px;height:88px;border:1px solid rgba(104,226,255,.72);background:radial-gradient(circle at 50% 42%,rgba(43,153,207,.28),rgba(4,16,32,.94) 62%,rgba(2,8,19,.98));box-shadow:inset 0 0 20px rgba(70,206,255,.16),inset 0 0 3px rgba(214,250,255,.8),0 0 20px rgba(47,173,235,.14)}
+.mic:before,.mic:after{content:"";position:absolute;inset:5px;border-radius:50%;pointer-events:none}
+.mic:before{border:1px solid rgba(152,236,255,.22);box-shadow:0 0 12px rgba(88,223,255,.12)}
+.mic:after{inset:-5px;border:1px solid rgba(88,223,255,.15);clip-path:polygon(0 0,24% 0,24% 2%,2% 2%,2% 24%,0 24%,0 0,100% 0,100% 24%,98% 24%,98% 2%,76% 2%,76% 0,100% 0,100% 100%,76% 100%,76% 98%,98% 98%,98% 76%,100% 76%,100% 100%,0 100%,0 76%,2% 76%,2% 98%,24% 98%,24% 100%)}
+.mic-orbit{position:absolute;inset:-8px;width:calc(100% + 16px);height:calc(100% + 16px);overflow:visible;fill:none;stroke:#78e8ff;stroke-width:1;pointer-events:none}
+.mic-orbit-back{opacity:.28;transform:rotate(-18deg);animation:zeroControlOrbit 24s linear infinite}
+.mic-orbit-front{opacity:.72;stroke-width:1.1;filter:drop-shadow(0 0 3px rgba(88,223,255,.65));animation:zeroControlOrbit 14s linear infinite reverse}
+.control-core{position:relative;z-index:2;width:55px;height:55px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,rgba(94,222,255,.22),rgba(8,29,49,.92) 70%);border:1px solid rgba(167,239,255,.42);box-shadow:inset 0 0 14px rgba(88,223,255,.2),0 0 15px rgba(88,223,255,.15)}
+.control-core:before{content:"";position:absolute;inset:5px;border:1px solid rgba(151,232,255,.12);border-radius:50%}
+.control-core .ic{width:29px;height:29px;filter:drop-shadow(0 0 5px rgba(88,223,255,.75))}
+.control-signal{position:absolute;z-index:1;inset:0;display:flex;align-items:center;justify-content:center;gap:3px;opacity:0;pointer-events:none}
+.control-signal i{width:2px;height:7px;border-radius:2px;background:#b7f5ff;box-shadow:0 0 6px #58dfff}
+.control-signal i:nth-child(2){height:12px}.control-signal i:nth-child(3){height:8px}
+.mic[aria-pressed=true]{border-color:#c4f7ff;background:radial-gradient(circle,rgba(72,206,255,.42),rgba(5,20,39,.96) 68%);box-shadow:inset 0 0 24px rgba(88,223,255,.3),0 0 32px rgba(88,223,255,.42)}
+.mic[aria-pressed=true] .control-signal{opacity:.85}
+.mic[aria-pressed=true] .control-core{transform:scale(.9);opacity:.28}
+.keyboard-control{padding-top:19px}
+.keyboard-trigger.ib{position:relative;isolation:isolate;overflow:visible;width:62px;height:62px;margin:0 auto;display:grid;place-items:center;border:1px solid rgba(104,226,255,.58);border-radius:16px;background:linear-gradient(145deg,rgba(24,91,129,.42),rgba(4,15,31,.94) 68%);box-shadow:inset 0 0 18px rgba(88,223,255,.13),0 0 18px rgba(48,163,218,.13);color:#baf4ff;transition:transform .22s,border-color .22s,box-shadow .22s}
+.keyboard-trigger.ib:before{content:"";position:absolute;inset:4px;border:1px solid rgba(154,229,255,.17);border-radius:12px;pointer-events:none}
+.keyboard-trigger.ib:after{content:"";position:absolute;top:7px;right:8px;width:4px;height:4px;border-radius:50%;background:#76eaff;box-shadow:0 0 8px #58dfff}
+.keyboard-orbit{position:absolute;inset:-8px;width:calc(100% + 16px);height:calc(100% + 16px);fill:none;stroke:rgba(112,223,255,.58);stroke-width:1;pointer-events:none;animation:zeroControlOrbit 28s linear infinite}
+.keyboard-glyph{position:relative;z-index:1;width:42px;height:34px;display:grid;place-items:center;border-radius:7px;background:linear-gradient(180deg,rgba(85,203,240,.2),rgba(10,37,58,.8));border:1px solid rgba(166,239,255,.3);box-shadow:inset 0 0 12px rgba(88,223,255,.12)}
+.keyboard-glyph .ic{width:25px;height:25px;filter:drop-shadow(0 0 4px rgba(88,223,255,.6))}
+.keyboard-pulse{position:absolute;inset:-3px;border:1px solid rgba(88,223,255,.22);border-radius:19px;pointer-events:none}
+.keyboard-trigger:hover,.keyboard-trigger:focus-visible,.keyboard-trigger[aria-expanded=true]{border-color:#c3f6ff;background:linear-gradient(145deg,rgba(39,130,174,.58),rgba(5,22,42,.98));box-shadow:inset 0 0 20px rgba(88,223,255,.2),0 0 25px rgba(88,223,255,.28);transform:translateY(-2px)}
+.keyboard-trigger[aria-expanded=true] .keyboard-pulse{animation:zeroKeyboardPulse 1.8s ease-out infinite}
+#ml,#kl{margin:10px 0 0;color:rgba(172,224,244,.72);font:9px "JetBrains Mono",monospace;letter-spacing:.15em;text-align:center;text-shadow:0 0 9px rgba(88,223,255,.15)}
+#kl{white-space:nowrap}
+@keyframes zeroControlOrbit{to{transform:rotate(342deg)}}
+@keyframes zeroKeyboardPulse{0%{transform:scale(.96);opacity:.7}100%{transform:scale(1.18);opacity:0}}
+@media(max-width:560px){.ctl{gap:17px}.mic{width:78px;height:78px}.control-core{width:50px;height:50px}.keyboard-control{padding-top:15px}.keyboard-trigger.ib{width:57px;height:57px}}
+@media(prefers-reduced-motion:reduce){.mic-orbit,.keyboard-orbit{animation:none!important}.keyboard-trigger[aria-expanded=true] .keyboard-pulse{animation:none!important}}
+
 #cmd{display:grid;gap:8px;width:min(100%,520px);animation:fin .35s ease both}
 .row2{display:flex;gap:8px;align-items:center;border:1px solid var(--ln2);background:rgba(9,19,33,.8);padding:2px 4px 2px 14px}
 #ci{flex:1;min-width:0;height:44px;background:none;border:0;outline:0}#ci::placeholder{color:var(--m)}.row2:focus-within{box-shadow:0 0 20px rgba(88,223,255,.25)}
@@ -1193,8 +1229,25 @@ body.zen-mode-active #core{visibility:hidden!important}
 </div>
 <p id="cs" class="lbl mono">STANDBY</p>
 <div id="id"><p id="msg" aria-live="polite">Ready when you are.</p></div>
-<div class="ctl"><div class="mc"><button class="mic" id="mic" aria-pressed="false" aria-label="Activate voice interface"><svg class="rg rot" style="--d:16s" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" stroke-dasharray="3 7"/></svg><svg class="ic"><use href="#i-mic"/></svg></button><p class="lbl" id="ml">Activate voice interface</p></div>
-<button class="ib" id="kb" aria-label="Open command input" aria-expanded="false"><svg class="ic"><use href="#i-kbd"/></svg></button></div>
+<div class="ctl">
+<div class="mc voice-control">
+<button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Start voice input">
+<svg class="mic-orbit mic-orbit-back" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" stroke-dasharray="2 8"/><circle cx="50" cy="50" r="39" stroke-dasharray="1 12"/></svg>
+<svg class="mic-orbit mic-orbit-front" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" stroke-dasharray="18 9 3 9"/><path d="M50 1v7M50 92v7M1 50h7M92 50h7"/></svg>
+<span class="control-core"><svg class="ic"><use href="#i-mic"/></svg></span>
+<span class="control-signal" aria-hidden="true"><i></i><i></i><i></i></span>
+</button>
+<p class="lbl" id="ml">TAP TO SPEAK TO ZERO</p>
+</div>
+<div class="mc keyboard-control">
+<button class="ib keyboard-trigger" id="kb" type="button" aria-label="Open text command input" aria-expanded="false">
+<svg class="keyboard-orbit" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="32" stroke-dasharray="2 6"/><path d="M36 1v5M36 66v5M1 36h5M66 36h5"/></svg>
+<span class="keyboard-glyph"><svg class="ic"><use href="#i-kbd"/></svg></span>
+<span class="keyboard-pulse" aria-hidden="true"></span>
+</button>
+<p class="lbl" id="kl">TYPE A COMMAND</p>
+</div>
+</div>
 <form id="cmd" hidden><div class="row2"><input id="ci" type="text" autocomplete="off" placeholder="Enter a command…" aria-label="Command"><button class="ib" aria-label="Submit command"><svg class="ic"><use href="#i-go"/></svg></button><button class="ib" type="button" id="cc" aria-label="Close command input"><svg class="ic"><use href="#i-x"/></svg></button></div>
 <div class="qs"><button type="button" class="q" data-c="Show my profile">Show my profile</button><button type="button" class="q" data-c="Open LifeOS">Open LifeOS</button><button type="button" class="q" data-c="Open Hoop Central">Open Hoop Central</button><button type="button" class="q" data-c="Return to standby">Return to standby</button></div></form>
 </section>
@@ -2206,11 +2259,11 @@ function setState(s){
   $('#cs').textContent=LBL[s];
   $('#st').textContent=s.toUpperCase();
   $('#mic').setAttribute('aria-pressed',wakeEnabled);
-  $('#mic').setAttribute('aria-label',wakeEnabled?'Disable Hey ZERO':'Enable Hey ZERO');
+  $('#mic').setAttribute('aria-label',wakeEnabled?'Stop voice input':'Start voice input');
   if (s !== 'listening') {
   $('#ml').textContent = wakeEnabled
-    ? 'Wake word active: say Hey ZERO'
-    : 'Tap to enable Hey ZERO';
+    ? 'LISTENING · SPEAK NATURALLY'
+    : 'TAP TO SPEAK TO ZERO';
   }
   if(s==='responding'){pulse(1);cur.flash=1}
   let orbWaveClock=0,orbWaveActive=0;
