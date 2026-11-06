@@ -1983,7 +1983,8 @@ async function playZeroStreamChunk(text) {
   }
 }
 
-async function streamZeroReply(message) {
+async function streamZeroReply(message, options = {}) {
+  const speakAudio = wakeEnabled && options.silent !== true;
   const response = await fetch(
     'https://jtzlljxurhqvybkoygll.supabase.co/functions/v1/jarvis-chat',
     {
@@ -2017,13 +2018,13 @@ async function streamZeroReply(message) {
   const queueSentence = sentence => {
     const clean = sentence.trim();
     if (!clean) return;
-    if (wakeEnabled) {
+    if (speakAudio) {
       audioTasks.push({ sentence: clean, audio: fetchZeroSpeechBlob(clean) });
       notifyPlayer();
     }
   };
 
-  if (wakeEnabled) {
+  if (speakAudio) {
     playerPromise = (async () => {
       while (!streamDone || audioIndex < audioTasks.length) {
         if (audioIndex >= audioTasks.length) {
@@ -2045,7 +2046,7 @@ async function streamZeroReply(message) {
   const decoder = new TextDecoder();
   const updateVisibleText = () => {
     // Voice replies are shown sentence-by-sentence alongside their audio.
-    if (wakeEnabled) return;
+    if (wakeEnabled || options.silent === true) return;
     const message = $('#msg');
     if (!message) return;
     messageTypingRun++;
@@ -2103,9 +2104,14 @@ async function streamZeroReply(message) {
     notifyPlayer();
   }
 
-  if (wakeEnabled) await playerPromise;
+  if (speakAudio) await playerPromise;
   return fullReply;
 }
+
+window.__zeroGenerateOutfit = async function (prompt) {
+  if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('An outfit brief is required.');
+  return await streamZeroReply(prompt, { silent:true });
+};
 
 async function playZeroStreamBlob(blob, sentence = '') {
   const audioUrl = URL.createObjectURL(blob);
@@ -4087,7 +4093,7 @@ setInterval(zenUpdateRingState,250);
 })();
 
 </script>
-<script src="./zero-features.js?v=weather-sudoku-news-2"></script>
+<script src="./zero-features.js?v=weather-sudoku-news-outfit-lab-1"></script>
 <script type="module">
 import { createOrb } from './orb-network.js';
 
@@ -4124,7 +4130,7 @@ import { createOrb } from './orb-network.js';
   }
 })();
 </script>
-<script type="module" src="./skill-tree.js?v=skill-tree-2d-weather-1"></script>
+<script type="module" src="./skill-tree.js?v=outfit-lab-1"></script>
 <script>
 
 (function(){
