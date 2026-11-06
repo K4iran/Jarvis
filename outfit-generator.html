@@ -14,7 +14,7 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
     } }
   </script>
-  <link rel="stylesheet" href="./outfit-generator.css?v=quiet-hud-3">
+  <link rel="stylesheet" href="./outfit-generator.css?v=showroom-clean-4">
 </head>
 <body>
   <div id="outfitLab">
@@ -27,7 +27,7 @@
         <span class="brand-copy"><strong>OUTFIT LAB</strong><small>HOLOGRAPHIC STYLING SYSTEM</small></span>
       </div>
       <div class="top-actions">
-        <span class="connection"><i></i><span id="engineStatus">STYLE ENGINE READY</span></span>
+        <span id="engineStatus" hidden>STYLE ENGINE READY</span>
         <label class="avatar-upload" for="avatarFile">CUSTOM AVATAR <span>＋</span></label>
         <input id="avatarFile" type="file" accept=".glb,model/gltf-binary" hidden>
         <button class="reset-avatar" id="resetAvatar" type="button">RESET MODEL</button>
@@ -35,64 +35,18 @@
     </header>
 
     <main class="workspace">
-      <aside class="panel composer">
-        <div class="panel-heading">
-          <span class="eyebrow">01 / CREATION</span>
-          <h1>Build a look.</h1>
-          <p>Describe the outfit. ZERO will coordinate the pieces and preview the result on your avatar.</p>
-        </div>
-
-        <label class="field-label" for="outfitBrief">YOUR BRIEF</label>
-        <textarea id="outfitBrief" rows="4" maxlength="700" placeholder="e.g. A clean, layered look with relaxed proportions, muted colours and one statement piece."></textarea>
-
-        <div class="field-block">
-          <div class="field-label">STYLE DIRECTION</div>
-          <div class="style-options" id="styleOptions">
-            <button type="button" class="style-chip active" data-style="Streetwear">Streetwear</button>
-            <button type="button" class="style-chip" data-style="Minimal">Minimal</button>
-            <button type="button" class="style-chip" data-style="Sport">Sport</button>
-            <button type="button" class="style-chip" data-style="Smart casual">Smart</button>
-            <button type="button" class="style-chip" data-style="Vintage">Vintage</button>
-            <button type="button" class="style-chip" data-style="Techwear">Techwear</button>
-          </div>
-        </div>
-
-        <div class="select-grid">
-          <label class="select-field"><span>OCCASION</span>
-            <select id="occasion">
-              <option>Everyday</option><option>School</option><option>Weekend</option>
-              <option>Training</option><option>Evening</option><option>Formal</option>
-            </select>
-          </label>
-          <label class="select-field"><span>SEASON</span>
-            <select id="season">
-              <option>All season</option><option>Spring</option><option>Summer</option><option>Autumn</option><option>Winter</option>
-            </select>
-          </label>
-        </div>
-
-        <label class="select-field palette-field"><span>COLOUR MOOD</span>
-          <select id="colourMood">
-            <option>Let ZERO decide</option><option>Monochrome</option><option>Earth tones</option>
-            <option>Cool tones</option><option>Warm neutrals</option><option>One accent colour</option>
-          </select>
-        </label>
-
+      <aside class="composer" aria-label="Outfit controls">
+        <textarea id="outfitBrief" rows="2" maxlength="700" aria-label="Describe an outfit" placeholder="Describe a look…"></textarea>
         <button class="generate-button" id="generateButton" type="button">
-          <span class="generate-icon">✳</span><span class="generate-label">GENERATE OUTFIT</span><span class="generate-arrow">↗</span>
+          <span class="generate-icon">✳</span><span class="generate-label">GENERATE</span><span class="generate-arrow">↗</span>
         </button>
-        <div class="generation-status" id="generationStatus" role="status" aria-live="polite">READY WHEN YOU ARE</div>
-        <div class="panel-footnote"><span class="pulse-dot"></span> YOUR AVATAR AND SAVED LOOKS STAY ON THIS DEVICE</div>
+        <div class="generation-status" id="generationStatus" role="status" aria-live="polite">READY</div>
       </aside>
 
       <section class="stage" id="stage" aria-label="Holographic outfit preview">
         <div class="room-glass room-back" aria-hidden="true"></div>
         <div class="room-glass room-left" aria-hidden="true"></div>
         <div class="room-glass room-right" aria-hidden="true"></div>
-        <div class="stage-head">
-          <div><span class="eyebrow">LIVE PREVIEW / 3D</span><strong id="stageTitle">HOLOGRAPHIC AVATAR</strong></div>
-          <span class="stage-coordinates">STUDIO 01 <i></i> GLASS ENVIRONMENT</span>
-        </div>
         <canvas id="scene" aria-label="Rotatable holographic avatar on a glass platform"></canvas>
         <div class="scene-fallback" id="sceneFallback" aria-hidden="true">
           <div class="fallback-wall fallback-wall-back"></div>
@@ -101,8 +55,8 @@
           <div class="fallback-floor-grid"></div>
           <div class="fallback-platform"><i></i><b></b></div>
           <svg class="fallback-avatar" viewBox="0 0 300 650" role="presentation">
-            <defs><linearGradient id="holoBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8faff" stop-opacity=".72"/><stop offset=".5" stop-color="#5dcfff" stop-opacity=".22"/><stop offset="1" stop-color="#167dce" stop-opacity=".5"/></linearGradient><filter id="holoGlow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-            <g fill="url(#holoBody)" stroke="#9beaff" stroke-width="2.2" filter="url(#holoGlow)">
+            <defs><linearGradient id="holoBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5fbff" stop-opacity=".88"/><stop offset=".5" stop-color="#5dcfff" stop-opacity=".34"/><stop offset="1" stop-color="#167dce" stop-opacity=".68"/></linearGradient><filter id="holoGlow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <g fill="url(#holoBody)" stroke="#a9efff" stroke-width="2.2" filter="url(#holoGlow)">
               <circle cx="150" cy="62" r="39"/>
               <path d="M126 105 Q150 95 174 105 L198 132 225 250 197 267 180 187 183 305 117 305 120 187 103 267 75 250 102 132Z"/>
               <path d="M119 300 L181 300 190 405 169 420 150 405 131 420 110 405Z"/>
@@ -111,37 +65,14 @@
               <path d="M96 550 L139 550 134 590 78 590 Q70 580 82 564Z"/>
               <path d="M163 550 L203 550 225 575 Q231 590 217 590 L169 590Z"/>
             </g>
-            <path d="M107 143 Q150 121 193 143 L180 300 120 300Z" fill="rgba(81,190,255,.18)" stroke="#b7f2ff" stroke-width="1.5"/>
-            <path d="M112 307 L188 307 180 405 120 405Z" fill="rgba(47,132,205,.22)" stroke="#8bdfff" stroke-width="1.5"/>
-            <path d="M150 102 V590" stroke="#d5faff" stroke-opacity=".18" stroke-dasharray="3 8"/>
+            <path d="M107 143 Q150 121 193 143 L180 300 120 300Z" fill="rgba(81,190,255,.2)" stroke="#b7f2ff" stroke-width="1.5"/>
+            <path d="M112 307 L188 307 180 405 120 405Z" fill="rgba(47,132,205,.25)" stroke="#8bdfff" stroke-width="1.5"/>
+            <path d="M150 102 V590" stroke="#d5faff" stroke-opacity=".25" stroke-dasharray="3 8"/>
           </svg>
-          <div class="fallback-label">HOLOGRAPHIC AVATAR / PREVIEW</div>
         </div>
-        <div class="scan-sweep" aria-hidden="true"></div>
         <div class="transition-tiles" id="transitionTiles" aria-hidden="true"></div>
-        <div class="stage-hint"><span class="drag-icon">↔</span> DRAG TO ROTATE</div>
-        <div class="platform-caption"><span class="platform-line"></span><span>GLASS DISPLAY PLATFORM</span><span class="platform-line"></span></div>
-        <div class="stage-corner stage-corner-a" aria-hidden="true">X / 01</div>
-        <div class="stage-corner stage-corner-b" aria-hidden="true">Z.E.R.O. / STYLE SYSTEM</div>
+        <span id="stageTitle" hidden>HOLOGRAPHIC AVATAR</span>
       </section>
-
-      <aside class="panel look-panel">
-        <div class="panel-heading look-heading">
-          <span class="eyebrow">02 / CURRENT CONFIGURATION</span>
-          <h2 id="lookTitle">FIRST LIGHT</h2>
-          <p id="lookVibe">A starting point for your next look.</p>
-        </div>
-        <div class="look-meta"><span>GARMENT BREAKDOWN</span><span id="lookCount">04 ITEMS</span></div>
-        <div class="garment-list" id="garmentList"></div>
-        <div class="styling-note">
-          <span class="eyebrow">ZERO'S STYLING NOTE</span>
-          <p id="stylingNote">A balanced starting palette with a clean, understated finish.</p>
-        </div>
-        <div class="look-actions">
-          <button class="save-button" id="saveLook" type="button"><span>＋</span> SAVE LOOK</button>
-          <button class="share-button" id="copyLook" type="button" aria-label="Copy outfit description">COPY BRIEF</button>
-        </div>
-      </aside>
     </main>
 
     <footer class="look-rail">
@@ -156,6 +87,6 @@
     </footer>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./outfit-generator.js?v=full-screen-studio-2"></script>
+  <script type="module" src="./outfit-generator.js?v=default-avatar-always-1"></script>
 </body>
 </html>
