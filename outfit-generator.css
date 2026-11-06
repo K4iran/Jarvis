@@ -42,7 +42,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
   color:rgba(42,61,72,.82);font:7px var(--mono);letter-spacing:.08em;
 }
 .avatar-upload span{color:var(--cyan);font-size:13px}
-.reset-avatar{color:rgba(196,230,244,.48)}
+.reset-avatar{color:rgba(64,81,91,.65)}
 .workspace{
   position:fixed;inset:0;z-index:1;
   display:block;width:100vw;height:100dvh;min-height:0;max-height:100dvh;
@@ -94,7 +94,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
   display:block;visibility:visible;opacity:1;
   width:auto;height:min(76vh,760px);max-height:78%;
   transform:translateX(-50%);overflow:visible;
-  filter:drop-shadow(0 0 22px rgba(70,190,255,.72)) drop-shadow(0 0 48px rgba(35,142,225,.4));
+  filter:drop-shadow(0 5px 12px rgba(44,116,145,.12));
 }
 .fallback-avatar g{fill:rgba(65,166,211,.68);stroke:#d4faff;stroke-width:3.2}
 .fallback-avatar>path{stroke:#d4faff}
