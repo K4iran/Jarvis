@@ -823,15 +823,26 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
 
   // Capability orbs stay visually quiet: one clean shell and their icon.
   // The central ZERO orb and category orbs retain a restrained ambient effect.
+  // Soft additive halo: visible glow without adding stray particles.
+  const halo = new THREE.Mesh(
+    new THREE.SphereGeometry(radius * 1.22, 24, 18),
+    new THREE.MeshBasicMaterial({
+      color: colorValue, transparent: true,
+      opacity: locked ? 0.075 : 0.14,
+      blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide
+    })
+  );
+  group.add(halo);
+
   const shellMaterial = new THREE.MeshPhysicalMaterial({
     color: colorValue,
     emissive: colorValue,
-    emissiveIntensity: isCenter ? 0.62 : (locked ? 0.16 : 0.28),
+    emissiveIntensity: isCenter ? 0.62 : (locked ? 0.2 : 0.4),
     metalness: 0.12,
     roughness: 0.38,
     clearcoat: 0.55,
     transparent: true,
-    opacity: isCenter ? 0.16 : (locked ? 0.24 : 0.18),
+    opacity: isCenter ? 0.16 : (locked ? 0.25 : 0.21),
     depthWrite: false
   });
   const shell = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 24), shellMaterial);
@@ -1087,11 +1098,16 @@ function buildWorld() {
     const mid = direction.clone().multiplyScalar(3.3);
     mid.y += 0.55;
     const curve = new THREE.QuadraticBezierCurve3(start,new THREE.Vector3(mid.x,mid.y,mid.z),endLocal.clone());
-    const branch = new THREE.Mesh(
-      new THREE.TubeGeometry(curve,36,0.016,5,false),
+    const branchGlow = new THREE.Mesh(
+      new THREE.TubeGeometry(curve,36,0.052,7,false),
       new THREE.MeshBasicMaterial({color:category.color,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})
     );
-    categoryOrbit.add(branch);
+    const branch = new THREE.Mesh(
+      new THREE.TubeGeometry(curve,36,0.016,6,false),
+      new THREE.MeshBasicMaterial({color:category.color,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})
+    );
+    categoryOrbit.add(branchGlow,branch);
+    node.branchGlow = branchGlow;
     node.branch = branch;
     node.skillsGroup = new THREE.Group();
     node.skillsGroup.visible = false;
@@ -1133,12 +1149,16 @@ function buildWorld() {
         child.position.clone().multiplyScalar(0.48).add(new THREE.Vector3(0,0.35,0)),
         child.position.clone()
       );
-      const skillBranch = new THREE.Mesh(
-        new THREE.TubeGeometry(branchCurve,22,0.012,5,false),
+      const skillBranchGlow = new THREE.Mesh(
+        new THREE.TubeGeometry(branchCurve,22,0.04,7,false),
         new THREE.MeshBasicMaterial({color:shade,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})
       );
-      node.skillsGroup.add(skillBranch);
-      node.skillBranches.push({line:skillBranch,skillNode:child});
+      const skillBranch = new THREE.Mesh(
+        new THREE.TubeGeometry(branchCurve,22,0.012,6,false),
+        new THREE.MeshBasicMaterial({color:shade,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})
+      );
+      node.skillsGroup.add(skillBranchGlow,skillBranch);
+      node.skillBranches.push({line:skillBranch,glow:skillBranchGlow,skillNode:child});
       node.skills.push(child);
     });
 
@@ -1174,7 +1194,7 @@ function revealCategoryBranches() {
     });
     revealJobs.push({
       type:'branch',node:node,start:performance.now()+360+index*205,
-      duration:850,from:0,to:0.38
+      duration:850,from:0,to:0.62
     });
   });
   rootRevealStarted = true;
@@ -1186,7 +1206,8 @@ function revealSkillBranches(category) {
   if (category.skillsGroup.userData.revealed) {
     category.skills.forEach(function (skill,index) {
       skill.group.scale.setScalar(1);
-      category.skillBranches[index].line.material.opacity = 0.45;
+      category.skillBranches[index].line.material.opacity = 0.62;
+      if (category.skillBranches[index].glow) category.skillBranches[index].glow.material.opacity = 0.16;
     });
     return;
   }
@@ -1200,8 +1221,8 @@ function revealSkillBranches(category) {
       duration:800,from:0,to:1
     });
     revealJobs.push({
-      type:'skillBranch',node:skill,line:line,start:performance.now()+300+index*230,
-      duration:780,from:0,to:0.45
+      type:'skillBranch',node:skill,line:line,glow:category.skillBranches[index].glow,start:performance.now()+300+index*230,
+      duration:780,from:0,to:0.62
     });
   });
 }
@@ -1357,8 +1378,13 @@ function rebuildRootBranch(node) {
     middle.y+=0.55;
     const curve=new THREE.QuadraticBezierCurve3(start,middle,end.clone());
     const previous=node.branch.geometry;
-    node.branch.geometry=new THREE.TubeGeometry(curve,36,0.016,5,false);
+    node.branch.geometry=new THREE.TubeGeometry(curve,36,0.016,6,false);
     if(previous)previous.dispose();
+    if(node.branchGlow){
+      const oldGlow=node.branchGlow.geometry;
+      node.branchGlow.geometry=new THREE.TubeGeometry(curve,36,0.052,7,false);
+      if(oldGlow)oldGlow.dispose();
+    }
     return;
   }
   replaceTube(node.branch,start,end,0.016,36,bend);
@@ -1373,8 +1399,13 @@ function rebuildSkillBranches(category) {
     else middle.y+=0.35;
     const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(0,0,0),middle,end);
     const previous=entry.line.geometry;
-    entry.line.geometry=new THREE.TubeGeometry(curve,22,0.012,5,false);
+    entry.line.geometry=new THREE.TubeGeometry(curve,22,0.012,6,false);
     if(previous)previous.dispose();
+    if(entry.glow){
+      const oldGlow=entry.glow.geometry;
+      entry.glow.geometry=new THREE.TubeGeometry(curve,22,0.04,7,false);
+      if(oldGlow)oldGlow.dispose();
+    }
   });
 }
 
