@@ -664,8 +664,8 @@ function initTransitionTiles() {
   for (let row=0;row<rows;row++) {
     for (let column=0;column<columns;column++) {
       const tile = document.createElement('span');
-      tile.style.setProperty('--dx',(column-(columns-1)/2)*17);
-      tile.style.setProperty('--dy',(row-(rows-1)/2)*15);
+      tile.style.setProperty('--dx',((column-(columns-1)/2)*17)+'px');
+      tile.style.setProperty('--dy',((row-(rows-1)/2)*15)+'px');
       tile.style.setProperty('--delay',(Math.random()*0.16).toFixed(3)+'s');
       host.appendChild(tile);
     }
