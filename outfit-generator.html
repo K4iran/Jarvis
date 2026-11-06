@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#050b13">
+  <meta name="theme-color" content="#f1f3f5">
   <title>Z.E.R.O. — Outfit Lab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
     } }
   </script>
-  <link rel="stylesheet" href="./outfit-generator.css?v=clean-stage-9">
+  <link rel="stylesheet" href="./outfit-generator.css?v=particle-room-1">
 </head>
 <body>
   <div id="outfitLab">
@@ -44,25 +44,27 @@
       </aside>
 
       <section class="stage" id="stage" aria-label="Holographic outfit preview">
-        <canvas id="scene" aria-label="Rotatable holographic avatar on a glass platform"></canvas>
+        <canvas id="scene" aria-label="Rotatable particle hologram in a white studio"></canvas>
         <div class="scene-fallback" id="sceneFallback" aria-hidden="true">
           <div class="fallback-platform"><i></i><b></b></div>
           <svg class="fallback-avatar" viewBox="0 0 300 650" role="presentation">
-            <defs><linearGradient id="holoBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5fbff" stop-opacity=".88"/><stop offset=".5" stop-color="#5dcfff" stop-opacity=".34"/><stop offset="1" stop-color="#167dce" stop-opacity=".68"/></linearGradient><filter id="holoGlow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-            <g fill="url(#holoBody)" stroke="#a9efff" stroke-width="2.2" filter="url(#holoGlow)">
-              <circle cx="150" cy="62" r="39"/>
-              <path d="M126 105 Q150 95 174 105 L198 132 225 250 197 267 180 187 183 305 117 305 120 187 103 267 75 250 102 132Z"/>
-              <path d="M119 300 L181 300 190 405 169 420 150 405 131 420 110 405Z"/>
-              <path d="M111 407 L145 407 137 555 105 555 96 425Z"/>
-              <path d="M155 407 L189 407 204 555 195 555 163 555Z"/>
-              <path d="M96 550 L139 550 134 590 78 590 Q70 580 82 564Z"/>
-              <path d="M163 550 L203 550 225 575 Q231 590 217 590 L169 590Z"/>
-            </g>
-            <path d="M107 143 Q150 121 193 143 L180 300 120 300Z" fill="rgba(81,190,255,.2)" stroke="#b7f2ff" stroke-width="1.5"/>
-            <path d="M112 307 L188 307 180 405 120 405Z" fill="rgba(47,132,205,.25)" stroke="#8bdfff" stroke-width="1.5"/>
-            <path d="M150 102 V590" stroke="#d5faff" stroke-opacity=".25" stroke-dasharray="3 8"/>
-          </svg>
-        </div>
+            <defs>
+              <pattern id="particleDots" width="8" height="8" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.25" fill="#42b9e8" opacity=".86"/>
+                <circle cx="6" cy="6" r=".7" fill="#aeefff" opacity=".8"/>
+              </pattern>
+              <clipPath id="particleHuman">
+                <circle cx="150" cy="62" r="39"/>
+                <path d="M126 105 Q150 95 174 105 L198 132 225 250 197 267 180 187 183 305 117 305 120 187 103 267 75 250 102 132Z"/>
+                <path d="M119 300 L181 300 190 405 169 420 150 405 131 420 110 405Z"/>
+                <path d="M111 407 L145 407 137 555 105 555 96 425Z"/>
+                <path d="M155 407 L189 407 204 555 195 555 163 555Z"/>
+                <path d="M96 550 L139 550 134 590 78 590 Q70 580 82 564Z"/>
+                <path d="M163 550 L203 550 225 575 Q231 590 217 590 L169 590Z"/>
+              </clipPath>
+            </defs>
+            <rect width="300" height="650" fill="url(#particleDots)" clip-path="url(#particleHuman)"/>
+          </svg>        </div>
         <div class="transition-tiles" id="transitionTiles" aria-hidden="true"></div>
         <span id="stageTitle" hidden>HOLOGRAPHIC AVATAR</span>
       </section>
@@ -80,6 +82,6 @@
     </footer>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./outfit-generator.js?v=clean-stage-9"></script>
+  <script type="module" src="./outfit-generator.js?v=particle-room-1"></script>
 </body>
 </html>
