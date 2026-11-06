@@ -95,6 +95,7 @@
         </div>
         <canvas id="scene" aria-label="Rotatable holographic avatar on a glass platform"></canvas>
         <div class="scan-sweep" aria-hidden="true"></div>
+        <div class="transition-tiles" id="transitionTiles" aria-hidden="true"></div>
         <div class="stage-hint"><span class="drag-icon">↔</span> DRAG TO ROTATE</div>
         <div class="platform-caption"><span class="platform-line"></span><span>GLASS DISPLAY PLATFORM</span><span class="platform-line"></span></div>
         <div class="stage-corner stage-corner-a" aria-hidden="true">X / 01</div>
@@ -128,7 +129,7 @@
         <button id="nextLook" type="button" aria-label="Next look">→</button>
       </div>
       <div class="look-strip" id="lookStrip"><div class="empty-strip">GENERATED LOOKS WILL APPEAR HERE</div></div>
-      <div class="rail-foot"><span id="historyCount">01 / 01</span><span>LOCAL LOOK HISTORY</span></div>
+      <div class="rail-foot"><span id="historyCount">01 / 01</span><span>RECENT + SAVED LOOKS</span></div>
     </footer>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
