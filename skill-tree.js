@@ -1388,6 +1388,7 @@ function rebuildRootBranch(node) {
     return;
   }
   replaceTube(node.branch,start,end,0.016,36,bend);
+  if(node.branchGlow)replaceTube(node.branchGlow,start,end,0.052,36,bend);
 }
 
 function rebuildSkillBranches(category) {
