@@ -1,4 +1,4 @@
-/* JARVIS Calendar panel — staged UI, not yet loaded by the live page.
+/* Z.E.R.O. Calendar panel.
  * Expects calendar/config.js and calendar/google-calendar.js to load first.
  * Does not store tokens or credentials.
  */
