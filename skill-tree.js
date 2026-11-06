@@ -218,7 +218,7 @@ function openOutfitLab(options) {
     outfitLabFrame.id = 'zeroOutfitGeneratorFrame';
     outfitLabFrame.title = 'Z.E.R.O. Outfit Lab';
     outfitLabFrame.allow = 'clipboard-read; clipboard-write';
-    outfitLabFrame.src = './outfit-generator.html?v=clean-stage-9';
+    outfitLabFrame.src = './outfit-generator.html?v=particle-room-1';
     outfitLabFrame.addEventListener('load',function(){
       outfitLabFrame.dataset.ready = 'true';
       sendOutfitPrompt();
