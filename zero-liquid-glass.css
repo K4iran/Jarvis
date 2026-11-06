@@ -144,3 +144,10 @@
 @media(prefers-reduced-motion:reduce){
   .fr,.pn,.sheet,.tab,.ib,.q,.btn,#zenRoot .zen-btn{transition:none!important}
 }
+
+/* LifeOS is a separate same-origin document; apply the same glass material to its own surfaces. */
+body{background:radial-gradient(ellipse at 50% 0%,rgba(28,73,108,.18),transparent 58%),linear-gradient(180deg,#080f19,#070b12 70%,#080d15)!important}
+body .card{background:linear-gradient(145deg,rgba(20,45,68,.66),rgba(10,23,38,.62))!important;border:1px solid rgba(151,213,250,.21)!important;border-radius:18px!important;-webkit-backdrop-filter:blur(22px) saturate(145%)!important;backdrop-filter:blur(22px) saturate(145%)!important;box-shadow:0 14px 40px rgba(0,0,0,.25),inset 0 1px 0 rgba(224,247,255,.12),inset 0 0 24px rgba(86,168,223,.06)!important}
+#nav{background:rgba(8,20,34,.68)!important;border-top:1px solid rgba(155,216,251,.2)!important;-webkit-backdrop-filter:blur(24px) saturate(145%)!important;backdrop-filter:blur(24px) saturate(145%)!important}
+#nav button{border-radius:13px!important}
+body button,body input,body select,body textarea{border-radius:11px}
