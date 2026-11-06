@@ -735,7 +735,10 @@ function animate() {
   const time = performance.now()*0.001;
   if (avatarRoot && !pointerDown && !reducedMotion) avatarRoot.rotation.y += 0.0018;
   if (reflectionRoot && avatarRoot) reflectionRoot.rotation.y = avatarRoot.rotation.y;
-  if (renderer && scene && camera) renderer.render(scene,camera);
+  if (renderer && scene && camera) {
+    renderer.render(scene,camera);
+    if (!stage.classList.contains('three-rendered')) stage.classList.add('three-rendered');
+  }
 }
 
 function init() {
