@@ -40,6 +40,8 @@ let pointerDown = false;
 let dragged = false;
 let lastPointerX = 0;
 let toastTimer = 0;
+let transitionApplyTimer = 0;
+let transitionEndTimer = 0;
 let customAvatarName = '';
 
 function validHex(value, fallback) {
@@ -193,7 +195,7 @@ async function generateOutfit() {
   generateButton.disabled = true;
   generateLabel.textContent = 'GENERATING';
   setStatus('ZERO IS COMPOSING YOUR LOOK');
-  stage.classList.add('transitioning');
+  stage.classList.remove('transitioning');
   try {
     let look = null;
     let engine = 'ZERO AI';
@@ -206,7 +208,7 @@ async function generateOutfit() {
       look = fallbackLook();
       engine = 'LOCAL STYLE MODE';
     }
-    setTimeout(() => {
+    transitionToLook(() => {
       lookHistory.unshift(look);
       lookHistory = lookHistory.slice(0,12);
       activeLookIndex = 0;
@@ -214,13 +216,12 @@ async function generateOutfit() {
       renderHistory();
       engineStatus.textContent = engine === 'ZERO AI' ? 'ZERO AI CONNECTED' : 'LOCAL STYLING ACTIVE';
       setStatus(engine === 'ZERO AI' ? 'NEW LOOK GENERATED / ZERO AI' : 'NEW LOOK COMPOSED / LOCAL MODE');
-    }, reducedMotion ? 0 : 280);
+    });
   } finally {
     setTimeout(() => {
       isGenerating = false;
       generateButton.disabled = false;
       generateLabel.textContent = 'GENERATE OUTFIT';
-      stage.classList.remove('transitioning');
     }, reducedMotion ? 0 : 880);
   }
 }
@@ -541,15 +542,28 @@ function renderHistory() {
   $('nextLook').disabled = lookHistory.length < 2;
 }
 
+function transitionToLook(apply) {
+  clearTimeout(transitionApplyTimer);
+  clearTimeout(transitionEndTimer);
+  stage.classList.remove('transitioning');
+  if (reducedMotion) {
+    apply();
+    return;
+  }
+  requestAnimationFrame(()=>{
+    stage.classList.add('transitioning');
+    transitionApplyTimer = setTimeout(apply,260);
+    transitionEndTimer = setTimeout(()=>stage.classList.remove('transitioning'),820);
+  });
+}
+
 function selectHistoryLook(index) {
   if (!lookHistory.length) return;
   activeLookIndex = (index + lookHistory.length) % lookHistory.length;
-  stage.classList.add('transitioning');
-  setTimeout(()=>{
+  transitionToLook(()=>{
     applyLook(lookHistory[activeLookIndex]);
     renderHistory();
-    stage.classList.remove('transitioning');
-  },reducedMotion ? 0 : 280);
+  });
 }
 
 function stepHistory(direction) {
