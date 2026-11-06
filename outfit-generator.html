@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050b13">
+  <title>Z.E.R.O. — Outfit Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    } }
+  </script>
+  <link rel="stylesheet" href="./outfit-generator.css?v=glass-studio-1">
+</head>
+<body>
+  <div id="outfitLab">
+    <header class="topbar">
+      <button class="back-button" id="backButton" type="button" aria-label="Return to Z.E.R.O.">
+        <span class="back-arrow">←</span><span>RETURN TO Z.E.R.O.</span>
+      </button>
+      <div class="brand">
+        <span class="brand-mark">Z.</span>
+        <span class="brand-copy"><strong>OUTFIT LAB</strong><small>HOLOGRAPHIC STYLING SYSTEM</small></span>
+      </div>
+      <div class="top-actions">
+        <span class="connection"><i></i><span id="engineStatus">STYLE ENGINE READY</span></span>
+        <label class="avatar-upload" for="avatarFile">CUSTOM AVATAR <span>＋</span></label>
+        <input id="avatarFile" type="file" accept=".glb,model/gltf-binary" hidden>
+        <button class="reset-avatar" id="resetAvatar" type="button">RESET MODEL</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="panel composer">
+        <div class="panel-heading">
+          <span class="eyebrow">01 / CREATION</span>
+          <h1>Build a look.</h1>
+          <p>Describe the outfit. ZERO will coordinate the pieces and preview the result on your avatar.</p>
+        </div>
+
+        <label class="field-label" for="outfitBrief">YOUR BRIEF</label>
+        <textarea id="outfitBrief" rows="4" maxlength="700" placeholder="e.g. A clean, layered look with relaxed proportions, muted colours and one statement piece."></textarea>
+
+        <div class="field-block">
+          <div class="field-label">STYLE DIRECTION</div>
+          <div class="style-options" id="styleOptions">
+            <button type="button" class="style-chip active" data-style="Streetwear">Streetwear</button>
+            <button type="button" class="style-chip" data-style="Minimal">Minimal</button>
+            <button type="button" class="style-chip" data-style="Sport">Sport</button>
+            <button type="button" class="style-chip" data-style="Smart casual">Smart</button>
+            <button type="button" class="style-chip" data-style="Vintage">Vintage</button>
+            <button type="button" class="style-chip" data-style="Techwear">Techwear</button>
+          </div>
+        </div>
+
+        <div class="select-grid">
+          <label class="select-field"><span>OCCASION</span>
+            <select id="occasion">
+              <option>Everyday</option><option>School</option><option>Weekend</option>
+              <option>Training</option><option>Evening</option><option>Formal</option>
+            </select>
+          </label>
+          <label class="select-field"><span>SEASON</span>
+            <select id="season">
+              <option>All season</option><option>Spring</option><option>Summer</option><option>Autumn</option><option>Winter</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="select-field palette-field"><span>COLOUR MOOD</span>
+          <select id="colourMood">
+            <option>Let ZERO decide</option><option>Monochrome</option><option>Earth tones</option>
+            <option>Cool tones</option><option>Warm neutrals</option><option>One accent colour</option>
+          </select>
+        </label>
+
+        <button class="generate-button" id="generateButton" type="button">
+          <span class="generate-icon">✳</span><span class="generate-label">GENERATE OUTFIT</span><span class="generate-arrow">↗</span>
+        </button>
+        <div class="generation-status" id="generationStatus" role="status" aria-live="polite">READY WHEN YOU ARE</div>
+        <div class="panel-footnote"><span class="pulse-dot"></span> YOUR AVATAR AND SAVED LOOKS STAY ON THIS DEVICE</div>
+      </aside>
+
+      <section class="stage" id="stage" aria-label="Holographic outfit preview">
+        <div class="room-glass room-back" aria-hidden="true"></div>
+        <div class="room-glass room-left" aria-hidden="true"></div>
+        <div class="room-glass room-right" aria-hidden="true"></div>
+        <div class="stage-head">
+          <div><span class="eyebrow">LIVE PREVIEW / 3D</span><strong id="stageTitle">HOLOGRAPHIC AVATAR</strong></div>
+          <span class="stage-coordinates">STUDIO 01 <i></i> GLASS ENVIRONMENT</span>
+        </div>
+        <canvas id="scene" aria-label="Rotatable holographic avatar on a glass platform"></canvas>
+        <div class="scan-sweep" aria-hidden="true"></div>
+        <div class="stage-hint"><span class="drag-icon">↔</span> DRAG TO ROTATE</div>
+        <div class="platform-caption"><span class="platform-line"></span><span>GLASS DISPLAY PLATFORM</span><span class="platform-line"></span></div>
+        <div class="stage-corner stage-corner-a" aria-hidden="true">X / 01</div>
+        <div class="stage-corner stage-corner-b" aria-hidden="true">Z.E.R.O. / STYLE SYSTEM</div>
+      </section>
+
+      <aside class="panel look-panel">
+        <div class="panel-heading look-heading">
+          <span class="eyebrow">02 / CURRENT CONFIGURATION</span>
+          <h2 id="lookTitle">FIRST LIGHT</h2>
+          <p id="lookVibe">A starting point for your next look.</p>
+        </div>
+        <div class="look-meta"><span>GARMENT BREAKDOWN</span><span id="lookCount">04 ITEMS</span></div>
+        <div class="garment-list" id="garmentList"></div>
+        <div class="styling-note">
+          <span class="eyebrow">ZERO'S STYLING NOTE</span>
+          <p id="stylingNote">A balanced starting palette with a clean, understated finish.</p>
+        </div>
+        <div class="look-actions">
+          <button class="save-button" id="saveLook" type="button"><span>＋</span> SAVE LOOK</button>
+          <button class="share-button" id="copyLook" type="button" aria-label="Copy outfit description">COPY BRIEF</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="look-rail">
+      <div class="rail-label"><span class="eyebrow">03 / LOOK HISTORY</span><strong>YOUR LOOKS</strong></div>
+      <div class="rail-controls">
+        <button id="previousLook" type="button" aria-label="Previous look">←</button>
+        <button id="autoplayLooks" type="button" aria-pressed="false">AUTO <i></i></button>
+        <button id="nextLook" type="button" aria-label="Next look">→</button>
+      </div>
+      <div class="look-strip" id="lookStrip"><div class="empty-strip">GENERATED LOOKS WILL APPEAR HERE</div></div>
+      <div class="rail-foot"><span id="historyCount">01 / 01</span><span>LOCAL LOOK HISTORY</span></div>
+    </footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./outfit-generator.js?v=glass-studio-1"></script>
+</body>
+</html>
