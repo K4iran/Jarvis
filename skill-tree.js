@@ -116,6 +116,18 @@ const categories = [
         launch: 'memory'
       }
     ]
+  },
+  {
+    id: 'style-wardrobe', name: 'Style & Wardrobe', color: '#62D5FF', icon: 'spark',
+    position: [0.2, 7.4, 3.5],
+    skills: [
+      {
+        id: 'outfit-generator', name: 'Outfit Generator', status: 'Active', icon: 'spark',
+        description: 'Create coordinated outfits from a written brief, then preview each look on a holographic mannequin or custom GLB avatar in a reflective glass studio.',
+        activation: '“Hey ZERO, open the outfit generator.”',
+        launch: 'outfit-generator'
+      }
+    ]
   }
 ];
 
@@ -163,6 +175,78 @@ let returnTimer = 0;
 let treeOpen = false;
 let treeCloseTimer = 0;
 let discovery = loadDiscovery();
+
+let outfitLabHost = null;
+let outfitLabFrame = null;
+let pendingOutfitPrompt = null;
+
+function sendOutfitPrompt() {
+  if (!pendingOutfitPrompt || !outfitLabFrame || outfitLabFrame.dataset.ready !== 'true') return;
+  outfitLabFrame.contentWindow.postMessage({
+    type:'ZERO_OUTFIT_PROMPT',
+    prompt:pendingOutfitPrompt.prompt,
+    generate:pendingOutfitPrompt.generate
+  }, window.location.origin);
+  pendingOutfitPrompt = null;
+}
+
+function openOutfitLab(options) {
+  const config = options || {};
+  if (config.prompt) {
+    pendingOutfitPrompt = {
+      prompt:String(config.prompt).slice(0,700),
+      generate:config.generate === true
+    };
+  }
+
+  if (!outfitLabHost) {
+    const style = document.createElement('style');
+    style.dataset.zeroOutfitStyles = 'true';
+    style.textContent =
+      '#zeroOutfitGeneratorHost{position:fixed;inset:0;z-index:4300;background:#030811;opacity:0;visibility:hidden;transition:opacity .38s ease,visibility .38s ease}' +
+      '#zeroOutfitGeneratorHost[hidden]{display:none!important}' +
+      '#zeroOutfitGeneratorHost.on{opacity:1;visibility:visible}' +
+      '#zeroOutfitGeneratorFrame{display:block;width:100%;height:100%;border:0;background:#030811}';
+    document.head.appendChild(style);
+
+    outfitLabHost = document.createElement('section');
+    outfitLabHost.id = 'zeroOutfitGeneratorHost';
+    outfitLabHost.hidden = true;
+    outfitLabHost.setAttribute('aria-label','Z.E.R.O. Outfit Lab');
+
+    outfitLabFrame = document.createElement('iframe');
+    outfitLabFrame.id = 'zeroOutfitGeneratorFrame';
+    outfitLabFrame.title = 'Z.E.R.O. Outfit Lab';
+    outfitLabFrame.allow = 'clipboard-read; clipboard-write';
+    outfitLabFrame.src = './outfit-generator.html?v=glass-studio-1';
+    outfitLabFrame.addEventListener('load',function(){
+      outfitLabFrame.dataset.ready = 'true';
+      sendOutfitPrompt();
+    });
+
+    outfitLabHost.appendChild(outfitLabFrame);
+    document.body.appendChild(outfitLabHost);
+
+    window.addEventListener('message',function(event){
+      if (event.origin !== window.location.origin || !outfitLabFrame || event.source !== outfitLabFrame.contentWindow) return;
+      if (event.data && event.data.type === 'ZERO_OUTFIT_CLOSE') {
+        outfitLabHost.classList.remove('on');
+        document.body.classList.remove('zero-outfit-open');
+        window.setTimeout(function(){
+          outfitLabHost.hidden = true;
+          if (typeof window.__zeroReturnToSkillTree === 'function') window.__zeroReturnToSkillTree();
+        },390);
+      }
+    });
+  }
+
+  outfitLabHost.hidden = false;
+  document.body.classList.add('zero-outfit-open');
+  requestAnimationFrame(function(){ outfitLabHost.classList.add('on'); });
+  sendOutfitPrompt();
+}
+
+window.ZeroOutfitGenerator = { open:openOutfitLab };
 
 function addStylesheet() {
   if (styleAdded || document.querySelector('link[data-zero-skill-css]')) return;
@@ -1627,7 +1711,8 @@ function showSkillPanel(skillNode) {
     voice:'ACTIVATE VOICE INTERFACE',
     settings:'OPEN SETTINGS',
     memory:'OPEN MEMORY COMMANDS',
-    weather:'OPEN WEATHER'
+    weather:'OPEN WEATHER',
+    'outfit-generator':'OPEN OUTFIT LAB'
   }[skill.launch];
   panel.innerHTML =
     '<button type="button" class="st-panel-close" data-zero-panel-close aria-label="Close skill details">×</button>' +
@@ -1696,6 +1781,23 @@ function launchSkill(skillNode) {
       launchFromTree=false;
       overlay.hidden=false;
       showToast('Sudoku is not available right now.');
+    }
+    return;
+  }
+
+  if (skill.launch === 'outfit-generator') {
+    launchFromTree = true;
+    overlay.hidden = true;
+    treeOpen = false;
+    if (navButton) navButton.setAttribute('aria-pressed','false');
+    if (window.ZeroOutfitGenerator && typeof window.ZeroOutfitGenerator.open === 'function') {
+      window.ZeroOutfitGenerator.open();
+    } else {
+      launchFromTree = false;
+      overlay.hidden = false;
+      treeOpen = true;
+      if (navButton) navButton.setAttribute('aria-pressed','true');
+      showToast('Outfit Lab is not available right now.');
     }
     return;
   }
