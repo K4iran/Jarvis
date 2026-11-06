@@ -218,7 +218,7 @@ function openOutfitLab(options) {
     outfitLabFrame.id = 'zeroOutfitGeneratorFrame';
     outfitLabFrame.title = 'Z.E.R.O. Outfit Lab';
     outfitLabFrame.allow = 'clipboard-read; clipboard-write';
-    outfitLabFrame.src = './outfit-generator.html?v=showroom-final-6';
+    outfitLabFrame.src = './outfit-generator.html?v=mannequin-visible-7';
     outfitLabFrame.addEventListener('load',function(){
       outfitLabFrame.dataset.ready = 'true';
       sendOutfitPrompt();
