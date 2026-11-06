@@ -548,63 +548,73 @@ function createAvatarParticles() {
 function createDefaultAvatar() {
   avatarRoot = new THREE.Group();
   avatarRoot.position.y = 0.375;
-  avatarRoot.name = 'ZERO holographic mannequin';
+  avatarRoot.name = 'ZERO anatomical hologram';
   const body = new THREE.Group();
-  body.name = 'Holographic body';
   avatarRoot.add(body);
   const tone = new THREE.Color(avatarConfig.tone || '#82e6ff');
   const hologram = new THREE.MeshPhysicalMaterial({
-    color:tone,emissive:tone.clone().multiplyScalar(0.16),emissiveIntensity:0.68,metalness:0.08,roughness:0.34,
-    transparent:true,opacity:0.2,clearcoat:0.65,side:THREE.DoubleSide,depthWrite:false
+    color:tone,emissive:tone.clone().multiplyScalar(0.18),emissiveIntensity:0.72,
+    metalness:0.04,roughness:0.42,transparent:true,opacity:0.18,
+    side:THREE.DoubleSide,depthWrite:false
   });
-  const joint = (radius,position,scale)=>addSphere(body,radius,position,hologram,scale);
-  const head = joint(0.165,[0,2.79,0],[0.91,1.08,0.91]);
-  joint(0.075,[0,2.59,0],[0.82,1.1,0.82]);
-  // One continuous sculpted torso profile gives a shoulder-to-waist transition.
-  const torsoProfile = [
-    new THREE.Vector2(0.17,-0.49),new THREE.Vector2(0.24,-0.44),new THREE.Vector2(0.29,-0.32),
-    new THREE.Vector2(0.27,-0.17),new THREE.Vector2(0.30,0.02),new THREE.Vector2(0.36,0.24),
-    new THREE.Vector2(0.34,0.38),new THREE.Vector2(0.25,0.47),new THREE.Vector2(0.12,0.50),new THREE.Vector2(0,0.50)
-  ];
-  const torso = new THREE.Mesh(new THREE.LatheGeometry(torsoProfile,32),hologram);
-  torso.position.y=1.99;body.add(torso);
-  joint(0.245,[0,1.51,0],[1.12,0.62,0.78]);
-  joint(0.105,[-0.31,2.27,0],[1.45,1.1,1.0]);
-  joint(0.105,[0.31,2.27,0],[1.45,1.1,1.0]);
-  const limb=(start,end,radiusA,radiusB)=>{
-    const a=new THREE.Vector3(...start),b=new THREE.Vector3(...end),direction=new THREE.Vector3().subVectors(b,a);
-    const length=direction.length();
-    const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),hologram);
-    mesh.position.copy(a).add(b).multiplyScalar(0.5);
-    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
-    mesh.scale.set(radiusA,length*0.66,radiusB);
-    body.add(mesh);
-    joint(radiusA,start,[1,1,0.94]);joint(radiusB,end,[1,1,0.94]);
+  const addEllipsoid=(name,position,scale,material=hologram)=>{
+    const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),material);
+    mesh.name=name;mesh.position.set(...position);mesh.scale.set(...scale);body.add(mesh);return mesh;
   };
-  limb([-0.34,2.23,0],[-0.43,1.68,0],0.115,0.09);
-  limb([-0.43,1.68,0],[-0.46,1.25,0],0.09,0.075);
-  limb([0.34,2.23,0],[0.43,1.68,0],0.115,0.09);
-  limb([0.43,1.68,0],[0.46,1.25,0],0.09,0.075);
-  limb([-0.16,1.48,0],[-0.17,0.79,0],0.15,0.115);
-  limb([-0.17,0.79,0],[-0.17,0.18,0],0.115,0.075);
-  limb([0.16,1.48,0],[0.17,0.79,0],0.15,0.115);
-  limb([0.17,0.79,0],[0.17,0.18,0],0.115,0.075);
-  joint(0.12,[-0.17,0.11,0.11],[1.35,0.48,1.9]);
-  joint(0.12,[0.17,0.11,0.11],[1.35,0.48,1.9]);
-  if (avatarConfig.hair !== 'none') {
-    const hairMaterial = hologram.clone();
-    hairMaterial.color = new THREE.Color(0x173b55);
-    hairMaterial.emissive = new THREE.Color(avatarConfig.tone);
-    hairMaterial.emissiveIntensity = 0.32;
-    const capScale = avatarConfig.hair === 'long' ? [1.02,0.62,1.02] : avatarConfig.hair === 'textured' ? [1.08,0.62,1.04] : [1.0,0.48,1.0];
-    addSphere(body,0.17,[0,2.91,-0.015],hairMaterial,capScale);
-    if (avatarConfig.hair === 'long') {
-      addSphere(body,0.13,[0,2.72,-0.09],hairMaterial,[1.0,1.45,0.72]);
-      addSphere(body,0.075,[-0.145,2.78,0],hairMaterial,[0.8,1.5,0.8]);
-      addSphere(body,0.075,[0.145,2.78,0],hairMaterial,[0.8,1.5,0.8]);
+  const addSegment=(name,start,end,rTop,rBottom)=>{
+    const a=new THREE.Vector3(...start),b=new THREE.Vector3(...end);
+    const direction=new THREE.Vector3().subVectors(b,a);
+    const length=direction.length();
+    const mesh=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,length,24,2,false),hologram);
+    mesh.name=name;mesh.position.copy(a).add(b).multiplyScalar(0.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
+    body.add(mesh);
+    return mesh;
+  };
+  // Head, jaw and neck are distinct but overlap to form a continuous silhouette.
+  addEllipsoid('Head',[0,2.78,0],[0.145,0.19,0.145]);
+  addEllipsoid('Jaw',[0,2.665,0.018],[0.119,0.105,0.125]);
+  addEllipsoid('Neck',[0,2.48,0],[0.075,0.16,0.078]);
+  // Anatomical torso profile: broad upper chest, narrower waist, natural pelvis.
+  const torsoProfile=[
+    new THREE.Vector2(0.13,-0.48),new THREE.Vector2(0.205,-0.44),new THREE.Vector2(0.235,-0.34),
+    new THREE.Vector2(0.205,-0.20),new THREE.Vector2(0.19,-0.04),new THREE.Vector2(0.235,0.12),
+    new THREE.Vector2(0.315,0.31),new THREE.Vector2(0.34,0.42),new THREE.Vector2(0.27,0.49),
+    new THREE.Vector2(0.12,0.52),new THREE.Vector2(0,0.52)
+  ];
+  const torso=new THREE.Mesh(new THREE.LatheGeometry(torsoProfile,48),hologram);
+  torso.name='Continuous chest and abdomen';torso.position.y=1.99;body.add(torso);
+  addEllipsoid('Pelvis',[0,1.49,0],[0.255,0.19,0.16]);
+  addEllipsoid('Shoulder left',[-0.305,2.30,0],[0.13,0.13,0.14]);
+  addEllipsoid('Shoulder right',[0.305,2.30,0],[0.13,0.13,0.14]);
+  // Arms have tapered upper arms, elbows and forearms rather than uniform tubes.
+  for(const side of [-1,1]){
+    const sx=side;
+    addSegment('Upper arm', [sx*0.34,2.28,0],[sx*0.43,1.82,0],0.105,0.082);
+    addEllipsoid('Elbow',[sx*0.43,1.82,0],[0.083,0.09,0.082]);
+    addSegment('Forearm',[sx*0.43,1.82,0],[sx*0.47,1.29,0.015],0.079,0.052);
+    addEllipsoid('Palm',[sx*0.475,1.17,0.035],[0.073,0.105,0.045]);
+    for(let finger=0;finger<4;finger++){
+      const spread=(finger-1.5)*0.027;
+      addSegment('Finger',[sx*(0.475+spread),1.13,0.045],[sx*(0.475+spread*1.22),1.035+(finger===1||finger===2?0.015:0),0.05],0.014,0.011);
     }
-    if (avatarConfig.hair === 'textured') {
-      for(let i=0;i<7;i++) addSphere(body,0.045,[-0.12+i*0.04,2.98+(i%2)*0.018,0.035],hairMaterial,[1,0.8,1]);
+    addSegment('Thumb',[sx*0.42,1.19,0.04],[sx*0.385,1.105,0.05],0.022,0.014);
+    // Legs: substantial thighs, shaped knees, tapered calves and feet.
+    addSegment('Thigh',[sx*0.135,1.48,0],[sx*0.155,0.79,0],0.145,0.092);
+    addEllipsoid('Kneecap',[sx*0.155,0.77,0.055],[0.094,0.105,0.105]);
+    addSegment('Calf',[sx*0.155,0.75,0],[sx*0.17,0.18,-0.005],0.087,0.052);
+    addEllipsoid('Ankle',[sx*0.17,0.17,0],[0.06,0.09,0.065]);
+    addEllipsoid('Foot',[sx*0.17,0.075,0.105],[0.082,0.075,0.19]);
+  }
+  if(avatarConfig.hair!=='none'){
+    const hair=hologram.clone();hair.color=new THREE.Color(0x24465b);hair.emissive=new THREE.Color(avatarConfig.tone);hair.emissiveIntensity=0.28;
+    addEllipsoid('Hair cap',[0,2.91,-0.012],[avatarConfig.hair==='textured'?0.16:0.15,0.075,0.15],hair);
+    if(avatarConfig.hair==='long'){
+      addEllipsoid('Long hair back',[0,2.72,-0.105],[0.13,0.22,0.08],hair);
+      for(const side of [-1,1])addEllipsoid('Long hair side',[side*0.13,2.73,-0.015],[0.045,0.2,0.055],hair);
+    }
+    if(avatarConfig.hair==='textured'){
+      for(let i=0;i<7;i++)addEllipsoid('Hair texture',[-0.12+i*0.04,2.96,0.015],[0.035,0.045,0.04],hair);
     }
   }
   scene.add(avatarRoot);
@@ -752,8 +762,12 @@ function applyGarments(look) {
 }
 function setupScene() {
   const small = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
-  renderer = new THREE.WebGLRenderer({canvas:sceneCanvas,alpha:false,antialias:!small,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,small ? 1.35 : 1.8));
+  // Prefer a low-power WebGL2 context: mobile WebViews often reject high-performance requests.
+  const contextOptions={alpha:false,antialias:!small,powerPreference:'low-power',failIfMajorPerformanceCaveat:false,depth:true,stencil:false,preserveDrawingBuffer:false};
+  let webglContext=sceneCanvas.getContext('webgl2',contextOptions);
+  if(!webglContext) throw new Error('WebGL 2 is unavailable in this browser. Open Outfit Lab in an up-to-date Chrome browser with hardware acceleration enabled.');
+  renderer = new THREE.WebGLRenderer({canvas:sceneCanvas,context:webglContext,...contextOptions});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,small ? 1.15 : 1.5));
   renderer.setClearColor(0xf1f3f5,1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -1156,8 +1170,8 @@ function init() {
     animate();
   } catch (error) {
     console.error('Outfit Lab scene failed to initialise.',error);
-    engineStatus.textContent = '2D FALLBACK';
-    setStatus('3D PREVIEW UNAVAILABLE ON THIS DEVICE');
+    engineStatus.textContent = 'COMPATIBILITY VIEW';
+    setStatus(error && error.message ? error.message.slice(0,110) : '3D PREVIEW UNAVAILABLE · TRY CHROME');
     stage.classList.add('scene-unavailable');
   }
 }
