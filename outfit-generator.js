@@ -88,7 +88,7 @@ function defaultLook() {
       {slot:'TOP',name:'Baggy heavyweight hoodie',detail:'Oversized fit · structured fleece',color:p.top},
       {slot:'BOTTOM',name:'Baggy fleece joggers',detail:'Relaxed leg · gathered hem',color:p.bottom},
       {slot:'FOOTWEAR',name:'Minimal everyday trainers',detail:'Low-profile finish',color:p.shoes},
-      {slot:'LAYER',name:'Lightweight overshirt',detail:'Optional layer · tonal contrast',color:p.outerwear}
+      {slot:'LAYER',name:'Oversized zip-up hoodie',detail:'Optional layer · tonal contrast',color:p.outerwear}
     ],
     styling_note:'A calm base palette gives the outfit room to breathe. The outer layer adds depth without making the look feel busy.'
   };
@@ -573,13 +573,13 @@ function setupScene() {
   // Let Three.js acquire the WebGL2 context itself instead of pre-creating it on the canvas.
   renderer = new THREE.WebGLRenderer({canvas:sceneCanvas,alpha:false,antialias:!small,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,small ? 1.35 : 1.8));
-  renderer.setClearColor(0xf1f3f5,1);
+  renderer.setClearColor(0x070b12,1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.08;
 
   scene = new THREE.Scene();
-  const roomWhite = new THREE.Color(0xf1f3f5);
+  const roomWhite = new THREE.Color(0x070b12);
   scene.background = roomWhite;
   scene.fog = new THREE.Fog(roomWhite,28,58);
 
@@ -602,12 +602,12 @@ function setupScene() {
 
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(40,40),
-    new THREE.MeshStandardMaterial({color:0xf4f6f7,roughness:0.92,metalness:0})
+    new THREE.MeshStandardMaterial({color:0x0b1420,roughness:0.92,metalness:0.04})
   );
   floor.rotation.x = -Math.PI/2;
   floor.position.y = 0;
   scene.add(floor);
-  const floorInlay = new THREE.MeshBasicMaterial({color:0x9ebdcb,transparent:true,opacity:0.16,depthWrite:false});
+  const floorInlay = new THREE.MeshBasicMaterial({color:0x4dbfe9,transparent:true,opacity:0.26,depthWrite:false});
   for(let x=-12;x<=12;x+=4){
     const seam=new THREE.Mesh(new THREE.BoxGeometry(0.012,0.004,34),floorInlay);
     seam.position.set(x,0.006,-5);
@@ -619,27 +619,27 @@ function setupScene() {
     scene.add(seam);
   }
 
-  const wallMaterial = new THREE.MeshStandardMaterial({color:0xe9edf0,roughness:0.96,metalness:0.015,side:THREE.DoubleSide});
+  const wallMaterial = new THREE.MeshStandardMaterial({color:0x0c1724,roughness:0.96,metalness:0.015,side:THREE.DoubleSide});
   const backWall = new THREE.Mesh(new THREE.PlaneGeometry(30,16),wallMaterial);
   backWall.position.set(0,8,-19);
   scene.add(backWall);
 
-  const sideWallMaterial = new THREE.MeshStandardMaterial({color:0xe5eaee,roughness:0.98,metalness:0,side:THREE.DoubleSide});
+  const sideWallMaterial = new THREE.MeshStandardMaterial({color:0x09131f,roughness:0.98,metalness:0,side:THREE.DoubleSide});
   const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(42,16),sideWallMaterial);
   leftWall.position.set(-15,8,2);
   leftWall.rotation.y = Math.PI/2;
   scene.add(leftWall);
-  const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(42,16),new THREE.MeshStandardMaterial({color:0xf7f8f9,roughness:0.98,metalness:0,side:THREE.DoubleSide}));
+  const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(42,16),new THREE.MeshStandardMaterial({color:0x0e1b29,roughness:0.98,metalness:0,side:THREE.DoubleSide}));
   rightWall.position.set(15,8,2);
   rightWall.rotation.y = -Math.PI/2;
   scene.add(rightWall);
 
-  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(30,42),new THREE.MeshStandardMaterial({color:0xf8f9fa,roughness:0.96,metalness:0,side:THREE.DoubleSide}));
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(30,42),new THREE.MeshStandardMaterial({color:0x0a1420,roughness:0.96,metalness:0,side:THREE.DoubleSide}));
   ceiling.rotation.x = Math.PI/2;
   ceiling.position.set(0,16,2);
   scene.add(ceiling);
 
-  const finMaterial = new THREE.MeshStandardMaterial({color:0xdce5ea,roughness:0.58,metalness:0.12,emissive:0x8fc9e5,emissiveIntensity:0.12});
+  const finMaterial = new THREE.MeshStandardMaterial({color:0x263f54,roughness:0.58,metalness:0.12,emissive:0x8fc9e5,emissiveIntensity:0.12});
   [-10,-7.5,7.5,10].forEach(x=>{
     const fin = new THREE.Mesh(new THREE.BoxGeometry(0.055,11,0.16),finMaterial);
     fin.position.set(x,5.7,-18.75);
@@ -652,14 +652,14 @@ function setupScene() {
     scene.add(strip);
   });
 
-  const platformMaterial = new THREE.MeshStandardMaterial({color:0xe2eaf0,roughness:0.3,metalness:0.2,emissive:0x123d5d,emissiveIntensity:0.12});
+  const platformMaterial = new THREE.MeshStandardMaterial({color:0x15283a,roughness:0.3,metalness:0.2,emissive:0x123d5d,emissiveIntensity:0.12});
   const platform = new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.62,0.22,64),platformMaterial);
   platform.position.y = 0.31;
   scene.add(platform);
 
   const platformTop = new THREE.Mesh(
     new THREE.CylinderGeometry(1.44,1.44,0.018,64),
-    new THREE.MeshStandardMaterial({color:0xfafcfd,roughness:0.24,metalness:0.12,emissive:0x1b5e85,emissiveIntensity:0.055})
+    new THREE.MeshStandardMaterial({color:0x1a3348,roughness:0.24,metalness:0.12,emissive:0x1b5e85,emissiveIntensity:0.055})
   );
   platformTop.position.y = 0.43;
   scene.add(platformTop);
