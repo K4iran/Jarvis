@@ -41,7 +41,7 @@
   function init(id) {
     clientId = String(id || window.JARVIS_GOOGLE_CLIENT_ID || "").trim();
     if (!clientId || !clientId.includes(".apps.googleusercontent.com")) {
-      throw new Error("Set a valid Google OAuth Web client ID before initializing JARVIS Calendar.");
+      throw new Error("Set a valid Google OAuth Web client ID before initializing Z.E.R.O. Calendar.");
     }
     return loadGIS().then(() => {
       tokenClient = window.google.accounts.oauth2.initTokenClient({
@@ -217,7 +217,7 @@
   }
 
   function openCalendar(options) {
-    // Main JARVIS can listen for this event to trigger the existing particle transition.
+    // Z.E.R.O. can listen for this event to trigger the existing particle transition.
     window.dispatchEvent(new CustomEvent("jarvis:calendar-open-request", { detail: options || {} }));
     return listEvents(options).then(events => {
       window.dispatchEvent(new CustomEvent("jarvis:calendar-events", { detail: { events } }));
