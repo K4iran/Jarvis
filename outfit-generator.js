@@ -609,7 +609,7 @@ function setupScene() {
     new THREE.PlaneGeometry(11,9),
     new THREE.MeshStandardMaterial({color:0xe5eaee,roughness:1,metalness:0,side:THREE.DoubleSide})
   );
-  leftWall.position.set(-8,4.5,0);
+  leftWall.position.set(-5.6,4.5,0);
   leftWall.rotation.y = Math.PI/2;
   scene.add(leftWall);
 
@@ -617,7 +617,7 @@ function setupScene() {
     new THREE.PlaneGeometry(11,9),
     new THREE.MeshStandardMaterial({color:0xf7f8f9,roughness:1,metalness:0,side:THREE.DoubleSide})
   );
-  rightWall.position.set(8,4.5,0);
+  rightWall.position.set(5.6,4.5,0);
   rightWall.rotation.y = -Math.PI/2;
   scene.add(rightWall);
 
