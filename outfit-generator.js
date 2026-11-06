@@ -281,13 +281,16 @@ function createAvatarParticles() {
   const sizes = [];
   const alphas = [];
   const point = new THREE.Vector3();
+  const maxPoints = 2800;
+  let added = 0;
   avatarRoot.traverse(object => {
-    if (!object.isMesh || !object.geometry || object.name === 'Holographic particle skin') return;
+    if (added >= maxPoints || !object.isMesh || !object.geometry || object.name === 'Holographic particle skin') return;
     const attribute = object.geometry.getAttribute('position');
     if (!attribute) return;
     const count = attribute.count;
-    const step = Math.max(1,Math.floor(count / 520));
-    for (let i=0;i<count;i+=step) {
+    const targetForMesh = Math.min(360,maxPoints-added);
+    const step = Math.max(1,Math.floor(count / targetForMesh));
+    for (let i=0;i<count && added<maxPoints;i+=step) {
       point.fromBufferAttribute(attribute,i);
       object.localToWorld(point);
       avatarRoot.worldToLocal(point);
@@ -299,6 +302,7 @@ function createAvatarParticles() {
       );
       sizes.push(1.4 + Math.random()*1.7);
       alphas.push(0.34 + Math.random()*0.62);
+      added++;
     }
   });
   if (!positions.length) return;
