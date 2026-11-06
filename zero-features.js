@@ -456,6 +456,22 @@
     const raw = String(text || "").trim();
     const q = raw.toLowerCase().replace(/^\s*(?:(?:hey[\s,]+)?zero)\b[\s,:-]*/i, "").replace(/[.!?]+$/,"").trim();
 
+    const outfitIntent = /\b(?:outfit generator|outfit lab|outfit studio)\b/.test(q) ||
+      /\b(?:generate|create|design|build)\b.*\boutfit\b/.test(q);
+    if (outfitIntent) {
+      const promptMatch = q.match(/\b(?:generate|create|design|build)\s+(?:me\s+)?(?:an?\s+)?outfit(?:\s+for)?\s+(.+)/);
+      const options = promptMatch
+        ? { prompt:promptMatch[1].trim(), generate:true }
+        : (/\b(?:generate|create|design|build)\b.*\boutfit\b/.test(q) ? { generate:true } : {});
+      if (window.ZeroOutfitGenerator && typeof window.ZeroOutfitGenerator.open === 'function') {
+        window.ZeroOutfitGenerator.open(options);
+        await respond(options.generate ? "Opening the Outfit Lab and composing a look." : "Opening the Outfit Lab.");
+      } else {
+        await respond("The Outfit Lab is not available right now. Please refresh ZERO and try again.");
+      }
+      return true;
+    }
+
     if (sudoku && sudoku.active) {
       if (/^(?:exit|quit|close|stop|end)(?: sudoku| game)?$/.test(q)) {
         close();
