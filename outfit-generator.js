@@ -866,10 +866,12 @@ function updateGarmentSelection() {
   const top=$('garmentTop')?.value||'Baggy heavyweight hoodie';
   const bottom=$('garmentBottom')?.value||'Baggy fleece joggers';
   const layer=$('garmentLayer')?.value||'';
+  const footwear=$('garmentShoes')?.value||'Minimal everyday trainers';
   const palette=look.palette||paletteByStyle[selectedStyle];
   const topItem=look.items.find(item=>item.slot==='TOP'),bottomItem=look.items.find(item=>item.slot==='BOTTOM');
   if(topItem){topItem.name=top;topItem.detail='Selected garment · solid 3D fabric';}
   if(bottomItem){bottomItem.name=bottom;bottomItem.detail='Selected cut · solid 3D fabric';}
+  const shoeItem=look.items.find(item=>item.slot==='FOOTWEAR');if(shoeItem){shoeItem.name=footwear;shoeItem.detail='Selected footwear · solid 3D construction';}
   const layerIndex=look.items.findIndex(item=>item.slot==='LAYER');
   if(layer){const item={slot:'LAYER',name:layer,detail:'Selected outer layer · solid 3D fabric',color:palette.outerwear};if(layerIndex>=0)look.items[layerIndex]=item;else look.items.push(item);}
   else if(layerIndex>=0)look.items.splice(layerIndex,1);
@@ -879,7 +881,8 @@ function updateGarmentSelection() {
 function syncWardrobeControls(look) {
   const top=look.items.find(item=>item.slot==='TOP'),bottom=look.items.find(item=>item.slot==='BOTTOM'),layer=look.items.find(item=>item.slot==='LAYER');
   const sync=(id,value)=>{const node=$(id);if(!node)return;const option=[...node.options].find(item=>item.value.toLowerCase()===String(value||'').toLowerCase());if(option)node.value=option.value;};
-  sync('garmentTop',top&&top.name);sync('garmentBottom',bottom&&bottom.name);sync('garmentLayer',layer&&layer.name);
+  const shoes=look.items.find(item=>item.slot==='FOOTWEAR');
+  sync('garmentTop',top&&top.name);sync('garmentBottom',bottom&&bottom.name);sync('garmentLayer',layer&&layer.name);sync('garmentShoes',shoes&&shoes.name);
 }
 function setStyle(style) {
   selectedStyle = style;
@@ -938,7 +941,7 @@ function bindEvents() {
   document.querySelectorAll('[data-tone]').forEach(button=>button.addEventListener('click',()=>{avatarConfig.tone=button.dataset.tone;document.querySelectorAll('[data-tone]').forEach(item=>item.classList.toggle('active',item===button));}));
   $('applyAvatar').addEventListener('click',applyAvatarConfig);
   $('resetAvatar').addEventListener('click',resetAvatar);
-  ['garmentTop','garmentBottom','garmentLayer'].forEach(id=>$(id)?.addEventListener('change',updateGarmentSelection));
+  ['garmentTop','garmentBottom','garmentLayer','garmentShoes'].forEach(id=>$(id)?.addEventListener('change',updateGarmentSelection));
   $('backButton').addEventListener('click',()=>window.parent.postMessage({type:'ZERO_OUTFIT_CLOSE'},window.location.origin));
   window.addEventListener('keydown',event=>{
     if (event.key === 'Escape') {closeHistory();closeAvatarStudio();window.parent.postMessage({type:'ZERO_OUTFIT_CLOSE'},window.location.origin);}
