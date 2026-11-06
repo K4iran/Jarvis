@@ -2090,9 +2090,17 @@ function updateRevealJobs(now) {
     const eased=1-Math.pow(1-raw,3);
     if(job.type==='zero')job.node.scale.setScalar(job.from+(job.to-job.from)*eased);
     else if(job.type==='category')job.node.group.scale.setScalar(job.from+(job.to-job.from)*eased);
-    else if(job.type==='branch')job.node.branch.material.opacity=job.from+(job.to-job.from)*eased;
+    else if(job.type==='branch'){
+      const value=job.from+(job.to-job.from)*eased;
+      job.node.branch.material.opacity=value;
+      if(job.node.branchGlow)job.node.branchGlow.material.opacity=value*0.26;
+    }
     else if(job.type==='skill')job.node.group.scale.setScalar(job.from+(job.to-job.from)*eased);
-    else if(job.type==='skillBranch')job.line.material.opacity=job.from+(job.to-job.from)*eased;
+    else if(job.type==='skillBranch'){
+      const value=job.from+(job.to-job.from)*eased;
+      job.line.material.opacity=value;
+      if(job.glow)job.glow.material.opacity=value*0.26;
+    }
     if(raw>=1)revealJobs.splice(i,1);
   }
 }
