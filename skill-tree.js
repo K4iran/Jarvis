@@ -123,7 +123,7 @@ const categories = [
     skills: [
       {
         id: 'outfit-generator', name: 'Outfit Generator', status: 'Active', icon: 'spark',
-        description: 'Create outfits from a brief and preview them on a holographic avatar.',
+        description: 'Create outfits from individual garments and preview them on a solid 3D fashion avatar.',
         activation: '“Hey ZERO, open the outfit generator.”',
         launch: 'outfit-generator'
       }
@@ -219,7 +219,7 @@ function openOutfitLab(options) {
     outfitLabFrame.id = 'zeroOutfitGeneratorFrame';
     outfitLabFrame.title = 'Z.E.R.O. Outfit Lab';
     outfitLabFrame.allow = 'clipboard-read; clipboard-write';
-    outfitLabFrame.src = './outfit-generator.html?v=depth-fix-2';
+    outfitLabFrame.src = './outfit-generator.html?v=solid-avatar-wardrobe-1';
     outfitLabFrame.addEventListener('load',function(){
       outfitLabFrame.dataset.ready = 'true';
       sendOutfitPrompt();
