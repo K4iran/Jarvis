@@ -291,3 +291,53 @@ textarea{min-height:55px;max-height:76px;padding:8px;border:0!important;border-r
  .look-rail{background:linear-gradient(0deg,rgba(3,10,18,.55),transparent);border:0}
  .look-card{background:rgba(4,14,24,.28)}
 }
+
+
+/* FULL-SCREEN SHOWROOM RESET — avatar first, controls only, no panel chrome. */
+html,body,#outfitLab{width:100%;height:100%;min-height:100%;overflow:hidden}
+#outfitLab{position:fixed;inset:0;display:block;background:radial-gradient(ellipse at 50% 53%,#102c42 0%,#061522 48%,#02070e 100%)}
+#outfitLab *{border:0!important;outline:0!important;box-shadow:none}
+#outfitLab *:focus-visible{outline:0!important;filter:drop-shadow(0 0 7px rgba(88,207,255,.8))}
+.topbar{position:absolute!important;z-index:30;inset:0 0 auto;height:0!important;min-height:0!important;padding:0!important;background:none!important;backdrop-filter:none!important}
+.brand,.connection{display:none!important}
+.back-button{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:14px;padding:8px 0!important;background:none!important;color:rgba(188,231,248,.68)!important;font-size:8px!important}
+.back-arrow{font-size:18px;color:#7cddff}
+.top-actions{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:14px;display:flex;gap:12px}
+.avatar-upload,.reset-avatar{min-height:30px;padding:0 4px!important;background:none!important;color:rgba(184,230,248,.72)!important;font:8px var(--mono)!important}
+.avatar-upload span{color:#76dcff}
+.workspace{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;max-width:none!important;margin:0!important;padding:0!important}
+.stage{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden;background:radial-gradient(ellipse at 50% 58%,rgba(34,117,163,.2),rgba(4,17,29,.18) 48%,#02070e 100%)!important}
+.stage:before,.stage:after{border:0!important;pointer-events:none}
+.room-glass{border:0!important;background:linear-gradient(135deg,rgba(195,231,244,.075),rgba(37,102,139,.018) 48%,rgba(145,205,231,.065))!important;box-shadow:inset 0 0 70px rgba(145,213,238,.055)!important}
+#scene{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;z-index:2!important;background:transparent!important;opacity:1!important;pointer-events:auto}
+.scene-fallback{position:absolute!important;inset:0!important;z-index:4!important;display:block!important;opacity:1!important;visibility:visible!important;background:transparent!important;pointer-events:none!important}
+.stage.scene-ready .scene-fallback,.stage.scene-unavailable .scene-fallback{display:block!important;opacity:1!important;visibility:visible!important}
+.fallback-wall{border:0!important;background:linear-gradient(135deg,rgba(195,231,244,.075),rgba(37,102,139,.018) 48%,rgba(145,205,231,.065))!important;box-shadow:inset 0 0 70px rgba(145,213,238,.055)!important}
+.fallback-floor-grid{opacity:.48}
+.fallback-platform{border:0!important;background:radial-gradient(ellipse,rgba(57,178,245,.3),rgba(9,37,60,.48) 65%,rgba(7,21,34,.24))!important;box-shadow:0 0 35px rgba(39,173,255,.5),0 0 110px rgba(31,138,255,.26),inset 0 0 28px rgba(141,232,255,.2)!important}
+.fallback-platform:before,.fallback-platform b{border:0!important}
+.fallback-avatar{z-index:5!important;height:min(67vh,650px)!important;max-height:74%!important;opacity:.92!important;filter:drop-shadow(0 0 22px rgba(70,190,255,.48))!important}
+.fallback-label,.fallback-wall:before,.fallback-wall:after{display:none!important}
+.stage-head,.stage-hint,.platform-caption,.stage-corner,.scan-sweep{display:none!important}
+.composer{position:absolute!important;z-index:20!important;left:clamp(12px,2vw,28px)!important;right:auto!important;top:auto!important;bottom:clamp(14px,2.5vh,28px)!important;width:min(270px,38vw)!important;max-height:none!important;overflow:visible!important;padding:0!important;margin:0!important;background:linear-gradient(90deg,rgba(2,10,18,.72),rgba(2,10,18,.18))!important;backdrop-filter:blur(12px)!important}
+.composer:before,.composer:after{display:none!important}
+#outfitBrief{width:100%;min-height:43px!important;max-height:66px!important;padding:8px 10px!important;resize:none!important;background:rgba(4,19,32,.52)!important;color:#e7f8ff!important;font:10px var(--sans)!important;line-height:1.45!important;border:0!important}
+#outfitBrief::placeholder{color:rgba(172,211,229,.55)}
+.generate-button{width:100%;min-height:37px!important;margin:6px 0 0!important;padding:0 12px!important;display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(100deg,rgba(18,106,156,.82),rgba(17,64,103,.72))!important;color:#e7faff!important;font:8px var(--mono)!important;letter-spacing:.15em!important}
+.generate-icon{font-size:14px;color:#9ceaff}
+.generate-arrow{margin-left:auto;color:#8ee4ff;font-size:14px}
+.generation-status{min-height:12px!important;padding:5px 2px 0!important;color:rgba(146,204,228,.55)!important;font:6px var(--mono)!important;letter-spacing:.13em!important}
+.look-panel,.look-rail{display:none!important}
+.toast{z-index:40;bottom:20px!important;left:50%;transform:translateX(-50%)}
+@media(max-width:720px){
+ .back-button{top:calc(9px + env(safe-area-inset-top,0px));left:10px;font-size:7px!important}
+ .top-actions{top:calc(9px + env(safe-area-inset-top,0px));right:10px;gap:8px}
+ .avatar-upload,.reset-avatar{font-size:7px!important}
+ .composer{left:10px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;width:min(190px,53vw)!important}
+ #outfitBrief{min-height:38px!important;max-height:52px!important;font-size:9px!important}
+ .generate-button{min-height:33px!important;font-size:7px!important}
+ .fallback-avatar{height:min(62vh,560px)!important;max-height:70%!important;bottom:calc(14% + 22px)!important}
+ .fallback-platform{bottom:14%!important;width:min(78vw,430px)!important;height:58px!important}
+ .fallback-floor-grid{bottom:-19%!important;height:51%!important}
+}
+@media(prefers-reduced-motion:reduce){.transition-tiles span{animation:none!important}}
