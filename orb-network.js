@@ -86,6 +86,7 @@ export function createOrb(canvas, options = {}) {
   let audioImpact = 0;
   let frame = 0;
   let destroyed = false;
+  let animationFrameId = 0;
   let resizeObserver = null;
   let isSpeaking = false;
 
@@ -208,7 +209,7 @@ export function createOrb(canvas, options = {}) {
   }
 
   function animate() {
-    if (destroyed) return;
+    if (destroyed || document.visibilityState === 'hidden') return;
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
     shapeRecovery = Math.max(0, shapeRecovery - dt / 1.15);
@@ -428,8 +429,19 @@ export function createOrb(canvas, options = {}) {
     electronGeo.setDrawRange(0, travellers.length);
     renderer.render(scene, camera);
     frame = frame > 1000000 ? 0 : frame;
-    requestAnimationFrame(animate);
+    animationFrameId = requestAnimationFrame(animate);
   }
+  function handleVisibilityChange() {
+    if (destroyed) return;
+    if (document.visibilityState === 'hidden') {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = 0;
+    } else if (!animationFrameId) {
+      clock.start();
+      animate();
+    }
+  }
+  document.addEventListener('visibilitychange', handleVisibilityChange);
   const initialColour = new THREE_NS.Color(0x4ca8e8);
   pointMat.color.copy(initialColour);
   animate();
@@ -441,6 +453,9 @@ export function createOrb(canvas, options = {}) {
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = 0;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (resizeObserver) resizeObserver.disconnect();
       else window.removeEventListener("resize", resize);
       pointGeo.dispose(); pointMat.dispose(); lineGeo.dispose(); lineMat.dispose(); electronGeo.dispose(); electronMat.dispose(); renderer.dispose();
