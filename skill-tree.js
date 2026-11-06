@@ -219,7 +219,7 @@ function openOutfitLab(options) {
     outfitLabFrame.id = 'zeroOutfitGeneratorFrame';
     outfitLabFrame.title = 'Z.E.R.O. Outfit Lab';
     outfitLabFrame.allow = 'clipboard-read; clipboard-write';
-    outfitLabFrame.src = './outfit-generator.html?v=particle-room-1';
+    outfitLabFrame.src = './outfit-generator.html?v=studio-pass-2';
     outfitLabFrame.addEventListener('load',function(){
       outfitLabFrame.dataset.ready = 'true';
       sendOutfitPrompt();
@@ -254,7 +254,7 @@ function addStylesheet() {
   styleAdded = true;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './skill-tree.css?v=2d-weather-1';
+  link.href = './skill-tree.css?v=detail-pass-1';
   link.dataset.zeroSkillCss = 'true';
   document.head.appendChild(link);
 }
