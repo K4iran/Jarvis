@@ -235,7 +235,7 @@ function fallbackLook() {
       {slot:'FOOTWEAR',name:shoeName,detail:'Finishes the look without overpowering it',color:modifier.shoes},
       {slot:'LAYER',name:layerName,detail:'Adds texture and depth to the outfit',color:modifier.outerwear}
     ],
-    styling_note:'A locally composed outfit based on your description. The AI styling connection can provide more specific combinations when available.'
+    styling_note:'Your description has been translated into a coordinated outfit with matching colours, silhouettes and finishing details.'
   });
 }
 function buildGenerationPrompt() {
@@ -256,49 +256,33 @@ async function generateOutfit() {
   if (isGenerating) return;
   isGenerating = true;
   generateButton.disabled = true;
-  generateLabel.textContent = 'GENERATING';
-  setStatus('CONNECTING TO Z.E.R.O. STYLING');
+  generateLabel.textContent = 'COMPOSING';
+  setStatus('COMPOSING YOUR LOOK');
   stage.classList.remove('transitioning');
-  let look;
-  let engine = 'ZERO AI';
-  let aiError = null;
-  try {
-    if (!window.parent || typeof window.parent.__zeroGenerateOutfit !== 'function') {
-      throw new Error('The Z.E.R.O. outfit connection is unavailable.');
-    }
-    let timeoutId;
-    const timeout = new Promise((resolve,reject)=>{ timeoutId=window.setTimeout(()=>reject(new Error('The outfit AI took too long to respond. Please try again.')),35000); });
-    let reply;
-    try { reply = await Promise.race([window.parent.__zeroGenerateOutfit(buildGenerationPrompt()),timeout]); }
-    finally { clearTimeout(timeoutId); }
-    look = parseLookReply(reply);
-  } catch (error) {
-    aiError = error;
-    console.error('AI outfit generation failed; composing a local look instead.',error);
-    look = fallbackLook();
-    engine = 'LOCAL STYLE MODE';
-  }
-  transitionToLook(() => {
-    lookHistory.unshift(look);
-    lookHistory = lookHistory.slice(0,12);
-    activeLookIndex = 0;
-    applyLook(look);
-    renderHistory();
-    engineStatus.textContent = engine === 'ZERO AI' ? 'ZERO AI CONNECTED' : 'LOCAL STYLING ACTIVE';
-    if (engine === 'ZERO AI') {
-      setStatus('OUTFIT GENERATED / ZERO AI');
-    } else {
-      setStatus('LOCAL OUTFIT SHOWN / AI CONNECTION FAILED');
-      showToast(aiError && aiError.message ? aiError.message.slice(0,110) : 'AI unavailable. A local outfit was composed.');
-    }
-  });
-  setTimeout(() => {
-    isGenerating = false;
-    generateButton.disabled = false;
-    generateLabel.textContent = 'GENERATE OUTFIT';
-  }, reducedMotion ? 0 : 880);
-}
 
+  try {
+    const look = fallbackLook();
+    transitionToLook(() => {
+      lookHistory.unshift(look);
+      lookHistory = lookHistory.slice(0,12);
+      activeLookIndex = 0;
+      applyLook(look);
+      renderHistory();
+      engineStatus.textContent = 'LOCAL STYLING ACTIVE';
+      setStatus('OUTFIT GENERATED / LOCAL STYLE MODE');
+    });
+  } catch (error) {
+    console.error('Local outfit composition failed.',error);
+    setStatus('COULD NOT COMPOSE THIS LOOK');
+    showToast('The outfit could not be composed. Please try a shorter description.');
+  } finally {
+    setTimeout(() => {
+      isGenerating = false;
+      generateButton.disabled = false;
+      generateLabel.textContent = 'GENERATE OUTFIT';
+    }, reducedMotion ? 0 : 880);
+  }
+}
 function createMaterial(color, emissive, opacity) {
   return new THREE.MeshPhysicalMaterial({
     color:color,
@@ -596,11 +580,15 @@ function applyGarments(look) {
       if (object.material && object.material.dispose) object.material.dispose();
     });
   }
+
   const bySlot = slot => look.items.find(item => item.slot === slot);
   const top = bySlot('TOP');
   const bottom = bySlot('BOTTOM');
   const shoes = bySlot('FOOTWEAR');
   const layer = bySlot('LAYER');
+  const topName = String(top && top.name || '').toLowerCase();
+  const bottomName = String(bottom && bottom.name || '').toLowerCase();
+  const layerName = String(layer && layer.name || '').toLowerCase();
   const accent = look.palette.accent;
   const width = avatarWidthFactor;
   const topMaterial = createMaterial(new THREE.Color(top ? top.color : look.palette.top),0x091c2c,0.97);
@@ -609,30 +597,95 @@ function applyGarments(look) {
   const layerMaterial = createMaterial(new THREE.Color(layer ? layer.color : look.palette.outerwear),0x0a2435,0.88);
   const detailMaterial = new THREE.MeshBasicMaterial({color:accent,transparent:true,opacity:0.72,depthWrite:false});
   clothingGroup.scale.set(width,1,width);
-  const topBody = addCapsule(clothingGroup,0.305,0.36,[0,2.03,0],topMaterial,0);
-  topBody.scale.set(1.08,1.02,0.96);
-  addCapsule(clothingGroup,0.125,0.40,[-0.37,2.13,0],topMaterial,-0.12);
-  addCapsule(clothingGroup,0.125,0.40,[0.37,2.13,0],topMaterial,0.12);
-  const legL = addCapsule(clothingGroup,0.16,0.54,[-0.155,1.04,0],bottomMaterial,-0.01);
-  const legR = addCapsule(clothingGroup,0.16,0.54,[0.155,1.04,0],bottomMaterial,0.01);
-  legL.scale.set(1.02,1.05,0.95);
-  legR.scale.set(1.02,1.05,0.95);
-  addCapsule(clothingGroup,0.13,0.48,[-0.16,0.48,0],bottomMaterial,0);
-  addCapsule(clothingGroup,0.13,0.48,[0.16,0.48,0],bottomMaterial,0);
-  addBox(clothingGroup,[0.24,0.13,0.39],[-0.16,0.13,0.055],shoeMaterial);
-  addBox(clothingGroup,[0.24,0.13,0.39],[0.16,0.13,0.055],shoeMaterial);
-  if (layer) {
-    const outer = addCapsule(clothingGroup,0.326,0.40,[0,2.04,-0.015],layerMaterial,0);
-    outer.scale.set(1.05,1.02,0.98);
-    addCapsule(clothingGroup,0.139,0.42,[-0.385,2.12,0],layerMaterial,-0.12);
-    addCapsule(clothingGroup,0.139,0.42,[0.385,2.12,0],layerMaterial,0.12);
+
+  const isHoodie = /hoodie|hooded/.test(topName);
+  const isJersey = /jersey|performance|training|sport/.test(topName);
+  const isKnit = /knit|sweater|jumper/.test(topName);
+  const isCargo = /cargo|utility/.test(bottomName);
+  const isDenim = /denim|jean/.test(bottomName);
+  const isShorts = /shorts/.test(bottomName);
+  const isBaggy = /baggy|wide|relaxed|loose|cargo/.test(bottomName);
+
+  // Top silhouette and sleeves.
+  const torsoRadius = isHoodie || isKnit ? 0.325 : (isJersey ? 0.285 : 0.305);
+  const torsoLength = isHoodie || isKnit ? 0.4 : 0.36;
+  const topBody = addCapsule(clothingGroup,torsoRadius,torsoLength,[0,2.03,0],topMaterial,0);
+  topBody.scale.set(isHoodie ? 1.13 : 1.08,isHoodie ? 1.04 : 1.02,1);
+  const sleeveRadius = isHoodie || isKnit ? 0.135 : 0.12;
+  const sleeveLength = isJersey ? 0.25 : 0.42;
+  addCapsule(clothingGroup,sleeveRadius,sleeveLength,[-0.37,2.13,0],topMaterial,-0.12);
+  addCapsule(clothingGroup,sleeveRadius,sleeveLength,[0.37,2.13,0],topMaterial,0.12);
+
+  if (isHoodie) {
+    const hood = addSphere(clothingGroup,0.19,[0,2.39,-0.075],topMaterial,[0.9,0.86,0.62]);
+    hood.rotation.x = -0.12;
+    addBox(clothingGroup,[0.39,0.17,0.035],[0,1.84,0.29],topMaterial);
+    addCapsule(clothingGroup,0.012,0.14,[-0.075,2.0,0.31],detailMaterial,0);
+    addCapsule(clothingGroup,0.012,0.14,[0.075,2.0,0.31],detailMaterial,0);
+  } else if (isJersey) {
+    addBox(clothingGroup,[0.34,0.045,0.025],[0,2.25,0.294],detailMaterial);
+    addBox(clothingGroup,[0.34,0.045,0.025],[0,1.88,0.294],detailMaterial);
+  } else if (isKnit) {
+    addBox(clothingGroup,[0.58,0.055,0.035],[0,1.82,0.27],detailMaterial);
   }
+
+  // Trousers adapt to the requested cut instead of reusing one narrow shape.
+  if (isShorts) {
+    const shortsL = addCapsule(clothingGroup,0.19,0.28,[-0.155,1.31,0],bottomMaterial,-0.02);
+    const shortsR = addCapsule(clothingGroup,0.19,0.28,[0.155,1.31,0],bottomMaterial,0.02);
+    shortsL.scale.set(1.05,1,1);
+    shortsR.scale.set(1.05,1,1);
+  } else {
+    const legRadius = isBaggy ? 0.195 : (isDenim ? 0.17 : 0.16);
+    const legL = addCapsule(clothingGroup,legRadius,0.56,[-0.155,1.04,0],bottomMaterial,-0.01);
+    const legR = addCapsule(clothingGroup,legRadius,0.56,[0.155,1.04,0],bottomMaterial,0.01);
+    legL.scale.set(isBaggy ? 1.12 : 1.02,1.08,0.98);
+    legR.scale.set(isBaggy ? 1.12 : 1.02,1.08,0.98);
+    addCapsule(clothingGroup,isBaggy ? 0.145 : 0.13,0.48,[-0.16,0.48,0],bottomMaterial,0);
+    addCapsule(clothingGroup,isBaggy ? 0.145 : 0.13,0.48,[0.16,0.48,0],bottomMaterial,0);
+    if (isCargo) {
+      addBox(clothingGroup,[0.13,0.23,0.065],[-0.255,1.12,0.145],bottomMaterial);
+      addBox(clothingGroup,[0.13,0.23,0.065],[0.255,1.12,0.145],bottomMaterial);
+      addBox(clothingGroup,[0.11,0.025,0.075],[-0.255,1.23,0.183],detailMaterial);
+      addBox(clothingGroup,[0.11,0.025,0.075],[0.255,1.23,0.183],detailMaterial);
+    }
+    if (isDenim) {
+      addBox(clothingGroup,[0.012,0.65,0.012],[-0.155,1.03,0.17],detailMaterial);
+      addBox(clothingGroup,[0.012,0.65,0.012],[0.155,1.03,0.17],detailMaterial);
+    }
+  }
+
+  // Distinct footwear volume, with a visible sole and small upper detail.
+  [-0.16,0.16].forEach(x=>{
+    const shoe=addBox(clothingGroup,[0.25,0.14,0.4],[x,0.13,0.055],shoeMaterial);
+    shoe.scale.set(1,1,1);
+    addBox(clothingGroup,[0.252,0.025,0.402],[x,0.065,0.055],detailMaterial);
+    addBox(clothingGroup,[0.13,0.012,0.08],[x,0.205,0.13],detailMaterial);
+  });
+
+  if (layer) {
+    const openLayer = /coat|jacket|bomber|puffer|overshirt/.test(layerName);
+    if (openLayer) {
+      const outer = addCapsule(clothingGroup,0.33,0.42,[0,2.04,-0.018],layerMaterial,0);
+      outer.scale.set(1.1,1.04,0.99);
+      addCapsule(clothingGroup,0.14,0.43,[-0.39,2.12,0],layerMaterial,-0.12);
+      addCapsule(clothingGroup,0.14,0.43,[0.39,2.12,0],layerMaterial,0.12);
+      addBox(clothingGroup,[0.018,0.56,0.035],[0,2.03,0.29],detailMaterial);
+      addBox(clothingGroup,[0.15,0.09,0.035],[-0.19,2.27,0.27],layerMaterial);
+      addBox(clothingGroup,[0.15,0.09,0.035],[0.19,2.27,0.27],layerMaterial);
+    } else {
+      const outer = addCapsule(clothingGroup,0.326,0.4,[0,2.04,-0.015],layerMaterial,0);
+      outer.scale.set(1.05,1.02,0.98);
+      addCapsule(clothingGroup,0.139,0.42,[-0.385,2.12,0],layerMaterial,-0.12);
+      addCapsule(clothingGroup,0.139,0.42,[0.385,2.12,0],layerMaterial,0.12);
+    }
+  }
+
   clothingGroup.traverse(object => {
     if (object.isMesh) object.renderOrder = 3;
   });
   createAvatarParticles();
 }
-
 function setupScene() {
   const small = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
   renderer = new THREE.WebGLRenderer({canvas:sceneCanvas,alpha:false,antialias:!small,powerPreference:'high-performance'});
