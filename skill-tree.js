@@ -192,9 +192,9 @@ function sendOutfitPrompt() {
 
 function openOutfitLab(options) {
   const config = options || {};
-  if (config.prompt) {
+  if (config.prompt || config.generate === true) {
     pendingOutfitPrompt = {
-      prompt:String(config.prompt).slice(0,700),
+      prompt:String(config.prompt || '').slice(0,700),
       generate:config.generate === true
     };
   }
