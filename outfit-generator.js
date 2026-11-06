@@ -28,9 +28,7 @@ let savedLooks = loadSavedLooks();
 let activeLookIndex = 0;
 let ideaDeck = [];
 const avatarConfigKey='zero.avatar.config.v1';
-let avatarConfig=(()=>{
-  try{return {...{hair:'short',tone:'#82e6ff'},...JSON.parse(localStorage.getItem(avatarConfigKey)||'{}')}}catch(error){return {hair:'short',tone:'#82e6ff'}}
-})();
+let avatarConfig=(()=>{try{const saved=JSON.parse(localStorage.getItem(avatarConfigKey)||'{}');const legacy=['#82e6ff','#9c9cff','#8cebd1','#f0f4ff'];return {...{hair:'short',tone:'#bd9278'},...saved,tone:legacy.includes(String(saved.tone||'').toLowerCase())?'#bd9278':(saved.tone||'#bd9278')}}catch(error){return {hair:'short',tone:'#bd9278'}}})();
 let autoTimer = 0;
 let isGenerating = false;
 let avatarRoot = null;
@@ -82,13 +80,13 @@ function setStatus(message) {
 function defaultLook() {
   const p = paletteByStyle[selectedStyle];
   return {
-    title:'FIRST LIGHT',
+    title:'EVERYDAY STREETWEAR',
     vibe:'A clean starting point with a balanced, understated finish.',
     style:selectedStyle,
     palette:{top:p.top,bottom:p.bottom,shoes:p.shoes,outerwear:p.outerwear,accent:p.accent},
     items:[
-      {slot:'TOP',name:'Relaxed textured top',detail:'Soft structure · clean finish',color:p.top},
-      {slot:'BOTTOM',name:'Relaxed straight-leg trousers',detail:'Easy movement · balanced shape',color:p.bottom},
+      {slot:'TOP',name:'Baggy heavyweight hoodie',detail:'Oversized fit · structured fleece',color:p.top},
+      {slot:'BOTTOM',name:'Baggy fleece joggers',detail:'Relaxed leg · gathered hem',color:p.bottom},
       {slot:'FOOTWEAR',name:'Minimal everyday trainers',detail:'Low-profile finish',color:p.shoes},
       {slot:'LAYER',name:'Lightweight overshirt',detail:'Optional layer · tonal contrast',color:p.outerwear}
     ],
@@ -358,208 +356,15 @@ function addBox(parent, size, position, material, bevel) {
   return mesh;
 }
 
-function createAvatarParticles() {
-  if (!avatarRoot) return;
-  const previous = avatarRoot.getObjectByName('Holographic particle skin');
-  if (previous) {
-    avatarRoot.remove(previous);
-    if (previous.geometry) previous.geometry.dispose();
-    if (previous.material) previous.material.dispose();
-  }
-
-  avatarRoot.updateMatrixWorld(true);
-  const rootInverse = new THREE.Matrix4().copy(avatarRoot.matrixWorld).invert();
-  const meshes = [];
-  let totalTriangleCount = 0;
-  avatarRoot.traverse(object => {
-    if (!object.isMesh || !object.geometry) return;
-    object.visible = true;
-    meshes.push(object);
-    const position = object.geometry.getAttribute('position');
-    const index = object.geometry.index;
-    totalTriangleCount += index ? Math.floor(index.count / 3) : Math.floor((position ? position.count : 0) / 3);
-  });
-
-  if (!meshes.length || !totalTriangleCount) return;
-  const triangleStride = Math.max(1,Math.ceil(totalTriangleCount / 18000));
-  const triangles = [];
-  const cumulativeAreas = [];
-  let totalArea = 0;
-  const a = new THREE.Vector3();
-  const b = new THREE.Vector3();
-  const c = new THREE.Vector3();
-  const ab = new THREE.Vector3();
-  const ac = new THREE.Vector3();
-  const na = new THREE.Vector3();
-  const nb = new THREE.Vector3();
-  const nc = new THREE.Vector3();
-
-  meshes.forEach(mesh => {
-    const source = mesh.geometry;
-    if (!source.getAttribute('normal')) source.computeVertexNormals();
-    const positions = source.getAttribute('position');
-    const normals = source.getAttribute('normal');
-    const index = source.index;
-    const triangleCount = index ? Math.floor(index.count / 3) : Math.floor(positions.count / 3);
-    const relativeMatrix = new THREE.Matrix4().copy(rootInverse).multiply(mesh.matrixWorld);
-    const normalMatrix = new THREE.Matrix3().getNormalMatrix(relativeMatrix);
-    const sourceMaterial = Array.isArray(mesh.material)
-      ? mesh.material.find(material => material && material.color)
-      : mesh.material;
-    const color = sourceMaterial && sourceMaterial.color
-      ? sourceMaterial.color
-      : new THREE.Color(0x78dcff);
-    const colorValues = [color.r,color.g,color.b];
-
-    for (let triangle=0;triangle<triangleCount;triangle+=triangleStride) {
-      const offset = triangle*3;
-      const ia = index ? index.getX(offset) : offset;
-      const ib = index ? index.getX(offset+1) : offset+1;
-      const ic = index ? index.getX(offset+2) : offset+2;
-      a.fromBufferAttribute(positions,ia).applyMatrix4(relativeMatrix);
-      b.fromBufferAttribute(positions,ib).applyMatrix4(relativeMatrix);
-      c.fromBufferAttribute(positions,ic).applyMatrix4(relativeMatrix);
-      ab.subVectors(b,a);
-      ac.subVectors(c,a);
-      const area = ab.cross(ac).length()*0.5;
-      if (area < 0.000001) continue;
-
-      na.fromBufferAttribute(normals,ia).applyMatrix3(normalMatrix).normalize();
-      nb.fromBufferAttribute(normals,ib).applyMatrix3(normalMatrix).normalize();
-      nc.fromBufferAttribute(normals,ic).applyMatrix3(normalMatrix).normalize();
-      triangles.push({
-        a:[a.x,a.y,a.z],b:[b.x,b.y,b.z],c:[c.x,c.y,c.z],
-        na:[na.x,na.y,na.z],nb:[nb.x,nb.y,nb.z],nc:[nc.x,nc.y,nc.z],
-        color:colorValues,area
-      });
-      totalArea += area;
-      cumulativeAreas.push(totalArea);
-    }
-  });
-
-  if (!triangles.length || totalArea <= 0) return;
-  const isSmallDevice = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
-  const particleCount = isSmallDevice ? 48000 : 88000;
-  const positions = new Float32Array(particleCount*3);
-  const normals = new Float32Array(particleCount*3);
-  const colors = new Float32Array(particleCount*3);
-  const sizes = new Float32Array(particleCount);
-  const alphas = new Float32Array(particleCount);
-
-  for (let i=0;i<particleCount;i++) {
-    const target = Math.random()*totalArea;
-    let low = 0, high = cumulativeAreas.length-1;
-    while (low < high) {
-      const middle = (low+high)>>1;
-      if (cumulativeAreas[middle] < target) low = middle+1;
-      else high = middle;
-    }
-    const triangle = triangles[low];
-    const root = Math.sqrt(Math.random());
-    const wa = 1-root;
-    const wb = root*(1-Math.random());
-    const wc = 1-wa-wb;
-    const base = i*3;
-    for (let axis=0;axis<3;axis++) {
-      positions[base+axis] = triangle.a[axis]*wa + triangle.b[axis]*wb + triangle.c[axis]*wc;
-      normals[base+axis] = triangle.na[axis]*wa + triangle.nb[axis]*wb + triangle.nc[axis]*wc;
-      colors[base+axis] = triangle.color[axis];
-    }
-    const normalLength = Math.hypot(normals[base],normals[base+1],normals[base+2]) || 1;
-    normals[base] /= normalLength;
-    normals[base+1] /= normalLength;
-    normals[base+2] /= normalLength;
-    sizes[i] = isSmallDevice ? 1.35 + Math.random()*0.75 : 1.45 + Math.random()*0.85;
-    alphas[i] = 0.94 + Math.random()*0.06;
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
-  geometry.setAttribute('aNormal',new THREE.BufferAttribute(normals,3));
-  geometry.setAttribute('aColor',new THREE.BufferAttribute(colors,3));
-  geometry.setAttribute('aSize',new THREE.BufferAttribute(sizes,1));
-  geometry.setAttribute('aAlpha',new THREE.BufferAttribute(alphas,1));
-
-  const material = new THREE.ShaderMaterial({
-    transparent:true,
-    depthWrite:true,
-    depthTest:true,
-    blending:THREE.NormalBlending,
-    uniforms:{
-      uPixelRatio:{value:Math.min(window.devicePixelRatio || 1,isSmallDevice ? 1.35 : 1.8)},
-      uLightDirection:{value:new THREE.Vector3(-0.42,0.78,0.46).normalize()}
-    },
-    vertexShader:
-      'attribute vec3 aNormal;\n' +
-      'attribute vec3 aColor;\n' +
-      'attribute float aSize;\n' +
-      'attribute float aAlpha;\n' +
-      'uniform float uPixelRatio;\n' +
-      'uniform vec3 uLightDirection;\n' +
-      'varying vec3 vNormal;\n' +
-      'varying vec3 vColor;\n' +
-      'varying vec3 vViewPosition;\n' +
-      'varying vec3 vLightDirection;\n' +
-      'varying float vAlpha;\n' +
-      'void main(){\n' +
-      '  vec4 viewPosition = modelViewMatrix * vec4(position,1.0);\n' +
-      '  gl_Position = projectionMatrix * viewPosition;\n' +
-      '  gl_PointSize = aSize * uPixelRatio * (8.0 / max(1.0,-viewPosition.z));\n' +
-      '  vNormal = normalize(normalMatrix * aNormal);\n' +
-      '  vColor = aColor;\n' +
-      '  vViewPosition = -viewPosition.xyz;\n' +
-      '  vLightDirection = normalize(mat3(viewMatrix) * uLightDirection);\n' +
-      '  vAlpha = aAlpha;\n' +
-      '}\n',
-    fragmentShader:
-      'varying vec3 vNormal;\n' +
-      'varying vec3 vColor;\n' +
-      'varying vec3 vViewPosition;\n' +
-      'varying vec3 vLightDirection;\n' +
-      'varying float vAlpha;\n' +
-      'void main(){\n' +
-      '  float distanceFromCentre = length(gl_PointCoord - vec2(0.5));\n' +
-      '  float particleShape = 1.0 - smoothstep(0.27,0.5,distanceFromCentre);\n' +
-      '  if(particleShape < 0.025) discard;\n' +
-      '  vec3 N = normalize(vNormal);\n' +
-      '  vec3 L = normalize(vLightDirection);\n' +
-      '  vec3 V = normalize(vViewPosition);\n' +
-      '  vec3 H = normalize(L + V);\n' +
-      '  float diffuse = max(dot(N,L),0.0);\n' +
-      '  float wrappedLight = max((dot(N,L)+0.34)/1.34,0.0);\n' +
-      '  float specular = pow(max(dot(N,H),0.0),28.0)*0.24;\n' +
-      '  float rim = pow(1.0-max(dot(N,V),0.0),2.1)*0.2;\n' +
-      '  vec3 lighting = vColor*(0.56 + wrappedLight*0.62 + diffuse*0.1);\n' +
-      '  lighting += vec3(0.56,0.84,1.0)*(specular + rim);\n' +
-      '  float alpha = particleShape*vAlpha*0.94;\n' +
-      '  gl_FragColor = vec4(lighting,alpha);\n' +
-      '}\n'
-  });
-
-  const particles = new THREE.Points(geometry,material);
-  particles.name = 'Holographic particle skin';
-  particles.frustumCulled = false;
-  particles.renderOrder = 5;
-  avatarRoot.add(particles);
-
-  // Keep the translucent anatomical and garment surfaces beneath the particle skin.
-  // This gives the hologram real volume, shading and depth instead of a flat point-cloud silhouette.
-  meshes.forEach(mesh => { mesh.visible = true; mesh.renderOrder = 2; });
-}
-
 function createDefaultAvatar() {
   avatarRoot = new THREE.Group();
   avatarRoot.position.y = 0.375;
-  avatarRoot.name = 'ZERO anatomical hologram';
+  avatarRoot.name = 'ZERO solid 3D fashion avatar';
   const body = new THREE.Group();
   avatarRoot.add(body);
-  const tone = new THREE.Color(avatarConfig.tone || '#82e6ff');
-  const hologram = new THREE.MeshPhysicalMaterial({
-    color:tone,emissive:tone.clone().multiplyScalar(0.18),emissiveIntensity:0.72,
-    metalness:0.04,roughness:0.42,transparent:true,opacity:0.18,
-    side:THREE.DoubleSide,depthWrite:false
-  });
-  const addEllipsoid=(name,position,scale,material=hologram)=>{
+  const skin = new THREE.Color(avatarConfig.tone || '#bd9278');
+  const skinMaterial = new THREE.MeshStandardMaterial({color:skin,roughness:0.82,metalness:0.0});
+  const addEllipsoid=(name,position,scale,material=skinMaterial)=>{
     const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),material);
     mesh.name=name;mesh.position.set(...position);mesh.scale.set(...scale);body.add(mesh);return mesh;
   };
@@ -567,7 +372,7 @@ function createDefaultAvatar() {
     const a=new THREE.Vector3(...start),b=new THREE.Vector3(...end);
     const direction=new THREE.Vector3().subVectors(b,a);
     const length=direction.length();
-    const mesh=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,length,24,2,false),hologram);
+    const mesh=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,length,24,2,false),skinMaterial);
     mesh.name=name;mesh.position.copy(a).add(b).multiplyScalar(0.5);
     mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
     body.add(mesh);
@@ -584,7 +389,7 @@ function createDefaultAvatar() {
     new THREE.Vector2(0.315,0.31),new THREE.Vector2(0.34,0.42),new THREE.Vector2(0.27,0.49),
     new THREE.Vector2(0.12,0.52),new THREE.Vector2(0,0.52)
   ];
-  const torso=new THREE.Mesh(new THREE.LatheGeometry(torsoProfile,48),hologram);
+  const torso=new THREE.Mesh(new THREE.LatheGeometry(torsoProfile,48),skinMaterial);
   torso.name='Continuous chest and abdomen';torso.position.y=1.99;body.add(torso);
   addEllipsoid('Pelvis',[0,1.49,0],[0.255,0.19,0.16]);
   addEllipsoid('Shoulder left',[-0.305,2.30,0],[0.13,0.13,0.14]);
@@ -609,7 +414,7 @@ function createDefaultAvatar() {
     addEllipsoid('Foot',[sx*0.17,0.075,0.105],[0.082,0.075,0.19]);
   }
   if(avatarConfig.hair!=='none'){
-    const hair=hologram.clone();hair.color=new THREE.Color(0x24465b);hair.emissive=new THREE.Color(avatarConfig.tone);hair.emissiveIntensity=0.28;
+    const hair=new THREE.MeshStandardMaterial({color:0x241d1a,roughness:0.88});
     addEllipsoid('Hair cap',[0,2.91,-0.012],[avatarConfig.hair==='textured'?0.16:0.15,0.075,0.15],hair);
     if(avatarConfig.hair==='long'){
       addEllipsoid('Long hair back',[0,2.72,-0.105],[0.13,0.22,0.08],hair);
@@ -680,7 +485,8 @@ function applyGarments(look) {
   const isCargo = /cargo|utility/.test(bottomName);
   const isDenim = /denim|jean/.test(bottomName);
   const isShorts = /shorts/.test(bottomName);
-  const isBaggy = /baggy|wide|relaxed|loose|cargo/.test(bottomName);
+  const isTight = /tight|skinny|slim/.test(bottomName);
+  const isBaggy = /baggy|wide|loose|cargo|jogger/.test(bottomName);
 
   // Top silhouette and sleeves.
   const torsoRadius = isHoodie || isKnit ? 0.325 : (isJersey ? 0.285 : 0.305);
@@ -712,12 +518,12 @@ function applyGarments(look) {
     shortsL.scale.set(1.05,1,1);
     shortsR.scale.set(1.05,1,1);
   } else {
-    const legRadius = isBaggy ? 0.195 : (isDenim ? 0.17 : 0.16);
+    const legRadius = isBaggy ? 0.205 : (isTight ? 0.132 : (isDenim ? 0.155 : 0.16));
     const legL = addCapsule(clothingGroup,legRadius,0.56,[-0.155,1.04,0],bottomMaterial,-0.01);
     const legR = addCapsule(clothingGroup,legRadius,0.56,[0.155,1.04,0],bottomMaterial,0.01);
     legL.scale.set(isBaggy ? 1.12 : 1.02,1.08,0.98);
     legR.scale.set(isBaggy ? 1.12 : 1.02,1.08,0.98);
-    addCapsule(clothingGroup,isBaggy ? 0.145 : 0.13,0.48,[-0.16,0.48,0],bottomMaterial,0);
+    addCapsule(clothingGroup,isBaggy ? 0.16 : (isTight ? 0.105 : 0.13),0.48,[-0.16,0.48,0],bottomMaterial,0);
     addCapsule(clothingGroup,isBaggy ? 0.145 : 0.13,0.48,[0.16,0.48,0],bottomMaterial,0);
     if (isCargo) {
       addBox(clothingGroup,[0.13,0.23,0.065],[-0.255,1.12,0.145],bottomMaterial);
@@ -760,7 +566,6 @@ function applyGarments(look) {
   clothingGroup.traverse(object => {
     if (object.isMesh) object.renderOrder = 3;
   });
-  createAvatarParticles();
 }
 function setupScene() {
   const small = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
@@ -937,8 +742,9 @@ function updateLookDetails(look) {
 
 function applyLook(look) {
   if (avatarRoot) applyGarments(look);
+  syncWardrobeControls(look);
   updateLookDetails(look);
-  $('stageTitle').textContent = customAvatarName ? 'CUSTOM AVATAR / GLB' : 'HOLOGRAPHIC AVATAR';
+  $('stageTitle').textContent = customAvatarName ? 'CUSTOM AVATAR / GLB' : 'SOLID 3D AVATAR';
 }
 
 function renderHistory() {
@@ -1057,6 +863,26 @@ function copyCurrentLook() {
   } else showToast('Clipboard access is unavailable in this browser.');
 }
 
+function updateGarmentSelection() {
+  const look=JSON.parse(JSON.stringify(lookHistory[activeLookIndex]||defaultLook()));
+  const top=$('garmentTop')?.value||'Baggy heavyweight hoodie';
+  const bottom=$('garmentBottom')?.value||'Baggy fleece joggers';
+  const layer=$('garmentLayer')?.value||'';
+  const palette=look.palette||paletteByStyle[selectedStyle];
+  const topItem=look.items.find(item=>item.slot==='TOP'),bottomItem=look.items.find(item=>item.slot==='BOTTOM');
+  if(topItem){topItem.name=top;topItem.detail='Selected garment · solid 3D fabric';}
+  if(bottomItem){bottomItem.name=bottom;bottomItem.detail='Selected cut · solid 3D fabric';}
+  const layerIndex=look.items.findIndex(item=>item.slot==='LAYER');
+  if(layer){const item={slot:'LAYER',name:layer,detail:'Selected outer layer · solid 3D fabric',color:palette.outerwear};if(layerIndex>=0)look.items[layerIndex]=item;else look.items.push(item);}
+  else if(layerIndex>=0)look.items.splice(layerIndex,1);
+  look.title='CUSTOM WARDROBE';look.vibe='Individually selected garments fitted to the solid 3D avatar.';
+  lookHistory[activeLookIndex]=look;transitionToLook(()=>applyLook(look));renderHistory();
+}
+function syncWardrobeControls(look) {
+  const top=look.items.find(item=>item.slot==='TOP'),bottom=look.items.find(item=>item.slot==='BOTTOM'),layer=look.items.find(item=>item.slot==='LAYER');
+  const sync=(id,value)=>{const node=$(id);if(!node)return;const option=[...node.options].find(item=>item.value.toLowerCase()===String(value||'').toLowerCase());if(option)node.value=option.value;};
+  sync('garmentTop',top&&top.name);sync('garmentBottom',bottom&&bottom.name);sync('garmentLayer',layer&&layer.name);
+}
 function setStyle(style) {
   selectedStyle = style;
   document.querySelectorAll('.style-chip').forEach(button=>button.classList.toggle('active',button.dataset.style===style));
@@ -1069,12 +895,12 @@ async function loadCustomAvatar(file) {
 function resetAvatar() {
   if(!renderer||!scene)return;
   removeAvatar();customAvatarName='';
-  avatarConfig={hair:'short',tone:'#82e6ff'};
+  avatarConfig={hair:'short',tone:'#bd9278'};
   try{localStorage.setItem(avatarConfigKey,JSON.stringify(avatarConfig));}catch(error){}
   createDefaultAvatar();
   applyGarments(lookHistory[activeLookIndex]||defaultLook());
-  $('stageTitle').textContent='HOLOGRAPHIC AVATAR';
-  showToast('Default holographic avatar restored.');
+  $('stageTitle').textContent='SOLID 3D AVATAR';
+  showToast('Solid 3D avatar restored.');
 }
 function applyAvatarConfig(){
   try{localStorage.setItem(avatarConfigKey,JSON.stringify(avatarConfig));}catch(error){}
@@ -1082,7 +908,7 @@ function applyAvatarConfig(){
   document.querySelectorAll('[data-tone]').forEach(button=>button.classList.toggle('active',button.dataset.tone===avatarConfig.tone));
   removeAvatar();customAvatarName='';createDefaultAvatar();
   applyGarments(lookHistory[activeLookIndex]||defaultLook());
-  $('stageTitle').textContent='CUSTOM HOLOGRAPHIC AVATAR';
+  $('stageTitle').textContent='CUSTOM SOLID 3D AVATAR';
   closeAvatarStudio();showToast('Your avatar has been updated.');
 }
 function initTransitionTiles() {
@@ -1114,6 +940,7 @@ function bindEvents() {
   document.querySelectorAll('[data-tone]').forEach(button=>button.addEventListener('click',()=>{avatarConfig.tone=button.dataset.tone;document.querySelectorAll('[data-tone]').forEach(item=>item.classList.toggle('active',item===button));}));
   $('applyAvatar').addEventListener('click',applyAvatarConfig);
   $('resetAvatar').addEventListener('click',resetAvatar);
+  ['garmentTop','garmentBottom','garmentLayer'].forEach(id=>$(id)?.addEventListener('change',updateGarmentSelection));
   $('backButton').addEventListener('click',()=>window.parent.postMessage({type:'ZERO_OUTFIT_CLOSE'},window.location.origin));
   window.addEventListener('keydown',event=>{
     if (event.key === 'Escape') {closeHistory();closeAvatarStudio();window.parent.postMessage({type:'ZERO_OUTFIT_CLOSE'},window.location.origin);}
