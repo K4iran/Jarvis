@@ -320,7 +320,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .wardrobe-controls select:focus{border-color:#35a9d5;box-shadow:0 0 0 2px rgba(53,169,213,.12)}
 .fallback-avatar{filter:drop-shadow(0 8px 16px rgba(26,48,61,.2))}
 .fallback-avatar g{stroke:#293844;stroke-width:2}
-@media(max-width:720px){.wardrobe-controls{grid-template-columns:1fr 1fr 1fr;gap:5px}.wardrobe-controls label:last-child{grid-column:auto}.wardrobe-controls select{height:33px;padding:0 5px;font-size:8px}}
+@media(max-width:720px){.wardrobe-controls{grid-template-columns:1fr 1fr;gap:5px}.wardrobe-controls label:last-child{grid-column:auto}.wardrobe-controls select{height:33px;padding:0 5px;font-size:8px}}
 
 /* Dark depth-grid showroom, keeping the avatar itself fully solid */
 #outfitLab,.workspace,.stage{background:#070b12!important}
