@@ -504,18 +504,35 @@ function applyLook(look) {
 function renderHistory() {
   const strip = $('lookStrip');
   strip.replaceChildren();
-  if (!lookHistory.length) {
+  const recentEntries = lookHistory.map((look,index)=>({look,index,saved:false}));
+  const savedEntries = savedLooks
+    .filter(saved=>!lookHistory.some(recent=>recent.title===saved.title))
+    .map(look=>({look,saved:true}));
+  const entries = recentEntries.concat(savedEntries);
+  if (!entries.length) {
     const empty = document.createElement('div');empty.className='empty-strip';empty.textContent='GENERATED LOOKS WILL APPEAR HERE';strip.appendChild(empty);
   } else {
-    lookHistory.forEach((look,index)=>{
-      const button = document.createElement('button');button.type='button';button.className='look-card'+(index===activeLookIndex?' active':'');
+    entries.forEach(entry=>{
+      const look = entry.look;
+      const button = document.createElement('button');
+      button.type='button';
+      button.className='look-card'+(!entry.saved && entry.index===activeLookIndex?' active':'');
       const avatar = document.createElement('span');avatar.className='mini-avatar';
       avatar.style.setProperty('--mini-top',look.palette.top);avatar.style.setProperty('--mini-bottom',look.palette.bottom);
       const info = document.createElement('span');
       const title = document.createElement('strong');title.textContent=look.title;
-      const meta = document.createElement('small');meta.textContent=look.style;
+      const meta = document.createElement('small');meta.textContent=(entry.saved?'SAVED · ':'')+look.style;
       info.append(title,meta);button.append(avatar,info);
-      button.addEventListener('click',()=>selectHistoryLook(index));
+      button.addEventListener('click',()=>{
+        if (!entry.saved) {
+          selectHistoryLook(entry.index);
+          return;
+        }
+        lookHistory.unshift(JSON.parse(JSON.stringify(look)));
+        lookHistory = lookHistory.slice(0,12);
+        activeLookIndex = 0;
+        selectHistoryLook(0);
+      });
       strip.appendChild(button);
     });
   }
@@ -553,10 +570,7 @@ function toggleAutoplay() {
 }
 
 function renderSavedLooks() {
-  const strip = $('lookStrip');
-  const saved = savedLooks.slice(0,12);
-  if (lookHistory.length) renderHistory();
-  if (!saved.length) return;
+  renderHistory();
 }
 
 function saveCurrentLook() {
@@ -564,6 +578,7 @@ function saveCurrentLook() {
   const look = lookHistory[activeLookIndex];
   savedLooks = [JSON.parse(JSON.stringify(look)),...savedLooks.filter(item=>item.title!==look.title)].slice(0,12);
   saveSavedLooks();
+  renderHistory();
   showToast('Look saved on this device.');
   $('saveLook').innerHTML = '<span>✓</span> SAVED';
   setTimeout(()=>{$('saveLook').innerHTML='<span>＋</span> SAVE LOOK';},1500);
@@ -641,6 +656,22 @@ function resetAvatar() {
   showToast('Holographic mannequin restored.');
 }
 
+function initTransitionTiles() {
+  const host = $('transitionTiles');
+  if (!host || host.childElementCount) return;
+  const columns = 10;
+  const rows = 9;
+  for (let row=0;row<rows;row++) {
+    for (let column=0;column<columns;column++) {
+      const tile = document.createElement('span');
+      tile.style.setProperty('--dx',(column-(columns-1)/2)*17);
+      tile.style.setProperty('--dy',(row-(rows-1)/2)*15);
+      tile.style.setProperty('--delay',(Math.random()*0.16).toFixed(3)+'s');
+      host.appendChild(tile);
+    }
+  }
+}
+
 function bindEvents() {
   document.querySelectorAll('.style-chip').forEach(button=>button.addEventListener('click',()=>setStyle(button.dataset.style)));
   generateButton.addEventListener('click',generateOutfit);
@@ -689,6 +720,7 @@ function animate() {
 }
 
 function init() {
+  initTransitionTiles();
   bindEvents();
   try {
     setupScene();
