@@ -270,7 +270,7 @@ function addBox(parent, size, position, material, bevel) {
 
 function createDefaultAvatar() {
   avatarRoot = new THREE.Group();
-  avatarRoot.position.y = 0.47;
+  avatarRoot.position.y = 0.375;
   avatarRoot.name = 'ZERO holographic mannequin';
   const body = new THREE.Group();
   body.name = 'Holographic body';
@@ -342,7 +342,7 @@ function createReflection() {
   reflectionRoot = avatarRoot.clone(true);
   reflectionRoot.name = 'Soft glass-floor reflection';
   reflectionRoot.scale.y = -1;
-  reflectionRoot.position.y = 0.94;
+  reflectionRoot.position.y = 0.88 - avatarRoot.position.y;
   reflectionRoot.traverse(object => {
     if (!object.isMesh) return;
     object.material = new THREE.MeshBasicMaterial({
@@ -609,7 +609,7 @@ async function loadCustomAvatar(file) {
     URL.revokeObjectURL(url);
     removeAvatar();
     avatarRoot = new THREE.Group();
-    avatarRoot.position.y = 0.47;
+    avatarRoot.position.y = 0.44;
     const model = gltf.scene;
     const bounds = new THREE.Box3().setFromObject(model);
     const size = bounds.getSize(new THREE.Vector3());
