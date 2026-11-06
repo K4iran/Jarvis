@@ -17,19 +17,19 @@ const categories = [
     skills: [
       {
         id: 'hangman', name: 'Hangman', status: 'Active', icon: 'hangman',
-        description: 'A local word-guessing game. ZERO selects a word, then accepts letter or whole-word guesses by voice, touch or keyboard. The difficulty adapts between rounds.',
+        description: 'Guess a hidden word by voice, touch or keyboard. Difficulty adapts between rounds.',
         activation: '“Hey ZERO, let’s play Hangman.”',
         launch: 'hangman'
       },
       {
         id: 'sudoku', name: 'Sudoku', status: 'Active', icon: 'grid',
-        description: 'An interactive number puzzle with Easy, Medium and Hard difficulties. Select a cell, choose a number, and use the highlighted row, column and box to guide each move.',
+        description: 'Solve number puzzles at Easy, Medium or Hard, with row, column and box guidance.',
         activation: '“Hey ZERO, let’s play Sudoku.”',
         launch: 'sudoku'
       },
       {
         id: 'more-games', name: 'More Games', status: 'Coming Soon', icon: 'gamepad',
-        description: 'Additional interactive game modules will appear here as they are added to ZERO.',
+        description: 'More game modes will appear here as they become available.',
         activation: 'A voice command will be shown here when the next game is released.'
       }
     ]
@@ -40,25 +40,25 @@ const categories = [
     skills: [
       {
         id: 'google-calendar', name: 'Google Calendar', status: 'Available', icon: 'calendar',
-        description: 'Connect your Google account to view upcoming events and create calendar entries from ZERO. Calendar access stays with your authorised Google connection.',
+        description: 'View upcoming events and create entries through your authorised Google account.',
         activation: '“Hey ZERO, open my calendar.”',
         launch: 'calendar'
       },
       {
         id: 'weather', name: 'Weather', status: 'Active', icon: 'weather',
-        description: 'Live weather for a city, including current temperature, feels-like temperature, conditions, rain chances, a daily outlook and an interactive hourly temperature graph.',
+        description: 'Check a city's current conditions and hourly forecast.',
         activation: '“Hey ZERO, what’s the weather in Istanbul?”',
         launch: 'weather'
       },
       {
         id: 'happy-news', name: 'Happy News', status: 'Active', icon: 'heart',
-        description: 'A short briefing of recent uplifting stories, filtered to leave out ambiguous or negative headlines.',
+        description: 'A short briefing of recent uplifting stories.',
         activation: '“Hey ZERO, show me happy news.”',
         launch: 'happy-news'
       },
       {
         id: 'task-lists', name: 'Task Lists', status: 'Coming Soon', icon: 'tasks',
-        description: 'A built-in task list and preparation checklist for everyday plans and things to remember before leaving.',
+        description: 'Keep simple task lists and checklists for everyday plans.',
         activation: 'A voice command will be shown here when task lists are released.'
       }
     ]
@@ -69,13 +69,13 @@ const categories = [
     skills: [
       {
         id: 'ai-conversation', name: 'AI Conversation', status: 'Active', icon: 'spark',
-        description: 'Talk naturally with ZERO, ask questions, get explanations and work through ideas using its connected AI assistant.',
+        description: 'Talk with ZERO, ask questions and explore ideas.',
         activation: '“Hey ZERO, explain…” followed by your question.',
         launch: 'conversation'
       },
       {
         id: 'command-understanding', name: 'Command Understanding', status: 'Active', icon: 'network',
-        description: 'ZERO recognises supported local requests and routes them to the right feature, including Hangman, Zen and Calendar.',
+        description: 'Routes supported requests to features such as Hangman, Zen and Calendar.',
         activation: '“Hey ZERO, open Zen.” or “Hey ZERO, show my calendar.”',
         launch: 'conversation'
       }
@@ -87,13 +87,13 @@ const categories = [
     skills: [
       {
         id: 'speech-recognition', name: 'Speech Recognition', status: 'Active', icon: 'microphone',
-        description: 'Turns spoken commands into text using the device browser’s speech-recognition support, when microphone permission is granted.',
+        description: 'Turns speech into text when browser support and microphone permission are available.',
         activation: 'Tap the microphone and speak a command beginning with “Hey ZERO”.',
         launch: 'voice'
       },
       {
         id: 'voice-responses', name: 'Voice Responses', status: 'Active', icon: 'sound',
-        description: 'ZERO can speak its replies aloud through the configured speech output when voice mode is enabled.',
+        description: 'Hear ZERO’s replies when voice mode is enabled.',
         activation: 'Activate the voice interface, then speak naturally.',
         launch: 'voice'
       }
@@ -105,13 +105,13 @@ const categories = [
     skills: [
       {
         id: 'preferences', name: 'Preferences', status: 'Active', icon: 'sliders',
-        description: 'Adjust ZERO’s interface preferences and saved Zen music service. Preferences are stored locally in this browser.',
+        description: 'Adjust interface and Zen music preferences saved in this browser.',
         activation: '“Hey ZERO, open settings.”',
         launch: 'settings'
       },
       {
         id: 'personal-memory', name: 'Personal Memory', status: 'Active', icon: 'memory',
-        description: 'Save, recall and remove selected details using ZERO’s local personal-memory commands.',
+        description: 'Save, recall and remove details stored in this browser.',
         activation: '“Hey ZERO, remember that…” or “Hey ZERO, what do you remember?”',
         launch: 'memory'
       }
@@ -123,7 +123,7 @@ const categories = [
     skills: [
       {
         id: 'outfit-generator', name: 'Outfit Generator', status: 'Active', icon: 'spark',
-        description: 'Create coordinated outfits from a written brief, then preview each look on a holographic mannequin or custom GLB avatar in a reflective glass studio.',
+        description: 'Create outfits from a brief and preview them on a holographic avatar.',
         activation: '“Hey ZERO, open the outfit generator.”',
         launch: 'outfit-generator'
       }
