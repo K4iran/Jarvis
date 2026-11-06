@@ -206,7 +206,7 @@ function fallbackLook() {
   modifier.shoes = colourFor('shoes|trainers|sneakers|boots') || modifier.shoes;
   modifier.outerwear = colourFor('jacket|coat|overshirt|puffer|bomber') || modifier.outerwear;
   if (!/(hoodie|shirt|tee|t-shirt|jersey|sweater|jumper|top|trousers|pants|cargo|jeans|denim|shorts|joggers|shoes|trainers|sneakers|boots|jacket|coat|overshirt|puffer|bomber)/.test(text)) {
-    const firstColour = Object.keys(colourMap).find(colour=>new RegExp('\\\\b'+colour+'\\\\b').test(text));
+    const firstColour = Object.keys(colourMap).find(colour=>new RegExp('\\b'+colour+'\\b').test(text));
     if (firstColour) modifier.top = colourMap[firstColour];
   }
 
@@ -462,7 +462,7 @@ function createAvatarParticles() {
     depthTest:true,
     blending:THREE.NormalBlending,
     uniforms:{
-      uPixelRatio:{value:Math.min(window.devicePixelRatio || 1,1.8)},
+      uPixelRatio:{value:Math.min(window.devicePixelRatio || 1,isSmallDevice ? 1.35 : 1.8)},
       uLightDirection:{value:new THREE.Vector3(-0.42,0.78,0.46).normalize()}
     },
     vertexShader:
