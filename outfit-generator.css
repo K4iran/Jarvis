@@ -340,3 +340,28 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tone-choice[data-tone="#bd9278"]{--tone:#bd9278}.tone-choice[data-tone="#8b604b"]{--tone:#8b604b}.tone-choice[data-tone="#d8b79d"]{--tone:#d8b79d}.tone-choice[data-tone="#c58f72"]{--tone:#c58f72}
 .avatar-apply{background:linear-gradient(100deg,#167aa7,#1d527c)}
 @media(max-width:720px){.idea-rail{bottom:calc(250px + env(safe-area-inset-bottom,0px))!important}.composer{max-height:46vh;overflow:auto}}
+
+/* Bring the Outfit Lab controls back into the Z.E.R.O. dark glass HUD language */
+.composer,.idea-rail{
+  border:1px solid rgba(111,197,239,.24);
+  border-radius:17px;
+  background:linear-gradient(145deg,rgba(13,34,53,.84),rgba(5,15,28,.82));
+  color:#e5f4fb;
+  box-shadow:0 18px 52px rgba(0,0,0,.36),inset 0 1px 0 rgba(222,246,255,.12),inset 0 0 26px rgba(75,165,216,.07);
+  -webkit-backdrop-filter:blur(22px) saturate(145%);
+  backdrop-filter:blur(22px) saturate(145%);
+}
+.brief-label{color:#b6d5e5}
+.brief-label small{color:#7699ad}
+#outfitBrief{background:rgba(5,17,30,.78);border:1px solid rgba(103,190,228,.22);border-radius:9px;color:#e5f4fb}
+#outfitBrief::placeholder{color:#7894a7}
+#outfitBrief:focus{background:rgba(7,23,39,.96);border-color:rgba(97,203,245,.7)}
+.generation-status{color:#80a9bd}
+.idea-rail{border-color:rgba(111,197,239,.2)}
+.rail-label .eyebrow,.idea-foot,.rail-foot{color:#82a8bc}
+.rail-label strong{color:#e4f4fb}
+.history-open,.history-heading button{background:rgba(14,37,57,.86);border:1px solid rgba(111,197,239,.25);color:#cce7f5}
+.idea-card,.look-card{background:rgba(9,26,42,.86);border-color:rgba(111,197,239,.2);color:#d8edf7}
+.idea-card.active,.look-card.active{background:rgba(20,54,78,.94);border-color:rgba(99,205,245,.72);box-shadow:inset 0 -2px 0 rgba(70,181,230,.38)}
+.idea-card small,.look-card small{color:#86a7b9}
+.empty-strip{color:#7899ad}
