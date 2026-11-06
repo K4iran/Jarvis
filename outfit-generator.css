@@ -310,3 +310,14 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .fallback-avatar{width:min(42vw,430px);height:min(78vh,650px);filter:drop-shadow(0 0 9px rgba(50,178,225,.25)) drop-shadow(0 0 24px rgba(50,178,225,.12))}
 .scene-unavailable .scene-fallback{opacity:1;visibility:visible}
 .scene-unavailable #scene{opacity:0}
+
+/* Solid 3D avatar wardrobe controls */
+.wardrobe-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.wardrobe-controls label{display:grid;gap:4px;min-width:0}
+.wardrobe-controls label:last-child{grid-column:1/-1}
+.wardrobe-controls label span{font:7px var(--mono);letter-spacing:.13em;color:#78909d}
+.wardrobe-controls select{width:100%;min-width:0;height:34px;padding:0 8px;border:1px solid rgba(76,147,177,.28);border-radius:5px;background:rgba(255,255,255,.94);color:#304653;font:9px var(--sans);outline:none}
+.wardrobe-controls select:focus{border-color:#35a9d5;box-shadow:0 0 0 2px rgba(53,169,213,.12)}
+.fallback-avatar{filter:drop-shadow(0 8px 16px rgba(26,48,61,.2))}
+.fallback-avatar g{stroke:#293844;stroke-width:2}
+@media(max-width:720px){.wardrobe-controls{grid-template-columns:1fr 1fr 1fr;gap:5px}.wardrobe-controls label:last-child{grid-column:auto}.wardrobe-controls select{height:33px;padding:0 5px;font-size:8px}}
