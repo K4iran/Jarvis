@@ -468,6 +468,7 @@ function applyGarments(look) {
   const topName = String(top && top.name || '').toLowerCase();
   const bottomName = String(bottom && bottom.name || '').toLowerCase();
   const layerName = String(layer && layer.name || '').toLowerCase();
+  const shoeName = String(shoes && shoes.name || '').toLowerCase();
   const accent = look.palette.accent;
   const width = avatarWidthFactor;
   const topMaterial = createMaterial(new THREE.Color(top ? top.color : look.palette.top),0x091c2c,0.97);
@@ -541,6 +542,8 @@ function applyGarments(look) {
     shoe.scale.set(1,1,1);
     addBox(clothingGroup,[0.252,0.025,0.402],[x,0.065,0.055],detailMaterial);
     addBox(clothingGroup,[0.13,0.012,0.08],[x,0.205,0.13],detailMaterial);
+    if(/basketball|high.top/.test(shoeName)) addCapsule(clothingGroup,0.075,0.13,[x,0.27,0.005],shoeMaterial,0);
+    if(/boot/.test(shoeName)) addCapsule(clothingGroup,0.09,0.22,[x,0.31,-0.005],shoeMaterial,0);
   });
 
   if (layer) {
