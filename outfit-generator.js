@@ -28,7 +28,6 @@ let activeLookIndex = 0;
 let autoTimer = 0;
 let isGenerating = false;
 let avatarRoot = null;
-let reflectionRoot = null;
 let clothingGroup = null;
 let avatarWidthFactor = 1;
 let renderer = null;
@@ -230,15 +229,15 @@ function createMaterial(color, emissive, opacity) {
   return new THREE.MeshPhysicalMaterial({
     color:color,
     emissive:emissive || color,
-    emissiveIntensity:0.16,
-    metalness:0.15,
-    roughness:0.38,
-    clearcoat:0.36,
-    clearcoatRoughness:0.34,
-    transparent:opacity < 1,
-    opacity:opacity,
+    emissiveIntensity:0.42,
+    metalness:0.22,
+    roughness:0.3,
+    clearcoat:0.58,
+    clearcoatRoughness:0.28,
+    transparent:true,
+    opacity:Math.min(opacity,0.36),
     side:THREE.DoubleSide,
-    depthWrite:opacity >= 1
+    depthWrite:false
   });
 }
 
@@ -269,6 +268,80 @@ function addBox(parent, size, position, material, bevel) {
   return mesh;
 }
 
+function createAvatarParticles() {
+  if (!avatarRoot) return;
+  const previous = avatarRoot.getObjectByName('Holographic particle skin');
+  if (previous) {
+    avatarRoot.remove(previous);
+    previous.geometry.dispose();
+    previous.material.dispose();
+  }
+  avatarRoot.updateMatrixWorld(true);
+  const positions = [];
+  const sizes = [];
+  const alphas = [];
+  const point = new THREE.Vector3();
+  avatarRoot.traverse(object => {
+    if (!object.isMesh || !object.geometry || object.name === 'Holographic particle skin') return;
+    const attribute = object.geometry.getAttribute('position');
+    if (!attribute) return;
+    const count = attribute.count;
+    const step = Math.max(1,Math.floor(count / 520));
+    for (let i=0;i<count;i+=step) {
+      point.fromBufferAttribute(attribute,i);
+      object.localToWorld(point);
+      avatarRoot.worldToLocal(point);
+      const jitter = 0.003 + Math.random()*0.009;
+      positions.push(
+        point.x + (Math.random()-0.5)*jitter,
+        point.y + (Math.random()-0.5)*jitter,
+        point.z + (Math.random()-0.5)*jitter
+      );
+      sizes.push(1.4 + Math.random()*1.7);
+      alphas.push(0.34 + Math.random()*0.62);
+    }
+  });
+  if (!positions.length) return;
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geometry.setAttribute('aSize',new THREE.Float32BufferAttribute(sizes,1));
+  geometry.setAttribute('aAlpha',new THREE.Float32BufferAttribute(alphas,1));
+  const material = new THREE.ShaderMaterial({
+    transparent:true,
+    depthWrite:false,
+    depthTest:true,
+    blending:THREE.AdditiveBlending,
+    uniforms:{uPixelRatio:{value:Math.min(window.devicePixelRatio || 1,1.8)}},
+    vertexShader:`
+      attribute float aSize;
+      attribute float aAlpha;
+      uniform float uPixelRatio;
+      varying float vAlpha;
+      void main(){
+        vec4 viewPosition = modelViewMatrix * vec4(position,1.0);
+        gl_Position = projectionMatrix * viewPosition;
+        gl_PointSize = aSize * uPixelRatio * (5.2 / max(1.0,-viewPosition.z));
+        vAlpha = aAlpha;
+      }
+    `,
+    fragmentShader:`
+      varying float vAlpha;
+      void main(){
+        float d = length(gl_PointCoord - vec2(0.5));
+        float glow = 1.0 - smoothstep(0.12,0.5,d);
+        float alpha = glow * vAlpha * 0.86;
+        if(alpha < 0.025) discard;
+        gl_FragColor = vec4(0.48,0.86,1.0,alpha);
+      }
+    `
+  });
+  const particles = new THREE.Points(geometry,material);
+  particles.name = 'Holographic particle skin';
+  particles.frustumCulled = false;
+  particles.renderOrder = 5;
+  avatarRoot.add(particles);
+}
+
 function createDefaultAvatar() {
   avatarRoot = new THREE.Group();
   avatarRoot.position.y = 0.375;
@@ -277,17 +350,10 @@ function createDefaultAvatar() {
   body.name = 'Holographic body';
   avatarRoot.add(body);
   const hologram = new THREE.MeshPhysicalMaterial({
-    color:0x8bdfff,emissive:0x075a91,emissiveIntensity:1.05,metalness:0.18,roughness:0.22,
-    transparent:true,opacity:0.34,clearcoat:1,side:THREE.DoubleSide,depthWrite:false
+    color:0x8bdfff,emissive:0x0b6b9e,emissiveIntensity:0.62,metalness:0.12,roughness:0.3,
+    transparent:true,opacity:0.16,clearcoat:0.5,side:THREE.DoubleSide,depthWrite:false
   });
-  const edgeMaterial = new THREE.LineBasicMaterial({color:0x80e6ff,transparent:true,opacity:0.48,depthWrite:false});
-  const bodyPieces = [];
-  const addBody = mesh => {
-    body.add(mesh);
-    bodyPieces.push(mesh);
-    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry,24),edgeMaterial);
-    mesh.add(edges);
-  };
+  const addBody = mesh => body.add(mesh);
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.165,24,20),hologram);
   head.position.set(0,2.78,0);
   addBody(head);
@@ -323,35 +389,8 @@ function removeAvatar() {
       }
     });
   }
-  if (reflectionRoot) {
-    scene.remove(reflectionRoot);
-    reflectionRoot.traverse(object => {
-      if (object.isMesh) {
-        if (object.geometry && object.geometry.dispose) object.geometry.dispose();
-        if (object.material && object.material.dispose) object.material.dispose();
-      }
-    });
-  }
   avatarRoot = null;
-  reflectionRoot = null;
   clothingGroup = null;
-}
-
-function createReflection() {
-  if (!avatarRoot) return;
-  if (reflectionRoot) scene.remove(reflectionRoot);
-  reflectionRoot = avatarRoot.clone(true);
-  reflectionRoot.name = 'Soft glass-floor reflection';
-  reflectionRoot.scale.y = -1;
-  reflectionRoot.position.y = 0.88 - avatarRoot.position.y;
-  reflectionRoot.traverse(object => {
-    if (!object.isMesh) return;
-    object.material = new THREE.MeshBasicMaterial({
-      color:0x4d9dc8,transparent:true,opacity:0.105,side:THREE.DoubleSide,
-      blending:THREE.AdditiveBlending,depthWrite:false
-    });
-  });
-  scene.add(reflectionRoot);
 }
 
 function applyGarments(look) {
@@ -395,14 +434,10 @@ function applyGarments(look) {
     addCapsule(clothingGroup,0.139,0.42,[-0.385,2.12,0],layerMaterial,-0.12);
     addCapsule(clothingGroup,0.139,0.42,[0.385,2.12,0],layerMaterial,0.12);
   }
-  const accentLine = new THREE.Mesh(new THREE.TorusGeometry(0.22,0.008,5,36),detailMaterial);
-  accentLine.rotation.x = Math.PI/2;
-  accentLine.position.set(0,1.69,0);
-  clothingGroup.add(accentLine);
   clothingGroup.traverse(object => {
     if (object.isMesh) object.renderOrder = 3;
   });
-  createReflection();
+  createAvatarParticles();
 }
 
 function setupScene() {
@@ -429,21 +464,6 @@ function setupScene() {
 
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshPhysicalMaterial({color:0x071421,metalness:0.68,roughness:0.18,transparent:true,opacity:0.28,clearcoat:1,clearcoatRoughness:0.08,side:THREE.DoubleSide,depthWrite:false}));
   floor.rotation.x = -Math.PI/2;floor.position.y = 0.015;floor.receiveShadow = true;scene.add(floor);
-  const grid = new THREE.GridHelper(36,54,0x286082,0x15354b);
-  grid.position.y = 0.022;
-  grid.material.transparent = true;grid.material.opacity = 0.13;grid.material.depthWrite = false;scene.add(grid);
-
-  const wallMat = new THREE.MeshPhysicalMaterial({color:0x6baac4,metalness:0.28,roughness:0.16,transparent:true,opacity:0.075,clearcoat:1,side:THREE.DoubleSide,depthWrite:false});
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(18,8),wallMat);
-  wall.position.set(0,3.6,-4.8);scene.add(wall);
-  const wallEdge = new THREE.LineSegments(new THREE.EdgesGeometry(wall.geometry),new THREE.LineBasicMaterial({color:0x7ccdec,transparent:true,opacity:0.32}));
-  wall.add(wallEdge);
-  [-1,1].forEach(side=>{
-    const pane = new THREE.Mesh(new THREE.PlaneGeometry(7,7),wallMat.clone());
-    pane.position.set(side*4.1,3.35,0.1);pane.rotation.y=side<0?Math.PI/2:-Math.PI/2;scene.add(pane);
-    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(pane.geometry),new THREE.LineBasicMaterial({color:0x65badd,transparent:true,opacity:0.24}));
-    pane.add(edge);
-  });
 
   const platformMaterial = new THREE.MeshPhysicalMaterial({color:0x092238,metalness:0.72,roughness:0.18,transparent:true,opacity:0.84,clearcoat:1,emissive:0x04182a,emissiveIntensity:0.9});
   const platform = new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.62,0.22,8,1),platformMaterial);
@@ -456,11 +476,7 @@ function setupScene() {
     const mesh = new THREE.Mesh(new THREE.TorusGeometry(radius,tube,8,96),material);
     mesh.rotation.x=Math.PI/2;mesh.position.y=y;scene.add(mesh);return mesh;
   }
-  ring(1.48,0.018,0x58cfff,0.92,0.365);
-  ring(1.62,0.012,0x1e8dff,0.52,0.31);
-  ring(1.32,0.006,0x8feaff,0.36,0.448);
-  const glowDisc = new THREE.Mesh(new THREE.CircleGeometry(1.62,64),new THREE.MeshBasicMaterial({color:0x1677c4,transparent:true,opacity:0.055,blending:THREE.AdditiveBlending,depthWrite:false}));
-  glowDisc.rotation.x=-Math.PI/2;glowDisc.position.y=0.442;scene.add(glowDisc);
+  ring(1.48,0.012,0x58cfff,0.42,0.365);
 
   createDefaultAvatar();
   applyGarments(defaultLook());
@@ -643,8 +659,6 @@ async function loadCustomAvatar(file) {
       if (!object.isMesh) return;
       object.material = hologram.clone();
       object.castShadow = true;
-      const lines = new THREE.LineSegments(new THREE.EdgesGeometry(object.geometry,25),new THREE.LineBasicMaterial({color:0x7be4ff,transparent:true,opacity:0.24,depthWrite:false}));
-      object.add(lines);
     });
     avatarRoot.add(model);
     scene.add(avatarRoot);
@@ -734,7 +748,6 @@ function animate() {
   renderFrame = requestAnimationFrame(animate);
   const time = performance.now()*0.001;
   if (avatarRoot && !pointerDown && !reducedMotion) avatarRoot.rotation.y += 0.0018;
-  if (reflectionRoot && avatarRoot) reflectionRoot.rotation.y = avatarRoot.rotation.y;
   if (renderer && scene && camera) {
     renderer.render(scene,camera);
     if (!stage.classList.contains('three-rendered')) stage.classList.add('three-rendered');
