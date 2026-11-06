@@ -465,8 +465,8 @@ function setupScene() {
   createDefaultAvatar();
   applyGarments(defaultLook());
   const resize = () => {
-    const width = Math.max(1,Math.min(stage.clientWidth || window.innerWidth,window.innerWidth || stage.clientWidth || 1));
-    const height = Math.max(1,Math.min(stage.clientHeight || window.innerHeight,window.innerHeight || stage.clientHeight || 1));
+    const width = Math.max(1,Math.round(window.innerWidth || stage.clientWidth || 1));
+    const height = Math.max(1,Math.round(window.innerHeight || stage.clientHeight || 1));
     renderer.setSize(width,height,false);
     camera.aspect = width/height;camera.updateProjectionMatrix();
   };
