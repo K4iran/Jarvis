@@ -14,7 +14,7 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
     } }
   </script>
-  <link rel="stylesheet" href="./outfit-generator.css?v=glass-studio-1">
+  <link rel="stylesheet" href="./outfit-generator.css?v=full-screen-studio-2">
 </head>
 <body>
   <div id="outfitLab">
@@ -94,6 +94,29 @@
           <span class="stage-coordinates">STUDIO 01 <i></i> GLASS ENVIRONMENT</span>
         </div>
         <canvas id="scene" aria-label="Rotatable holographic avatar on a glass platform"></canvas>
+        <div class="scene-fallback" id="sceneFallback" aria-hidden="true">
+          <div class="fallback-wall fallback-wall-back"></div>
+          <div class="fallback-wall fallback-wall-left"></div>
+          <div class="fallback-wall fallback-wall-right"></div>
+          <div class="fallback-floor-grid"></div>
+          <div class="fallback-platform"><i></i><b></b></div>
+          <svg class="fallback-avatar" viewBox="0 0 300 650" role="presentation">
+            <defs><linearGradient id="holoBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8faff" stop-opacity=".72"/><stop offset=".5" stop-color="#5dcfff" stop-opacity=".22"/><stop offset="1" stop-color="#167dce" stop-opacity=".5"/></linearGradient><filter id="holoGlow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <g fill="url(#holoBody)" stroke="#9beaff" stroke-width="2.2" filter="url(#holoGlow)">
+              <circle cx="150" cy="62" r="39"/>
+              <path d="M126 105 Q150 95 174 105 L198 132 225 250 197 267 180 187 183 305 117 305 120 187 103 267 75 250 102 132Z"/>
+              <path d="M119 300 L181 300 190 405 169 420 150 405 131 420 110 405Z"/>
+              <path d="M111 407 L145 407 137 555 105 555 96 425Z"/>
+              <path d="M155 407 L189 407 204 555 195 555 163 555Z"/>
+              <path d="M96 550 L139 550 134 590 78 590 Q70 580 82 564Z"/>
+              <path d="M163 550 L203 550 225 575 Q231 590 217 590 L169 590Z"/>
+            </g>
+            <path d="M107 143 Q150 121 193 143 L180 300 120 300Z" fill="rgba(81,190,255,.18)" stroke="#b7f2ff" stroke-width="1.5"/>
+            <path d="M112 307 L188 307 180 405 120 405Z" fill="rgba(47,132,205,.22)" stroke="#8bdfff" stroke-width="1.5"/>
+            <path d="M150 102 V590" stroke="#d5faff" stroke-opacity=".18" stroke-dasharray="3 8"/>
+          </svg>
+          <div class="fallback-label">HOLOGRAPHIC AVATAR / PREVIEW</div>
+        </div>
         <div class="scan-sweep" aria-hidden="true"></div>
         <div class="transition-tiles" id="transitionTiles" aria-hidden="true"></div>
         <div class="stage-hint"><span class="drag-icon">↔</span> DRAG TO ROTATE</div>
@@ -133,6 +156,6 @@
     </footer>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./outfit-generator.js?v=glass-studio-1"></script>
+  <script type="module" src="./outfit-generator.js?v=full-screen-studio-2"></script>
 </body>
 </html>
