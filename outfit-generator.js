@@ -599,7 +599,7 @@ function setupScene() {
   scene.add(floor);
 
   const backWall = new THREE.Mesh(
-    new THREE.PlaneGeometry(18,9),
+    new THREE.PlaneGeometry(3.6,9),
     new THREE.MeshStandardMaterial({color:0xe9edf0,roughness:1,metalness:0,side:THREE.DoubleSide})
   );
   backWall.position.set(0,4.5,-5.5);
@@ -609,7 +609,7 @@ function setupScene() {
     new THREE.PlaneGeometry(11,9),
     new THREE.MeshStandardMaterial({color:0xe5eaee,roughness:1,metalness:0,side:THREE.DoubleSide})
   );
-  leftWall.position.set(-5.6,4.5,0);
+  leftWall.position.set(-1.8,4.5,0);
   leftWall.rotation.y = Math.PI/2;
   scene.add(leftWall);
 
@@ -617,12 +617,12 @@ function setupScene() {
     new THREE.PlaneGeometry(11,9),
     new THREE.MeshStandardMaterial({color:0xf7f8f9,roughness:1,metalness:0,side:THREE.DoubleSide})
   );
-  rightWall.position.set(5.6,4.5,0);
+  rightWall.position.set(1.8,4.5,0);
   rightWall.rotation.y = -Math.PI/2;
   scene.add(rightWall);
 
   const ceiling = new THREE.Mesh(
-    new THREE.PlaneGeometry(18,11),
+    new THREE.PlaneGeometry(3.6,11),
     new THREE.MeshStandardMaterial({color:0xf8f9fa,roughness:1,metalness:0,side:THREE.DoubleSide})
   );
   ceiling.rotation.x = Math.PI/2;
@@ -874,7 +874,7 @@ function resetAvatar() {
   applyGarments(current);
   $('stageTitle').textContent = 'HOLOGRAPHIC AVATAR';
   $('avatarFile').value = '';
-  showToast('Holographic mannequin restored.');
+  showToast('Particle avatar restored.');
 }
 
 function initTransitionTiles() {
