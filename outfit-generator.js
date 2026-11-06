@@ -143,10 +143,37 @@ function normaliseLook(data, originalText) {
 
 function parseLookReply(reply) {
   const text = String(reply || '').trim();
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
-  if (start < 0 || end <= start) throw new Error('The styling response was not structured JSON.');
-  return normaliseLook(JSON.parse(text.slice(start,end+1)),text);
+  const candidates = [];
+  const fenced = text.match(/\x60{3}(?:json)?\s*([\s\S]*?)\x60{3}/i);
+  if (fenced) candidates.push(fenced[1].trim());
+  for (let start=0;start<text.length;start++) {
+    if (text[start] !== '{') continue;
+    let depth=0, quoted=false, escaped=false;
+    for (let i=start;i<text.length;i++) {
+      const char=text[i];
+      if (quoted) {
+        if (escaped) escaped=false;
+        else if (char==='\\') escaped=true;
+        else if (char==='"') quoted=false;
+        continue;
+      }
+      if (char==='"') quoted=true;
+      else if (char==='{') depth++;
+      else if (char==='}' && --depth===0) {
+        candidates.push(text.slice(start,i+1));
+        break;
+      }
+    }
+  }
+  for (const candidate of candidates) {
+    try {
+      const parsed=JSON.parse(candidate);
+      if (parsed && typeof parsed==='object' && (Array.isArray(parsed.items) || parsed.palette)) {
+        return normaliseLook(parsed,text);
+      }
+    } catch (error) {}
+  }
+  throw new Error('Z.E.R.O. replied, but its outfit response was not valid structured data.');
 }
 
 function fallbackLook() {
@@ -193,36 +220,42 @@ async function generateOutfit() {
   isGenerating = true;
   generateButton.disabled = true;
   generateLabel.textContent = 'GENERATING';
-  setStatus('ZERO IS COMPOSING YOUR LOOK');
+  setStatus('CONNECTING TO Z.E.R.O. STYLING');
   stage.classList.remove('transitioning');
+  let look;
+  let engine = 'ZERO AI';
+  let aiError = null;
   try {
-    let look = null;
-    let engine = 'ZERO AI';
-    try {
-      if (!window.parent || typeof window.parent.__zeroGenerateOutfit !== 'function') throw new Error('Z.E.R.O. chat bridge is unavailable.');
-      const reply = await window.parent.__zeroGenerateOutfit(buildGenerationPrompt());
-      look = parseLookReply(reply);
-    } catch (error) {
-      console.warn('AI outfit generation unavailable; using local style composition.',error);
-      look = fallbackLook();
-      engine = 'LOCAL STYLE MODE';
+    if (!window.parent || typeof window.parent.__zeroGenerateOutfit !== 'function') {
+      throw new Error('The Z.E.R.O. outfit connection is unavailable.');
     }
-    transitionToLook(() => {
-      lookHistory.unshift(look);
-      lookHistory = lookHistory.slice(0,12);
-      activeLookIndex = 0;
-      applyLook(look);
-      renderHistory();
-      engineStatus.textContent = engine === 'ZERO AI' ? 'ZERO AI CONNECTED' : 'LOCAL STYLING ACTIVE';
-      setStatus(engine === 'ZERO AI' ? 'NEW LOOK GENERATED / ZERO AI' : 'NEW LOOK COMPOSED / LOCAL MODE');
-    });
-  } finally {
-    setTimeout(() => {
-      isGenerating = false;
-      generateButton.disabled = false;
-      generateLabel.textContent = 'GENERATE OUTFIT';
-    }, reducedMotion ? 0 : 880);
+    const reply = await window.parent.__zeroGenerateOutfit(buildGenerationPrompt());
+    look = parseLookReply(reply);
+  } catch (error) {
+    aiError = error;
+    console.error('AI outfit generation failed; composing a local look instead.',error);
+    look = fallbackLook();
+    engine = 'LOCAL STYLE MODE';
   }
+  transitionToLook(() => {
+    lookHistory.unshift(look);
+    lookHistory = lookHistory.slice(0,12);
+    activeLookIndex = 0;
+    applyLook(look);
+    renderHistory();
+    engineStatus.textContent = engine === 'ZERO AI' ? 'ZERO AI CONNECTED' : 'LOCAL STYLING ACTIVE';
+    if (engine === 'ZERO AI') {
+      setStatus('OUTFIT GENERATED / ZERO AI');
+    } else {
+      setStatus('LOCAL OUTFIT SHOWN / AI CONNECTION FAILED');
+      showToast(aiError && aiError.message ? aiError.message.slice(0,110) : 'AI unavailable. A local outfit was composed.');
+    }
+  });
+  setTimeout(() => {
+    isGenerating = false;
+    generateButton.disabled = false;
+    generateLabel.textContent = 'GENERATE OUTFIT';
+  }, reducedMotion ? 0 : 880);
 }
 
 function createMaterial(color, emissive, opacity) {
@@ -349,7 +382,7 @@ function createAvatarParticles() {
 
   if (!triangles.length || totalArea <= 0) return;
   const isSmallDevice = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
-  const particleCount = isSmallDevice ? 8500 : 15000;
+  const particleCount = isSmallDevice ? 18500 : 36000;
   const positions = new Float32Array(particleCount*3);
   const normals = new Float32Array(particleCount*3);
   const colors = new Float32Array(particleCount*3);
@@ -379,8 +412,8 @@ function createAvatarParticles() {
     normals[base] /= normalLength;
     normals[base+1] /= normalLength;
     normals[base+2] /= normalLength;
-    sizes[i] = 2.0 + Math.random()*2.1;
-    alphas[i] = 0.72 + Math.random()*0.25;
+    sizes[i] = isSmallDevice ? 0.95 + Math.random()*0.55 : 1.1 + Math.random()*0.8;
+    alphas[i] = 0.82 + Math.random()*0.16;
   }
 
   const geometry = new THREE.BufferGeometry();
@@ -439,8 +472,8 @@ function createAvatarParticles() {
       '  float wrappedLight = max((dot(N,L)+0.34)/1.34,0.0);\n' +
       '  float specular = pow(max(dot(N,H),0.0),28.0)*0.24;\n' +
       '  float rim = pow(1.0-max(dot(N,V),0.0),2.1)*0.2;\n' +
-      '  vec3 lighting = vColor*(0.34 + wrappedLight*0.78 + diffuse*0.12);\n' +
-      '  lighting += vec3(0.48,0.78,1.0)*(specular + rim);\n' +
+      '  vec3 lighting = vColor*(0.56 + wrappedLight*0.62 + diffuse*0.1);\n' +
+      '  lighting += vec3(0.56,0.84,1.0)*(specular + rim);\n' +
       '  float alpha = particleShape*vAlpha*0.94;\n' +
       '  gl_FragColor = vec4(lighting,alpha);\n' +
       '}\n'
@@ -571,12 +604,12 @@ function setupScene() {
   scene = new THREE.Scene();
   const roomWhite = new THREE.Color(0xf1f3f5);
   scene.background = roomWhite;
-  scene.fog = new THREE.Fog(roomWhite,15,34);
+  scene.fog = new THREE.Fog(roomWhite,28,58);
 
-  camera = new THREE.PerspectiveCamera(37,1,0.1,70);
-  camera.position.set(0,2.48,7.3);
+  camera = new THREE.PerspectiveCamera(40,1,0.1,100);
+  camera.position.set(0,2.72,8.8);
   camera.zoom = 1;
-  camera.lookAt(0,1.47,0);
+  camera.lookAt(0,1.5,0);
   camera.updateProjectionMatrix();
 
   scene.add(new THREE.HemisphereLight(0xffffff,0xc7d0d7,1.75));
@@ -598,45 +631,47 @@ function setupScene() {
   floor.position.y = 0;
   scene.add(floor);
 
-  const backWall = new THREE.Mesh(
-    new THREE.PlaneGeometry(3.6,9),
-    new THREE.MeshStandardMaterial({color:0xe9edf0,roughness:1,metalness:0,side:THREE.DoubleSide})
-  );
-  backWall.position.set(0,4.5,-5.5);
+  const wallMaterial = new THREE.MeshStandardMaterial({color:0xe9edf0,roughness:0.96,metalness:0.015,side:THREE.DoubleSide});
+  const backWall = new THREE.Mesh(new THREE.PlaneGeometry(30,16),wallMaterial);
+  backWall.position.set(0,8,-19);
   scene.add(backWall);
 
-  const leftWall = new THREE.Mesh(
-    new THREE.PlaneGeometry(11,9),
-    new THREE.MeshStandardMaterial({color:0xe5eaee,roughness:1,metalness:0,side:THREE.DoubleSide})
-  );
-  leftWall.position.set(-1.8,4.5,0);
+  const sideWallMaterial = new THREE.MeshStandardMaterial({color:0xe5eaee,roughness:0.98,metalness:0,side:THREE.DoubleSide});
+  const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(42,16),sideWallMaterial);
+  leftWall.position.set(-15,8,2);
   leftWall.rotation.y = Math.PI/2;
   scene.add(leftWall);
-
-  const rightWall = new THREE.Mesh(
-    new THREE.PlaneGeometry(11,9),
-    new THREE.MeshStandardMaterial({color:0xf7f8f9,roughness:1,metalness:0,side:THREE.DoubleSide})
-  );
-  rightWall.position.set(1.8,4.5,0);
+  const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(42,16),new THREE.MeshStandardMaterial({color:0xf7f8f9,roughness:0.98,metalness:0,side:THREE.DoubleSide}));
+  rightWall.position.set(15,8,2);
   rightWall.rotation.y = -Math.PI/2;
   scene.add(rightWall);
 
-  const ceiling = new THREE.Mesh(
-    new THREE.PlaneGeometry(3.6,11),
-    new THREE.MeshStandardMaterial({color:0xf8f9fa,roughness:1,metalness:0,side:THREE.DoubleSide})
-  );
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(30,42),new THREE.MeshStandardMaterial({color:0xf8f9fa,roughness:0.96,metalness:0,side:THREE.DoubleSide}));
   ceiling.rotation.x = Math.PI/2;
-  ceiling.position.set(0,9,-0.0);
+  ceiling.position.set(0,16,2);
   scene.add(ceiling);
 
-  const platformMaterial = new THREE.MeshStandardMaterial({color:0xe7edf1,roughness:0.42,metalness:0.12});
+  const finMaterial = new THREE.MeshStandardMaterial({color:0xdce5ea,roughness:0.58,metalness:0.12,emissive:0x8fc9e5,emissiveIntensity:0.12});
+  [-10,-7.5,7.5,10].forEach(x=>{
+    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.055,11,0.16),finMaterial);
+    fin.position.set(x,5.7,-18.75);
+    scene.add(fin);
+  });
+  const ceilingLightMaterial = new THREE.MeshBasicMaterial({color:0xb8eaff,transparent:true,opacity:0.72});
+  [-5.5,0,5.5].forEach(x=>{
+    const strip = new THREE.Mesh(new THREE.BoxGeometry(0.035,0.025,22),ceilingLightMaterial);
+    strip.position.set(x,15.94,-5);
+    scene.add(strip);
+  });
+
+  const platformMaterial = new THREE.MeshStandardMaterial({color:0xe2eaf0,roughness:0.3,metalness:0.2,emissive:0x123d5d,emissiveIntensity:0.12});
   const platform = new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.62,0.22,64),platformMaterial);
   platform.position.y = 0.31;
   scene.add(platform);
 
   const platformTop = new THREE.Mesh(
     new THREE.CylinderGeometry(1.44,1.44,0.018,64),
-    new THREE.MeshStandardMaterial({color:0xfafcfd,roughness:0.28,metalness:0.08})
+    new THREE.MeshStandardMaterial({color:0xfafcfd,roughness:0.24,metalness:0.12,emissive:0x1b5e85,emissiveIntensity:0.055})
   );
   platformTop.position.y = 0.43;
   scene.add(platformTop);
@@ -658,8 +693,16 @@ function setupScene() {
     scene.add(mesh);
     return mesh;
   }
-  ring(1.48,0.009,0x55cfff,0.58,0.365);
-  ring(1.39,0.004,0x9beaff,0.34,0.448);
+  ring(1.51,0.018,0x3dbdff,0.72,0.365);
+  ring(1.43,0.008,0x7be4ff,0.62,0.448);
+  ring(1.29,0.004,0xb5f1ff,0.38,0.455);
+  const underglow = new THREE.Mesh(new THREE.CircleGeometry(1.42,64),new THREE.MeshBasicMaterial({color:0x36aeea,transparent:true,opacity:0.095,depthWrite:false}));
+  underglow.rotation.x = -Math.PI/2;
+  underglow.position.y = 0.455;
+  scene.add(underglow);
+  const platformLight = new THREE.PointLight(0x48c9ff,1.25,5.5);
+  platformLight.position.set(0,0.72,0);
+  scene.add(platformLight);
 
   createDefaultAvatar();
   applyGarments(defaultLook());
@@ -670,6 +713,8 @@ function setupScene() {
     renderer.setSize(width,height,false);
     camera.aspect = width/height;
     camera.zoom = 1;
+    camera.position.set(0,2.72,8.8);
+    camera.lookAt(0,1.5,0);
     camera.updateProjectionMatrix();
   };
   const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
