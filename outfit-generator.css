@@ -127,3 +127,114 @@ textarea::placeholder{color:#567284}
 @media(max-width:720px){body{overflow:auto}#outfitLab{min-height:100dvh;overflow:visible}.topbar{grid-template-columns:1fr auto;min-height:58px;padding:0 12px}.brand{grid-column:2;grid-row:1}.back-button{grid-column:1;grid-row:1;gap:6px;font-size:7px}.top-actions{grid-column:1/-1;grid-row:2;justify-self:stretch;justify-content:flex-end;min-height:34px;margin-top:-4px;padding-bottom:7px}.connection{margin-right:auto}.workspace{display:flex;flex-direction:column;padding:10px;gap:10px}.stage{order:0;min-height:52dvh;height:52dvh;max-height:610px}.composer{order:1}.look-panel{order:2;display:flex;gap:0}.look-heading{margin-bottom:10px}.look-meta{display:flex}.garment-list{grid-template-columns:1fr 1fr}.styling-note{padding:14px 0 8px}.look-actions{grid-column:auto;align-self:auto}.look-rail{grid-template-columns:1fr auto;gap:8px;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px))}.rail-label{grid-column:1}.rail-controls{grid-column:2;grid-row:1}.look-strip{grid-column:1/-1;grid-row:2}.rail-foot{display:none}.panel{padding:15px}.stage-head{left:13px;right:13px;top:12px}.stage-coordinates{font-size:6px}.stage-hint{bottom:42px;left:13px}.stage-corner-b{right:12px;font-size:6px}.platform-caption{bottom:15px;font-size:6px;letter-spacing:.11em}}
 @media(max-width:380px){.brand-copy small{display:none}.connection{font-size:7px}.avatar-upload,.reset-avatar{padding:0 8px;font-size:7px}.stage{min-height:48dvh;height:48dvh}.panel-heading h1{font-size:20px}.look-card{min-width:126px}.select-grid{gap:6px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}.stage.transitioning .scan-sweep{display:none}}
+
+
+/* Full-screen glass showroom layout */
+html,body,#outfitLab{width:100%;height:100%;min-height:100%;overflow:hidden}
+#outfitLab{display:block;min-height:100dvh;height:100dvh;background:#020812}
+.topbar{position:absolute;z-index:20;top:0;left:0;right:0;display:block;min-height:0;height:0;padding:0;border:0;background:transparent;backdrop-filter:none}
+.back-button{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:14px;z-index:25;padding:10px 13px;border:1px solid rgba(107,209,255,.28);background:rgba(3,13,24,.68);backdrop-filter:blur(14px);font-size:8px}
+.brand{display:none}
+.top-actions{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:25;gap:7px}
+.connection{display:none}
+.avatar-upload,.reset-avatar{min-height:34px;background:rgba(3,13,24,.68);backdrop-filter:blur(14px)}
+.workspace{position:absolute;inset:0;display:block;width:100%;max-width:none;min-height:0;height:100%;padding:0;margin:0}
+.stage{position:absolute;inset:0;width:100%;height:100%;min-height:0;border:0;background:radial-gradient(ellipse at 50% 57%,rgba(26,101,146,.23),rgba(5,17,29,.14) 42%,#020812 100%)}
+.stage:before{background:radial-gradient(ellipse at 50% 82%,rgba(28,140,220,.18),transparent 43%),linear-gradient(90deg,rgba(142,203,226,.07),transparent 18%,transparent 82%,rgba(142,203,226,.07))}
+.room-glass{border-color:rgba(157,224,247,.24);background:linear-gradient(135deg,rgba(195,231,244,.075),rgba(37,102,139,.025) 42%,rgba(145,205,231,.065));box-shadow:inset 0 0 55px rgba(145,213,238,.06),0 0 42px rgba(40,151,212,.05)}
+.room-back{left:13%;right:13%;top:8%;height:48%}
+.room-left{left:-10%;top:8%;bottom:12%;width:34%}
+.room-right{right:-10%;top:8%;bottom:12%;width:34%}
+#scene{z-index:2}
+.scene-fallback{position:absolute;z-index:1;inset:0;display:block;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 54%,rgba(31,115,166,.14),transparent 43%)}
+.stage.scene-ready .scene-fallback{display:none}
+.fallback-wall{position:absolute;border:1px solid rgba(147,220,247,.26);background:linear-gradient(140deg,rgba(190,233,250,.055),rgba(40,118,166,.012) 55%,rgba(163,222,244,.035));box-shadow:inset 0 0 60px rgba(145,220,255,.04),0 0 25px rgba(56,164,220,.05)}
+.fallback-wall-back{left:18%;right:18%;top:9%;height:44%;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%)}
+.fallback-wall-left{left:-17%;top:10%;height:69%;width:39%;transform:skewY(-12deg)}
+.fallback-wall-right{right:-17%;top:10%;height:69%;width:39%;transform:skewY(12deg)}
+.fallback-floor-grid{position:absolute;left:-20%;right:-20%;bottom:-15%;height:48%;transform:perspective(320px) rotateX(62deg);transform-origin:top center;background:linear-gradient(rgba(92,201,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(92,201,255,.12) 1px,transparent 1px);background-size:48px 34px;mask-image:linear-gradient(to bottom,black,transparent)}
+.fallback-platform{position:absolute;left:50%;bottom:15%;width:min(47vw,470px);height:70px;transform:translateX(-50%);border:1px solid rgba(116,223,255,.75);border-radius:50%;background:radial-gradient(ellipse,rgba(57,178,245,.22),rgba(9,37,60,.7) 65%,rgba(7,21,34,.8));box-shadow:0 0 24px rgba(39,173,255,.45),0 0 80px rgba(31,138,255,.22),inset 0 0 24px rgba(141,232,255,.2)}
+.fallback-platform:before{content:"";position:absolute;inset:9px 12px;border:1px solid rgba(137,232,255,.48);border-radius:50%}
+.fallback-platform i{position:absolute;left:0;right:0;bottom:-11px;height:15px;border-radius:50%;background:rgba(32,137,221,.26);filter:blur(12px)}
+.fallback-platform b{position:absolute;left:4%;right:4%;bottom:-13px;height:12px;border:1px solid rgba(51,163,255,.45);border-radius:50%}
+.fallback-avatar{position:absolute;z-index:2;left:50%;bottom:calc(15% + 28px);height:min(64vh,610px);max-height:68%;width:auto;transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 0 15px rgba(70,190,255,.28))}
+.fallback-label{position:absolute;left:50%;bottom:calc(15% - 22px);transform:translateX(-50%);font:8px var(--mono);letter-spacing:.18em;color:#7dcdf0;white-space:nowrap}
+.stage-head{top:calc(17px + env(safe-area-inset-top,0px));left:50%;right:auto;transform:translateX(-50%);text-align:center;display:grid;justify-items:center;gap:4px}
+.stage-head .eyebrow{font-size:7px}
+.stage-head strong{font-size:8px}
+.stage-coordinates{display:none}
+.stage-hint{left:50%;bottom:calc(15% - 42px);transform:translateX(-50%);white-space:nowrap}
+.platform-caption{display:none}
+.stage-corner{display:none}
+.composer,.look-panel{position:absolute;z-index:10;width:clamp(210px,22vw,285px);max-height:min(65dvh,620px);overflow:auto;padding:14px;border:1px solid rgba(120,205,238,.2);background:rgba(4,16,29,.76);box-shadow:0 18px 55px rgba(0,0,0,.26);backdrop-filter:blur(20px);scrollbar-width:thin}
+.composer{left:14px;top:76px}
+.look-panel{right:14px;top:76px;display:flex;flex-direction:column}
+.panel-heading{margin-bottom:10px}
+.panel-heading h1,.panel-heading h2{font-size:16px;margin:6px 0}
+.panel-heading p{font-size:9px;line-height:1.5}
+.field-label{margin:10px 0 6px}
+textarea{min-height:64px;padding:8px;font-size:10px}
+.field-block{margin-top:10px}
+.style-options{gap:4px}
+.style-chip{min-height:26px;padding:0 7px;font-size:8px}
+.select-grid{margin-top:10px}
+.select-field select{height:32px}
+.palette-field{margin-top:8px}
+.generate-button{min-height:39px;margin-top:12px}
+.generation-status{min-height:18px;padding-top:6px}
+.panel-footnote{margin-top:6px;padding-top:8px;font-size:6px}
+.look-meta{padding:8px 0 6px}
+.garment-row{min-height:45px}
+.garment-swatch{width:19px;height:19px}
+.styling-note{padding:9px 0 5px}
+.styling-note p{font-size:8px}
+.look-actions{margin-top:4px}
+.save-button,.share-button{min-height:31px;font-size:7px}
+.look-rail{position:absolute;z-index:12;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;width:min(680px,calc(100% - 28px));min-height:0;padding:9px 12px;border:1px solid rgba(120,205,238,.2);background:rgba(4,16,29,.76);box-shadow:0 12px 40px rgba(0,0,0,.25);backdrop-filter:blur(18px)}
+.rail-label{display:none}
+.rail-controls{grid-column:1;grid-row:1}
+.look-strip{grid-column:2;grid-row:1}
+.rail-foot{display:none}
+.toast{bottom:95px}
+@media(max-width:720px){
+  html,body,#outfitLab{height:100%;min-height:100%;overflow:hidden}
+  .topbar{height:0;min-height:0;padding:0}
+  .back-button{top:calc(9px + env(safe-area-inset-top,0px));left:9px;padding:8px 9px;font-size:7px}
+  .top-actions{top:calc(9px + env(safe-area-inset-top,0px));right:9px}
+  .avatar-upload{font-size:7px;min-height:31px}
+  .reset-avatar{display:none}
+  .workspace{position:absolute;inset:0;display:block;padding:0}
+  .stage{position:absolute;inset:0;height:100%;min-height:0;max-height:none}
+  .composer{left:9px;top:auto;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:min(47vw,235px);max-height:34dvh;padding:10px}
+  .look-panel{right:9px;top:auto;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:min(47vw,235px);max-height:34dvh;padding:10px}
+  .panel-heading h1,.panel-heading h2{font-size:13px}
+  .panel-heading p{font-size:8px}
+  .composer .style-options{display:none}
+  .composer .select-grid,.composer .palette-field,.composer .panel-footnote{display:none}
+  .composer textarea{min-height:48px}
+  .composer .field-label{margin-top:5px}
+  .composer .generate-button{margin-top:7px;min-height:34px;font-size:7px}
+  .look-heading p,.styling-note{display:none}
+  .look-meta{font-size:6px}
+  .garment-row{min-height:35px;grid-template-columns:19px minmax(0,1fr)}
+  .garment-slot{display:none}
+  .garment-copy strong{font-size:7px}
+  .garment-copy small{font-size:6px}
+  .garment-list{grid-template-columns:1fr}
+  .look-actions{display:none}
+  .look-rail{bottom:calc(8px + env(safe-area-inset-bottom,0px));width:calc(100% - 18px);padding:7px 8px;gap:6px}
+  .look-card{min-width:112px;height:43px;grid-template-columns:26px minmax(55px,1fr);gap:5px;padding:4px 6px}
+  .mini-avatar{transform:scale(.8);transform-origin:center}
+  .stage-head{top:calc(54px + env(safe-area-inset-top,0px))}
+  .fallback-avatar{height:min(53vh,480px);bottom:calc(17% + 22px)}
+  .fallback-platform{bottom:17%;width:min(70vw,390px);height:54px}
+  .fallback-label{bottom:calc(17% - 19px);font-size:6px}
+  .stage-hint{display:none}
+}
+@media(max-width:380px){
+  .composer,.look-panel{width:calc(50vw - 14px);padding:8px}
+  .panel-heading h1,.panel-heading h2{font-size:12px}
+  .look-panel{max-height:31dvh}
+  .composer{max-height:31dvh}
+  .garment-row{min-height:31px}
+}
