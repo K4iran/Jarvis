@@ -147,7 +147,7 @@ html,body,#outfitLab{width:100%;height:100%;min-height:100%;overflow:hidden}
 .room-right{right:-10%;top:8%;bottom:12%;width:34%}
 #scene{z-index:2}
 .scene-fallback{position:absolute;z-index:1;inset:0;display:block;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 54%,rgba(31,115,166,.14),transparent 43%)}
-.stage.scene-ready .scene-fallback{display:none}
+.stage.scene-ready .scene-fallback{display:block!important}
 .fallback-wall{position:absolute;border:1px solid rgba(147,220,247,.26);background:linear-gradient(140deg,rgba(190,233,250,.055),rgba(40,118,166,.012) 55%,rgba(163,222,244,.035));box-shadow:inset 0 0 60px rgba(145,220,255,.04),0 0 25px rgba(56,164,220,.05)}
 .fallback-wall-back{left:18%;right:18%;top:9%;height:44%;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%)}
 .fallback-wall-left{left:-17%;top:10%;height:69%;width:39%;transform:skewY(-12deg)}
@@ -359,7 +359,7 @@ html,body,#outfitLab{width:100%;height:100%;min-height:100%;overflow:hidden}
 }
 .fallback-avatar g{fill:rgba(65,166,211,.78)!important;stroke:#b8f3ff!important;stroke-width:2.8!important}
 .fallback-avatar>path{stroke:#b8f3ff!important}
-#scene{opacity:.16!important}
+#scene{opacity:1!important}
 .fallback-wall-back{left:7%!important;right:7%!important;top:7%!important;height:61%!important}
 .fallback-wall-left{left:-13%!important;top:7%!important;height:78%!important;width:39%!important}
 .fallback-wall-right{right:-13%!important;top:7%!important;height:78%!important;width:39%!important}
@@ -371,4 +371,20 @@ html,body,#outfitLab{width:100%;height:100%;min-height:100%;overflow:hidden}
   .fallback-wall-back,.room-back{left:3%!important;right:3%!important;top:10%!important;height:49%!important}
   .fallback-wall-left,.room-left{left:-22%!important;width:45%!important}
   .fallback-wall-right,.room-right{right:-22%!important;width:45%!important}
+}
+
+
+/* FINAL RENDER HANDOFF: keep the 2D mannequin until the 3D frame is ready. */
+.scene-fallback,
+.stage.scene-ready .scene-fallback,
+.stage.scene-unavailable .scene-fallback{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#scene{opacity:1!important}
+.stage.three-rendered .scene-fallback{
+  opacity:0!important;
+  visibility:hidden!important;
+  transition:opacity .28s ease,visibility .28s ease;
 }
