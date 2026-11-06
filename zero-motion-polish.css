@@ -1,0 +1,351 @@
+/* Z.E.R.O. motion + HUD polish
+   Inspired by the restraint and interaction clarity of Linear, Raycast and Apple.
+   This layer intentionally refines existing components instead of replacing them. */
+
+:root {
+  --zero-ease-standard: cubic-bezier(.2,.8,.2,1);
+  --zero-ease-out: cubic-bezier(.22,1,.36,1);
+  --zero-ease-in-out: cubic-bezier(.76,0,.24,1);
+  --zero-motion-fast: 160ms;
+  --zero-motion-base: 240ms;
+  --zero-motion-slow: 380ms;
+}
+
+/* Consistent, quiet transitions: animate only properties that should move. */
+.tab,
+.ib,
+.mic,
+.q,
+.pn,
+.btn,
+.sw::after,
+.legal-settings-link,
+.hm-key,
+.hm-speak,
+.hm-submit,
+.hm-exit {
+  transition-timing-function: var(--zero-ease-out);
+}
+
+.tab {
+  transition:
+    color var(--zero-motion-fast) var(--zero-ease-out),
+    border-color var(--zero-motion-fast) var(--zero-ease-out),
+    background-color var(--zero-motion-fast) var(--zero-ease-out),
+    transform var(--zero-motion-fast) var(--zero-ease-out);
+}
+
+.ib {
+  transition:
+    color var(--zero-motion-fast) var(--zero-ease-out),
+    border-color var(--zero-motion-fast) var(--zero-ease-out),
+    background-color var(--zero-motion-fast) var(--zero-ease-out),
+    box-shadow var(--zero-motion-base) var(--zero-ease-out),
+    transform var(--zero-motion-fast) var(--zero-ease-out);
+}
+
+.mic {
+  transition:
+    color var(--zero-motion-base) var(--zero-ease-out),
+    border-color var(--zero-motion-base) var(--zero-ease-out),
+    background var(--zero-motion-base) var(--zero-ease-out),
+    box-shadow var(--zero-motion-base) var(--zero-ease-out),
+    transform var(--zero-motion-base) var(--zero-ease-out);
+}
+
+.q,
+.btn,
+.hm-key,
+.hm-speak,
+.hm-submit,
+.hm-exit {
+  transition:
+    color var(--zero-motion-fast) var(--zero-ease-out),
+    border-color var(--zero-motion-fast) var(--zero-ease-out),
+    background-color var(--zero-motion-fast) var(--zero-ease-out),
+    box-shadow var(--zero-motion-fast) var(--zero-ease-out),
+    transform var(--zero-motion-fast) var(--zero-ease-out),
+    opacity var(--zero-motion-fast) linear;
+}
+
+.sw::after {
+  transition:
+    left 220ms var(--zero-ease-out),
+    background-color 220ms var(--zero-ease-out),
+    box-shadow 220ms var(--zero-ease-out);
+}
+
+/* Main HUD: cleaner glass, clearer hierarchy, restrained edge lighting. */
+.fr,
+.pn,
+#disp,
+.response-holo,
+.sheet,
+.hangman-layout {
+  border-color: rgba(105, 207, 245, .2);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 248, 255, .035),
+    0 10px 32px rgba(0, 0, 0, .16);
+}
+
+.fr,
+.pn,
+#disp {
+  background-color: rgba(5, 17, 31, .74);
+  -webkit-backdrop-filter: blur(10px) saturate(1.08);
+  backdrop-filter: blur(10px) saturate(1.08);
+}
+
+.fr::before,
+.pn::before,
+.fr::after,
+.pn::after {
+  width: 10px;
+  height: 10px;
+  opacity: .72;
+  transition:
+    opacity var(--zero-motion-base) var(--zero-ease-out),
+    width var(--zero-motion-base) var(--zero-ease-out),
+    height var(--zero-motion-base) var(--zero-ease-out);
+}
+
+#disp {
+  border: 1px solid rgba(88, 223, 255, .16);
+  background:
+    linear-gradient(145deg, rgba(10, 29, 48, .76), rgba(4, 12, 25, .82));
+  box-shadow:
+    inset 0 1px 0 rgba(220, 248, 255, .045),
+    inset 0 0 28px rgba(54, 150, 215, .035),
+    0 14px 36px rgba(0, 0, 0, .18);
+}
+
+.hd {
+  border-bottom: 1px solid rgba(88, 223, 255, .11);
+}
+
+.pn {
+  transform: translateZ(0);
+  transition:
+    color var(--zero-motion-base) var(--zero-ease-out),
+    border-color var(--zero-motion-base) var(--zero-ease-out),
+    background-color var(--zero-motion-base) var(--zero-ease-out),
+    box-shadow var(--zero-motion-base) var(--zero-ease-out),
+    transform var(--zero-motion-base) var(--zero-ease-out);
+}
+
+.tab.active {
+  box-shadow: inset 0 -1px 0 rgba(88, 223, 255, .28);
+}
+
+.stat i {
+  transition:
+    background-color var(--zero-motion-base) var(--zero-ease-out),
+    box-shadow var(--zero-motion-base) var(--zero-ease-out);
+}
+
+#rail {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kp > div {
+  transition:
+    border-color var(--zero-motion-base) var(--zero-ease-out),
+    background-color var(--zero-motion-base) var(--zero-ease-out),
+    box-shadow var(--zero-motion-base) var(--zero-ease-out);
+}
+
+/* Modal and view changes use one consistent arrival curve. */
+#ov {
+  transition: opacity 260ms var(--zero-ease-out);
+}
+
+.sheet {
+  opacity: 0;
+  transform: translateY(10px) scale(.99);
+  transition:
+    opacity 260ms var(--zero-ease-out),
+    transform 380ms var(--zero-ease-out);
+  will-change: transform, opacity;
+}
+
+#ov.on .sheet {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+#cmd,
+.fade {
+  animation: zeroHudEnter 420ms var(--zero-ease-out) both;
+}
+
+@keyframes zeroHudEnter {
+  from { opacity: 0; transform: translate3d(0, 9px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.hangman-shell {
+  transition: opacity 380ms var(--zero-ease-out);
+}
+
+.hangman-layout {
+  animation: zeroHudEnter 480ms var(--zero-ease-out) both;
+}
+
+#center .core {
+  transition:
+    opacity 380ms var(--zero-ease-out),
+    transform 520ms var(--zero-ease-out),
+    filter 380ms var(--zero-ease-out);
+}
+
+/* Zen keeps its own visual identity; only interaction timing is harmonised. */
+#zenRoot .zen-panel-host {
+  transition:
+    opacity 420ms var(--zero-ease-out),
+    background-color 420ms var(--zero-ease-out);
+}
+
+#zenRoot .zen-panel {
+  transition:
+    opacity 300ms var(--zero-ease-out),
+    transform 420ms var(--zero-ease-out);
+}
+
+#zenRoot .zen-node,
+#zenRoot .zen-node .zen-node-icon,
+#zenRoot .zen-btn,
+#zenRoot .zen-back,
+#zenRoot .zen-small-action,
+#zenRoot .zen-close-panel {
+  transition-timing-function: var(--zero-ease-out);
+}
+
+/* Hover motion is deliberately tiny; touch devices get no fake hover lift. */
+@media (hover: hover) and (pointer: fine) {
+  .ib:hover {
+    transform: translateY(-1px) scale(1.02);
+  }
+
+  .mic:hover {
+    transform: translateY(-1px) scale(1.025);
+  }
+
+  .q:hover,
+  .btn:hover,
+  .hm-speak:hover,
+  .hm-submit:hover,
+  .hm-exit:hover {
+    transform: translateY(-1px);
+  }
+
+  .pn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 rgba(220, 248, 255, .05),
+      inset 0 0 20px rgba(88, 223, 255, .055),
+      0 10px 26px rgba(0, 0, 0, .2);
+  }
+
+  .pn:hover::before,
+  .pn:hover::after {
+    opacity: 1;
+    width: 13px;
+    height: 13px;
+  }
+
+  .kp > div:hover {
+    border-color: rgba(88, 223, 255, .32);
+    background: rgba(88, 223, 255, .035);
+  }
+}
+
+.ib:active,
+.mic:active,
+.q:active,
+.pn:active,
+.btn:active,
+.hm-key:active,
+.hm-speak:active,
+.hm-submit:active,
+.hm-exit:active {
+  transform: scale(.975);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  #rail {
+    scroll-behavior: auto !important;
+  }
+
+  .tab,
+  .ib,
+  .mic,
+  .q,
+  .pn,
+  .btn,
+  .sw::after,
+  .legal-settings-link,
+  .hm-key,
+  .hm-speak,
+  .hm-submit,
+  .hm-exit,
+  .fr::before,
+  .pn::before,
+  .fr::after,
+  .pn::after,
+  #ov,
+  .sheet,
+  #cmd,
+  .fade,
+  .hangman-shell,
+  .hangman-layout,
+  #center .core,
+  #zenRoot .zen-panel-host,
+  #zenRoot .zen-panel,
+  #zenRoot .zen-node,
+  #zenRoot .zen-node .zen-node-icon,
+  #zenRoot .zen-btn,
+  #zenRoot .zen-back,
+  #zenRoot .zen-small-action,
+  #zenRoot .zen-close-panel {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .sheet,
+  #ov.on .sheet,
+  .pn:hover,
+  .ib:hover,
+  .mic:hover,
+  .q:hover,
+  .btn:hover {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .fr,
+  .pn,
+  #disp,
+  .sheet,
+  .hangman-layout {
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+  }
+
+  .pn:hover {
+    transform: none;
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .fr,
+  .pn,
+  #disp,
+  .sheet,
+  .hangman-layout {
+    background-color: rgba(5, 17, 31, .94);
+  }
+}
