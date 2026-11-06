@@ -426,7 +426,7 @@ function setupScene() {
   const rim = new THREE.PointLight(0x4fe5ff,2.8,11);
   rim.position.set(-2.2,2.5,-2.6);scene.add(rim);
 
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshPhysicalMaterial({color:0x071421,metalness:0.7,roughness:0.26,clearcoat:0.8}));
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshPhysicalMaterial({color:0x071421,metalness:0.68,roughness:0.18,transparent:true,opacity:0.28,clearcoat:1,clearcoatRoughness:0.08,side:THREE.DoubleSide,depthWrite:false}));
   floor.rotation.x = -Math.PI/2;floor.position.y = 0.015;floor.receiveShadow = true;scene.add(floor);
   const grid = new THREE.GridHelper(36,54,0x286082,0x15354b);
   grid.position.y = 0.022;
