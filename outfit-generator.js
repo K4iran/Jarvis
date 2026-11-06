@@ -738,6 +738,7 @@ function init() {
   bindEvents();
   try {
     setupScene();
+    stage.classList.add('scene-ready');
     if (!lookHistory.length) lookHistory = [defaultLook()];
     applyLook(lookHistory[0]);
     renderHistory();
