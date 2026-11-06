@@ -762,12 +762,10 @@ function applyGarments(look) {
 }
 function setupScene() {
   const small = window.innerWidth < 720 || (navigator.hardwareConcurrency || 4) <= 4;
-  // Prefer a low-power WebGL2 context: mobile WebViews often reject high-performance requests.
-  const contextOptions={alpha:false,antialias:!small,powerPreference:'low-power',failIfMajorPerformanceCaveat:false,depth:true,stencil:false,preserveDrawingBuffer:false};
-  let webglContext=sceneCanvas.getContext('webgl2',contextOptions);
-  if(!webglContext) throw new Error('WebGL 2 is unavailable in this browser. Open Outfit Lab in an up-to-date Chrome browser with hardware acceleration enabled.');
-  renderer = new THREE.WebGLRenderer({canvas:sceneCanvas,context:webglContext,...contextOptions});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,small ? 1.15 : 1.5));
+  // Restore the renderer initialisation used by the last working Outfit Lab build.
+  // Let Three.js acquire the WebGL2 context itself instead of pre-creating it on the canvas.
+  renderer = new THREE.WebGLRenderer({canvas:sceneCanvas,alpha:false,antialias:!small,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,small ? 1.35 : 1.8));
   renderer.setClearColor(0xf1f3f5,1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
