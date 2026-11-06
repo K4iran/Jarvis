@@ -24,7 +24,7 @@
       </button>
       <div class="brand">
         <span class="brand-mark">Z.</span>
-        <span class="brand-copy"><strong>OUTFIT LAB</strong><small>HOLOGRAPHIC STYLING SYSTEM</small></span>
+        <span class="brand-copy"><strong>OUTFIT LAB</strong><small>3D CLOTHING STUDIO</small></span>
       </div>
       <div class="top-actions">
         <span id="engineStatus" hidden>STYLE ENGINE READY</span>
@@ -37,14 +37,19 @@
       <aside class="composer" aria-label="Outfit controls">
         <label class="brief-label" for="outfitBrief"><span>STYLE BRIEF</span><small>DESCRIBE THE LOOK YOU WANT</small></label>
         <textarea id="outfitBrief" rows="3" maxlength="700" aria-label="Describe an outfit" placeholder="e.g. Dark oversized hoodie, washed black cargos, clean white trainers…"></textarea>
+        <div class="wardrobe-controls" aria-label="Choose individual clothing items">
+          <label><span>TOP</span><select id="garmentTop"><option value="Baggy heavyweight hoodie">Baggy hoodie</option><option value="Oversized heavyweight T-shirt">Oversized T-shirt</option><option value="Fitted T-shirt">Fitted T-shirt</option><option value="Compression top">Compression top</option><option value="Relaxed crewneck sweatshirt">Crewneck sweatshirt</option></select></label>
+          <label><span>BOTTOMS</span><select id="garmentBottom"><option value="Baggy fleece joggers">Baggy joggers</option><option value="Tight-fit denim jeans">Tight jeans</option><option value="Straight-leg jeans">Straight jeans</option><option value="Wide-leg cargos">Baggy cargos</option><option value="Relaxed track pants">Track pants</option></select></label>
+          <label><span>OUTER LAYER</span><select id="garmentLayer"><option value="">No outer layer</option><option value="Oversized zip-up hoodie">Zip-up hoodie</option><option value="Puffer jacket">Puffer jacket</option><option value="Bomber jacket">Bomber jacket</option><option value="Denim jacket">Denim jacket</option></select></label>
+        </div>
         <button class="generate-button" id="generateButton" type="button">
           <span class="generate-icon">✳</span><span class="generate-label">GENERATE IDEAS</span><span class="generate-arrow">↗</span>
         </button>
         <div class="generation-status" id="generationStatus" role="status" aria-live="polite">READY</div>
       </aside>
 
-      <section class="stage" id="stage" aria-label="Holographic outfit preview">
-        <canvas id="scene" aria-label="Rotatable particle hologram in a white studio"></canvas>
+      <section class="stage" id="stage" aria-label="Solid 3D outfit preview">
+        <canvas id="scene" aria-label="Rotatable solid 3D fashion avatar in a studio"></canvas>
         <div class="scene-fallback" id="sceneFallback" aria-hidden="true">
           <div class="fallback-platform"><i></i><b></b></div>
           <svg class="fallback-avatar" viewBox="0 0 300 650" role="presentation">
@@ -63,10 +68,10 @@
                 <path d="M163 550 L203 550 225 575 Q231 590 217 590 L169 590Z"/>
               </clipPath>
             </defs>
-            <rect width="300" height="650" fill="url(#particleDots)" clip-path="url(#particleHuman)"/>
+            <g clip-path="url(#solidHuman)" stroke="#1b2730" stroke-width="1.5"><rect width="300" height="650" fill="#e6ebee"/><circle cx="150" cy="62" r="39" fill="url(#avatarSkin)"/><path d="M126 105 Q150 95 174 105 L198 132 225 250 197 267 180 187 183 305 117 305 120 187 103 267 75 250 102 132Z" fill="url(#avatarTop)"/><path d="M119 300 L181 300 190 405 169 420 150 405 131 420 110 405Z" fill="url(#avatarBottom)"/><path d="M111 407 L145 407 137 555 105 555 96 425Z" fill="url(#avatarBottom)"/><path d="M155 407 L189 407 204 555 195 555 163 555Z" fill="url(#avatarBottom)"/><path d="M96 550 L139 550 134 590 78 590 Q70 580 82 564Z" fill="#e9edf0"/><path d="M163 550 L203 550 225 575 Q231 590 217 590 L169 590Z" fill="#e9edf0"/></g>
           </svg>        </div>
         <div class="transition-tiles" id="transitionTiles" aria-hidden="true"></div>
-        <span id="stageTitle" hidden>HOLOGRAPHIC AVATAR</span>
+        <span id="stageTitle" hidden>3D AVATAR</span>
       </section>
     </main>
 
@@ -85,18 +90,18 @@
     <section class="avatar-modal" id="avatarModal" aria-hidden="true">
       <div class="avatar-dialog" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
         <div class="history-heading"><div><span class="eyebrow">03 / AVATAR STUDIO</span><strong id="avatarTitle">CUSTOMISE YOUR AVATAR</strong></div><button id="closeAvatar" type="button" aria-label="Close avatar studio">×</button></div>
-        <p class="avatar-intro">Build an in-app holographic avatar. Changes stay on this device.</p>
+        <p class="avatar-intro">Build a solid 3D avatar. Your appearance settings stay on this device.</p>
         <div class="avatar-option-group"><span>HAIRSTYLE</span><div class="avatar-choice-row">
           <button type="button" class="avatar-choice active" data-hair="short">SHORT</button>
           <button type="button" class="avatar-choice" data-hair="textured">TEXTURED</button>
           <button type="button" class="avatar-choice" data-hair="long">LONG</button>
           <button type="button" class="avatar-choice" data-hair="none">NONE</button>
         </div></div>
-        <div class="avatar-option-group"><span>HOLOGRAM TONE</span><div class="avatar-choice-row">
-          <button type="button" class="tone-choice active" data-tone="#82e6ff" aria-label="Ice blue"></button>
-          <button type="button" class="tone-choice" data-tone="#9c9cff" aria-label="Violet"></button>
-          <button type="button" class="tone-choice" data-tone="#8cebd1" aria-label="Mint"></button>
-          <button type="button" class="tone-choice" data-tone="#f0f4ff" aria-label="White"></button>
+        <div class="avatar-option-group"><span>SKIN TONE</span><div class="avatar-choice-row">
+          <button type="button" class="tone-choice active" data-tone="#bd9278" aria-label="Warm tan"></button>
+          <button type="button" class="tone-choice" data-tone="#8b604b" aria-label="Deep brown"></button>
+          <button type="button" class="tone-choice" data-tone="#d8b79d" aria-label="Light warm"></button>
+          <button type="button" class="tone-choice" data-tone="#c58f72" aria-label="Copper"></button>
         </div></div>
         <button class="avatar-apply" id="applyAvatar" type="button">APPLY AVATAR</button>
       </div>
