@@ -46,7 +46,7 @@ const categories = [
       },
       {
         id: 'weather', name: 'Weather', status: 'Active', icon: 'weather',
-        description: 'Check a city's current conditions and hourly forecast.',
+        description: 'Check a city’s current conditions and hourly forecast.',
         activation: '“Hey ZERO, what’s the weather in Istanbul?”',
         launch: 'weather'
       },
