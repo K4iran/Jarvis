@@ -219,7 +219,7 @@ function openOutfitLab(options) {
     outfitLabFrame.id = 'zeroOutfitGeneratorFrame';
     outfitLabFrame.title = 'Z.E.R.O. Outfit Lab';
     outfitLabFrame.allow = 'clipboard-read; clipboard-write';
-    outfitLabFrame.src = './outfit-generator.html?v=studio-pass-5';
+    outfitLabFrame.src = './outfit-generator.html?v=compat-human-1';
     outfitLabFrame.addEventListener('load',function(){
       outfitLabFrame.dataset.ready = 'true';
       sendOutfitPrompt();
