@@ -177,30 +177,67 @@ function parseLookReply(reply) {
 }
 
 function fallbackLook() {
-  const p = paletteByStyle[selectedStyle] || paletteByStyle.Streetwear;
+  const base = paletteByStyle[selectedStyle] || paletteByStyle.Streetwear;
   const brief = $('outfitBrief').value.trim();
+  const text = brief.toLowerCase();
   const mood = $('colourMood').value;
   const modifier = mood === 'Monochrome' ? {top:'#B8C0C7',bottom:'#242D39',shoes:'#DCE4EA',outerwear:'#66727D',accent:'#A9D8E8'}
     : mood === 'Earth tones' ? {top:'#B5A48D',bottom:'#444039',shoes:'#D6C8B4',outerwear:'#696B50',accent:'#C69B72'}
     : mood === 'Cool tones' ? {top:'#789BB8',bottom:'#263A54',shoes:'#DCEBF3',outerwear:'#435E7D',accent:'#69D9FF'}
     : mood === 'Warm neutrals' ? {top:'#D0BBA5',bottom:'#65574B',shoes:'#E8DBCB',outerwear:'#A27D60',accent:'#D0A77D'}
-    : mood === 'One accent colour' ? {top:p.top,bottom:p.bottom,shoes:p.shoes,outerwear:p.outerwear,accent:'#63D8FF'}
-    : p;
+    : mood === 'One accent colour' ? {top:base.top,bottom:base.bottom,shoes:base.shoes,outerwear:base.outerwear,accent:'#63D8FF'}
+    : {...base};
+
+  const colourMap = {
+    black:'#252B32',white:'#E8ECEF',grey:'#89939C',gray:'#89939C',
+    navy:'#263C59',blue:'#477DA8',red:'#A94C50',green:'#557B68',
+    beige:'#C8B89F',brown:'#765B48',cream:'#E5DCCB',purple:'#77658D'
+  };
+  Object.keys(colourMap).forEach(colour=>{
+    if(new RegExp('\\b'+colour+'\\b').test(text)){
+      if(/trouser|pant|cargo|jean|denim|short/.test(text)) modifier.bottom=colourMap[colour];
+      else if(/shoe|trainer|sneaker|boot/.test(text)) modifier.shoes=colourMap[colour];
+      else if(/jacket|coat|overshirt|layer/.test(text)) modifier.outerwear=colourMap[colour];
+      else modifier.top=colourMap[colour];
+    }
+  });
+
+  const topName = /hoodie|hooded/.test(text) ? 'Relaxed heavyweight hoodie'
+    : /jersey|basketball|sportswear|athletic/.test(text) ? 'Technical performance jersey'
+    : /shirt|tee|t-shirt/.test(text) ? 'Relaxed cotton graphic-free T-shirt'
+    : /knit|sweater|jumper/.test(text) ? 'Textured relaxed knit sweater'
+    : selectedStyle==='Smart casual' ? 'Structured relaxed-fit shirt'
+    : 'Textured relaxed-fit top';
+  const bottomName = /cargo|utility/.test(text) ? 'Relaxed utility cargo trousers'
+    : /jean|denim/.test(text) ? 'Relaxed straight-leg denim jeans'
+    : /shorts/.test(text) ? 'Relaxed athletic shorts'
+    : /track|jogger|sweatpant/.test(text) ? 'Relaxed tapered track trousers'
+    : 'Relaxed straight-leg trousers';
+  const shoeName = /basketball|court|high.top/.test(text) ? 'High-top court sneakers'
+    : /boot/.test(text) ? 'Minimal leather boots'
+    : /runner|running/.test(text) ? 'Technical running sneakers'
+    : 'Minimal everyday sneakers';
+  const layerName = /puffer/.test(text) ? 'Lightweight insulated puffer jacket'
+    : /bomber/.test(text) ? 'Clean bomber jacket'
+    : /denim jacket/.test(text) ? 'Relaxed denim jacket'
+    : /coat/.test(text) ? 'Structured long coat'
+    : /jacket|layer|overshirt/.test(text) ? 'Relaxed lightweight jacket'
+    : 'Textured overshirt';
+
   return normaliseLook({
-    title:selectedStyle + ' / ' + $('occasion').value,
+    title:brief ? brief.slice(0,32) : selectedStyle + ' / ' + $('occasion').value,
     vibe:brief || selectedStyle + ' styling for ' + $('occasion').value.toLowerCase(),
     style:selectedStyle,
     palette:modifier,
     items:[
-      {slot:'TOP',name:'Textured relaxed-fit top',detail:'A clean foundation piece',color:modifier.top},
-      {slot:'BOTTOM',name:'Relaxed straight-leg trousers',detail:'Easy, balanced proportions',color:modifier.bottom},
-      {slot:'FOOTWEAR',name:'Minimal everyday footwear',detail:'A quiet finishing detail',color:modifier.shoes},
-      {slot:'LAYER',name:'Lightweight overshirt',detail:'Adds depth and texture',color:modifier.outerwear}
+      {slot:'TOP',name:topName,detail:'Selected to match your outfit brief',color:modifier.top},
+      {slot:'BOTTOM',name:bottomName,detail:'A relaxed silhouette with balanced proportions',color:modifier.bottom},
+      {slot:'FOOTWEAR',name:shoeName,detail:'Finishes the look without overpowering it',color:modifier.shoes},
+      {slot:'LAYER',name:layerName,detail:'Adds texture and depth to the outfit',color:modifier.outerwear}
     ],
-    styling_note:'A locally composed ' + selectedStyle.toLowerCase() + ' direction. ' + (brief ? 'Your brief is kept as the styling reference.' : 'Add a more detailed brief to steer the next variation.')
+    styling_note:'A locally composed outfit based on your description. The AI styling connection can provide more specific combinations when available.'
   });
 }
-
 function buildGenerationPrompt() {
   const brief = $('outfitBrief').value.trim() || 'Create a fresh, cohesive outfit in this style direction.';
   return [
@@ -229,7 +266,11 @@ async function generateOutfit() {
     if (!window.parent || typeof window.parent.__zeroGenerateOutfit !== 'function') {
       throw new Error('The Z.E.R.O. outfit connection is unavailable.');
     }
-    const reply = await window.parent.__zeroGenerateOutfit(buildGenerationPrompt());
+    let timeoutId;
+    const timeout = new Promise((resolve,reject)=>{ timeoutId=window.setTimeout(()=>reject(new Error('The outfit AI took too long to respond. Please try again.')),35000); });
+    let reply;
+    try { reply = await Promise.race([window.parent.__zeroGenerateOutfit(buildGenerationPrompt()),timeout]); }
+    finally { clearTimeout(timeoutId); }
     look = parseLookReply(reply);
   } catch (error) {
     aiError = error;
