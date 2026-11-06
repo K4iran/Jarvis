@@ -671,6 +671,17 @@ function setupScene() {
   floor.rotation.x = -Math.PI/2;
   floor.position.y = 0;
   scene.add(floor);
+  const floorInlay = new THREE.MeshBasicMaterial({color:0x9ebdcb,transparent:true,opacity:0.16,depthWrite:false});
+  for(let x=-12;x<=12;x+=4){
+    const seam=new THREE.Mesh(new THREE.BoxGeometry(0.012,0.004,34),floorInlay);
+    seam.position.set(x,0.006,-5);
+    scene.add(seam);
+  }
+  for(let z=-20;z<=12;z+=4){
+    const seam=new THREE.Mesh(new THREE.BoxGeometry(28,0.004,0.012),floorInlay);
+    seam.position.set(0,0.006,z);
+    scene.add(seam);
+  }
 
   const wallMaterial = new THREE.MeshStandardMaterial({color:0xe9edf0,roughness:0.96,metalness:0.015,side:THREE.DoubleSide});
   const backWall = new THREE.Mesh(new THREE.PlaneGeometry(30,16),wallMaterial);
@@ -761,6 +772,8 @@ function setupScene() {
   const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
   if (observer) observer.observe(stage);
   window.addEventListener('resize',resize,{passive:true});
+  if (window.visualViewport) window.visualViewport.addEventListener('resize',resize,{passive:true});
+  window.addEventListener('focusout',()=>window.setTimeout(resize,180),{passive:true});
   resize();
   return {observer,resize};
 }
