@@ -1447,6 +1447,7 @@ const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
     raf=requestAnimationFrame(frame);
   }
   function syncMotion(){
+    document.documentElement.classList.toggle('rm',S.rm||motionQuery.matches);
     if(!shouldAnimate()){stop();return;}
     if(running)return;
     running=true;last=0;
