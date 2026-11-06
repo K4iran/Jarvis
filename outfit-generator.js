@@ -542,8 +542,9 @@ function createAvatarParticles() {
   particles.renderOrder = 5;
   avatarRoot.add(particles);
 
-  // The meshes are now sampling sources only; the visible avatar is particles alone.
-  meshes.forEach(mesh => { mesh.visible = false; });
+  // Keep the translucent anatomical and garment surfaces beneath the particle skin.
+  // This gives the hologram real volume, shading and depth instead of a flat point-cloud silhouette.
+  meshes.forEach(mesh => { mesh.visible = true; mesh.renderOrder = 2; });
 }
 
 function createDefaultAvatar() {
