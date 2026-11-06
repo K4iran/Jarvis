@@ -2261,10 +2261,6 @@ async function streamZeroReply(message, options = {}) {
   return fullReply;
 }
 
-window.__zeroGenerateOutfit = async function (prompt) {
-  if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('An outfit brief is required.');
-  return await streamZeroReply(prompt, { silent:true });
-};
 
 async function playZeroStreamBlob(blob, sentence = '') {
   const audioUrl = URL.createObjectURL(blob);
