@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const $ = id => document.getElementById(id);
+const readField = (id, fallback = '') => { const field = $(id); return field && typeof field.value === 'string' ? field.value.trim() : fallback; };
 const stage = $('stage');
 const sceneCanvas = $('scene');
 const generateButton = $('generateButton');
@@ -183,9 +184,9 @@ function parseLookReply(reply) {
 
 function fallbackLook(variant = 0) {
   const base = paletteByStyle[selectedStyle] || paletteByStyle.Streetwear;
-  const brief = $('outfitBrief').value.trim();
+  const brief = readField('outfitBrief');
   const text = brief.toLowerCase();
-  const mood = $('colourMood')?.value || 'Balanced';
+  const mood = readField('colourMood','Balanced');
   const modifier = mood === 'Monochrome' ? {top:'#B8C0C7',bottom:'#242D39',shoes:'#DCE4EA',outerwear:'#66727D',accent:'#A9D8E8'}
     : mood === 'Earth tones' ? {top:'#B5A48D',bottom:'#444039',shoes:'#D6C8B4',outerwear:'#696B50',accent:'#C69B72'}
     : mood === 'Cool tones' ? {top:'#789BB8',bottom:'#263A54',shoes:'#DCEBF3',outerwear:'#435E7D',accent:'#69D9FF'}
@@ -238,8 +239,8 @@ function fallbackLook(variant = 0) {
     : 'Textured overshirt';
 
   const look = normaliseLook({
-    title:brief ? brief.slice(0,32) : selectedStyle + ' / ' + ($('occasion')?.value || 'Everyday'),
-    vibe:brief || selectedStyle + ' styling for ' + $('occasion').value.toLowerCase(),
+    title:brief ? brief.slice(0,32) : selectedStyle + ' / ' + readField('occasion','Everyday'),
+    vibe:brief || selectedStyle + ' styling for ' + readField('occasion','Everyday').toLowerCase(),
     style:selectedStyle,
     palette:modifier,
     items:[
@@ -271,14 +272,14 @@ function fallbackLook(variant = 0) {
   return look;
 }
 function buildGenerationPrompt() {
-  const brief = $('outfitBrief').value.trim() || 'Create a fresh, cohesive outfit in this style direction.';
+  const brief = readField('outfitBrief','Create a fresh, cohesive outfit in this style direction.') || 'Create a fresh, cohesive outfit in this style direction.';
   return [
     'You are the styling engine inside Z.E.R.O. Outfit Lab. Create one practical, cohesive outfit and respond with ONLY one valid JSON object. Do not use Markdown, fences or commentary.',
     'User brief: ' + brief,
     'Style direction: ' + selectedStyle,
-    'Occasion: ' + $('occasion').value,
-    'Season: ' + $('season').value,
-    'Colour mood: ' + $('colourMood').value,
+    'Occasion: ' + readField('occasion','Everyday'),
+    'Season: ' + readField('season','Current season'),
+    'Colour mood: ' + readField('colourMood','Balanced'),
     'Return exactly this shape: {"title":"short look name","vibe":"one short sentence","style":"style label","palette":{"top":"#RRGGBB","bottom":"#RRGGBB","shoes":"#RRGGBB","outerwear":"#RRGGBB","accent":"#RRGGBB"},"items":[{"slot":"TOP","name":"garment name","detail":"short texture or styling detail","color":"#RRGGBB"},{"slot":"BOTTOM","name":"garment name","detail":"short texture or styling detail","color":"#RRGGBB"},{"slot":"FOOTWEAR","name":"footwear name","detail":"short detail","color":"#RRGGBB"},{"slot":"LAYER","name":"outer layer name","detail":"short detail","color":"#RRGGBB"},{"slot":"ACCESSORY","name":"optional accessory","detail":"short detail","color":"#RRGGBB"}],"styling_note":"one or two useful sentences"}.',
     'Use original, brand-neutral garment descriptions. Include the layer and accessory only when they genuinely improve the outfit. Never discuss or judge the avatar’s body, proportions, attractiveness or weight. Do not add prices, shopping links or logos.'
   ].join('\n');
