@@ -314,18 +314,16 @@ async function generateOutfit() {
   }
 }
 function createMaterial(color, emissive, opacity) {
-  return new THREE.MeshPhysicalMaterial({
+  return new THREE.MeshStandardMaterial({
     color:color,
     emissive:emissive || color,
-    emissiveIntensity:0.42,
-    metalness:0.22,
-    roughness:0.3,
-    clearcoat:0.58,
-    clearcoatRoughness:0.28,
-    transparent:true,
-    opacity:Math.min(opacity,0.36),
+    emissiveIntensity:0.035,
+    metalness:0.035,
+    roughness:0.84,
     side:THREE.DoubleSide,
-    depthWrite:false
+    transparent:false,
+    opacity:1,
+    depthWrite:true
   });
 }
 
@@ -524,7 +522,7 @@ function applyGarments(look) {
     legL.scale.set(isBaggy ? 1.12 : 1.02,1.08,0.98);
     legR.scale.set(isBaggy ? 1.12 : 1.02,1.08,0.98);
     addCapsule(clothingGroup,isBaggy ? 0.16 : (isTight ? 0.105 : 0.13),0.48,[-0.16,0.48,0],bottomMaterial,0);
-    addCapsule(clothingGroup,isBaggy ? 0.145 : 0.13,0.48,[0.16,0.48,0],bottomMaterial,0);
+    addCapsule(clothingGroup,isBaggy ? 0.16 : (isTight ? 0.105 : 0.13),0.48,[0.16,0.48,0],bottomMaterial,0);
     if (isCargo) {
       addBox(clothingGroup,[0.13,0.23,0.065],[-0.255,1.12,0.145],bottomMaterial);
       addBox(clothingGroup,[0.13,0.23,0.065],[0.255,1.12,0.145],bottomMaterial);
