@@ -143,7 +143,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
   min-height:12px;padding:2px 2px 0;color:rgba(65,91,104,.68);
   font:6px var(--mono);letter-spacing:.13em;
 }
-.look-panel,.look-rail{display:none!important}
+
 .toast{
   position:fixed;z-index:50;left:50%;bottom:20px;
   transform:translateX(-50%);opacity:0;pointer-events:none;
@@ -172,4 +172,88 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
   .room-back{left:3%;right:3%;top:10%;height:49%}
   .room-left{left:-22%;width:45%}
   .room-right{right:-22%;width:45%}
+}
+
+
+/* Outfit controls expand gently on focus; the avatar camera remains fixed. */
+.composer{
+  transform-origin:bottom left;
+  transition:transform .42s cubic-bezier(.18,.82,.22,1),width .42s cubic-bezier(.18,.82,.22,1),box-shadow .32s ease,background-color .32s ease;
+  box-shadow:0 12px 36px rgba(38,66,82,.08);
+}
+.composer:focus-within{
+  transform:translateY(-7px) scale(1.035);
+  box-shadow:0 18px 46px rgba(38,105,137,.16),0 0 0 1px rgba(65,180,222,.2);
+  background:rgba(255,255,255,.96);
+}
+#outfitBrief{
+  font-size:16px;
+  transition:border-color .28s ease,background-color .28s ease,box-shadow .28s ease;
+}
+#outfitBrief:focus{
+  border-bottom-color:rgba(30,157,207,.78);
+  background:#fff;
+  box-shadow:0 5px 0 -4px rgba(37,165,212,.32);
+}
+.look-rail{
+  position:fixed;
+  z-index:18;
+  right:clamp(14px,2vw,28px);
+  bottom:clamp(14px,2.5vh,28px);
+  width:min(560px,54vw);
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px 14px;
+  align-items:center;
+  padding:13px 15px 10px;
+  border:1px solid rgba(105,154,176,.24);
+  background:rgba(250,252,253,.86);
+  box-shadow:0 14px 42px rgba(43,68,82,.12);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  transform:translateY(0);
+  transition:opacity .3s ease,transform .4s cubic-bezier(.18,.82,.22,1);
+}
+.rail-label{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rail-label .eyebrow{font:8px var(--mono);letter-spacing:.15em;color:#78909d}
+.rail-label strong{font:500 11px var(--sans);letter-spacing:.06em;color:#253943}
+.rail-controls{display:flex;gap:5px;align-items:center}
+.rail-controls button{
+  min-width:30px;min-height:28px;padding:4px 8px;
+  border:1px solid rgba(92,150,176,.25);background:rgba(255,255,255,.7);
+  color:#31596d;font:9px var(--mono);cursor:pointer;
+}
+.rail-controls button:disabled{opacity:.35;cursor:default}
+.look-strip{
+  grid-column:1/-1;display:flex;gap:8px;min-width:0;
+  overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;
+  padding:2px 0 5px;
+}
+.look-card{
+  display:flex;align-items:center;gap:9px;flex:0 0 174px;min-width:0;
+  padding:8px 9px;border:1px solid rgba(99,150,175,.18);
+  background:rgba(255,255,255,.74);color:#29404c;text-align:left;
+  cursor:pointer;transition:border-color .22s,background .22s,transform .22s;
+}
+.look-card.active{border-color:rgba(42,166,211,.68);background:#fff;box-shadow:inset 0 -2px 0 rgba(42,166,211,.36)}
+.look-card:active{transform:scale(.985)}
+.look-card strong{display:block;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 10px var(--sans)}
+.look-card small{display:block;margin-top:3px;color:#82949d;font:8px var(--mono)}
+.mini-avatar{display:block;flex:0 0 24px;width:24px;height:34px;border-radius:40% 40% 28% 28%;background:linear-gradient(180deg,var(--mini-top) 0 48%,var(--mini-bottom) 49% 100%);box-shadow:0 0 10px rgba(64,166,207,.12)}
+.empty-strip{padding:8px 0;color:#78909d;font:8px var(--mono);letter-spacing:.1em}
+.rail-foot{grid-column:1/-1;display:flex;justify-content:space-between;color:#81939c;font:7px var(--mono);letter-spacing:.12em}
+@media(max-width:720px){
+  .composer{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:auto;transform-origin:bottom center}
+  .composer:focus-within{transform:translateY(-5px) scale(1.015)}
+  .look-rail{
+    left:10px;right:10px;bottom:calc(100px + env(safe-area-inset-bottom,0px));
+    width:auto;padding:9px 10px 7px;gap:6px 9px;
+  }
+  .look-card{flex-basis:145px;padding:7px}
+  .rail-label strong{font-size:10px}
+  .rail-controls button{min-width:27px;min-height:27px}
+  .rail-foot{font-size:6px}
+}
+@media(prefers-reduced-motion:reduce){
+  .composer,.look-rail,.look-card,#outfitBrief{transition:none!important}
 }
