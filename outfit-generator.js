@@ -478,11 +478,18 @@ function setupScene() {
 }
 
 function updateLookDetails(look) {
-  $('lookTitle').textContent = look.title;
-  $('lookVibe').textContent = look.vibe;
-  $('stylingNote').textContent = look.styling_note;
-  $('lookCount').textContent = String(look.items.length).padStart(2,'0') + ' ITEMS';
+  // The visual outfit breakdown panel was intentionally removed from the showroom.
+  // Keep this update optional so outfit application never depends on hidden UI.
+  const title = $('lookTitle');
+  const vibe = $('lookVibe');
+  const note = $('stylingNote');
+  const count = $('lookCount');
   const list = $('garmentList');
+  if (title) title.textContent = look.title;
+  if (vibe) vibe.textContent = look.vibe;
+  if (note) note.textContent = look.styling_note;
+  if (count) count.textContent = String(look.items.length).padStart(2,'0') + ' ITEMS';
+  if (!list) return;
   list.replaceChildren();
   look.items.forEach(item=>{
     const row = document.createElement('div');row.className='garment-row';
@@ -692,8 +699,6 @@ function bindEvents() {
   $('previousLook').addEventListener('click',()=>stepHistory(-1));
   $('nextLook').addEventListener('click',()=>stepHistory(1));
   $('autoplayLooks').addEventListener('click',toggleAutoplay);
-  $('saveLook').addEventListener('click',saveCurrentLook);
-  $('copyLook').addEventListener('click',copyCurrentLook);
   $('avatarFile').addEventListener('change',event=>loadCustomAvatar(event.target.files && event.target.files[0]));
   $('resetAvatar').addEventListener('click',resetAvatar);
   $('backButton').addEventListener('click',()=>window.parent.postMessage({type:'ZERO_OUTFIT_CLOSE'},window.location.origin));
