@@ -182,7 +182,7 @@ function fallbackLook(variant = 0) {
   const base = paletteByStyle[selectedStyle] || paletteByStyle.Streetwear;
   const brief = $('outfitBrief').value.trim();
   const text = brief.toLowerCase();
-  const mood = $('colourMood').value;
+  const mood = $('colourMood')?.value || 'Balanced';
   const modifier = mood === 'Monochrome' ? {top:'#B8C0C7',bottom:'#242D39',shoes:'#DCE4EA',outerwear:'#66727D',accent:'#A9D8E8'}
     : mood === 'Earth tones' ? {top:'#B5A48D',bottom:'#444039',shoes:'#D6C8B4',outerwear:'#696B50',accent:'#C69B72'}
     : mood === 'Cool tones' ? {top:'#789BB8',bottom:'#263A54',shoes:'#DCEBF3',outerwear:'#435E7D',accent:'#69D9FF'}
@@ -235,7 +235,7 @@ function fallbackLook(variant = 0) {
     : 'Textured overshirt';
 
   const look = normaliseLook({
-    title:brief ? brief.slice(0,32) : selectedStyle + ' / ' + $('occasion').value,
+    title:brief ? brief.slice(0,32) : selectedStyle + ' / ' + ($('occasion')?.value || 'Everyday'),
     vibe:brief || selectedStyle + ' styling for ' + $('occasion').value.toLowerCase(),
     style:selectedStyle,
     palette:modifier,
@@ -281,7 +281,7 @@ function buildGenerationPrompt() {
   ].join('\n');
 }
 
-async async function generateOutfit() {
+async function generateOutfit() {
   if (isGenerating) return;
   isGenerating = true;
   generateButton.disabled = true;
@@ -1085,8 +1085,6 @@ function initTransitionTiles() {
 function bindEvents() {
   document.querySelectorAll('.style-chip').forEach(button=>button.addEventListener('click',()=>setStyle(button.dataset.style)));
   generateButton.addEventListener('click',generateOutfit);
-  $('previousLook').addEventListener('click',()=>stepHistory(-1));
-  $('nextLook').addEventListener('click',()=>stepHistory(1));
   $('openHistory').addEventListener('click',openHistory);
   $('closeHistory').addEventListener('click',closeHistory);
   $('historyModal').addEventListener('click',event=>{if(event.target===$('historyModal'))closeHistory();});
