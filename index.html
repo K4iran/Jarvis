@@ -4340,20 +4340,26 @@ import { createOrb } from './orb-network.js?v=orb-data-presentation-1';
 
     let presentationToken = 0;
     let presentationActive = false;
-    function applyPresentation(active, kind = 'response') {
+    let presentationKind = 'response';
+    function applyPresentation(active, kind = presentationKind) {
       presentationActive = active === true;
       const token = ++presentationToken;
       if (presentationActive) {
+        presentationKind = kind;
         if (canvas.parentNode !== presentationLayer) presentationLayer.appendChild(canvas);
         presentationLayer.classList.add('is-active');
         const phone = window.matchMedia('(max-width: 700px)').matches;
+        const messageHeight = document.getElementById('msg')?.getBoundingClientRect().height || 0;
+        const dataPanelHeight = document.getElementById('disp')?.getBoundingClientRect().height || 0;
+        const denseResponse = messageHeight > (phone ? 100 : 116);
+        const denseData = dataPanelHeight > window.innerHeight * 0.62;
         const pose = kind === 'data'
           ? (phone
-              ? { x: 0.68, y: 0.10, scale: 0.43, opacity: 0.58, rotation: -0.10 }
-              : { x: 0.68, y: 0.08, scale: 0.58, opacity: 0.68, rotation: -0.12 })
+              ? { x: 0.68, y: 0.12, scale: denseData ? 0.34 : 0.43, opacity: denseData ? 0.48 : 0.58, rotation: -0.10 }
+              : { x: 0.68, y: 0.08, scale: denseData ? 0.46 : 0.58, opacity: denseData ? 0.56 : 0.68, rotation: -0.12 })
           : (phone
-              ? { x: 0.38, y: 0.22, scale: 0.56, opacity: 0.66, rotation: -0.10 }
-              : { x: 0.48, y: 0.12, scale: 0.76, opacity: 0.76, rotation: -0.12 });
+              ? { x: 0.38, y: 0.22, scale: denseResponse ? 0.46 : 0.56, opacity: 0.66, rotation: -0.10 }
+              : { x: 0.48, y: 0.12, scale: denseResponse ? 0.62 : 0.76, opacity: 0.76, rotation: -0.12 });
         orb.setPresentation({ active: true, ...pose });
       } else {
         orb.setPresentation({ active: false });
@@ -4385,10 +4391,27 @@ import { createOrb } from './orb-network.js?v=orb-data-presentation-1';
     window.__zeroOrbSetState(stateMap[core.dataset.s] || 'idle');
     window.__zeroOrbSetAnalyser(window.__zeroOrbPendingAnalyser || null);
 
+    const presentationObserver = typeof ResizeObserver === 'function'
+      ? new ResizeObserver(() => {
+          if (presentationActive) applyPresentation(true, presentationKind);
+        })
+      : null;
+    if (presentationObserver) {
+      ['msg', 'disp', 'zfPanel'].forEach(id => {
+        const node = document.getElementById(id);
+        if (node) presentationObserver.observe(node);
+      });
+    }
     window.addEventListener('resize', () => {
-      if (presentationActive) applyPresentation(true, document.getElementById('app')?.classList.contains('data-tab') ? 'data' : 'response');
+      if (presentationActive) applyPresentation(true, presentationKind);
     }, { passive: true });
-    window.addEventListener('pagehide', () => orb.destroy(), { once: true });
+    window.addEventListener('scroll', () => {
+      if (presentationActive) applyPresentation(true, presentationKind);
+    }, { passive: true });
+    window.addEventListener('pagehide', () => {
+      presentationObserver?.disconnect();
+      orb.destroy();
+    }, { once: true });
   } catch (error) {
     console.error('ZERO orb presentation initialisation failed:', error);
     core.classList.add('nogl');
