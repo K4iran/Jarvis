@@ -1332,6 +1332,104 @@ body.zen-mode-active #core{visibility:hidden!important}
 /* Remove the old blue corner brackets from every Visuals & Stats panel, not just LifeOS. */
 #disp.fr::before,#disp.fr::after{content:none!important;display:none!important}
 </style>
+<style id="zero-dashboard-hud-command-dock">
+/* Unified top HUD: identity, navigation, settings and mode controls share one compact glass panel. */
+#bar{
+  position:relative;z-index:12;
+  width:min(calc(100% - 24px),920px);
+  margin:7px auto 0;
+  padding:9px 13px 8px;
+  display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;row-gap:7px;
+  border:1px solid rgba(166,216,245,.16);
+  border-radius:17px;
+  background:linear-gradient(135deg,rgba(12,27,43,.72),rgba(5,12,23,.56));
+  -webkit-backdrop-filter:blur(20px) saturate(145%);
+  backdrop-filter:blur(20px) saturate(145%);
+  box-shadow:inset 0 1px 0 rgba(235,249,255,.08),0 10px 34px rgba(0,0,0,.18);
+}
+#bar .br{flex:0 0 auto;min-width:0}
+#bar .brand-copy b{font-size:14px;letter-spacing:.24em;color:#e5f7ff}
+#bar .tabs{order:0;flex:1 1 auto;min-width:0;justify-content:center;margin:0 2px;gap:3px}
+#bar .rt{order:0;flex:0 0 auto;margin-left:auto;gap:5px}
+#bar .rt .stat{font-size:9px;letter-spacing:.09em}
+#bar .rt .ib{width:36px;height:36px}
+#bar .mode-actions{
+  order:4;flex:0 0 100%;width:100%;margin:0;padding:7px 0 0;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  border-top:1px solid rgba(166,216,245,.09);
+}
+#app.data-tab #bar .mode-actions{display:none!important}
+#bar .mode-actions #battleModeLaunch,#bar .mode-actions #focusLaunch,#bar .mode-actions #zenLaunch{
+  min-height:30px!important;height:30px;padding:0 14px!important;
+  border-radius:9px!important;font-size:10px!important;
+}
+#app:not(.data-tab) #stage{padding-top:clamp(5px,.8vh,10px)!important}
+#app:not(.data-tab) .core{margin-top:clamp(2px,.6vh,8px)!important}
+#app:not(.data-tab) .ctl{
+  width:min(94vw,690px);margin:16px auto 0!important;padding:0!important;
+  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:11px;
+}
+#app:not(.data-tab) .command-dock{
+  display:block;flex:1 1 auto;min-width:0;width:auto;max-width:560px;
+  margin:0;animation:none;transform:none;
+}
+#app:not(.data-tab) .command-dock .row2{
+  min-width:0;min-height:54px;padding:3px 7px 3px 17px;gap:8px;
+  border:1px solid rgba(171,220,246,.17);border-radius:16px;
+  background:linear-gradient(115deg,rgba(175,218,244,.075),rgba(55,103,143,.055) 52%,rgba(8,20,34,.22));
+  -webkit-backdrop-filter:blur(18px) saturate(135%);backdrop-filter:blur(18px) saturate(135%);
+  box-shadow:inset 0 1px 0 rgba(235,249,255,.075),0 7px 22px rgba(0,0,0,.12);
+  transition:border-color .2s ease,background .2s ease,box-shadow .2s ease;
+}
+#app:not(.data-tab) .command-dock:focus-within .row2{
+  border-color:rgba(133,216,247,.38);
+  background:linear-gradient(115deg,rgba(175,218,244,.105),rgba(55,103,143,.08) 52%,rgba(8,20,34,.3));
+  box-shadow:inset 0 1px 0 rgba(235,249,255,.09),0 0 20px rgba(88,190,235,.10);
+  transform:none;
+}
+#app:not(.data-tab) #ci{
+  height:46px;min-width:0;padding:0;background:transparent;border:0;
+  color:#e7f7ff;font:400 14px Sora,system-ui,sans-serif;letter-spacing:.01em;
+}
+#app:not(.data-tab) #ci::placeholder{color:rgba(190,215,232,.52)}
+#app:not(.data-tab) .command-send{
+  flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;
+  border:0;border-radius:11px;background:rgba(150,207,238,.075);color:rgba(196,235,251,.75);
+  cursor:pointer;transition:background .2s ease,color .2s ease,transform .2s ease;
+}
+#app:not(.data-tab) .command-send:hover{background:rgba(150,207,238,.16);color:#effbff;transform:translateX(1px)}
+#app:not(.data-tab) .voice-control{flex:0 0 auto;min-width:0;padding:0}
+#app:not(.data-tab) .voice-control #ml{display:none}
+#app:not(.data-tab) .mic{width:58px;height:58px;border-radius:50%}
+#app:not(.data-tab) .mic-orbit{inset:-5px;width:calc(100% + 10px);height:calc(100% + 10px)}
+#app:not(.data-tab) .control-core{width:39px;height:39px}
+#app:not(.data-tab) .control-core .ic{width:22px;height:22px}
+@media(max-width:620px){
+  #bar{width:calc(100% - 16px);margin-top:5px;padding:7px 8px 7px;column-gap:5px;row-gap:6px;border-radius:14px}
+  #bar .brand-copy b{font-size:11px;letter-spacing:.17em}
+  #bar .tabs{justify-content:flex-end;gap:1px;margin:0;flex:1 1 auto}
+  #bar .tab{padding:6px 7px!important;font-size:8px!important;white-space:nowrap}
+  #bar .rt .stat{display:none}
+  #bar .rt .ib{width:32px;height:34px}
+  #bar .mode-actions{gap:6px;padding-top:6px}
+  #bar .mode-actions #battleModeLaunch,#bar .mode-actions #focusLaunch,#bar .mode-actions #zenLaunch{height:28px!important;min-height:28px!important;padding:0 11px!important;font-size:9px!important}
+  #app:not(.data-tab) .ctl{width:min(94vw,560px);gap:9px;margin-top:12px!important}
+  #app:not(.data-tab) .command-dock .row2{min-height:49px;padding-left:13px;border-radius:14px}
+  #app:not(.data-tab) #ci{height:41px;font-size:13px}
+  #app:not(.data-tab) .command-send{width:32px;height:32px;flex-basis:32px}
+  #app:not(.data-tab) .mic{width:52px;height:52px}
+  #app:not(.data-tab) .control-core{width:35px;height:35px}
+}
+@media(max-width:370px){
+  #bar .brand-copy b{font-size:10px;letter-spacing:.12em}
+  #bar .tab{padding:6px 5px!important;font-size:7.5px!important}
+  #app:not(.data-tab) .ctl{gap:7px}
+  #app:not(.data-tab) .mic{width:48px;height:48px}
+}
+@media(prefers-reduced-motion:reduce){
+  #app:not(.data-tab) .command-dock .row2,#app:not(.data-tab) .command-send{transition:none!important}
+}
+</style>
 </head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -1370,6 +1468,12 @@ body.zen-mode-active #core{visibility:hidden!important}
 <p id="cs" class="lbl mono">STANDBY</p>
 <div id="id"><p id="msg" aria-live="polite">Ready when you are.</p></div>
 <div class="ctl">
+<form id="cmd" class="command-dock" autocomplete="off">
+<div class="row2">
+<input id="ci" type="text" autocomplete="off" placeholder="Message Z.E.R.O.…" aria-label="Message Z.E.R.O." enterkeyhint="send">
+<button class="command-send" type="submit" aria-label="Send command"><svg class="ic"><use href="#i-go"/></svg></button>
+</div>
+</form>
 <div class="mc voice-control">
 <button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Start voice input">
 <svg class="mic-orbit mic-orbit-back" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" stroke-dasharray="2 8"/><circle cx="50" cy="50" r="39" stroke-dasharray="1 12"/></svg>
@@ -1379,17 +1483,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 </button>
 <p class="lbl" id="ml">TAP TO SPEAK TO ZERO</p>
 </div>
-<div class="mc keyboard-control">
-<button class="ib keyboard-trigger" id="kb" type="button" aria-label="Open text command input" aria-expanded="false">
-<svg class="keyboard-orbit" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="32" stroke-dasharray="2 6"/><path d="M36 1v5M36 66v5M1 36h5M66 36h5"/></svg>
-<span class="keyboard-glyph"><svg class="ic"><use href="#i-kbd"/></svg></span>
-<span class="keyboard-pulse" aria-hidden="true"></span>
-</button>
-<p class="lbl" id="kl">TYPE A COMMAND</p>
 </div>
-</div>
-<form id="cmd" hidden><div class="row2"><input id="ci" type="text" autocomplete="off" placeholder="Enter a command…" aria-label="Command"><button class="ib" aria-label="Submit command"><svg class="ic"><use href="#i-go"/></svg></button><button class="ib" type="button" id="cc" aria-label="Close command input"><svg class="ic"><use href="#i-x"/></svg></button></div>
-<div class="qs"><button type="button" class="q" data-c="Show my profile">Show my profile</button><button type="button" class="q" data-c="Open LifeOS">Open LifeOS</button><button type="button" class="q" data-c="Open Hoop Central">Open Hoop Central</button><button type="button" class="q" data-c="Return to standby">Return to standby</button></div></form>
 </section>
 <nav id="rail" aria-label="System panels"></nav>
 <section id="disp" class="fr" aria-label="Visualisation channel"><div class="hd"><span class="lbl" id="dt">Visualisation channel</span><button class="ib" id="dx" aria-label="Close view" hidden><svg class="ic"><use href="#i-x"/></svg></button></div><div id="dv"></div></section>
@@ -3398,11 +3492,9 @@ async function run(t) {
 
 
 const cmd=$('#cmd'),inp=$('#ci');
-function cmdOpen(o){cmd.hidden=!o;$('#kb').setAttribute('aria-expanded',o);o?inp.focus():$('#kb').focus()}
-$('#kb').onclick=()=>cmdOpen(cmd.hidden);$('#cc').onclick=()=>cmdOpen(false);
+function cmdOpen(open=true){if(open)inp.focus();else inp.blur()}
 cmd.onsubmit=e=>{e.preventDefault();const t=inp.value;if(!t.trim())return;inp.value='';cmdOpen(false);run(t)};
-$$('.q').forEach(b=>b.onclick=e=>{cmdOpen(false);run(b.dataset.c)});
-addEventListener('keydown',e=>{if(e.key==='Escape'){if(openId)closeOv();else if(!cmd.hidden)cmdOpen(false)}else if(e.key==='/'&&!openId&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();cmdOpen(true)}});
+addEventListener('keydown',e=>{if(e.key==='Escape'){if(openId)closeOv();else if(document.activeElement===inp)cmdOpen(false)}else if(e.key==='/'&&!openId&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();cmdOpen(true)}});
 addEventListener('resize',refresh);
 setInterval(() => {
   if (state === 'standby' && !busy && !$('#msg').dataset.persistent) {
