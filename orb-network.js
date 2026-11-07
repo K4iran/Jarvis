@@ -49,6 +49,9 @@ export function createOrb(canvas, options = {}) {
   pointGeo.setAttribute("color", new THREE_NS.BufferAttribute(pointColors, 3));
   const pointMat = new THREE_NS.PointsMaterial({ color: 0x76c8ff, vertexColors: true, size: 0.42, transparent: true, opacity: 0.72, blending: THREE_NS.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
   const points = new THREE_NS.Points(pointGeo, pointMat);
+  // Particle positions expand and drift every frame; the initial geometry
+  // bounding sphere becomes stale and can cull the outer cloud as it grows.
+  points.frustumCulled = false;
   presentationGroup.add(points);
 
   const linePositions = new Float32Array(maxLines * 6);
@@ -70,6 +73,9 @@ export function createOrb(canvas, options = {}) {
     fragmentShader: `void main(){ vec2 p = gl_PointCoord - vec2(0.5); float d = length(p); float a = 1.0 - smoothstep(0.12,0.5,d); if(a < 0.02) discard; gl_FragColor = vec4(0.88,0.97,1.0,a); }`
   });
   const electrons = new THREE_NS.Points(electronGeo, electronMat);
+  // Travelling electrons are also updated continuously, so their initial
+  // bounds must not be used to hide them while they move across the network.
+  electrons.frustumCulled = false;
   presentationGroup.add(electrons);
 
   const links = [];
