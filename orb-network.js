@@ -106,9 +106,13 @@ export function createOrb(canvas, options = {}) {
     const h = Math.max(1, canvas.clientHeight || window.innerHeight);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    // Fit the complete orb even on a narrow portrait phone screen.
+    // The home canvas has 20% overscan on every edge so expanding particles
+    // are not cut off at the original orb footprint. Keep the orb's apparent
+    // size unchanged by scaling the camera distance with that larger canvas.
+    const inPresentationLayer = canvas.parentElement?.id === "zeroOrbPresentationLayer";
+    const canvasOverscan = inPresentationLayer ? 1 : 1.4;
     const halfHorizontalFov = Math.atan(Math.tan(THREE_NS.MathUtils.degToRad(camera.fov / 2)) * Math.min(1, camera.aspect));
-    camera.position.z = Math.max(78, 31 / Math.sin(halfHorizontalFov));
+    camera.position.z = Math.max(78, 31 / Math.sin(halfHorizontalFov)) * canvasOverscan;
     camera.updateProjectionMatrix();
   }
   resize();
