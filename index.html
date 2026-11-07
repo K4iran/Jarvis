@@ -1314,6 +1314,15 @@ body.zen-mode-active #core{visibility:hidden!important}
  #bar .tab{padding:6px 8px!important;font-size:9px!important}
 }
 </style>
+
+<style id="zero-skill-tree-opaque-cleanup">
+/* Skill Tree is a separate full-screen mode: never show the dashboard through it. */
+#zeroSkillTree{
+  background:radial-gradient(ellipse at 50% 46%,#081323 0%,#030914 58%,#010207 100%)!important;
+}
+/* Remove the old blue corner brackets from every Visuals & Stats panel, not just LifeOS. */
+#disp.fr::before,#disp.fr::after{content:none!important;display:none!important}
+</style>
 </head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
