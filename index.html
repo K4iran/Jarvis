@@ -1337,7 +1337,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 #bar{
   position:relative;z-index:12;
   width:min(calc(100% - 24px),920px);
-  margin:calc(7px + env(safe-area-inset-top,0px)) auto 0;
+  margin:7px auto 0;
   padding:9px 13px 8px;
   display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;row-gap:7px;
   border:1px solid rgba(166,216,245,.16);
@@ -1349,8 +1349,8 @@ body.zen-mode-active #core{visibility:hidden!important}
 }
 #bar .br{flex:0 0 auto;min-width:0}
 #bar .brand-copy b{font-size:14px;letter-spacing:.24em;color:#e5f7ff}
-#bar .tabs{flex:1 1 auto;min-width:0;justify-content:center;margin:0 2px;gap:3px}
-#bar .rt{flex:0 0 auto;margin-left:auto;gap:5px}
+#bar .tabs{order:0;flex:1 1 auto;min-width:0;justify-content:center;margin:0 2px;gap:3px}
+#bar .rt{order:0;flex:0 0 auto;margin-left:auto;gap:5px}
 #bar .rt .stat{font-size:9px;letter-spacing:.09em}
 #bar .rt .ib{width:36px;height:36px}
 #bar .mode-actions{
@@ -1405,7 +1405,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 #app:not(.data-tab) .control-core{width:39px;height:39px}
 #app:not(.data-tab) .control-core .ic{width:22px;height:22px}
 @media(max-width:620px){
-  #bar{width:calc(100% - 16px);margin-top:calc(5px + env(safe-area-inset-top,0px));padding:7px 8px 7px;column-gap:5px;row-gap:6px;border-radius:14px}
+  #bar{width:calc(100% - 16px);margin-top:5px;padding:7px 8px 7px;column-gap:5px;row-gap:6px;border-radius:14px}
   #bar .brand-copy b{font-size:11px;letter-spacing:.17em}
   #bar .tabs{justify-content:flex-end;gap:1px;margin:0;flex:1 1 auto}
   #bar .tab{padding:6px 7px!important;font-size:8px!important;white-space:nowrap}
