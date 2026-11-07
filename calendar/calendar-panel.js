@@ -8,10 +8,10 @@
 
   const style = document.createElement("style");
   style.textContent = `
-    #jarvis-calendar-panel{position:fixed;inset:0;z-index:9999;background:rgba(2,8,20,.94);color:#d9f4ff;
+    #jarvis-calendar-panel{position:fixed;inset:0;z-index:9999;background:rgba(2,8,20,.78);backdrop-filter:blur(3px);color:#d9f4ff;
       font:15px/1.45 system-ui,sans-serif;display:none;overflow:auto;padding:clamp(16px,4vw,36px);box-sizing:border-box}
     #jarvis-calendar-panel *{box-sizing:border-box}
-    #jarvis-calendar-panel .jcp-shell{max-width:760px;margin:0 auto}
+    #jarvis-calendar-panel .jcp-shell{max-width:760px;margin:0 auto;padding:clamp(14px,3vw,24px);border:1px solid rgba(104,204,255,.18);background:rgba(3,13,26,.38);backdrop-filter:blur(6px)}
     #jarvis-calendar-panel .jcp-top{display:flex;align-items:center;justify-content:space-between;gap:16px}
     #jarvis-calendar-panel h2{font-size:clamp(24px,5vw,32px);font-weight:600;letter-spacing:0;margin:0}
     #jarvis-calendar-panel .jcp-muted{color:#a7b6c4;font:13px/1.5 system-ui,sans-serif}
@@ -68,8 +68,8 @@
   let latestEvents = [];
 
   function say(message) { status.textContent = message; }
-  function show() { root.style.display = "block"; updateConnectionUI(window.JarvisGoogleCalendar); refresh(); }
-  function hide() { root.style.display = "none"; form.hidden = true; }
+  function show() { window.__zeroOrbSetPresentation?.(true, "data"); root.style.display = "block"; updateConnectionUI(window.JarvisGoogleCalendar); refresh(); }
+  function hide() { window.__zeroOrbSetPresentation?.(false, "data"); root.style.display = "none"; form.hidden = true; }
   function dateLabel(value, allDay) {
     if (!value) return "Time not set";
     if (allDay) return new Date(value + "T12:00:00").toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"});
