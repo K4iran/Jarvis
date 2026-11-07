@@ -6,6 +6,10 @@
     ".zf-overlay[hidden]{display:none!important}.zf-overlay.on{opacity:1}",
     ".zf-city-change{appearance:none;border:0;border-bottom:1px dashed rgba(117,210,255,.55);background:transparent;color:#e7f8ff;font:inherit;letter-spacing:inherit;padding:0 0 2px;cursor:pointer}.zf-city-change span{font-size:.72em;color:#70cfff;margin-left:5px}.zf-city-change:focus-visible{outline:2px solid #70cfff;outline-offset:5px}",
     ".zf-panel{width:min(100%,900px);max-height:calc(100dvh - 28px);overflow:auto;border:1px solid rgba(105,205,255,.23);background:linear-gradient(145deg,rgba(7,22,40,.88),rgba(2,9,20,.9));box-shadow:0 0 60px rgba(32,130,220,.11),inset 0 0 40px rgba(67,169,255,.035);backdrop-filter:blur(16px);padding:clamp(16px,3vw,28px);position:relative}",
+    ".zf-overlay.zf-weather-presentation{z-index:32;background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}",
+    ".zf-overlay.zf-weather-presentation .zf-panel{background:linear-gradient(145deg,rgba(5,19,34,.58),rgba(2,8,18,.62));backdrop-filter:blur(9px) saturate(125%);-webkit-backdrop-filter:blur(9px) saturate(125%);border-color:rgba(126,211,255,.3);box-shadow:0 22px 80px rgba(0,0,0,.24),inset 0 0 40px rgba(67,169,255,.045)}",
+    ".zf-overlay.zf-weather-presentation .zf-weather-current,.zf-overlay.zf-weather-presentation .zf-metric,.zf-overlay.zf-weather-presentation .zf-chart-wrap,.zf-overlay.zf-weather-presentation .zf-hour{position:relative;background:rgba(5,22,38,.3);backdrop-filter:blur(15px) saturate(135%);-webkit-backdrop-filter:blur(15px) saturate(135%);transition:border-color .55s ease,background .55s ease,box-shadow .55s ease,transform .7s cubic-bezier(.2,.75,.2,1)}",
+    ".zf-overlay.zf-weather-presentation .zf-tour-focus{border-color:rgba(116,220,255,.72)!important;outline:1px solid rgba(116,220,255,.28);background:rgba(19,67,96,.48)!important;box-shadow:0 0 0 1px rgba(112,210,255,.16),0 0 34px rgba(62,178,255,.16),inset 0 0 22px rgba(90,196,255,.08);transform:translateZ(0) scale(1.012)}",
     ".zf-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.zf-kicker{font:10px ui-monospace,monospace;letter-spacing:.24em;color:#69caff;text-transform:uppercase}.zf-title{font-size:clamp(23px,5vw,34px);font-weight:300;letter-spacing:.12em;margin:5px 0 0;color:#e7f8ff}.zf-close{width:36px;height:36px;flex:none;border:1px solid rgba(117,198,239,.3);background:rgba(19,54,79,.35);color:#bfeeff;font-size:22px;cursor:pointer}",
     ".zf-muted{color:#88a9bf;font:12px/1.6 ui-monospace,monospace}.zf-weather-current{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:16px;border:1px solid rgba(103,194,244,.16);background:rgba(21,61,91,.18)}.zf-temp{font-size:clamp(44px,10vw,68px);font-weight:200;line-height:1;color:#f0fbff}.zf-condition{font-size:17px;color:#bcecff;margin-top:5px}.zf-weather-icon{font-size:54px;filter:drop-shadow(0 0 16px rgba(87,198,255,.28))}.zf-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0 18px}.zf-metric{padding:11px;border:1px solid rgba(103,194,244,.13);background:rgba(9,31,51,.4)}.zf-metric span{display:block;color:#7fa5bd;font:9px ui-monospace,monospace;letter-spacing:.13em;text-transform:uppercase}.zf-metric strong{display:block;color:#d9f4ff;font-size:17px;font-weight:400;margin-top:5px}.zf-section-label{font:10px ui-monospace,monospace;letter-spacing:.2em;color:#73c8ef;text-transform:uppercase;margin:18px 0 10px}.zf-chart-wrap{border:1px solid rgba(103,194,244,.14);background:rgba(3,15,28,.48);padding:12px}.zf-chart{display:block;width:100%;height:auto;touch-action:pan-y;cursor:crosshair}.zf-chart-label{display:flex;justify-content:space-between;gap:10px;color:#86a9bf;font:11px ui-monospace,monospace;margin-top:5px}.zf-hour-strip{display:grid;grid-auto-columns:minmax(65px,1fr);grid-auto-flow:column;gap:7px;overflow-x:auto;padding:10px 0 3px}.zf-hour{border:1px solid rgba(103,194,244,.13);background:rgba(15,44,68,.34);padding:9px 7px;text-align:center;min-width:0}.zf-hour b{display:block;font-size:16px;font-weight:400;color:#dff7ff}.zf-hour small{display:block;color:#81a8c0;font:10px ui-monospace,monospace;margin-top:4px}.zf-news-list{display:grid;gap:10px}.zf-news-item{border:1px solid rgba(103,194,244,.15);background:rgba(13,42,64,.32);padding:14px}.zf-news-item a{color:#dff6ff;text-decoration:none;font-size:15px}.zf-news-item a:focus,.zf-news-item a:hover{color:#80d9ff}.zf-news-meta{color:#78a3bb;font:10px ui-monospace,monospace;margin-top:7px;letter-spacing:.08em}.zf-news-intro{color:#a9c7d8;font-size:13px;margin:0 0 14px}.zf-status{color:#8eb6cc;font:12px ui-monospace,monospace;padding:16px;text-align:center}",
     ".zf-sudoku-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}.zf-difficulties{display:flex;gap:6px;flex-wrap:wrap}.zf-diff,.zf-number{border:1px solid rgba(105,195,240,.25);background:rgba(17,48,73,.48);color:#bfeeff;padding:8px 12px;font:10px ui-monospace,monospace;letter-spacing:.08em;cursor:pointer}.zf-diff.active{border-color:#65cfff;background:rgba(52,153,218,.22);color:#effbff;box-shadow:0 0 14px rgba(79,190,255,.12)}.zf-board-wrap{display:grid;place-items:center}.zf-board{width:min(100%,min(76vw,520px));aspect-ratio:1;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);border:2px solid rgba(125,209,255,.72);box-shadow:0 0 25px rgba(55,158,226,.08)}.zf-cell{min-width:0;min-height:0;padding:0;border:0;border-right:1px solid rgba(110,176,210,.2);border-bottom:1px solid rgba(110,176,210,.2);background:rgba(5,20,35,.65);color:#cdefff;font:clamp(13px,3.8vw,23px) ui-monospace,monospace;cursor:pointer}.zf-cell:nth-child(3n){border-right:2px solid rgba(125,209,255,.62)}.zf-cell:nth-child(9n){border-right:0}.zf-cell:nth-child(n+19):nth-child(-n+27),.zf-cell:nth-child(n+46):nth-child(-n+54){border-bottom:2px solid rgba(125,209,255,.62)}.zf-cell.rowlight,.zf-cell.collight{background:rgba(51,142,207,.12)}.zf-cell.boxlight{background:rgba(51,142,207,.09)}.zf-cell.selected{background:rgba(70,176,255,.3)!important;box-shadow:inset 0 0 0 2px rgba(109,216,255,.85);color:#fff}.zf-cell.given{color:#f1fbff;font-weight:600}.zf-cell.error{color:#ff9eae;background:rgba(160,44,74,.22)}.zf-cell.same{background:rgba(74,179,220,.2)}.zf-sudoku-controls{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:15px auto 7px;max-width:520px}.zf-number{min-width:38px;min-height:42px;font-size:15px;padding:7px}.zf-number.erase{font-size:10px;min-width:62px}.zf-game-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;color:#84a9bf;font:10px ui-monospace,monospace}.zf-game-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}.zf-action{border:1px solid rgba(105,195,240,.3);background:rgba(19,61,92,.35);color:#c8efff;padding:9px 14px;font:10px ui-monospace,monospace;cursor:pointer}",
@@ -31,6 +35,9 @@
   let weatherCity = "Edinburgh";
   try { weatherCity = localStorage.getItem("zero.weather.city.v1") || "Edinburgh"; } catch (error) {}
   let chartIndex = 0;
+  let weatherTourTimers = [];
+  let weatherTourToken = 0;
+  let weatherTourRunning = false;
 
   function escapeHtml(value) {
     return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
@@ -39,12 +46,15 @@
   }
   function open(mode) {
     activeMode = mode;
+    overlay.classList.toggle("zf-weather-presentation", mode === "weather");
     window.__zeroOrbSetPresentation?.(true, "data");
     overlay.hidden = false;
     requestAnimationFrame(function () { overlay.classList.add("on"); });
     document.getElementById("app")?.classList.add("zf-active");
   }
   function close() {
+    stopWeatherTour();
+    overlay.classList.remove("zf-weather-presentation");
     window.__zeroOrbSetPresentation?.(false, "data");
     overlay.classList.remove("on");
     document.getElementById("app")?.classList.remove("zf-active");
@@ -121,13 +131,75 @@
       return '<div class="zf-hour"><small>' + new Date(time + "T12:00:00").toLocaleDateString("en-GB", { weekday:"short", day:"numeric", timeZone: result.data.timezone }) + '</small><b>' + condition[1] + " " + Math.round(day.temperature_2m_max[i]) + "°</b><small>↓ " + Math.round(day.temperature_2m_min[i]) + "° · rain " + (day.precipitation_probability_max[i] ?? 0) + '%</small></div>';
     }).join("");
     panel.innerHTML = head("LIVE WEATHER / " + escapeHtml(result.place.country || "LOCAL"), '<button type="button" class="zf-city-change" data-weather-change aria-label="Change weather city">' + escapeHtml(result.place.name) + '<span aria-hidden="true">⌄</span></button>') +
-      '<div class="zf-weather-current"><div><div class="zf-temp">' + Math.round(current.temperature_2m) + '°</div><div class="zf-condition">' + info[0] + '</div><div class="zf-muted">Feels like ' + Math.round(current.apparent_temperature) + '°</div></div><div class="zf-weather-icon" aria-hidden="true">' + info[1] + '</div></div>' +
-      '<div class="zf-metrics"><div class="zf-metric"><span>Humidity</span><strong>' + current.relative_humidity_2m + '%</strong></div><div class="zf-metric"><span>Wind</span><strong>' + Math.round(current.wind_speed_10m) + ' km/h</strong></div><div class="zf-metric"><span>Rain now</span><strong>' + Number(current.precipitation || 0).toFixed(1) + ' mm</strong></div><div class="zf-metric"><span>Today&#39;s high</span><strong>' + Math.round(day.temperature_2m_max[0]) + '°</strong></div><div class="zf-metric"><span>Today&#39;s low</span><strong>' + Math.round(day.temperature_2m_min[0]) + '°</strong></div><div class="zf-metric"><span>Rain chance</span><strong>' + (day.precipitation_probability_max[0] ?? 0) + '%</strong></div></div>' +
-      '<div class="zf-section-label">HOURLY TEMPERATURE / NEXT 24 HOURS</div><div class="zf-chart-wrap"><svg id="zfWeatherChart" class="zf-chart" viewBox="0 0 700 210" role="img" aria-label="Interactive hourly temperature graph"></svg><div class="zf-chart-label"><span id="zfChartSelected">Select a point on the graph</span><span>' + Math.round(min) + '° — ' + Math.round(max) + '°C</span></div></div>' +
-      '<div class="zf-section-label">UPCOMING DAYS</div><div class="zf-hour-strip">' + days + '</div>' +
+      '<div class="zf-weather-current" data-weather-focus="conditions"><div><div class="zf-temp">' + Math.round(current.temperature_2m) + '°</div><div class="zf-condition">' + info[0] + '</div></div><div class="zf-weather-icon" aria-hidden="true">' + info[1] + '</div></div>' +
+      '<div class="zf-metrics"><div class="zf-metric" data-weather-focus="feels"><span>Feels like</span><strong>' + Math.round(current.apparent_temperature) + '°</strong></div><div class="zf-metric"><span>Humidity</span><strong>' + current.relative_humidity_2m + '%</strong></div><div class="zf-metric" data-weather-focus="wind"><span>Wind</span><strong>' + Math.round(current.wind_speed_10m) + ' km/h</strong></div><div class="zf-metric"><span>Rain now</span><strong>' + Number(current.precipitation || 0).toFixed(1) + ' mm</strong></div><div class="zf-metric"><span>Today&#39;s high</span><strong>' + Math.round(day.temperature_2m_max[0]) + '°</strong></div><div class="zf-metric"><span>Today&#39;s low</span><strong>' + Math.round(day.temperature_2m_min[0]) + '°</strong></div><div class="zf-metric"><span>Rain chance</span><strong>' + (day.precipitation_probability_max[0] ?? 0) + '%</strong></div></div>' +
+      '<div class="zf-section-label">HOURLY TEMPERATURE / NEXT 24 HOURS</div><div class="zf-chart-wrap" data-weather-focus="graph"><svg id="zfWeatherChart" class="zf-chart" viewBox="0 0 700 210" role="img" aria-label="Interactive hourly temperature graph"></svg><div class="zf-chart-label"><span id="zfChartSelected">Select a point on the graph</span><span>' + Math.round(min) + '° — ' + Math.round(max) + '°C</span></div></div>' +
+      '<div class="zf-section-label">UPCOMING DAYS</div><div class="zf-hour-strip" data-weather-focus="days">' + days + '</div>' +
       '<p class="zf-muted">Weather data: Open-Meteo · Local time: ' + escapeHtml(result.data.timezone || "") + '</p>';
     drawWeatherChart(hours);
   }
+  function stopWeatherTour() {
+    weatherTourToken++;
+    weatherTourRunning = false;
+    weatherTourTimers.forEach(function (timer) { clearTimeout(timer); });
+    weatherTourTimers = [];
+    panel.querySelectorAll(".zf-tour-focus").forEach(function (node) { node.classList.remove("zf-tour-focus"); });
+  }
+
+  function startWeatherTour() {
+    stopWeatherTour();
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const token = weatherTourToken;
+    const steps = [
+      { selector:'[data-weather-focus="conditions"]', scale:0.52, opacity:0.68, duration:1900, dx:-0.10, dy:0.02 },
+      { selector:'[data-weather-focus="feels"]', scale:0.42, opacity:0.58, duration:1750, dx:0.18, dy:-0.02 },
+      { selector:'[data-weather-focus="wind"]', scale:0.40, opacity:0.58, duration:1750, dx:-0.20, dy:0.03 },
+      { selector:'[data-weather-focus="graph"]', scale:0.56, opacity:0.68, duration:2350, dx:0.16, dy:0.02, scroll:true },
+      { selector:'[data-weather-focus="days"]', scale:0.46, opacity:0.60, duration:2000, dx:-0.16, dy:-0.02, scroll:true }
+    ];
+    weatherTourRunning = true;
+
+    function runStep(index) {
+      if (token !== weatherTourToken || activeMode !== "weather") return;
+      if (index >= steps.length) {
+        weatherTourRunning = false;
+        return;
+      }
+      const step = steps[index];
+      const target = panel.querySelector(step.selector);
+      if (!target) { runStep(index + 1); return; }
+
+      panel.querySelectorAll(".zf-tour-focus").forEach(function (node) { node.classList.remove("zf-tour-focus"); });
+      target.classList.add("zf-tour-focus");
+
+      if (step.scroll) {
+        const panelRect = panel.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const nextTop = panel.scrollTop + targetRect.top - panelRect.top - panel.clientHeight * 0.42;
+        panel.scrollTo({ top: Math.max(0, nextTop), behavior:"smooth" });
+      }
+
+      const placeOrb = function () {
+        if (token !== weatherTourToken || activeMode !== "weather") return;
+        const rect = target.getBoundingClientRect();
+        const centerX = rect.left + rect.width * 0.5;
+        const centerY = rect.top + rect.height * 0.5;
+        const x = Math.max(-1, Math.min(1, ((centerX / window.innerWidth - 0.5) * 2 / 0.78) + step.dx));
+        const y = Math.max(-1, Math.min(1, ((0.5 - centerY / window.innerHeight) * 2 / 0.78) + step.dy));
+        window.__zeroOrbSetPresentationPose?.({
+          x:x, y:y, scale:step.scale, opacity:step.opacity,
+          rotation:index % 2 ? 0.12 : -0.12
+        });
+      };
+      if (step.scroll) weatherTourTimers.push(setTimeout(placeOrb, 520));
+      else requestAnimationFrame(placeOrb);
+
+      weatherTourTimers.push(setTimeout(function () { runStep(index + 1); }, step.duration));
+    }
+
+    runStep(0);
+  }
+
   function drawWeatherChart(hours) {
     const svg = document.getElementById("zfWeatherChart");
     if (!svg) return;
@@ -402,6 +474,9 @@
     }
     return true;
   }
+  panel.addEventListener("pointerdown", function () {
+    if (activeMode === "weather" && weatherTourRunning) stopWeatherTour();
+  }, { passive:true });
   panel.addEventListener("click", function (event) {
     const changeCity = event.target.closest("[data-weather-change]");
     if (changeCity && activeMode === "weather") {
@@ -438,6 +513,7 @@
   }
 
   async function openWeather(city) {
+    stopWeatherTour();
     const requestedCity=String(city || weatherCity || "Edinburgh").trim() || "Edinburgh";
     weatherCity = requestedCity;
     open("weather");
@@ -447,6 +523,7 @@
       weatherCity = result.place.name || requestedCity;
       try { localStorage.setItem("zero.weather.city.v1", weatherCity); } catch (error) {}
       renderWeather(requestedCity,result);
+      requestAnimationFrame(function () { weatherTourTimers.push(setTimeout(startWeatherTour, 420)); });
       return { ok:true, result:result };
     } catch (error) {
       panel.innerHTML = head("LIVE WEATHER", "Weather") + '<div class="zf-status">' + escapeHtml(error.message || "Weather is unavailable.") + '</div>';

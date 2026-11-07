@@ -4462,6 +4462,10 @@ import { createOrb } from './orb-network.js?v=orb-data-presentation-1';
     window.__zeroOrbSetAnalyser = (analyser) => orb.setAnalyser(analyser);
     window.__zeroOrbSetVoiceActivity = (level) => orb.setVoiceActivity(level);
     window.__zeroOrbSetPresentation = applyPresentation;
+    window.__zeroOrbSetPresentationPose = (pose = {}) => {
+      if (!presentationActive) return;
+      orb.setPresentation({ active: true, ...pose });
+    };
     window.__zeroOrbSetState(stateMap[core.dataset.s] || 'idle');
     window.__zeroOrbSetAnalyser(window.__zeroOrbPendingAnalyser || null);
 
