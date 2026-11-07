@@ -2,11 +2,11 @@
   "use strict";
 
   const STYLE = [
-    ".zf-overlay{position:fixed;inset:0;z-index:32;display:grid;place-items:center;padding:clamp(12px,3vw,28px);background:radial-gradient(ellipse at 50% 35%,rgba(8,32,57,.78),rgba(2,7,16,.86) 74%);color:#e7f7ff;opacity:0;transition:opacity .3s ease;overflow:auto;backdrop-filter:blur(2px)}",
+    ".zf-overlay{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:clamp(12px,3vw,28px);background:radial-gradient(ellipse at 50% 35%,rgba(8,32,57,.78),rgba(2,7,16,.86) 74%);color:#e7f7ff;opacity:0;transition:opacity .3s ease;overflow:auto;backdrop-filter:blur(2px)}",
     ".zf-overlay[hidden]{display:none!important}.zf-overlay.on{opacity:1}",
     ".zf-city-change{appearance:none;border:0;border-bottom:1px dashed rgba(117,210,255,.55);background:transparent;color:#e7f8ff;font:inherit;letter-spacing:inherit;padding:0 0 2px;cursor:pointer}.zf-city-change span{font-size:.72em;color:#70cfff;margin-left:5px}.zf-city-change:focus-visible{outline:2px solid #70cfff;outline-offset:5px}",
     ".zf-panel{width:min(100%,900px);max-height:calc(100dvh - 28px);overflow:auto;border:1px solid rgba(105,205,255,.23);background:linear-gradient(145deg,rgba(7,22,40,.88),rgba(2,9,20,.9));box-shadow:0 0 60px rgba(32,130,220,.11),inset 0 0 40px rgba(67,169,255,.035);backdrop-filter:blur(16px);padding:clamp(16px,3vw,28px);position:relative}",
-    ".zf-overlay.zf-weather-presentation{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}",
+    ".zf-overlay.zf-weather-presentation{z-index:32;background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}",
     ".zf-overlay.zf-weather-presentation .zf-panel{background:linear-gradient(145deg,rgba(5,19,34,.58),rgba(2,8,18,.62));backdrop-filter:blur(9px) saturate(125%);-webkit-backdrop-filter:blur(9px) saturate(125%);border-color:rgba(126,211,255,.3);box-shadow:0 22px 80px rgba(0,0,0,.24),inset 0 0 40px rgba(67,169,255,.045)}",
     ".zf-overlay.zf-weather-presentation .zf-weather-current,.zf-overlay.zf-weather-presentation .zf-metric,.zf-overlay.zf-weather-presentation .zf-chart-wrap,.zf-overlay.zf-weather-presentation .zf-hour{position:relative;background:rgba(5,22,38,.3);backdrop-filter:blur(15px) saturate(135%);-webkit-backdrop-filter:blur(15px) saturate(135%);transition:border-color .55s ease,background .55s ease,box-shadow .55s ease,transform .7s cubic-bezier(.2,.75,.2,1)}",
     ".zf-overlay.zf-weather-presentation .zf-tour-focus{border-color:rgba(116,220,255,.72)!important;background:rgba(19,67,96,.48)!important;box-shadow:0 0 0 1px rgba(112,210,255,.16),0 0 34px rgba(62,178,255,.16),inset 0 0 22px rgba(90,196,255,.08);transform:translateZ(0) scale(1.012)}",
@@ -179,7 +179,7 @@
         panel.scrollTo({ top: Math.max(0, nextTop), behavior:"smooth" });
       }
 
-      requestAnimationFrame(function () {
+      const placeOrb = function () {
         if (token !== weatherTourToken || activeMode !== "weather") return;
         const rect = target.getBoundingClientRect();
         const centerX = rect.left + rect.width * 0.5;
@@ -190,7 +190,9 @@
           x:x, y:y, scale:step.scale, opacity:step.opacity,
           rotation:index % 2 ? 0.12 : -0.12
         });
-      });
+      };
+      if (step.scroll) weatherTourTimers.push(setTimeout(placeOrb, 520));
+      else requestAnimationFrame(placeOrb);
 
       weatherTourTimers.push(setTimeout(function () { runStep(index + 1); }, step.duration));
     }
