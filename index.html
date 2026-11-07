@@ -175,7 +175,7 @@ body{background:#010207}
 
 @media(prefers-reduced-motion:reduce){.rating-radar-view,.core.radar-active>:not(#ratingRadarView){transition:none!important}}
 
-.core canvas{position:absolute;inset:-20%;width:140%;height:140%;touch-action:pan-y}
+.core canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
 /* The WebGL canvas stays full-size so its coordinates still align with the overlay.
    The 3D orb itself is scaled in its Three.js group, independently of the audio waves. */
     .halo{position:absolute;inset:-1%;border-radius:50%;pointer-events:none;opacity:var(--h2,.35);background:radial-gradient(circle,rgba(174,241,255,.10) 0%,rgba(88,223,255,.085) 12%,rgba(39,141,255,.045) 27%,rgba(39,141,255,.018) 39%,transparent 53%)}
