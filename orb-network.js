@@ -215,6 +215,14 @@ export function createOrb(canvas, options = {}) {
 
   function setPresentation(options = {}) {
     presentationActive = options.active === true;
+    if (!presentationActive) {
+      presentationTarget.x = 0;
+      presentationTarget.y = 0;
+      presentationTarget.scale = 1;
+      presentationTarget.opacity = 1;
+      presentationTarget.rotation = 0;
+      return;
+    }
     presentationTarget.x = Math.max(-1, Math.min(1, Number(options.x) || 0));
     presentationTarget.y = Math.max(-1, Math.min(1, Number(options.y) || 0));
     presentationTarget.scale = Math.max(0.2, Math.min(1.5, Number(options.scale) || 0.7));
