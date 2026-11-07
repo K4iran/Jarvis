@@ -1412,6 +1412,12 @@ body.zen-mode-active #core{visibility:hidden!important}
   #app:not(.data-tab) .mic{width:46px;height:46px}
 }
 @media(prefers-reduced-motion:reduce){#app:not(.data-tab) .command-dock .row2{transition:none!important}}
+
+/* Keep the Home HUD locked to the viewport. The orb canvas intentionally
+   overscans its footprint for particle visibility; clip that overscan at the
+   app boundary so it cannot create page-level scroll space. */
+#app:not(.data-tab){width:100%;max-width:100%;height:var(--h);min-height:0;overflow:clip}
+#app:not(.data-tab) #stage{min-width:0;min-height:0}
 </style>
 </head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
