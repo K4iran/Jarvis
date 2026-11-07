@@ -1799,6 +1799,7 @@ const say=(t,persist=true)=>{
   const message = $('#msg');
   if (!message) return;
   const text = String(t ?? '');
+  if (persist && text.length > 90) window.__zeroOrbSetPresentation?.(true,'response');
   const runId = ++messageTypingRun;
   clearTimeout(messageTypingTimer);
   message.dataset.persistent = persist ? 'true' : '';
@@ -3144,8 +3145,13 @@ async function run(t) {
 
   // Speak every command response when voice mode is enabled.
   const respond = async (reply, fast = false) => {
-    if (String(reply || '').length > 90) window.__zeroOrbSetPresentation?.(true,'response');
-    else window.__zeroOrbSetPresentation?.(false,'response');
+    const replyText = String(reply || '');
+    const app = document.getElementById('app');
+    const dataPanelOpen = app?.classList.contains('data-tab') ||
+      document.getElementById('zeroFeatureOverlay')?.classList.contains('on') ||
+      (document.getElementById('jarvis-calendar-panel')?.style.display === 'block');
+    if (replyText.length > 90) window.__zeroOrbSetPresentation?.(true,'response');
+    else if (!dataPanelOpen) window.__zeroOrbSetPresentation?.(false,'response');
     addConversationTurn('assistant', reply);
     say(reply);
     if (wakeEnabled) {
