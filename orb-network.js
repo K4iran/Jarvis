@@ -14,6 +14,8 @@ export function createOrb(canvas, options = {}) {
   const maxLines = Math.max(100, options.maxLines || 8000);
   const linkDistance = options.lineDistance || 8;
   const scene = new THREE_NS.Scene();
+  const presentationGroup = new THREE_NS.Group();
+  scene.add(presentationGroup);
   const transparent = options.transparent === true;
   scene.background = transparent ? null : new THREE_NS.Color(options.backgroundColor ?? 0x050508);
   const camera = new THREE_NS.PerspectiveCamera(50, 1, 0.1, 400);
@@ -47,7 +49,7 @@ export function createOrb(canvas, options = {}) {
   pointGeo.setAttribute("color", new THREE_NS.BufferAttribute(pointColors, 3));
   const pointMat = new THREE_NS.PointsMaterial({ color: 0x76c8ff, vertexColors: true, size: 0.42, transparent: true, opacity: 0.72, blending: THREE_NS.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
   const points = new THREE_NS.Points(pointGeo, pointMat);
-  scene.add(points);
+  presentationGroup.add(points);
 
   const linePositions = new Float32Array(maxLines * 6);
   const lineColors = new Float32Array(maxLines * 6);
@@ -56,7 +58,7 @@ export function createOrb(canvas, options = {}) {
   lineGeo.setAttribute("color", new THREE_NS.BufferAttribute(lineColors, 3));
   const lineMat = new THREE_NS.LineBasicMaterial({ color: 0xffffff, vertexColors: true, transparent: true, opacity: 0.10, blending: THREE_NS.AdditiveBlending, depthWrite: false });
   const lines = new THREE_NS.LineSegments(lineGeo, lineMat);
-  scene.add(lines);
+  presentationGroup.add(lines);
 
   const electronCount = 10;
   const electronPositions = new Float32Array(electronCount * 3);
@@ -68,7 +70,7 @@ export function createOrb(canvas, options = {}) {
     fragmentShader: `void main(){ vec2 p = gl_PointCoord - vec2(0.5); float d = length(p); float a = 1.0 - smoothstep(0.12,0.5,d); if(a < 0.02) discard; gl_FragColor = vec4(0.88,0.97,1.0,a); }`
   });
   const electrons = new THREE_NS.Points(electronGeo, electronMat);
-  scene.add(electrons);
+  presentationGroup.add(electrons);
 
   const links = [];
   const travellers = [];
@@ -89,6 +91,9 @@ export function createOrb(canvas, options = {}) {
   let animationFrameId = 0;
   let resizeObserver = null;
   let isSpeaking = false;
+  let presentationActive = false;
+  const presentationTarget = { x: 0, y: 0, scale: 1, opacity: 1, rotation: 0 };
+  const presentationCurrent = { x: 0, y: 0, scale: 1, opacity: 1, rotation: 0 };
 
   function resize() {
     const w = Math.max(1, canvas.clientWidth || window.innerWidth);
@@ -208,6 +213,23 @@ export function createOrb(canvas, options = {}) {
     voiceActivity = Math.max(0, Math.min(1, Number(level) || 0));
   }
 
+  function setPresentation(options = {}) {
+    presentationActive = options.active === true;
+    if (!presentationActive) {
+      presentationTarget.x = 0;
+      presentationTarget.y = 0;
+      presentationTarget.scale = 1;
+      presentationTarget.opacity = 1;
+      presentationTarget.rotation = 0;
+      return;
+    }
+    presentationTarget.x = Math.max(-1, Math.min(1, Number(options.x) || 0));
+    presentationTarget.y = Math.max(-1, Math.min(1, Number(options.y) || 0));
+    presentationTarget.scale = Math.max(0.2, Math.min(1.5, Number(options.scale) || 0.7));
+    presentationTarget.opacity = Math.max(0, Math.min(1, options.opacity == null ? 0.78 : Number(options.opacity)));
+    presentationTarget.rotation = Number(options.rotation) || 0;
+  }
+
   function animate() {
     if (destroyed || document.visibilityState === 'hidden') return;
     const dt = Math.min(clock.getDelta(), 0.05);
@@ -216,10 +238,23 @@ export function createOrb(canvas, options = {}) {
     frame++;
     const ease = 1 - Math.pow(activeState === "listening" || activeState === "speaking" ? 0.88 : 0.96, dt * 60);
     for (const key of ["radius", "speed", "brightness", "size", "links"]) current[key] += (target[key] - current[key]) * ease;
-    pointMat.opacity += (current.brightness * 0.85 - pointMat.opacity) * ease;
+    const poseEase = 1 - Math.pow(0.90, dt * 60);
+    for (const key of ["x", "y", "scale", "opacity", "rotation"]) {
+      const destination = key === "opacity" && !presentationActive ? 1 : presentationTarget[key];
+      presentationCurrent[key] += (destination - presentationCurrent[key]) * poseEase;
+    }
+    const halfHeight = camera.position.z * Math.tan(THREE_NS.MathUtils.degToRad(camera.fov / 2));
+    presentationGroup.position.set(
+      presentationCurrent.x * halfHeight * camera.aspect * 0.78,
+      presentationCurrent.y * halfHeight * 0.78,
+      0
+    );
+    presentationGroup.scale.setScalar(presentationCurrent.scale);
+    presentationGroup.rotation.y = presentationCurrent.rotation;
+    pointMat.opacity += (current.brightness * 0.85 * presentationCurrent.opacity - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
     const networkBreath = 0.68 + 0.32 * (0.5 + 0.5 * Math.sin(t * (target.electrons ? 3.4 : 0.75)));
-    const networkOpacity = current.links * (activeState === "listening" ? 0.19 : 0.12) * networkBreath;
+    const networkOpacity = current.links * (activeState === "listening" ? 0.19 : 0.12) * networkBreath * presentationCurrent.opacity;
     lineMat.opacity += (networkOpacity - lineMat.opacity) * ease;
     let bass = 0, mids = 0;
     if (analyser && audioData) {
@@ -450,6 +485,7 @@ export function createOrb(canvas, options = {}) {
     setState,
     setAnalyser,
     setVoiceActivity,
+    setPresentation,
     destroy() {
       if (destroyed) return;
       destroyed = true;
