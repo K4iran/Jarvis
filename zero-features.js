@@ -106,8 +106,8 @@
       latitude: place.latitude, longitude: place.longitude,
       current: "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m",
       hourly: "temperature_2m,apparent_temperature,precipitation_probability,weather_code",
-      daily: "temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code,sunrise,sunset",
-      forecast_days: "2", timezone: "auto"
+      daily: "temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code,sunrise,sunset,wind_speed_10m_max,uv_index_max",
+      forecast_days: "7", timezone: "auto"
     });
     const response = await fetch("https://api.open-meteo.com/v1/forecast?" + params.toString());
     if (!response.ok) throw new Error("The weather service is unavailable.");
@@ -137,7 +137,7 @@
       '<div class="zf-weather-overview">' +
       '<div class="zf-weather-current zf-weather-selectable" data-weather-focus="conditions" data-weather-detail="conditions" role="button" tabindex="0" aria-label="Open current conditions"><div><div class="zf-temp">' + Math.round(current.temperature_2m) + '°</div><div class="zf-condition">' + info[0] + '</div></div><div class="zf-weather-icon" aria-hidden="true">' + info[1] + '</div></div>' +
       '<div class="zf-metrics"><button type="button" class="zf-metric zf-weather-selectable" data-weather-focus="feels" data-weather-detail="feels"><span>Feels like</span><strong>' + Math.round(current.apparent_temperature) + '°</strong></button><button type="button" class="zf-metric zf-weather-selectable" data-weather-detail="humidity"><span>Humidity</span><strong>' + current.relative_humidity_2m + '%</strong></button><button type="button" class="zf-metric zf-weather-selectable" data-weather-focus="wind" data-weather-detail="wind"><span>Wind</span><strong>' + Math.round(current.wind_speed_10m) + ' km/h</strong></button><button type="button" class="zf-metric zf-weather-selectable" data-weather-detail="rain"><span>Rain now</span><strong>' + Number(current.precipitation || 0).toFixed(1) + ' mm</strong></button><button type="button" class="zf-metric zf-weather-selectable" data-weather-detail="high"><span>Today&#39;s high</span><strong>' + Math.round(day.temperature_2m_max[0]) + '°</strong></button><button type="button" class="zf-metric zf-weather-selectable" data-weather-detail="low"><span>Today&#39;s low</span><strong>' + Math.round(day.temperature_2m_min[0]) + '°</strong></button><button type="button" class="zf-metric zf-weather-selectable" data-weather-detail="rainChance"><span>Rain chance</span><strong>' + (day.precipitation_probability_max[0] ?? 0) + '%</strong></button></div>' +
-      '<div class="zf-section-label">HOURLY TEMPERATURE / NEXT 24 HOURS</div><div class="zf-chart-wrap zf-weather-selectable" data-weather-focus="graph" data-weather-detail="graph" role="button" tabindex="0" aria-label="Open detailed hourly forecast"><svg id="zfWeatherChart" class="zf-chart" viewBox="0 0 700 210" role="img" aria-label="Interactive hourly temperature graph"></svg><div class="zf-chart-label"><span id="zfChartSelected">Tap a point for its full forecast</span><span>' + Math.round(min) + '° — ' + Math.round(max) + '°C</span></div></div>' +
+      '<div class="zf-section-label">HOURLY TEMPERATURE / NEXT 24 HOURS</div><div class="zf-chart-wrap" data-weather-focus="graph"><svg id="zfWeatherChart" class="zf-chart" viewBox="0 0 700 210" role="img" aria-label="Interactive hourly temperature graph"></svg><div class="zf-chart-label"><span id="zfChartSelected">Tap a point for its full forecast</span><span>' + Math.round(min) + '° — ' + Math.round(max) + '°C</span></div></div><button type="button" class="zf-action" data-weather-detail="graph">EXPAND HOURLY FORECAST</button>' +
       '<div class="zf-section-label">UPCOMING DAYS · TAP TO EXPAND</div><div class="zf-hour-strip" data-weather-focus="days">' + days + '</div>' +
       '<p class="zf-muted">Weather data: Open-Meteo · Local time: ' + escapeHtml(result.data.timezone || "") + '</p></div>' +
       '<div class="zf-weather-detail-view" id="zfWeatherDetail" hidden></div>';
@@ -216,6 +216,8 @@
         add("Sunrise", daily.sunrise[dayIndex].slice(11,16));
         add("Sunset", daily.sunset[dayIndex].slice(11,16));
       }
+      if (daily.wind_speed_10m_max) add("Max wind", Math.round(daily.wind_speed_10m_max[dayIndex]) + " km/h");
+      if (daily.uv_index_max) add("UV index", Number(daily.uv_index_max[dayIndex]).toFixed(1));
       note = "Forecast summary for " + escapeHtml(result.place.name) + ". Temperature values are the expected daily minimum and maximum.";
     } else {
       const hour = weatherHours[safeIndex] || weatherHours[0];
