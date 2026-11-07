@@ -49,6 +49,9 @@ export function createOrb(canvas, options = {}) {
   pointGeo.setAttribute("color", new THREE_NS.BufferAttribute(pointColors, 3));
   const pointMat = new THREE_NS.PointsMaterial({ color: 0x76c8ff, vertexColors: true, size: 0.42, transparent: true, opacity: 0.72, blending: THREE_NS.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
   const points = new THREE_NS.Points(pointGeo, pointMat);
+  // Particle positions expand and drift every frame; the initial geometry
+  // bounding sphere becomes stale and can cull the outer cloud as it grows.
+  points.frustumCulled = false;
   presentationGroup.add(points);
 
   const linePositions = new Float32Array(maxLines * 6);
@@ -70,6 +73,9 @@ export function createOrb(canvas, options = {}) {
     fragmentShader: `void main(){ vec2 p = gl_PointCoord - vec2(0.5); float d = length(p); float a = 1.0 - smoothstep(0.12,0.5,d); if(a < 0.02) discard; gl_FragColor = vec4(0.88,0.97,1.0,a); }`
   });
   const electrons = new THREE_NS.Points(electronGeo, electronMat);
+  // Travelling electrons are also updated continuously, so their initial
+  // bounds must not be used to hide them while they move across the network.
+  electrons.frustumCulled = false;
   presentationGroup.add(electrons);
 
   const links = [];
@@ -100,9 +106,13 @@ export function createOrb(canvas, options = {}) {
     const h = Math.max(1, canvas.clientHeight || window.innerHeight);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    // Fit the complete orb even on a narrow portrait phone screen.
+    // The home canvas has 20% overscan on every edge so expanding particles
+    // are not cut off at the original orb footprint. Keep the orb's apparent
+    // size unchanged by scaling the camera distance with that larger canvas.
+    const inPresentationLayer = canvas.parentElement?.id === "zeroOrbPresentationLayer";
+    const canvasOverscan = inPresentationLayer ? 1 : 1.4;
     const halfHorizontalFov = Math.atan(Math.tan(THREE_NS.MathUtils.degToRad(camera.fov / 2)) * Math.min(1, camera.aspect));
-    camera.position.z = Math.max(78, 31 / Math.sin(halfHorizontalFov));
+    camera.position.z = Math.max(78, 31 / Math.sin(halfHorizontalFov)) * canvasOverscan;
     camera.updateProjectionMatrix();
   }
   resize();
