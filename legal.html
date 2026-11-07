@@ -6,9 +6,10 @@
 <meta name="theme-color" content="#050914">
 <meta name="description" content="Z.E.R.O. Legal & Privacy information and draft policies.">
 <title>Legal &amp; Privacy — Z.E.R.O.</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'Sora';src:url('assets/fonts/Sora[wght].ttf') format('truetype');font-style:normal;font-weight:200 800;font-display:swap}
+@font-face{font-family:'JetBrains Mono';src:url('assets/fonts/JetBrainsMono-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+</style>
 <style>
 :root{color-scheme:dark;--bg:#050914;--panel:rgba(9,19,33,.86);--cyan:#58DFFF;--blue:#278DFF;--text:#EAF8FF;--muted:#91A9BC;--line:rgba(88,223,255,.22);font-family:Sora,system-ui,sans-serif}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(ellipse at 50% 0%,#102944 0,#091321 38%,#050914 78%);line-height:1.65}
@@ -38,10 +39,10 @@ footer{padding:26px 2px 0;color:var(--muted);font-size:10px}
 <div class="kicker">SYSTEM DOCUMENTATION / TRUST CENTRE</div>
 <h1>LEGAL &amp; PRIVACY</h1>
 <p class="lead">How Z.E.R.O. is intended to handle information, AI services, safety and intellectual property. This page is a transparent working draft for the current personal prototype—not a claim that every legal or technical review is complete.</p>
-<div class="meta"><span class="pill">DOCUMENT SET 0.2</span><span class="pill">FACT CHECK: 30 OCT 2026</span><span class="pill">PERSONAL PROTOTYPE / NOT A LAUNCH POLICY</span></div>
+<div class="meta"><span class="pill">DOCUMENT SET 0.2</span><span class="pill">FACT CHECK: 7 NOV 2026</span><span class="pill">PERSONAL PROTOTYPE / NOT A LAUNCH POLICY</span></div>
 <div class="notice"><strong>Prototype notice — not ready for public launch.</strong><br>These documents are draft explanations, not a solicitor-reviewed contract or a guarantee of legal compliance. Some technical details—especially exact data fields, provider retention, account deletion and recording flows—still need verification. Do not treat this page as permission to invite other people, collect their data, or launch a paid/public service. Provider eligibility and age restrictions must be followed regardless of what this page says.</div>
 <nav class="index" aria-label="On this page">
-<a href="#privacy">PRIVACY</a><a href="#terms">TERMS</a><a href="#acceptable-use">ACCEPTABLE USE</a><a href="#ai">AI DISCLOSURE</a><a href="#copyright">COPYRIGHT &amp; IP</a><a href="#data">DATA &amp; MEMORY</a><a href="#providers">PROVIDERS</a><a href="#safety">SAFETY</a><a href="#contact">CONTACT</a>
+<a href="#privacy">PRIVACY</a><a href="#terms">TERMS</a><a href="#acceptable-use">ACCEPTABLE USE</a><a href="#ai">AI DISCLOSURE</a><a href="#copyright">COPYRIGHT &amp; IP</a><a href="#data">DATA &amp; MEMORY</a><a href="#providers">PROVIDERS</a><a href="#assets">ASSETS</a><a href="#safety">SAFETY</a><a href="#contact">CONTACT</a>
 </nav>
 
 <section id="privacy">
@@ -56,13 +57,13 @@ footer{padding:26px 2px 0;color:var(--muted);font-size:10px}
 <li>Technical information needed to operate and protect the service, such as error and diagnostic data, where enabled by the relevant platform.</li>
 </ul>
 <h3>Where information may go</h3>
-<p>The current architecture uses a browser-based dashboard hosted through GitHub Pages, Supabase Edge Functions for backend requests, Gemini for AI responses, and Fish Audio for speech generation. Depending on the feature, relevant request content may be sent to those providers so they can perform the requested service. This list must be updated if the architecture changes.</p>
+<p>The dashboard is hosted through GitHub Pages and uses Supabase Edge Functions for backend requests. On 7 November 2026, the chat and cloud-speech functions were changed to return HTTP 503 without forwarding request content to Gemini or Fish Audio. Those provider integrations are therefore disabled pending a suitable, verified service arrangement. Browser-based speech recognition and speech synthesis may still involve the browser/device provider; its processing is governed by that provider's terms and settings. Recheck this description whenever integrations change.</p>
 <h3>Local storage and third parties</h3>
 <p>The dashboard source reviewed on 30 October 2026 stores saved personal memories, Hangman progress, Zen preferences/journal data and LifeOS ratings in browser local storage. It stores recent conversation turns in session storage (up to 40 turns, with each turn text limited by the app). These are stored in the browser profile on the device, not as a user account or secure cloud backup. Anyone with access to that browser profile or device may be able to access them; clearing browser data may remove them. The exact contents can include personal information the user chooses to save.</p>
-<p>Voice input uses the browser's SpeechRecognition/Web Speech interface where supported. The browser and its speech-recognition provider may process audio or transcripts under their own terms; the exact processing provider and retention depend on the browser/device and have not been independently verified. The app sends chat request text to Gemini for response generation and sends text selected for spoken output to Fish Audio for speech generation.</p>
+<p>Voice input uses the browser's SpeechRecognition/Web Speech interface where supported. The browser and its speech-recognition provider may process audio or transcripts under their own terms; the exact processing provider and retention depend on the browser/device and have not been independently verified. The chat and cloud-speech Edge Function endpoints are currently disabled and return HTTP 503 before calling Gemini or Fish Audio. Browser speech features may still process audio or text through the browser/device provider.</p>
 <p>Third-party providers process data under their own terms and privacy documentation. Their retention, location, human-review and model-training settings must be checked for the exact product and account tier in use. Do not assume that all providers handle data in the same way.</p>
 <h3>Purpose and sharing</h3>
-<p>The intended purposes are to provide requested assistant features, maintain service security, troubleshoot faults and meet applicable legal requirements. Z.E.R.O. is not intended to sell personal data. The assistant does send relevant request content to external providers as described below; their processing is governed by their own terms and privacy documents. The two active Supabase Edge Function handlers reviewed for this draft contain no database-write calls, but that does not establish that providers or hosting platforms retain no logs or metadata.</p>
+<p>The intended purposes are to provide requested assistant features, maintain service security, troubleshoot faults and meet applicable legal requirements. Z.E.R.O. is not intended to sell personal data. At present, the chat and cloud-speech endpoints are disabled and do not forward request content to Gemini or Fish Audio. Browser speech recognition or synthesis may still involve the browser/device provider. Hosting and platform logs or metadata may still be processed under the relevant provider terms. The two Supabase Edge Function handlers reviewed for this draft contain no database-write calls.</p>
 <h3>Information still required before this can become a real privacy notice</h3>
 <p>This draft does not yet identify the responsible data controller by legal name and contact details, state the lawful basis for each processing purpose, specify provider/subprocessor recipients and international transfers, set retention periods, explain how individuals can exercise their rights, or provide an operational privacy contact and ICO complaint information. Those details must be established from the actual operator, provider account configuration and data flows—not guessed. The ICO explains the minimum privacy information expected under the UK GDPR in its <a href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/the-right-to-be-informed/">right to be informed guidance</a>.</p>
 <p>No account-wide export or deletion workflow has been verified. Local browser memories can be listed/forgotten through the assistant's memory feature, but this does not delete session history, Zen/LifeOS/Hangman data, browser backups, provider logs or data held by third parties. Do not promise complete deletion until each store and provider process has been tested.</p>
@@ -126,22 +127,30 @@ footer{padding:26px 2px 0;color:var(--muted);font-size:10px}
 <ul>
 <li><strong>GitHub Pages / GitHub:</strong> hosts the static dashboard and source repository. The dashboard URL is publicly reachable.</li>
 <li><strong>Supabase:</strong> hosts the active <code>jarvis-chat</code> and <code>Jarvis-speech</code> Edge Functions.</li>
-<li><strong>Google Gemini API:</strong> receives chat request text and generates assistant responses. Current official <a href="https://ai.google.dev/gemini-api/terms">Gemini API Additional Terms</a> (effective 23 March 2026) require API users to be 18+, prohibit API clients directed to or likely to be accessed by under-18s, state that the API is for professional/business development rather than consumer use, and require Paid Services for API clients made available in the UK. The current personal prototype has not been shown to satisfy these conditions. This is a critical eligibility blocker; do not treat the policy page as permission to continue using Gemini. Check the current terms and obtain clarification before further use.</li>
-<li><strong>Fish Audio:</strong> receives text for speech generation. Its published <a href="https://beta.fish.audio/terms/">Terms of Use</a> state a minimum age of 13 and require parent/guardian permission and agreement for users under 18. Confirm that the exact API product and account are covered by these terms and that any required guardian permission is in place.</li>
+<li><strong>Google Gemini API:</strong> the former chat integration has been disabled on 7 November 2026. The current <a href="https://ai.google.dev/gemini-api/terms">Gemini API Additional Terms</a> include age and service-eligibility restrictions that make this integration unsuitable for this project’s current audience and use. The deployed function now returns HTTP 503 without sending user messages to Gemini. Do not re-enable it unless the provider confirms in writing that the proposed operator, audience, region and use are eligible.</li>
+<li><strong>Fish Audio:</strong> the former cloud text-to-speech integration has been disabled on 7 November 2026. Its account-specific/API terms and any required parent or guardian permission have not been confirmed. The deployed function now returns HTTP 503 without forwarding text to Fish Audio. Browser speech synthesis may remain available as a local fallback, subject to browser/device behavior.</li>
 <li><strong>Browser speech recognition:</strong> voice input uses the browser's SpeechRecognition/Web Speech interface where available. The browser/device provider's own terms and privacy practices also matter.</li>
-<li><strong>Google Fonts:</strong> the dashboard and this page request font files from Google Fonts. A browser request can disclose connection metadata such as an IP address and browser details to the font service.</li>
+<li><strong>Self-hosted fonts:</strong> Sora and JetBrains Mono are stored under <code>assets/fonts/</code> with their SIL Open Font License notices.</li>
 <li><strong>cdnjs / Cloudflare:</strong> the dashboard loads the Three.js JavaScript library from cdnjs.cloudflare.com. The CDN receives a browser request and associated connection metadata.</li>
 <li><strong>Wikimedia Commons:</strong> Zen soundscape audio is loaded from Wikimedia Commons when the relevant ambient sound is selected.</li>
 <li><strong>Spotify, Apple Music and YouTube Music:</strong> Z.E.R.O. provides links that open these services separately; their own terms and privacy policies apply if a user follows those links.</li>
 </ul>
 <p>The frontend source reviewed did not contain an obvious analytics or advertising tag. This is not a complete audit of hosting, CDN, browser, or provider-side logs.</p>
 <p>Supabase's <a href="https://supabase.com/terms">Terms of Service</a>, <a href="https://supabase.com/privacy">Privacy Policy</a> and <a href="https://supabase.com/legal/customer-resources/data-processing-addendum">Data Processing Addendum</a> apply according to the project/account relationship. Provider-specific retention, model-training use, human review, data location, subprocessors and deletion capabilities depend on the exact product and account tier and must be checked against current official documentation.</p>
-<p><strong>Security blocker found during this review:</strong> both active Edge Functions are configured with JWT verification disabled, and their handlers do not perform an application-level user authentication check. The reviewed handlers also allow cross-origin requests from any origin and show no per-user rate limiting. This means the endpoints should be treated as publicly callable, creating an abuse and unexpected-usage risk. This page does not fix that issue. Add proper authentication/authorization and abuse controls, then test them before inviting anyone else or treating the service as launch-ready.</p>
+<p><strong>Endpoint status:</strong> both Edge Functions still have platform JWT verification disabled because the current app has no verified sign-in flow. Their deployed handlers now reject browser origins other than the official GitHub Pages origin and return HTTP 503 for every POST without invoking an external provider. This is a temporary shutdown, not a production authentication design. Non-browser clients can still reach the endpoint, but it performs no AI/TTS work and returns no private data. If either integration is ever restored, implement real server-side authentication/authorization, abuse controls and tested quotas first.</p>
 <p>No API keys, passwords or other credentials were read, copied, changed or included in this review or page.</p>
 </section>
 
+
+<section id="assets">
+<h2>08 / ASSET PROVENANCE &amp; LICENCES</h2>
+<p>The project keeps a separate <a href="ASSET-LICENSES.md">asset and dependency register</a> describing the known font files, code libraries, inline artwork and unresolved media provenance. Sora and JetBrains Mono are self-hosted with their SIL Open Font License notices. The main dashboard currently contains inline SVG interface artwork and no conventional linked photo/image elements. This does not, by itself, prove who authored every SVG or procedural visual; authorship and any third-party source material must be confirmed from the original project history.</p>
+<p>Do not add images, textures, 3D models, sounds, fonts or animation assets copied from search results or inspiration sites unless the exact asset's licence or written permission allows the intended use. Record the creator, source URL, licence version, attribution requirements and any modification/redistribution limits before use.</p>
+<p>Third-party JavaScript dependencies remain separate from the app's own artwork. Their version and licence must be checked whenever a dependency is upgraded, copied into the repository or redistributed.</p>
+</section>
+
 <section id="safety">
-<h2>08 / SAFETY &amp; LIMITATIONS</h2>
+<h2>09 / SAFETY &amp; LIMITATIONS</h2>
 <ul>
 <li>Z.E.R.O. can misunderstand requests and produce incorrect information.</li>
 <li>Do not use it as an emergency service or a substitute for a qualified professional.</li>
@@ -153,7 +162,7 @@ footer{padding:26px 2px 0;color:var(--muted);font-size:10px}
 </section>
 
 <section id="contact">
-<h2>09 / CONTACT &amp; LEGAL</h2>
+<h2>10 / CONTACT &amp; LEGAL</h2>
 <p>A public support or privacy contact address has not yet been configured. It must be added before Z.E.R.O. is offered to other people. Do not publish a personal address or private contact detail without considering the privacy implications.</p>
 <p>This page is an informational working draft, not legal advice and not a complete UK GDPR privacy notice or final user contract. UK requirements depend on the responsible operator, the purpose and scale of processing, the data involved, who can access it and whether children are likely to use the service. The ICO says its Children's Code may apply to online services likely to be accessed by children, even if children are not the intended audience; see the <a href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/childrens-information/childrens-code-guidance-and-resources/introduction-to-the-childrens-code">ICO Children's Code guidance</a>. Before public launch, paid use or processing other people's data, obtain advice from a qualified UK solicitor and check current regulator guidance.</p>
 </section>
