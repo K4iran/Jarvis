@@ -497,7 +497,8 @@ function addNavAndOverlay() {
 function makeLabelSprite(text, color, fontSize, tracking) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  const font = fontSize || 30;  const width = Math.max(220, text.length * (font * 0.72) + 70);  canvas.width = Math.ceil(width);
+  const font = fontSize || 30;  const width = Math.max(220, text.length * (font * 0.72) + 70);
+  canvas.width = Math.ceil(width);
   canvas.height = Math.ceil(font * 2.3);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.font = '600 ' + font + 'px Arial, sans-serif';
@@ -596,8 +597,7 @@ function addIcon(group, type, color, scale) {
       : [[0,0,0.12],[-0.38,0.28,0],[-0.4,-0.24,0],[0.4,0.26,0],[0.42,-0.22,0],[0,0.5,-0.08],[0,-0.48,-0.08]];
     pts.forEach(function (p, index) {
       sphere(p[0],p[1],p[2],index===0?0.13:0.075,index===0?glow:solid);
-      if (index > 0) addLine(root, [[0,0,0.12],p], color, 0.68);
-    });
+      if (index > 0) addLine(root, [[0,0,0.12],p], color, 0.68);    });
     addLine(root, type === 'memory'
       ? [pts[1],pts[3],pts[5],pts[4],pts[2]]
       : [pts[1],pts[5],pts[3],pts[6],pts[2]], color, 0.45);
@@ -996,7 +996,8 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
 
 function createNebula(color, x, y, z, scale, opacity) {
   const canvas = document.createElement('canvas');
-  canvas.width = 256; canvas.height = 256;  const ctx = canvas.getContext('2d');
+  canvas.width = 256; canvas.height = 256;
+  const ctx = canvas.getContext('2d');
   const gradient = ctx.createRadialGradient(128,128,4,128,128,124);
   gradient.addColorStop(0, color);
   gradient.addColorStop(0.28, color.replace('1)', '0.32)'));
@@ -1195,7 +1196,6 @@ function skillColors(baseColor,index) {
   else color.lerp(new THREE.Color('#233b62'),0.24);
   return '#' + color.getHexString();
 }
-
 function refreshNewBadges() {
   categoryNodes.forEach(function (category) {
     if (category.newBadge) category.newBadge.material.opacity = isCategoryNew(category.category) ? 0.95 : 0;
@@ -1495,7 +1495,8 @@ function applyFlatLayoutForCurrentView() {
 }
 
 function updateViewToolbar() {
-  const toggle=document.getElementById('zeroViewToggle');  const hint=document.getElementById('zeroTreeHint');
+  const toggle=document.getElementById('zeroViewToggle');
+  const hint=document.getElementById('zeroTreeHint');
   if(toggle) {
     toggle.textContent=flatView?'3D VIEW':'2D VIEW';
     toggle.setAttribute('aria-pressed',flatView?'true':'false');
@@ -1794,8 +1795,7 @@ function launchSkill(skillNode) {
     if (typeof window.run === 'function') {
       window.run('play Hangman');
     } else if (typeof window.startHangmanRound === 'function') {
-      window.startHangmanRound();
-    } else {
+      window.startHangmanRound();    } else {
       launchFromTree=false;
       overlay.hidden=false;
       showToast('Hangman is not available right now.');
@@ -1994,7 +1994,8 @@ function raycastNode(clientX,clientY) {
     if(node.kind==='skill')return viewMode==='category'&&activeCategory&&node.categoryId===activeCategory.id&&
       activeCategory.skillsGroup.visible&&node.group.visible&&node.group.scale.x>0.05;
     return false;
-  };  const selected=hits.find(function(hit){return isPickable(hit.object.userData.pickTarget)});
+  };
+  const selected=hits.find(function(hit){return isPickable(hit.object.userData.pickTarget)});
   if(!selected)return;
   const node=selected.object.userData.pickTarget;
   if(node.kind==='zero'){
@@ -2294,3 +2295,67 @@ function registerSkill(categoryId,skill) {
   },skill);
   category.skills.push(safeSkill);
   discovery.knownSkills.push(safeSkill.id);
+  discovery.pendingSkills.push(safeSkill.id);
+  if (!discovery.pendingCategories.includes(category.id)) discovery.pendingCategories.push(category.id);
+  saveDiscovery();
+  if(renderer&&treeOpen){
+    const previousCategory=activeCategory&&activeCategory.id;
+    buildWorld();
+    returnToRoot(false);
+    if(previousCategory){
+      const newCategory=categoryNodes.find(function (entry) { return entry.id===previousCategory; });
+      if(newCategory)enterCategory(newCategory);
+      else revealCategoryBranches();
+    } else revealCategoryBranches();
+    startRenderLoop();
+  }
+  return true;
+}
+
+function registerCategory(category) {
+  if(!category||!category.id||categories.some(function (entry) { return entry.id===category.id; }))return false;
+  const next=Object.assign({
+    color:'#9aafff',icon:'neural',position:[0,0,-8],skills:[]
+  },category);
+  next.skills=Array.isArray(next.skills)?next.skills:[];
+  categories.push(next);
+  discovery.knownCategories.push(next.id);
+  discovery.pendingCategories.push(next.id);
+  next.skills.forEach(function(skill){
+    skill.categoryId=next.id;
+    discovery.knownSkills.push(skill.id);
+    discovery.pendingSkills.push(skill.id);
+  });
+  saveDiscovery();
+  if(renderer&&treeOpen){
+    buildWorld();
+    returnToRoot(false);
+    revealCategoryBranches();
+  }
+  return true;
+}
+
+function initialize() {
+  addStylesheet();
+  addNavAndOverlay();
+  setupMusicPreferences();
+  setupPanelEvents();
+  setupHangmanReturn();
+  setupKeyboard();
+  initRenderer();
+  updateViewToolbar();
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden&&treeOpen)startRenderLoop();
+  });
+  window.ZERO_SKILL_TREE = {
+    open:openSkillTree,
+    close:closeSkillTree,
+    registerSkill:registerSkill,
+    registerCategory:registerCategory,
+    getMusicPreference:function(){return Object.assign({},musicConfig);},
+    setMusicPreference:function(service,customUrl){return saveMusicConfig({service:service,customUrl:customUrl});}
+  };
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize,{once:true});
+else initialize();
