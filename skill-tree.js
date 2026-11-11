@@ -171,7 +171,7 @@ function addStylesheet() {
   styleAdded = true;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './skill-tree.css?v=detail-pass-1';
+  link.href = './skill-tree.css?v=planetary-pass-1';
   link.dataset.zeroSkillCss = 'true';
   document.head.appendChild(link);
 }
@@ -497,8 +497,7 @@ function addNavAndOverlay() {
 function makeLabelSprite(text, color, fontSize, tracking) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  const font = fontSize || 30;
-  const width = Math.max(220, text.length * (font * 0.72) + 70);
+  const font = fontSize || 30;  const width = Math.max(220, text.length * (font * 0.72) + 70);
   canvas.width = Math.ceil(width);
   canvas.height = Math.ceil(font * 2.3);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -731,174 +730,271 @@ function addHolographicLock(group, radius) {
   });
   lock.renderOrder=9; group.add(lock); return lock;
 }
+function makePlanetTexture(type, baseColor) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  const base = new THREE.Color(baseColor);
+  const hex = '#' + base.getHexString();
+  const rand = (function(seed) {
+    let value = seed >>> 0;
+    return function() {
+      value = (value * 1664525 + 1013904223) >>> 0;
+      return value / 4294967296;
+    };
+  })(type.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 17));
+
+  ctx.fillStyle = hex;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (type === 'sun') {
+    const glow = ctx.createLinearGradient(0, 0, 1024, 512);
+    glow.addColorStop(0, '#fff5a6');
+    glow.addColorStop(0.35, '#ffb52e');
+    glow.addColorStop(0.72, '#e85b18');
+    glow.addColorStop(1, '#8f210d');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, 1024, 512);
+    for (let i = 0; i < 240; i++) {
+      const x = rand() * 1024, y = rand() * 512;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 8 + rand() * 42, 1.5 + rand() * 8, rand() * 3, 0, Math.PI * 2);
+      ctx.fillStyle = rand() > 0.5 ? 'rgba(255,246,173,.20)' : 'rgba(145,35,8,.15)';
+      ctx.fill();
+    }
+  } else if (type === 'earth') {
+    const ocean = ctx.createLinearGradient(0, 0, 0, 512);
+    ocean.addColorStop(0, '#164a86'); ocean.addColorStop(0.48, '#1475ae'); ocean.addColorStop(1, '#092c60');
+    ctx.fillStyle = ocean; ctx.fillRect(0, 0, 1024, 512);
+    for (let i = 0; i < 34; i++) {
+      const x = rand() * 1024, y = rand() * 512;
+      ctx.save(); ctx.translate(x, y); ctx.rotate((rand() - 0.5) * 1.2);
+      ctx.beginPath(); ctx.ellipse(0, 0, 18 + rand() * 82, 9 + rand() * 43, 0, 0, Math.PI * 2);
+      ctx.fillStyle = ['#4e783f', '#78934c', '#b0a06a', '#315c38'][Math.floor(rand() * 4)];
+      ctx.fill(); ctx.restore();
+    }
+    for (let i = 0; i < 130; i++) {
+      ctx.beginPath(); ctx.ellipse(rand() * 1024, rand() * 512, 12 + rand() * 55, 2 + rand() * 8, (rand() - .5) * .5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(245,250,255,' + (0.08 + rand() * 0.22) + ')'; ctx.fill();
+    }
+  } else if (type === 'venus') {
+    const cloud = ctx.createLinearGradient(0, 0, 0, 512);
+    cloud.addColorStop(0, '#f8d58a'); cloud.addColorStop(.3, '#d99a49'); cloud.addColorStop(.62, '#f2c477'); cloud.addColorStop(1, '#9b592b');
+    ctx.fillStyle = cloud; ctx.fillRect(0, 0, 1024, 512);
+    for (let i = 0; i < 110; i++) {
+      const y = rand() * 512;
+      ctx.beginPath(); ctx.moveTo(0, y);
+      for (let x = 0; x <= 1024; x += 32) ctx.lineTo(x, y + Math.sin(x * .012 + i) * (5 + rand() * 13));
+      ctx.lineTo(1024, y + 18); ctx.lineTo(0, y + 18); ctx.closePath();
+      ctx.fillStyle = rand() > .5 ? 'rgba(255,230,170,.13)' : 'rgba(105,54,20,.10)'; ctx.fill();
+    }
+  } else if (type === 'saturn') {
+    const bands = ['#d9bd87', '#b68e5c', '#ead5a5', '#9f754d', '#d7b982'];
+    for (let y = 0; y < 512; y += 3) {
+      const wave = Math.sin(y * .035) * 8 + Math.sin(y * .11) * 3;
+      ctx.fillStyle = bands[Math.floor((y + wave) / 30) % bands.length];
+      ctx.fillRect(0, y, 1024, 3);
+    }
+    for (let i = 0; i < 45; i++) {
+      ctx.fillStyle = 'rgba(110,75,43,' + (0.025 + rand() * .08) + ')';
+      ctx.fillRect(rand() * 1024, rand() * 512, 30 + rand() * 150, 2 + rand() * 7);
+    }
+  } else if (type === 'mars') {
+    const terrain = ctx.createLinearGradient(0, 0, 0, 512);
+    terrain.addColorStop(0, '#d58a60'); terrain.addColorStop(.5, '#9f4c31'); terrain.addColorStop(1, '#57291f');
+    ctx.fillStyle = terrain; ctx.fillRect(0, 0, 1024, 512);
+    for (let i = 0; i < 150; i++) {
+      const x = rand() * 1024, y = rand() * 512, r = 2 + rand() * 17;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(55,27,21,' + (0.08 + rand() * .2) + ')'; ctx.fill();
+      ctx.beginPath(); ctx.arc(x - r * .2, y - r * .2, r * .62, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(240,174,126,.18)'; ctx.lineWidth = 2; ctx.stroke();
+    }
+  } else if (type === 'neptune') {
+    const blue = ctx.createLinearGradient(0, 0, 0, 512);
+    blue.addColorStop(0, '#4d8ce0'); blue.addColorStop(.5, '#1452a8'); blue.addColorStop(1, '#082c70');
+    ctx.fillStyle = blue; ctx.fillRect(0, 0, 1024, 512);
+    for (let i = 0; i < 70; i++) {
+      const y = rand() * 512;
+      ctx.beginPath(); ctx.moveTo(0, y);
+      for (let x = 0; x <= 1024; x += 24) ctx.lineTo(x, y + Math.sin(x * .014 + i) * 5);
+      ctx.strokeStyle = 'rgba(185,220,255,' + (0.04 + rand() * .12) + ')'; ctx.lineWidth = 2 + rand() * 7; ctx.stroke();
+    }
+  } else {
+    const moon = ctx.createLinearGradient(0, 0, 1024, 512);
+    moon.addColorStop(0, '#b5c0cb'); moon.addColorStop(.5, hex); moon.addColorStop(1, '#26364b');
+    ctx.fillStyle = moon; ctx.fillRect(0, 0, 1024, 512);
+    for (let i = 0; i < 95; i++) {
+      const x = rand() * 1024, y = rand() * 512, r = 2 + rand() * 15;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(8,18,30,' + (0.08 + rand() * .16) + ')'; ctx.fill();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.anisotropy = 4;
+  return texture;
+}
+
+function planetTypeForNode(nodeMeta, isCenter) {
+  if (isCenter) return 'sun';
+  if (!nodeMeta) return 'moon';
+  if (nodeMeta.kind === 'category') {
+    return ({
+      productivity: 'earth',
+      games: 'mars',
+      intelligence: 'venus',
+      voice: 'neptune',
+      personalisation: 'saturn'
+    })[nodeMeta.id] || 'moon';
+  }
+  return 'moon';
+}
+
 function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
   const nodeMeta = group.userData.node;
   const nodeKind = nodeMeta && nodeMeta.kind;
   const isCategory = nodeKind === 'category';
-  const keepAmbientParticles = isCenter || isCategory;
-  const visualColor = locked ? '#9aaab5' : color;
+  const planetType = planetTypeForNode(nodeMeta, isCenter);
+  const visualColor = locked ? '#687787' : color;
   const colorValue = new THREE.Color(visualColor);
+  const texture = makePlanetTexture(planetType, visualColor);
+  const rings = [];
 
-  // Capability orbs stay visually quiet: one clean shell and their icon.
-  // The central ZERO orb and category orbs retain a restrained ambient effect.
-  // Soft additive halo: visible glow without adding stray particles.
-  const halo = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.22, 24, 18),
-    new THREE.MeshBasicMaterial({
-      color: colorValue, transparent: true,
-      opacity: locked ? 0.075 : 0.14,
-      blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide
-    })
-  );
-  group.add(halo);
-
-  const shellMaterial = new THREE.MeshPhysicalMaterial({
-    color: colorValue,
-    emissive: colorValue,
-    emissiveIntensity: isCenter ? 0.62 : (locked ? 0.2 : 0.4),
-    metalness: 0.12,
-    roughness: 0.38,
-    clearcoat: 0.55,
-    transparent: true,
-    opacity: isCenter ? 0.16 : (locked ? 0.25 : 0.21),
-    depthWrite: false
-  });
-  const shell = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 24), shellMaterial);
-  group.add(shell);
-
-  const wire = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.035, 32, 24),
-    new THREE.MeshBasicMaterial({
-      color: colorValue,
-      wireframe: true,
-      transparent: true,
-      opacity: isCenter ? 0.1 : (isCategory ? 0.12 : 0.095),
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    })
-  );
-  group.add(wire);
-
-  const facetFrame = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(radius * 0.94, 1)),
-    new THREE.LineBasicMaterial({color:colorValue,transparent:true,opacity:locked ? 0.12 : 0.2,depthWrite:false,blending:THREE.AdditiveBlending})
-  );
-  group.add(facetFrame);
-  const innerCore = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(radius * 0.28, 1),
-    new THREE.MeshBasicMaterial({color:colorValue,wireframe:true,transparent:true,opacity:locked ? 0.12 : 0.2,depthWrite:false,blending:THREE.AdditiveBlending})
-  );
-  innerCore.rotation.set(0.3,0.55,0.18);
-  group.add(innerCore);
-
-  let core = null;
   if (isCenter) {
-    const wordmark = makeLabelSprite('Z.E.R.O.', '#eafaff', 34);
+    const corona = new THREE.Mesh(
+      new THREE.SphereGeometry(radius * 1.34, 48, 36),
+      new THREE.MeshBasicMaterial({ color: '#ff9b32', transparent: true, opacity: .16, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })
+    );
+    group.add(corona);
+    const sun = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 64, 48),
+      new THREE.MeshBasicMaterial({ map: texture, color: '#fff1bd' })
+    );
+    group.add(sun);
+    const flare = new THREE.Mesh(
+      new THREE.SphereGeometry(radius * 1.075, 48, 36),
+      new THREE.MeshBasicMaterial({ color: '#ffb54a', transparent: true, opacity: .12, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })
+    );
+    group.add(flare);
+    const sunlight = new THREE.PointLight('#ffb45c', 3.8, 34, 1.7);
+    group.add(sunlight);
+    const wordmark = makeLabelSprite('Z.E.R.O.', '#fff2c8', 34);
     wordmark.material.opacity = 1;
     wordmark.material.depthTest = false;
-    wordmark.scale.set(radius * 1.05, radius * 0.25, 1);
-    wordmark.position.set(0, 0, 0);
+    wordmark.scale.set(radius * 1.05, radius * .25, 1);
+    wordmark.position.set(0, 0, radius * 1.04);
     wordmark.renderOrder = 8;
     group.add(wordmark);
-    core = wordmark;
-  } else if (locked) {
-    core = addHolographicLock(group, radius);
-    const crystal = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(radius * 0.12, 1),
+    const coronaRing = new THREE.Mesh(
+      new THREE.TorusGeometry(radius * 1.27, radius * .012, 8, 96),
+      new THREE.MeshBasicMaterial({ color: '#ffb64b', transparent: true, opacity: .38, blending: THREE.AdditiveBlending, depthWrite: false })
+    );
+    coronaRing.rotation.set(.6, .2, .25);
+    group.add(coronaRing);
+    rings.push(coronaRing);
+  } else {
+    const planetMaterial = new THREE.MeshStandardMaterial({
+      map: texture,
+      color: locked ? '#7d8790' : '#ffffff',
+      roughness: .91,
+      metalness: .015,
+      bumpMap: texture,
+      bumpScale: planetType === 'earth' ? .055 : .025
+    });
+    if (locked) {
+      planetMaterial.color.set('#68717a');
+      planetMaterial.emissive = new THREE.Color('#18232e');
+      planetMaterial.emissiveIntensity = .22;
+    }
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 48), planetMaterial);
+    sphere.rotation.set(.18, .35, .08);
+    group.add(sphere);
+
+    const atmosphereColor = isCategory ? colorValue : new THREE.Color('#9eb8d0');
+    const atmosphere = new THREE.Mesh(
+      new THREE.SphereGeometry(radius * 1.055, 48, 32),
       new THREE.MeshBasicMaterial({
-        color: colorValue,
+        color: atmosphereColor,
         transparent: true,
-        opacity: 0.72,
+        opacity: locked ? .035 : (isCategory ? .095 : .045),
+        side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
         depthWrite: false
       })
     );
-    crystal.rotation.set(0.35, 0.55, 0.2);
-    group.add(crystal);
-  }
+    group.add(atmosphere);
 
-  const rings = [];
-  const ringCount = isCenter ? 3 : (isCategory ? 2 : 1);
-  for (let i = 0; i < ringCount; i++) {
-    const ringMesh = new THREE.Mesh(
-      new THREE.TorusGeometry(radius * (1.18 + i * 0.12), Math.max(0.008, radius * 0.009), 5, 56),
-      new THREE.MeshBasicMaterial({
-        color: colorValue,
+    if (planetType === 'saturn') {
+      const ringMaterial = new THREE.MeshStandardMaterial({
+        color: '#d7c19a',
+        roughness: .82,
+        metalness: .05,
+        side: THREE.DoubleSide,
         transparent: true,
-        opacity: isCenter ? 0.2 - i * 0.06 : 0.13,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending
-      })
-    );
-    ringMesh.rotation.set(0.5 + i * 0.55, 0.2 + i * 0.8, i * 0.63);
-    group.add(ringMesh);
-    rings.push(ringMesh);
-  }
-
-  // Only ZERO and category orbs keep a small number of slow ambient motes.
-  let strayOrbit = null;
-  if (keepAmbientParticles) {
-    strayOrbit = new THREE.Group();
-    const strayCount = isCenter ? 64 : 24;
-    const strayPositions = new Float32Array(strayCount * 3);
-    const strayColors = new Float32Array(strayCount * 3);
-    const pale = new THREE.Color('#f1fbff');
-    for (let i = 0; i < strayCount; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const orbitRadius = radius * (1.2 + Math.random() * 0.42);
-      strayPositions[i * 3] = Math.sin(phi) * Math.cos(theta) * orbitRadius;
-      strayPositions[i * 3 + 1] = Math.cos(phi) * orbitRadius;
-      strayPositions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * orbitRadius;
-      const moteColor = colorValue.clone().lerp(pale, 0.42 + Math.random() * 0.28);
-      strayColors[i * 3] = moteColor.r;
-      strayColors[i * 3 + 1] = moteColor.g;
-      strayColors[i * 3 + 2] = moteColor.b;
+        opacity: locked ? .28 : .88
+      });
+      const saturnRing = new THREE.Mesh(new THREE.RingGeometry(radius * 1.28, radius * 2.02, 96), ringMaterial);
+      saturnRing.rotation.set(1.18, .12, .18);
+      saturnRing.scale.y = .48;
+      group.add(saturnRing);
+      rings.push(saturnRing);
+      const innerRing = new THREE.Mesh(
+        new THREE.RingGeometry(radius * 1.08, radius * 1.3, 96),
+        new THREE.MeshStandardMaterial({ color: '#a88c65', roughness: .9, side: THREE.DoubleSide, transparent: true, opacity: locked ? .2 : .68 })
+      );
+      innerRing.rotation.copy(saturnRing.rotation);
+      innerRing.scale.copy(saturnRing.scale);
+      group.add(innerRing);
+      rings.push(innerRing);
     }
-    const strayGeometry = new THREE.BufferGeometry();
-    strayGeometry.setAttribute('position', new THREE.BufferAttribute(strayPositions, 3));
-    strayGeometry.setAttribute('color', new THREE.BufferAttribute(strayColors, 3));
-    const strayParticles = new THREE.Points(strayGeometry, new THREE.PointsMaterial({
-      size: isCenter ? 0.022 : 0.016,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.48,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      sizeAttenuation: true
-    }));
-    strayOrbit.add(strayParticles);
-    strayOrbit.rotation.set(Math.random() * 1.1, Math.random() * 1.1, Math.random() * 1.1);
-    group.add(strayOrbit);
+
+    if (isCategory) {
+      const categoryHalo = new THREE.Mesh(
+        new THREE.TorusGeometry(radius * (planetType === 'saturn' ? 2.12 : 1.28), radius * .012, 8, 96),
+        new THREE.MeshBasicMaterial({ color: colorValue, transparent: true, opacity: locked ? .12 : .48, blending: THREE.AdditiveBlending, depthWrite: false })
+      );
+      categoryHalo.rotation.set(.72, .24, .1);
+      group.add(categoryHalo);
+      rings.push(categoryHalo);
+      // A small category glyph remains as a readable identity cue, not as the planet's surface.
+      if (!locked && icon) {
+        const marker = addIcon(group, icon, color, radius * .28);
+        marker.position.set(0, radius * 1.34, radius * .18);
+        marker.scale.setScalar(.32);
+      }
+    } else if (locked) {
+      addHolographicLock(group, radius);
+    }
   }
 
-  const categoryAura = !isCenter && isCategory
-    ? addCategoryAura(group, radius, color, nodeMeta.id)
-    : null;
-  if (!locked && icon && icon !== 'zero') addIcon(group, icon, color, radius * 0.65);
   if (label) {
-    const labelSprite = makeLabelSprite(label, '#e9f6ff', 28);
-    labelSprite.position.set(0, -radius * 1.72, 0);
+    const labelSprite = makeLabelSprite(label, isCenter ? '#fff1cf' : '#e9f6ff', 28);
+    labelSprite.position.set(0, -radius * (planetType === 'saturn' ? 2.05 : 1.72), 0);
     group.add(labelSprite);
     group.userData.labelSprite = labelSprite;
   }
 
   const hit = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.34, 18, 14),
-    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.001, depthWrite: false, color: '#ffffff' })
+    new THREE.SphereGeometry(radius * (planetType === 'saturn' ? 2.12 : 1.38), 24, 18),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: .001, depthWrite: false, color: '#ffffff' })
   );
   hit.userData.pickTarget = nodeMeta || null;
   hit.userData.nodeGroup = group;
   group.add(hit);
   group.userData.hitMesh = hit;
   group.userData.rings = rings;
-  group.userData.categoryAura = categoryAura;
+  group.userData.categoryAura = null;
   group.userData.particles = null;
-  group.userData.strayOrbit = strayOrbit;
-  group.userData.shell = shell;
+  group.userData.strayOrbit = null;
+  group.userData.shell = group.children.find(child => child.isMesh && child.geometry && child.geometry.type === 'SphereGeometry') || null;
 
-  return { shell: shell, wire: wire, core: core, rings: rings, particles: null, hit: hit };
+  return { shell: group.userData.shell, wire: null, core: null, rings: rings, particles: null, hit: hit };
 }
+
 function createNebula(color, x, y, z, scale, opacity) {
   const canvas = document.createElement('canvas');
   canvas.width = 256; canvas.height = 256;
@@ -997,8 +1093,7 @@ function buildWorld() {
 
   categories.forEach(function (category) {
     const node = {
-      id:category.id,name:category.name,kind:'category',category:category,
-      color:category.color,position:category.position.slice(),group:new THREE.Group(),
+      id:category.id,name:category.name,kind:'category',category:category,      color:category.color,position:category.position.slice(),group:new THREE.Group(),
       skills:[],newBadge:null,branch:null
     };
     node.group.userData.node = node;
@@ -1497,8 +1592,7 @@ function enterCategory(category) {
     },0,0);
     return;
   }
-  const focus = worldPosition(category.group);
-  const facingYaw=Math.atan2(focus.x,focus.z);
+  const focus = worldPosition(category.group);  const facingYaw=Math.atan2(focus.x,focus.z);
   const facingPitch=Math.atan2(focus.y,Math.max(0.01,Math.hypot(focus.x,focus.z)))*0.55;
   cameraTo(focus,8.7,1150,function () {
     revealSkillBranches(category);
@@ -1998,7 +2092,6 @@ function pointerHandlers() {
   },{passive:false});
   canvas.addEventListener('contextmenu',function(event){event.preventDefault()});
 }
-
 function maybeHandleZoomThreshold() {
   if(cameraTween || flatView)return;
   if(viewMode==='skill'&&cameraRadius>8.6)handleZoomOut();
