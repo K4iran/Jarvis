@@ -1545,7 +1545,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 <div class="bt-report-satellite sat-d"><small id="btReportSatDLabel">NEXT FOCUS</small><strong id="btReportSatDValue">—</strong></div>
 <section class="bt-report-focus" id="btReportFocus"><small id="btReportFocusLabel">PERFORMANCE</small><strong id="btReportFocusValue">—</strong><span id="btReportFocusDetail"></span><div id="btReportGraph" class="bt-report-graph"></div></section>
 </div><p class="bt-report-narration" id="btReportNarration" aria-live="polite"></p></main>
-      <footer class="bt-report-footer"><button class="bt-action" type="button" data-bt-action="close-report">RETURN TO Z.E.R.O.</button></footer>
+      <footer class="bt-report-footer"><button class="bt-action secondary" type="button" data-bt-action="open-settings">CONNECT DATA</button><button class="bt-action" type="button" data-bt-action="close-report">RETURN TO Z.E.R.O.</button></footer>
     </div>
   </section>
 </div>
@@ -2210,6 +2210,11 @@ async function speakReply(text, fast = false) {
         await new Promise((resolve, reject) => {
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.lang = 'en-GB';
+          const availableVoices = window.speechSynthesis.getVoices();
+          const britishVoices = availableVoices.filter(voice => /^en-GB/i.test(voice.lang));
+          utterance.voice = britishVoices.find(voice => /daniel|ryan|oliver|arthur|male/i.test(voice.name)) || britishVoices[0] || availableVoices.find(voice => /^en/i.test(voice.lang)) || null;
+          utterance.pitch = 0.84;
+          utterance.rate = 0.96;
           utterance.onend = resolve;
           utterance.onerror = resolve;
           window.speechSynthesis.speak(utterance);
@@ -4827,6 +4832,7 @@ function handleAction(action,el){
  if(action==='close'){hide();return}
   if(action==='finish-report'){finishBattleReview();return}
   if(action==='close-report'){hide();return}
+  if(action==='open-settings'){openSettings();return}
  if(action==='choose-type'){showTypeChoices();return}
  if(action==='choose-training'){beginBriefing('training',null);return}
  if(action==='choose-game'){beginBriefing('game',null);return}
