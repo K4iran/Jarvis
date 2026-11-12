@@ -1050,9 +1050,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 .bt-kicker{font:9px "JetBrains Mono",monospace;letter-spacing:.2em;color:#df555d;text-transform:uppercase}
 .bt-panel h2{margin:7px 0 10px;font-size:clamp(15px,1.45vw,19px);font-weight:400;letter-spacing:.12em;color:#fff0f0}
 .bt-muted{color:#a99497;font-size:11px;line-height:1.6}
-.bt-helmet-wrap{position:relative;min-width:0;width:100%;max-width:650px;aspect-ratio:1/1.06;margin:auto;display:grid;place-items:center}
-#battleHelmetCanvas{display:block;width:100%;height:100%;filter:drop-shadow(0 0 23px rgba(255,34,46,.16))}
-.bt-helmet-caption{position:absolute;left:0;right:0;bottom:4%;text-align:center;font:9px "JetBrains Mono",monospace;letter-spacing:.28em;color:rgba(255,105,111,.74);text-shadow:0 0 12px rgba(255,30,45,.35)}
+.bt-orb-wrap{position:relative;min-width:0;width:100%;max-width:650px;aspect-ratio:1/1.06;margin:auto;display:grid;place-items:center}.bt-orb-caption{position:absolute;left:0;right:0;bottom:4%;text-align:center;font:9px "JetBrains Mono",monospace;letter-spacing:.28em;color:rgba(255,105,111,.74);text-shadow:0 0 12px rgba(255,30,45,.35)}
 .bt-statusline{position:absolute;left:0;right:0;top:2%;text-align:center;font:9px "JetBrains Mono",monospace;letter-spacing:.2em;color:#a66b70}
 .bt-prompt-wrap{height:58px;display:flex;align-items:center;justify-content:center;gap:10px;padding:7px 14px;border-top:1px solid rgba(255,55,65,.2);background:rgba(0,0,0,.4);position:relative;z-index:8}
 #btPrompt{font-size:12px;text-align:center;line-height:1.55;color:#f3dfe0}
@@ -1087,10 +1085,17 @@ body.zen-mode-active #core{visibility:hidden!important}
 .bt-count-number{font:clamp(82px,20vw,190px) "JetBrains Mono",monospace;color:#fff0f1;text-shadow:0 0 12px rgba(255,235,236,.9),0 0 32px rgba(255,40,54,.95),0 0 100px rgba(255,15,30,.6);animation:btCountPulse .86s cubic-bezier(.16,.8,.22,1) both;position:relative}
 .bt-count-word{margin-top:8px;font:clamp(10px,1.4vw,13px) "JetBrains Mono",monospace;letter-spacing:.48em;color:#ffd9dc;text-shadow:0 0 16px rgba(255,38,52,.75)}.bt-cine-subtitle{margin-top:18px;color:rgba(255,125,134,.78);font:8px "JetBrains Mono",monospace;letter-spacing:.24em}
 .bt-count-return{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);min-width:190px}.bt-count-return[hidden]{display:none!important}
-@media(max-width:899px){#battleMode.bt-cinematic .bt-helmet-wrap{animation-name:btCinematicCameraMobile}}@keyframes btCinematicCameraMobile{0%{filter:brightness(.55) contrast(1.1);transform:translateX(-50%) scale(.94)}35%{filter:brightness(1.08) contrast(1.18);transform:translateX(-50%) scale(1.035)}100%{filter:brightness(1.18) contrast(1.12);transform:translateX(-50%) scale(1.075)}}
-#battleMode.bt-cinematic .bt-helmet-wrap{animation:btCinematicCamera 6s cubic-bezier(.2,.75,.2,1) both}#battleMode.bt-cinematic #battleHelmetCanvas{filter:drop-shadow(0 0 28px rgba(255,34,46,.28)) drop-shadow(0 0 72px rgba(255,12,28,.14))}
+@media(max-width:899px){#battleMode.bt-cinematic .bt-orb-wrap{animation-name:btCinematicCameraMobile}}@keyframes btCinematicCameraMobile{0%{filter:brightness(.55) contrast(1.1);transform:translateX(-50%) scale(.94)}35%{filter:brightness(1.08) contrast(1.18);transform:translateX(-50%) scale(1.035)}100%{filter:brightness(1.18) contrast(1.12);transform:translateX(-50%) scale(1.075)}}
+#battleMode.bt-cinematic .bt-orb-wrap{animation:btCinematicCamera 6s cubic-bezier(.2,.75,.2,1) both}#battleMode.bt-cinematic #battleOrbCanvas{filter:drop-shadow(0 0 28px rgba(255,34,46,.28)) drop-shadow(0 0 72px rgba(255,12,28,.14))}
 @keyframes btCineScan{0%{transform:translateY(-3%);opacity:.35}50%{opacity:.8}100%{transform:translateY(3%);opacity:.35}}@keyframes btCineFlare{0%,100%{transform:translateY(-25vh) scaleX(.55);opacity:0}25%,72%{opacity:.75}50%{transform:translateY(25vh) scaleX(1.2);opacity:.35}}@keyframes btCinematicCamera{0%{filter:brightness(.55) contrast(1.1);transform:translateZ(0) scale(.94)}35%{filter:brightness(1.08) contrast(1.18);transform:translateZ(0) scale(1.035)}100%{filter:brightness(1.18) contrast(1.12);transform:translateZ(0) scale(1.075)}}
 @keyframes btCountPulse{0%{transform:scale(1.35);opacity:0}35%{opacity:1}100%{transform:scale(1);opacity:1}}
+.bt-report-overlay{position:absolute;inset:0;z-index:15;overflow-y:auto;display:flex;justify-content:center;padding:clamp(14px,3vw,38px);background:transparent;overscroll-behavior:contain}.bt-report-overlay[hidden]{display:none!important}
+.bt-report-shell{width:min(100%,1040px);min-height:100%;display:flex;flex-direction:column;gap:18px;margin:auto}.bt-report-top{display:flex;justify-content:space-between;gap:12px;color:rgba(255,190,194,.78);font:9px "JetBrains Mono",monospace;letter-spacing:.16em}.bt-report-live{color:#ff737d}.bt-report-stage{width:100%;margin:auto}
+.bt-report-intro{text-align:center;margin:clamp(18px,5vh,54px) 0 25px;text-shadow:0 3px 22px #000}.bt-report-intro p{margin:0 0 8px;color:rgba(255,112,122,.76);font:9px "JetBrains Mono",monospace;letter-spacing:.25em}.bt-report-intro h2{margin:0;color:#fff2f3;font-size:clamp(23px,4vw,36px);font-weight:400;letter-spacing:.08em}.bt-report-intro span{display:block;margin-top:8px;color:rgba(244,220,222,.66);font-size:11px}
+.bt-report-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,185px),1fr));gap:10px}.bt-report-card{min-width:0;min-height:112px;padding:15px 16px 14px;background:rgba(5,7,11,.48);backdrop-filter:blur(14px) saturate(115%);-webkit-backdrop-filter:blur(14px) saturate(115%);opacity:0;transform:translateY(15px) scale(.985);transition:opacity .55s ease,transform .65s cubic-bezier(.2,.75,.25,1);overflow:hidden}.bt-report-card.is-visible{opacity:1;transform:translateY(0) scale(1)}.bt-report-card small{display:block;color:rgba(255,145,152,.82);font:9px "JetBrains Mono",monospace;letter-spacing:.12em}.bt-report-card strong{display:block;margin-top:9px;color:#fff4f4;font-size:clamp(22px,3vw,31px);font-weight:400;line-height:1.15;overflow-wrap:anywhere}.bt-report-card span{display:block;margin-top:7px;color:rgba(241,220,222,.68);font-size:10px;line-height:1.5}
+.bt-report-visuals{display:grid;gap:12px;margin-top:12px}.bt-report-visual{padding:15px;background:rgba(5,7,11,.48);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .65s ease}.bt-report-visual.is-visible{opacity:1;transform:translateY(0)}.bt-report-visual h3{margin:0 0 10px;color:rgba(255,145,152,.9);font:9px "JetBrains Mono",monospace;letter-spacing:.15em}.bt-report-visual svg{display:block;width:min(100%,420px);height:auto;margin:auto}.bt-report-narration{min-height:2.5em;margin:20px auto 0;max-width:680px;text-align:center;color:rgba(255,237,238,.82);font-size:12px;line-height:1.7;text-shadow:0 2px 16px #000}.bt-report-footer{display:flex;justify-content:center;padding:8px 0 max(12px,env(safe-area-inset-bottom))}
+#btPerformanceSummary{display:none!important}#battleMode.bt-reporting>.bt-top,#battleMode.bt-reporting>.bt-layout,#battleMode.bt-reporting>.bt-prompt-wrap{visibility:hidden;pointer-events:none}#battleMode.bt-reporting .bt-report-overlay{visibility:visible;pointer-events:auto}#battleMode .bt-orb-wrap{z-index:2;pointer-events:none}#battleMode.bt-cinematic .bt-orb-wrap{animation:none!important;filter:none!important}
+@media(max-width:600px){.bt-report-overlay{padding:14px 12px}.bt-report-shell{gap:12px}.bt-report-top{font-size:8px;letter-spacing:.08em}.bt-report-intro{margin:22px 0 18px}.bt-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.bt-report-card{min-height:100px;padding:12px 10px}.bt-report-card strong{font-size:22px}.bt-report-card span{font-size:9px}.bt-report-narration{font-size:11px}}@media(prefers-reduced-motion:reduce){.bt-report-card,.bt-report-visual{transition:none;transform:none;opacity:1}}
 .bt-settings-overlay,.bt-postgame-overlay{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(12px)}
 .bt-settings-overlay[hidden],.bt-postgame-overlay[hidden]{display:none!important}
 .bt-settings-card,.bt-postgame-card{width:min(100%,560px);max-height:88dvh;overflow:auto;padding:20px;border:1px solid rgba(255,70,80,.35);background:linear-gradient(145deg,#1c090d,#080609 72%);box-shadow:0 24px 80px rgba(0,0,0,.65)}
@@ -1118,11 +1123,11 @@ body.zen-mode-active #core{visibility:hidden!important}
 
  .bt-top{position:sticky;top:0}
  .bt-layout{display:block;height:auto;min-height:calc(100dvh - 116px);padding:0 12px 18px}
- .bt-helmet-wrap{position:absolute;z-index:1;top:7%;left:50%;transform:translateX(-50%);width:min(96vw,520px);height:min(76vh,650px);opacity:.92;pointer-events:none}
+ .bt-orb-wrap{position:absolute;z-index:1;top:7%;left:50%;transform:translateX(-50%);width:min(96vw,520px);height:min(76vh,650px);opacity:.92;pointer-events:none}
  .bt-panel{z-index:3;width:min(100%,520px);margin:0 auto;background:linear-gradient(145deg,rgba(19,7,10,.77),rgba(4,4,7,.72));}
  #btLeftPanel{position:relative;margin-top:clamp(225px,46vh,380px)}
  #btRightPanel{position:relative;margin-top:10px}
- .bt-helmet-caption{bottom:0}
+ .bt-orb-caption{bottom:0}
  .bt-statusline{top:0}
  .bt-prompt-wrap{position:sticky;bottom:0;min-height:58px;height:auto;flex-wrap:wrap}
 }
@@ -1137,7 +1142,7 @@ body.zen-mode-active #core{visibility:hidden!important}
  #btPrompt{font-size:11px}
 }
 @media(min-width:900px){
- .bt-helmet-wrap{min-height:0}
+ .bt-orb-wrap{min-height:0}
  .bt-prompt-wrap{height:58px}
 }
 
@@ -1151,7 +1156,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 @media(max-width:899px){
  #battleMode{overflow:hidden}
  #battleMode .bt-layout{display:block;position:relative;height:calc(100dvh - 116px);min-height:0;padding:0}
- #battleMode .bt-helmet-wrap{position:absolute;z-index:1;top:12%;left:50%;transform:translateX(-50%);width:min(96vw,540px);height:min(72dvh,620px);opacity:.34;pointer-events:none}
+ #battleMode .bt-orb-wrap{position:absolute;z-index:1;top:12%;left:50%;transform:translateX(-50%);width:min(96vw,540px);height:min(72dvh,620px);opacity:.34;pointer-events:none}
  #battleMode .bt-panel{position:absolute;z-index:4;width:auto;margin:0;background:linear-gradient(145deg,rgba(19,7,10,.9),rgba(4,4,7,.86));backdrop-filter:blur(13px)}
  #battleMode #btLeftPanel{top:8px;left:10px;right:10px;max-height:47dvh;overflow-y:auto;padding:12px 13px}
  #battleMode #btRightPanel{left:10px;right:10px;bottom:8px;max-height:22dvh;overflow-y:auto;padding:9px 12px}
@@ -1498,10 +1503,9 @@ body.zen-mode-active #core{visibility:hidden!important}
       </div>
       <div id="btScheduleOverride" hidden></div>
     </aside>
-    <div class="bt-helmet-wrap">
-      <div class="bt-statusline" id="btHelmetStatus">PARTICLE RECONSTRUCTION INITIALISING</div>
-      <canvas id="battleHelmetCanvas" aria-label="Particle-reconstructed robotic helmet"></canvas>
-      <div class="bt-helmet-caption">Z.E.R.O. tactical interface</div>
+    <div class="bt-orb-wrap" aria-hidden="true">
+      <div class="bt-statusline" id="btHelmetStatus">BATTLE CORE STANDBY</div>
+      <div class="bt-orb-caption">Z.E.R.O. tactical interface</div>
     </div>
     <aside class="bt-panel" id="btRightPanel">
       <span class="bt-kicker" id="btRightKicker">MENTAL PROTOCOL</span>
@@ -1527,8 +1531,15 @@ body.zen-mode-active #core{visibility:hidden!important}
     <div class="bt-cine-center"><div class="bt-count-number" id="btCountNumber">5</div><div class="bt-count-word" id="btCountWord">SYSTEMS CHECK</div><div class="bt-cine-subtitle" id="btCineSubtitle">NEURAL LINK // SYNCHRONISING</div></div>
     <div class="bt-cine-progress"><span id="btCineProgress"></span></div>
     <div class="bt-cine-bottom">Tactical interface · systems ready</div>
-    <button class="bt-action bt-count-return" id="btCountReturn" data-bt-action="close" type="button" hidden>RETURN TO Z.E.R.O.</button>
+    <button class="bt-action bt-count-return" id="btCountReturn" data-bt-action="finish-report" type="button" hidden>END BATTLE / VIEW REPORT</button>
   </div>
+  <section class="bt-report-overlay" id="btReportExperience" hidden aria-label="Battle performance report">
+    <div class="bt-report-shell"><header class="bt-report-top"><span>Z.E.R.O. / PERFORMANCE INTELLIGENCE</span><span class="bt-report-live">SESSION COMPLETE</span></header>
+      <main class="bt-report-stage"><div class="bt-report-intro"><p>AFTER-ACTION REVIEW</p><h2 id="btReportTitle">PERFORMANCE REPORT</h2><span id="btReportSub">Your session, measured from recorded data.</span></div>
+        <div class="bt-report-metrics" id="btReportMetrics" aria-live="polite"></div><div class="bt-report-visuals" id="btReportVisuals"></div><p class="bt-report-narration" id="btReportNarration" aria-live="polite"></p></main>
+      <footer class="bt-report-footer"><button class="bt-action" type="button" data-bt-action="close-report">RETURN TO Z.E.R.O.</button></footer>
+    </div>
+  </section>
 </div>
 <div class="bt-settings-overlay" id="btSettingsOverlay" hidden>
   <section class="bt-settings-card" role="dialog" aria-modal="true" aria-labelledby="btSettingsTitle">
@@ -4401,6 +4412,7 @@ import { createOrb } from './orb-network.js?v=orb-data-presentation-1';
 (() => {
   const canvas = document.getElementById('orbNetworkCanvas');
   const core = document.getElementById('core');
+  const battleRoot = document.getElementById('battleMode');
   if (!canvas || !core) return;
 
   try {
@@ -4426,6 +4438,9 @@ import { createOrb } from './orb-network.js?v=orb-data-presentation-1';
       const token = ++presentationToken;
       if (presentationActive) {
         presentationKind = kind;
+        if (kind === 'battle' && battleRoot && presentationLayer.parentNode !== battleRoot) battleRoot.appendChild(presentationLayer);
+        else if (kind !== 'battle' && presentationLayer.parentNode !== document.body) document.body.appendChild(presentationLayer);
+        presentationLayer.style.zIndex = kind === 'battle' ? '1' : '';presentationLayer.style.opacity = kind === 'battle' ? '1' : '';
         if (canvas.parentNode !== presentationLayer) presentationLayer.appendChild(canvas);
         presentationLayer.classList.add('is-active');
         const phone = window.matchMedia('(max-width: 700px)').matches;
@@ -4433,16 +4448,13 @@ import { createOrb } from './orb-network.js?v=orb-data-presentation-1';
         const dataPanelHeight = document.getElementById('disp')?.getBoundingClientRect().height || 0;
         const denseResponse = messageHeight > (phone ? 100 : 116);
         const denseData = dataPanelHeight > window.innerHeight * 0.62;
-        const pose = kind === 'data'
-          ? (phone
-              ? { x: 0.68, y: 0.12, scale: denseData ? 0.34 : 0.43, opacity: denseData ? 0.48 : 0.58, rotation: -0.10 }
-              : { x: 0.68, y: 0.08, scale: denseData ? 0.46 : 0.58, opacity: denseData ? 0.56 : 0.68, rotation: -0.12 })
-          : (phone
-              ? { x: 0.38, y: 0.22, scale: denseResponse ? 0.46 : 0.56, opacity: 0.66, rotation: -0.10 }
-              : { x: 0.48, y: 0.12, scale: denseResponse ? 0.62 : 0.76, opacity: 0.76, rotation: -0.12 });
-        orb.setPresentation({ active: true, ...pose });
+        const pose = kind === 'battle' ? (phone ? { x: 0, y: -0.02, scale: 0.76, opacity: 0.96, rotation: 0 } : { x: 0, y: -0.02, scale: 0.86, opacity: 1, rotation: 0 })
+          : kind === 'data' ? (phone ? { x: 0.68, y: 0.12, scale: denseData ? 0.34 : 0.43, opacity: denseData ? 0.48 : 0.58, rotation: -0.10 } : { x: 0.68, y: 0.08, scale: denseData ? 0.46 : 0.58, opacity: denseData ? 0.56 : 0.68, rotation: -0.12 })
+          : (phone ? { x: 0.38, y: 0.22, scale: denseResponse ? 0.46 : 0.56, opacity: 0.66, rotation: -0.10 } : { x: 0.48, y: 0.12, scale: denseResponse ? 0.62 : 0.76, opacity: 0.76, rotation: -0.12 });
+        orb.setPresentation({ active: true, ...pose, flow: kind === 'battle' ? 1 : 0 });
       } else {
-        orb.setPresentation({ active: false });
+        orb.setPresentation({ active: false });presentationKind = 'response';presentationLayer.style.filter = '';presentationLayer.style.zIndex = '';presentationLayer.style.opacity = '';
+        if (presentationLayer.parentNode !== document.body) document.body.appendChild(presentationLayer);
         presentationLayer.classList.remove('is-active');
         window.setTimeout(() => {
           if (token !== presentationToken || presentationActive) return;
@@ -4468,16 +4480,19 @@ import { createOrb } from './orb-network.js?v=orb-data-presentation-1';
     window.__zeroOrbSetAnalyser = (analyser) => orb.setAnalyser(analyser);
     window.__zeroOrbSetVoiceActivity = (level) => orb.setVoiceActivity(level);
     window.__zeroOrbSetPresentation = applyPresentation;
-    window.__zeroOrbSetPresentationPose = (pose = {}) => {
-      if (!presentationActive) return;
-      orb.setPresentation({ active: true, ...pose });
+    window.__zeroOrbSetBattleTheme = (active) => orb.setColor(active ? 0xff3d4d : 0x4ca8e8);
+    window.__zeroOrbSetBattlePresentation = (active, pose = {}) => {
+      if (!active) { presentationLayer.style.filter = ''; applyPresentation(false); return; }
+      applyPresentation(true, 'battle');orb.setPresentation({ active: true, flow: 1, ...pose });
+      const blur = Math.max(0, Math.min(2.5, Number(pose.blur) || 0));const brightness = Math.max(0.45, Math.min(1.2, Number(pose.brightness) || 0.82));presentationLayer.style.filter = `blur(${blur}px) brightness(${brightness})`;
     };
+    window.__zeroOrbSetPresentationPose = (pose = {}) => { if (!presentationActive) return; orb.setPresentation({ active: true, ...pose }); };
     window.__zeroOrbSetState(stateMap[core.dataset.s] || 'idle');
     window.__zeroOrbSetAnalyser(window.__zeroOrbPendingAnalyser || null);
 
     const presentationObserver = typeof ResizeObserver === 'function'
       ? new ResizeObserver(() => {
-          if (presentationActive) applyPresentation(true, presentationKind);
+          if (presentationActive && presentationKind !== 'battle') applyPresentation(true, presentationKind);
         })
       : null;
     if (presentationObserver) {
@@ -4487,10 +4502,10 @@ import { createOrb } from './orb-network.js?v=orb-data-presentation-1';
       });
     }
     window.addEventListener('resize', () => {
-      if (presentationActive) applyPresentation(true, presentationKind);
+      if (presentationActive && presentationKind !== 'battle') applyPresentation(true, presentationKind);
     }, { passive: true });
     window.addEventListener('scroll', () => {
-      if (presentationActive) applyPresentation(true, presentationKind);
+      if (presentationActive && presentationKind !== 'battle') applyPresentation(true, presentationKind);
     }, { passive: true });
     window.addEventListener('pagehide', () => {
       presentationObserver?.disconnect();
@@ -4514,7 +4529,7 @@ const root=$('#battleMode');
 if(!root||root.dataset.ready==='true')return;
 root.dataset.ready='true';
 const dataDefault=()=>({version:1,objectives:[],notes:[],games:[],schedule:[],eventTypes:{},askedPostgame:{},settings:{trackName:''}});
-let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,battleAudioContext=null,battleAudioAnalyser=null,battleAudioData=null,battleAudioSource=null,battleGain=null;
+let data=dataDefault(),activeEvent=null,sessionType='',animationFrame=0,sequenceTimers=[],currentAudio=null,currentAudioUrl=null,selectedPostEvent=null,battleHideTimer=0,battleAudioContext=null,battleAudioAnalyser=null,battleAudioData=null,battleAudioSource=null,battleGain=null,battleStartedAt=0,battleObjectiveSnapshot=[],reportToken=0,reportRunning=false;
 try{
  const saved=JSON.parse(localStorage.getItem(KEY)||'null');
  if(saved&&saved.version===1){data=Object.assign(dataDefault(),saved);data.settings=Object.assign(dataDefault().settings,{trackName:(saved.settings&&saved.settings.trackName)||(saved.settings&&saved.settings.finalTrackName)||(saved.settings&&saved.settings.introTrackName)||''});data.objectives=Array.isArray(saved.objectives)?saved.objectives:[];data.notes=Array.isArray(saved.notes)?saved.notes:[];data.games=Array.isArray(saved.games)?saved.games:[];data.schedule=Array.isArray(saved.schedule)?saved.schedule:[];data.eventTypes=saved.eventTypes||{};data.askedPostgame=saved.askedPostgame||{}}
@@ -4549,6 +4564,7 @@ function setActions(html){$('#btFooterActions').innerHTML=html}
 function clearSpeakingPanels(){['#btLeftPanel','#btRightPanel'].forEach(sel=>$(sel).classList.remove('bt-speaking-overlay','bt-speaking-side','bt-panel-left','bt-panel-right'))}
 let speakingPanelTimer=0;
 function showPanelForSpeech(text){
+ if(root.classList.contains('bt-reporting'))return;
  clearTimeout(speakingPanelTimer);clearSpeakingPanels();
  const t=String(text||'').toLowerCase();
  let panel='';
@@ -4562,8 +4578,9 @@ function showPanelForSpeech(text){
  const duration=Math.max(2600,Math.min(10500,String(text||'').length*58));
  speakingPanelTimer=setTimeout(clearSpeakingPanels,duration);
 }
-function show(){clearTimeout(battleHideTimer);root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='PARTICLE RECONSTRUCTION INITIALISING';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';const intelPanel=$('#btPerformanceSummary');if(intelPanel){intelPanel.hidden=true;intelPanel.innerHTML=''}$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));startHelmetAnimation()}
-function hide(){clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');document.body.style.overflow='';sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
+function setBattleOrb(active,pose={}){try{if(typeof window.__zeroOrbSetBattleTheme==='function')window.__zeroOrbSetBattleTheme(active);if(typeof window.__zeroOrbSetBattlePresentation==='function')window.__zeroOrbSetBattlePresentation(active,pose)}catch(error){console.warn('Battle orb presentation could not be updated:',error)}}
+function show(){battleStartedAt=0;battleObjectiveSnapshot=[];reportRunning=false;reportToken++;clearTimeout(battleHideTimer);root.classList.remove('bt-cinematic');root.classList.remove('bt-reporting');root.classList.remove('bt-visible');root.hidden=false;root.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';clearSpeakingPanels();$('#btCountdown').hidden=true;$('#btReportExperience').hidden=true;const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=true;$('#btHelmetStatus').textContent='BATTLE CORE ONLINE';$('#btLeftTitle').textContent='AWAITING BRIEFING';$('#btObjectives').innerHTML='<p class="bt-empty">Your session objectives will appear here.</p>';$('#btMental').textContent='Confidence. Composure. Next play.';$('#btNotes').innerHTML='';$('#btNoteInput').value='';const intelPanel=$('#btPerformanceSummary');if(intelPanel){intelPanel.hidden=true;intelPanel.innerHTML=''}$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;setPrompt('Establishing tactical link, sir.');setActions('');requestAnimationFrame(()=>root.classList.add('bt-visible'));setBattleOrb(true,{x:0,y:-0.02,scale:0.84,opacity:0.96,rotation:0,blur:0.35,brightness:0.9})}
+function hide(){reportToken++;reportRunning=false;clearTimeout(speakingPanelTimer);clearSpeakingPanels();root.classList.remove('bt-reporting');root.classList.remove('bt-cinematic');root.classList.remove('bt-visible');root.setAttribute('aria-hidden','true');$('#btReportExperience').hidden=true;document.body.style.overflow='';if('speechSynthesis'in window)window.speechSynthesis.cancel();setBattleOrb(false);battleStartedAt=0;battleObjectiveSnapshot=[];sequenceTimers.forEach(clearTimeout);sequenceTimers=[];if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0;clearTimeout(battleHideTimer);battleHideTimer=setTimeout(()=>{if(!root.classList.contains('bt-visible'))root.hidden=true},1000)}
 function later(fn,ms){const t=setTimeout(fn,ms);sequenceTimers.push(t);return t}
 async function startBattle(){
  if(!root.hidden)return;
@@ -4676,32 +4693,21 @@ function finishCountdown(){
   later(async()=>{
    num.textContent='FOCUS';word.textContent='MAKE THE WORK COUNT';subtitle.textContent='THE NEXT POSSESSION STARTS NOW';
    if(progress)progress.style.width='100%';if(sync)sync.textContent='100%';
-   const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;
+   const returnBtn=$('#btCountReturn');if(returnBtn)returnBtn.hidden=false;battleStartedAt=Date.now();battleObjectiveSnapshot=data.objectives.map(o=>({text:String(o.text||''),done:!!o.done}));
    await playFinalTrack();
    $('#btHelmetStatus').textContent='BATTLE SYSTEM ACTIVE';setPrompt('Battle Mode engaged. Your final sequence is complete, sir.');
-   setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="close">RETURN TO Z.E.R.O.</button>');
+   setActions('<button class="bt-action" data-bt-action="play-track">PLAY MUSIC</button><button class="bt-action secondary" data-bt-action="finish-report">END BATTLE / VIEW REPORT</button>');
   },700)
  };
  tick()
 }
  let battleSpeechQueue=Promise.resolve();
-function speak(text){
- const message=document.getElementById('msg');if(message)message.textContent=text;
- showPanelForSpeech(text);
- const run=async()=>{
-  if(typeof window.speakReply==='function'){
-   try{await window.speakReply(text,true);return}catch(error){console.warn('Battle speech service failed:',error)}
-  }
-  if('speechSynthesis'in window){
-   await new Promise(resolve=>{
-    try{const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.onend=resolve;u.onerror=resolve;window.speechSynthesis.speak(u)}
-    catch(error){resolve()}
-   });
-  }
- };
- battleSpeechQueue=battleSpeechQueue.catch(()=>{}).then(run);
- return battleSpeechQueue;
-}
+function setBattleMusicDuck(ducked){if(!battleAudioContext||!battleGain||!battleAudioSource||!currentAudio||currentAudio.paused||currentAudio.ended)return;const now=battleAudioContext.currentTime;battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(battleGain.gain.value,now);battleGain.gain.linearRampToValueAtTime(ducked?0.16:0.9,now+0.24)}
+function speak(text){const message=document.getElementById('msg');if(message)message.textContent=text;const caption=$('#btReportNarration');if(root.classList.contains('bt-reporting')&&caption)caption.textContent=text;else showPanelForSpeech(text);const run=async()=>{setBattleMusicDuck(true);if(typeof window.__zeroOrbSetState==='function')window.__zeroOrbSetState('speaking');try{if(typeof window.speakReply==='function'){try{await window.speakReply(text,true);return}catch(error){console.warn('Battle speech service failed:',error)}}if('speechSynthesis'in window){await new Promise(resolve=>{try{const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.onend=resolve;u.onerror=resolve;window.speechSynthesis.speak(u)}catch(error){resolve()}})}}finally{if(typeof window.__zeroOrbSetState==='function')window.__zeroOrbSetState('idle');setBattleMusicDuck(false)}};battleSpeechQueue=battleSpeechQueue.catch(()=>{}).then(run);return battleSpeechQueue}
+function formatBattleDuration(ms){const seconds=Math.max(0,Math.floor(ms/1000)),minutes=Math.floor(seconds/60),remaining=seconds%60;if(minutes===0)return seconds+' seconds';if(remaining===0)return minutes+' minutes';return minutes+' minutes '+remaining+' seconds'}
+function reportMetric(label,value,detail,narration){return{label:String(label),value:String(value),detail:String(detail||''),narration:String(narration)}}
+function buildBattleReport(){const elapsed=battleStartedAt?Date.now()-battleStartedAt:0,metrics=[reportMetric('SESSION DURATION',formatBattleDuration(elapsed),'Time since the battle began','Your session lasted '+formatBattleDuration(elapsed)+'.')],objectives=battleObjectiveSnapshot;if(objectives.length){const completed=objectives.filter(o=>o.done).length,total=objectives.length,pct=Math.round(completed/total*100);metrics.push(reportMetric('OBJECTIVES COMPLETED',completed+' / '+total,pct+'% completed','You completed '+completed+' of '+total+' objectives, which is '+pct+' percent.'))}else metrics.push(reportMetric('OBJECTIVES','None set','No objectives were configured for this battle','No objectives were set for this battle, so there is no objective completion result to report.'));let shotMap='';if(sessionType==='game'||sessionType==='training'){const link=window.ZERO_HOOP_CENTRAL,mode=sessionType==='game'?'g':'p',stats=link&&typeof link.getStats==='function'?link.getStats(mode):null;if(!stats)metrics.push(reportMetric('BASKETBALL DATA','Unavailable','No verified Hoop Central records are connected','Hoop Central data is not available, so I cannot report verified basketball statistics. I will not estimate them.'));else{if(stats.shots>0)metrics.push(reportMetric('SHOTS RECORDED',stats.shots,'Recorded '+(sessionType==='game'?'game':'practice')+' attempts','You have '+stats.shots+' recorded '+(sessionType==='game'?'game':'practice')+' shots.'));else metrics.push(reportMetric('SHOOTING DATA','No attempts','No shots have been recorded for this category','There are no recorded shooting attempts in your Hoop Central '+(sessionType==='game'?'game':'practice')+' data yet.'));const pctMetric=(label,value,makes,attempts)=>{if(value==null||attempts<=0)return;metrics.push(reportMetric(label,value+'%',makes+' / '+attempts+' attempts','Your '+label+' is '+value+' percent, with '+makes+' makes from '+attempts+' attempts.'))};pctMetric('FIELD GOAL PERCENTAGE',stats.fg,stats.fgm,stats.shots);pctMetric('THREE-POINT PERCENTAGE',stats.three,stats.threeM,stats.threeA);pctMetric('FREE-THROW PERCENTAGE',stats.ft,stats.ftM,stats.ftA);if(sessionType==='game'&&stats.gp>0){const avg=[{key:'ppg',label:'POINTS PER GAME',unit:'points'},{key:'apg',label:'ASSISTS PER GAME',unit:'assists'},{key:'rpg',label:'REBOUNDS PER GAME',unit:'rebounds'},{key:'spg',label:'STEALS PER GAME',unit:'steals'},{key:'bpg',label:'BLOCKS PER GAME',unit:'blocks'},{key:'tpg',label:'TURNOVERS PER GAME',unit:'turnovers'}];avg.forEach(x=>{const v=stats[x.key];if(v!=='—'&&v!=null)metrics.push(reportMetric(x.label,v,'Average across '+stats.gp+' recorded games','Your '+x.label.toLowerCase()+' is '+v+' '+x.unit+' per game, averaged across '+stats.gp+' recorded games.'))})}if(Array.isArray(stats.zones))stats.zones.forEach(z=>metrics.push(reportMetric(z.name.toUpperCase()+' ZONE',z.pct+'%',z.makes+' / '+z.attempts+' attempts','In the '+z.name+' zone, you made '+z.makes+' of '+z.attempts+' attempts, for '+z.pct+' percent accuracy.')));if(stats.bestZone){const z=stats.bestZone;metrics.push(reportMetric('BEST RECORDED ZONE',z.name,z.pct+'% · '+z.makes+' / '+z.attempts,'Your best recorded shooting zone is '+z.name+', where you made '+z.makes+' of '+z.attempts+' attempts for '+z.pct+' percent accuracy.'))}const qualified=(stats.zones||[]).filter(z=>z.attempts>=4).slice().sort((a,b)=>(a.pct||0)-(b.pct||0));if(qualified.length>1){const z=qualified[0];if(!stats.bestZone||z.name!==stats.bestZone.name)metrics.push(reportMetric('AREA TO DEVELOP',z.name,z.pct+'% · '+z.makes+' / '+z.attempts,'The lowest-accuracy zone with at least four attempts is '+z.name+', at '+z.pct+' percent from '+z.attempts+' attempts. This is a useful area to review, not a judgement about your ability.'))}if(stats.shots>0&&typeof link.getShotMap==='function')shotMap=link.getShotMap(mode)||''}}return{metrics,shotMap,elapsed}}
+async function finishBattleReview(){if(reportRunning||root.classList.contains('bt-reporting'))return;reportRunning=true;const token=++reportToken,report=buildBattleReport();$('#btCountdown').hidden=true;$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;$('#btReportExperience').hidden=false;root.classList.add('bt-reporting');setActions('');$('#btReportTitle').textContent=sessionType==='game'?'GAME PERFORMANCE':sessionType==='training'?'PRACTICE PERFORMANCE':'BATTLE PERFORMANCE';$('#btReportSub').textContent='Recorded Hoop Central totals and averages · no estimated statistics';$('#btReportMetrics').innerHTML='';$('#btReportVisuals').innerHTML='';$('#btReportNarration').textContent='';setBattleOrb(true,{x:0,y:-0.02,scale:0.84,opacity:0.96,rotation:0,blur:0.35,brightness:0.9});await speak('Battle complete. I am preparing your performance breakdown.');for(let i=0;i<report.metrics.length;i++){if(token!==reportToken)return;const m=report.metrics[i],card=document.createElement('article');card.className='bt-report-card';card.innerHTML='<small>'+esc(m.label)+'</small><strong>'+esc(m.value)+'</strong>'+(m.detail?'<span>'+esc(m.detail)+'</span>':'');$('#btReportMetrics').appendChild(card);const side=i%2===0?0.48:-0.48,vertical=(Math.floor(i/2)%2===0?0.10:-0.10);setBattleOrb(true,{x:side,y:vertical,scale:0.58,opacity:0.88,rotation:side*0.18,blur:1.15,brightness:0.76});requestAnimationFrame(()=>card.classList.add('is-visible'));await speak(m.narration)}if(token!==reportToken)return;if(report.shotMap){const visual=document.createElement('section');visual.className='bt-report-visual';visual.innerHTML='<h3>RECORDED SHOT MAP</h3>'+report.shotMap;$('#btReportVisuals').appendChild(visual);requestAnimationFrame(()=>visual.classList.add('is-visible'));setBattleOrb(true,{x:0.50,y:0.02,scale:0.54,opacity:0.88,rotation:0.12,blur:1.2,brightness:0.74});await speak('This is your recorded shot map. Each marker represents a shot logged in Hoop Central for this category. It is based on your recorded attempts, not an estimate.')}if(token!==reportToken)return;await speak('That concludes your performance report. Use these recorded results to choose what to work on next.');if(token===reportToken)reportRunning=false}
 function openDb(){
  return new Promise((resolve,reject)=>{
   if(!('indexedDB'in window)){reject(new Error('This browser does not support local audio storage.'));return}
@@ -4762,6 +4768,8 @@ async function checkPostgame(eventsFromCalendar){
 }
 function handleAction(action,el){
  if(action==='close'){hide();return}
+  if(action==='finish-report'){finishBattleReview();return}
+  if(action==='close-report'){hide();return}
  if(action==='choose-type'){showTypeChoices();return}
  if(action==='choose-training'){beginBriefing('training',null);return}
  if(action==='choose-game'){beginBriefing('game',null);return}
@@ -4782,7 +4790,7 @@ root.addEventListener('change',e=>{
  const box=e.target.closest('[data-custom-objective]');if(box)toggleObjective(Number(box.dataset.customObjective),box.checked);
 });
 $('#btSaveNote').addEventListener('click',saveNote);
-$('#btExit').addEventListener('click',hide);
+$('#btExit').addEventListener('click',()=>root.classList.contains('bt-reporting')||battleStartedAt?finishBattleReview():hide());
 $('#btSettingsOpen').addEventListener('click',openSettings);
 $('#btSettingsClose').addEventListener('click',closeSettings);
 $('#btSettingsOverlay').addEventListener('click',e=>{if(e.target.id==='btSettingsOverlay')closeSettings()});
@@ -4799,223 +4807,6 @@ window.addEventListener('jarvis:calendar-connected',()=>checkPostgame());
 window.addEventListener('storage',e=>{if(e.key==='jarvis.zen.v1'&& !root.hidden)renderNotebook()});
 window.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPostgame()});
 
-function startHelmetAnimation(){
- const canvas=$('#battleHelmetCanvas'),ctx=canvas.getContext('2d');if(!ctx)return;
- const mask=document.createElement('canvas');mask.width=560;mask.height=640;
- const m=mask.getContext('2d');m.strokeStyle='#fff';m.fillStyle='#fff';m.lineCap='round';m.lineJoin='round';
- // Dense particle silhouette: the helmet is formed from particles, not solid metal.
- m.beginPath();[[280,38],[365,61],[428,117],[456,202],[447,310],[409,409],[350,493],[280,546],[210,493],[151,409],[113,310],[104,202],[132,117],[195,61]].forEach((p,i)=>i?m.lineTo(p[0],p[1]):m.moveTo(p[0],p[1]));m.closePath();m.fill();
- function path(points,width,close,fill){m.beginPath();points.forEach((p,i)=>i?m.lineTo(p[0],p[1]):m.moveTo(p[0],p[1]));if(close)m.closePath();m.lineWidth=width;if(fill)m.fill();else m.stroke()}
- // Outer shell, cheek plates, brow, jaw and chin — an original angular robotic faceplate.
- path([[280,38],[365,61],[428,117],[456,202],[447,310],[409,409],[350,493],[280,546],[210,493],[151,409],[113,310],[104,202],[132,117],[195,61]],13,true,false);
- path([[132,117],[184,102],[225,118],[280,143],[335,118],[376,102],[428,117]],10,false,false);
- path([[154,153],[193,177],[221,221],[211,275],[171,306],[133,273],[120,211]],10,true,false);
- path([[406,153],[367,177],[339,221],[349,275],[389,306],[427,273],[440,211]],10,true,false);
- path([[207,145],[248,171],[280,187],[312,171],[353,145],[338,221],[280,245],[222,221]],11,true,false);
- path([[150,302],[202,286],[243,312],[258,375],[224,431],[174,410]],10,true,false);
- path([[410,302],[358,286],[317,312],[302,375],[336,431],[386,410]],10,true,false);
- path([[174,410],[218,450],[280,466],[342,450],[386,410],[350,493],[280,529],[210,493]],12,true,false);
- path([[207,451],[232,482],[280,495],[328,482],[353,451]],9,false,false);
- path([[244,196],[267,214],[280,222],[293,214],[316,196]],9,false,false);
- path([[264,222],[257,278],[280,315],[303,278],[296,222]],9,false,false);
- path([[224,327],[252,344],[280,349],[308,344],[336,327]],9,false,false);
- for(let i=0;i<5;i++){const y=365+i*25;path([[235,y],[260,y+2],[280,y+3],[300,y+2],[325,y]],4,false,false)}
- path([[110,202],[77,247],[91,349],[128,390]],8,false,false);
- path([[450,202],[483,247],[469,349],[432,390]],8,false,false);
- path([[196,75],[229,55],[280,48],[331,55],[364,75]],7,false,false);
- const pixels=m.getImageData(0,0,mask.width,mask.height).data,target=[];
- for(let y=12;y<mask.height-10;y+=3)for(let x=12;x<mask.width-10;x+=3){if(pixels[(y*mask.width+x)*4+3]>70)target.push({x,y})}
- const count=4250,points=[];
- for(let i=0;i<count;i++){
-  const p=target[Math.floor(Math.random()*target.length)]||{x:280,y:320};
-  // Begin as a compact 3D orb, then unfold into the fixed helmet surface.
-  const a=Math.random()*Math.PI*2,u=Math.random()*2-1,v=Math.sqrt(1-u*u),r=27+Math.random()*12;
-  const faceZ=(x,y)=>{
-   const nx=(x-280)/176,ny=(y-320)/282;
-   const nose=Math.exp(-Math.pow((x-280)/43,2)-Math.pow((y-258)/105,2))*43;
-   const cheek=Math.exp(-Math.pow((Math.abs(nx)-.53)/.22,2)-Math.pow((ny-.12)/.42,2))*13;
-   const side=-Math.pow(Math.abs(nx),1.7)*36;
-   return nose+cheek+side+(y>400?7:0);
-  };
-  points.push({x:p.x,y:p.y,z:faceZ(p.x,p.y)+(Math.random()-.5)*5,sx:Math.cos(a)*v*r,sy:u*r,sz:Math.sin(a)*v*r,size:.65+Math.random()*1.3,phase:Math.random()*Math.PI*2,bright:Math.random()});
- }
- // A sparse intelligent red particle shell slowly orbits the helmet in 3D.
- // It is deliberately made from isolated motes: no connecting cage or solid ring.
- const redOrbParticles=Array.from({length:38},function(_,i){
-  const y=1-2*(i+.5)/38,ring=Math.sqrt(1-y*y),angle=i*2.399963229728653;
-  return {
-   x:Math.cos(angle)*ring*232,
-   y:y*334-24,
-   z:Math.sin(angle)*ring*176,
-   size:.65+Math.random()*.9,
-   alpha:.35+Math.random()*.55,
-   phase:Math.random()*Math.PI*2,
-   drift:Math.random()*.8+.2
-  };
- });
- function drawSoundWaves(t,volume){const bands=[{rx:198,ry:282,color:'rgba(255,178,183,.9)',width:1.25,phase:0,speed:1.05},{rx:216,ry:306,color:'rgba(255,76,91,.78)',width:1.45,phase:1.35,speed:.82},{rx:237,ry:331,color:'rgba(207,35,52,.68)',width:1.2,phase:2.65,speed:1.18},{rx:259,ry:357,color:'rgba(111,15,29,.72)',width:1.05,phase:3.9,speed:.68}],data=battleAudioData,active=!!(battleAudioAnalyser&&data&&currentAudio&&!currentAudio.paused&&!currentAudio.ended);ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';ctx.lineJoin='round';bands.forEach((band,bi)=>{ctx.beginPath();const steps=240;for(let i=0;i<=steps;i++){const angle=i/steps*Math.PI*2,idx=Math.floor(i/steps*(data?data.length-1:0)),sample=active?((data[idx]||128)-128)/128:0,travelling=Math.sin(angle*3.2-t*band.speed+band.phase)*3.2+Math.sin(angle*7+t*.72-band.phase)*1.35+Math.sin(angle*11-t*1.35+band.phase)*.55,envelope=active?volume:.12,audioRipple=active?sample*(3+volume*17):Math.sin(t*.9+angle*2+band.phase)*1.15,displacement=travelling*(.62+envelope*.72)+audioRipple*(1+bi*.13),x=Math.cos(angle)*(band.rx+displacement),y=-24+Math.sin(angle)*(band.ry+displacement*.94);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.closePath();ctx.strokeStyle=band.color;ctx.lineWidth=band.width+volume*.48;ctx.globalAlpha=.42+Math.min(.48,volume*.55);ctx.shadowColor=band.color;ctx.shadowBlur=5+volume*12;ctx.stroke()});ctx.restore();ctx.globalAlpha=1;ctx.shadowBlur=0}
- function drawRedOrbLayer(t,front){
-  const rotation=t*.105,cos=Math.cos(rotation),sin=Math.sin(rotation),tilt=Math.sin(t*.075)*.045;
-  const visible=[];
-  for(let i=0;i<redOrbParticles.length;i++){
-   const p=redOrbParticles[i],x=p.x*cos+p.z*sin,depth=-p.x*sin+p.z*cos;
-   const y=p.y+Math.sin(t*.16+p.phase)*p.drift*2.2;
-   const perspective=1+depth*.00055,px=x*perspective,py=y*Math.cos(tilt)*perspective;
-   // Keep the motes outside the helmet silhouette so its facial detail stays clear.
-   const outside=(px/187)*(px/187)+((py+24)/296)*((py+24)/296);
-   if(outside<1.035 || (front ? depth<=0 : depth>0))continue;
-   visible.push({p:p,x:px,y:py,depth:depth});
-  }
-  visible.sort(function(a,b){return a.depth-b.depth});
-  ctx.save();ctx.globalCompositeOperation='lighter';
-  for(let i=0;i<visible.length;i++){
-   const item=visible[i],p=item.p;
-   const depth=clamp((item.depth+176)/352,0,1);
-   const pulse=.72+.28*Math.sin(t*.72+p.phase);
-   const alpha=p.alpha*pulse*(front?.28:.105)*(.55+depth*.45);
-   const size=p.size*(.78+depth*.28);
-   ctx.globalAlpha=alpha;
-   ctx.shadowColor='rgba(255,34,48,'+(front ? 0.62 : 0.28)+')';
-   ctx.shadowBlur=front?5.5:2.2;
-   ctx.fillStyle=front?'rgba(255,57,68,1)':'rgba(178,24,36,1)';
-   ctx.beginPath();ctx.arc(item.x,item.y,size,0,Math.PI*2);ctx.fill();
-  }
-  ctx.restore();ctx.globalAlpha=1;ctx.shadowBlur=0;
- }
- // Build a sparse, local particle lattice once. Nearby links keep the helmet's
- // panel geometry legible without turning the whole mask into a wireframe.
- const links=[],cellSize=18,grid=new Map(),cellKey=(x,y)=>Math.floor(x/cellSize)+','+Math.floor(y/cellSize);
- for(let i=0;i<points.length;i++){
-  const p=points[i],gx=Math.floor(p.x/cellSize),gy=Math.floor(p.y/cellSize);
-  let made=0;
-  for(let oy=-1;oy<=1&&made<4;oy++)for(let ox=-1;ox<=1&&made<4;ox++){
-   const bucket=grid.get((gx+ox)+','+(gy+oy));if(!bucket)continue;
-   for(const j of bucket){
-    const q=points[j],dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy;
-    if(d2>18&&d2<cellSize*cellSize*.82){links.push([i,j]);made++;if(made>=4)break}
-   }
-  }
-  const key=cellKey(p.x,p.y);if(!grid.has(key))grid.set(key,[]);grid.get(key).push(i);
- }
- // Stronger facial construction lines are themselves made from short,
- // separated particle-like links rather than continuous solid strokes.
- const detailPaths=[
-  [[132,117],[184,102],[225,118],[280,143],[335,118],[376,102],[428,117]],
-  [[154,153],[193,177],[221,221],[211,275],[171,306],[133,273],[120,211],[154,153]],
-  [[406,153],[367,177],[339,221],[349,275],[389,306],[427,273],[440,211],[406,153]],
-  [[207,145],[248,171],[280,187],[312,171],[353,145],[338,221],[280,245],[222,221],[207,145]],
-  [[150,302],[202,286],[243,312],[258,375],[224,431],[174,410],[150,302]],
-  [[410,302],[358,286],[317,312],[302,375],[336,431],[386,410],[410,302]],
-  [[174,410],[218,450],[280,466],[342,450],[386,410],[350,493],[280,529],[210,493],[174,410]],
-  [[244,196],[267,214],[280,222],[293,214],[316,196]],
-  [[264,222],[257,278],[280,315],[303,278],[296,222]],
-  [[224,327],[252,344],[280,349],[308,344],[336,327]],
-  [[235,365],[260,367],[280,368],[300,367],[325,365]],
-  [[235,378],[260,380],[280,381],[300,380],[325,378]],
-  [[235,391],[260,393],[280,394],[300,393],[325,391]],
-  [[196,75],[229,55],[280,48],[331,55],[364,75]]
- ];
- const detailLinks=[];
- for(const path of detailPaths)for(let k=1;k<path.length;k++){
-  const a=path[k-1],b=path[k],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy),steps=Math.max(1,Math.ceil(len/9));
-  for(let s=0;s<steps;s++){
-   const u=s/steps,v=Math.min(1,(s+.48)/steps);
-   detailLinks.push([a[0]+dx*u,a[1]+dy*u,a[0]+dx*v,a[1]+dy*v]);
-  }
- }
- let w=1,h=1,dpr=1,start=performance.now();
- const scanStart=.32,scanDuration=2.78;
- function smoothstep(a,b,x){const q=clamp((x-a)/(b-a),0,1);return q*q*(3-2*q)}
- const resize=()=>{const rect=canvas.getBoundingClientRect();w=Math.max(1,rect.width);h=Math.max(1,rect.height);dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)};
- resize();if(typeof ResizeObserver==='function'){const ro=new ResizeObserver(resize);ro.observe(canvas)}else window.addEventListener('resize',resize);
- const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
- function draw(now){
-  if(root.hidden){animationFrame=0;return}
-  const t=(now-start)/1000,scanRaw=(t-scanStart)/scanDuration,scanProgress=clamp(scanRaw,0,1),scanX=-235+smoothstep(0,1,scanProgress)*470,scanVisible=t>=scanStart?clamp(1-(scanRaw-1)/.22,0,1):0,scatter=Math.sin(scanProgress*Math.PI)*(1-scanProgress)*.30;
-  ctx.clearRect(0,0,w,h);
-  const turn=smoothstep(1,1.30,scanRaw),scale=Math.min(w/660,h/720)*.93,cy=h*.48,cx=w*.5,rotY=.045+turn*.12+(reduced?0:Math.sin(t*.38)*.008),rotX=-.015+(reduced?0:Math.cos(t*.29)*.006),eyeFade=smoothstep(3.05,4.35,t),eyeRed=smoothstep(4.15,5.55,t);
-  ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
-  const glow=ctx.createRadialGradient(0,0,50,0,0,280);glow.addColorStop(0,'rgba(105,8,17,.16)');glow.addColorStop(.55,'rgba(55,7,12,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,280,0,Math.PI*2);ctx.fill();
-  drawRedOrbLayer(t,false);
-  if(scanVisible>.001){
-   ctx.save();ctx.globalCompositeOperation='lighter';
-   const beam=ctx.createLinearGradient(scanX-25,0,scanX+25,0);
-   beam.addColorStop(0,'rgba(255,28,38,0)');beam.addColorStop(.34,'rgba(255,45,56,.10)');beam.addColorStop(.5,'rgba(255,112,120,.72)');beam.addColorStop(.66,'rgba(255,45,56,.10)');beam.addColorStop(1,'rgba(255,28,38,0)');
-   ctx.fillStyle=beam;ctx.fillRect(scanX-25,-330,50,660);ctx.shadowColor='rgba(255,45,56,.95)';ctx.shadowBlur=18;ctx.strokeStyle='rgba(255,213,216,.95)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(scanX,-320);ctx.lineTo(scanX,260);ctx.stroke();ctx.restore();
-  }
-  const projected=new Array(points.length);
-  for(let i=0;i<points.length;i++){
-   const p=points[i],targetX=p.x-280,reveal=smoothstep(targetX-44,targetX+44,scanX),band=scanVisible*Math.exp(-Math.pow((targetX-scanX)/27,2)),dx=p.sx*(1-reveal)+targetX*reveal,dy=p.sy*(1-reveal)+(p.y-320)*reveal;
-   // Particles only leave the orb after the scan reaches their target position.
-   // Once formed, their anchors remain stable so the helmet never melts.
-   const drift=reveal*(reduced?0:1),sx=dx+Math.cos(p.phase+t*.92)*drift*1.35+Math.cos(p.phase+t*.8)*scatter*42+Math.cos(p.phase+t*1.4)*band*2.8,
-         sy=dy+Math.sin(p.phase+t*.84)*drift*1.35+Math.sin(p.phase+t*.8)*scatter*42+Math.sin(p.phase+t*1.25)*band*2.2;
-   const z=p.sz*(1-reveal)+p.z*reveal,px=sx*Math.cos(rotY)+z*Math.sin(rotY),py=sy*Math.cos(rotX)-sx*Math.sin(rotX);
-   const perspective=1+z*.0018,alpha=(.24+.58*reveal)*(.68+.32*Math.sin(t*1.2+p.phase));
-   const side=Math.max(0,Math.min(1,(p.x-104)/352));
-   // Preserve the existing left-side peak; progressively shade toward the right.
-   const directionalLight=1-.985*smoothstep(.02,1,side),baseRed=176+58*(1-side)+21*p.bright;
-   const depthLight=.78+Math.min(.28,Math.max(-.18,(z/55)*.18)),cr=Math.round((58+(baseRed-58)*directionalLight)*depthLight+21*band),cg=Math.round((5+((10+22*p.bright)-5)*directionalLight)*depthLight+105*band),cb=Math.round((9+((18+25*p.bright)-9)*directionalLight)*depthLight+110*band);
-   projected[i]={x:px*perspective,y:py*perspective,alpha:alpha*(.20+.80*directionalLight),cr,cg,cb,size:p.size*(.65+reveal*.4)*perspective,reveal,band,directionalLight};
-  }
-  // Subtle connecting filaments: each line breathes independently in
-  // brightness, with the same left-to-right colour treatment as the nodes.
-  ctx.lineWidth=.62;
-  for(let k=0;k<links.length;k++){
-   const [ia,ib]=links[k],a=projected[ia],b=projected[ib];
-   if(!a||!b)continue;
-   const shimmer=.24+.22*(.5+.5*Math.sin(t*1.7+k*.19));
-   const alpha=shimmer*Math.min(a.reveal,b.reveal)*Math.min(1,Math.min(a.alpha,b.alpha)*1.8);
-   ctx.strokeStyle='rgba('+Math.round((a.cr+b.cr)/2)+','+Math.round((a.cg+b.cg)/2)+','+Math.round((a.cb+b.cb)/2)+','+(alpha*(.025+.975*Math.min(a.directionalLight,b.directionalLight)))+')';
-   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
-  }
-  for(let i=0;i<projected.length;i++){
-   const p=projected[i];ctx.fillStyle='rgba('+p.cr+','+p.cg+','+p.cb+','+p.alpha+')';
-   ctx.globalAlpha=p.alpha;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
-  }
-  ctx.globalAlpha=1;
-  // Crisp, angular outer shell: a bright edge plus a restrained red halo.
-  if(scanProgress>.01){
-   const edge=clamp(scanProgress*1.2,0,1),outline=[[0,-282],[85,-259],[148,-203],[176,-118],[167,-10],[129,89],[70,173],[0,226],[-70,173],[-129,89],[-167,-10],[-176,-118],[-148,-203],[-85,-259]];
-   ctx.save();ctx.beginPath();ctx.rect(-235,-315,Math.max(0,scanX+250),650);ctx.clip();ctx.globalAlpha=edge;
-   ctx.shadowColor='rgba(255,34,48,.9)';ctx.shadowBlur=15;
-   const shellGlow=ctx.createLinearGradient(-176,0,176,0);shellGlow.addColorStop(0,'rgba(255,55,67,.72)');shellGlow.addColorStop(.48,'rgba(115,10,20,.48)');shellGlow.addColorStop(1,'rgba(175,12,27,.82)');ctx.strokeStyle=shellGlow;ctx.lineWidth=3.1;ctx.lineJoin='round';ctx.beginPath();outline.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();
-   ctx.shadowBlur=2;const shellEdge=ctx.createLinearGradient(-176,0,176,0);shellEdge.addColorStop(0,'rgba(255,190,194,.72)');shellEdge.addColorStop(.52,'rgba(100,12,20,.32)');shellEdge.addColorStop(1,'rgba(255,65,76,.72)');ctx.strokeStyle=shellEdge;ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
-  }
-  const eyeShape=()=>{ctx.beginPath();ctx.moveTo(-57,-17);ctx.lineTo(53,-5);ctx.lineTo(43,5);ctx.lineTo(34,12);ctx.lineTo(-46,-5);ctx.closePath()};
-  const eyeSocket=(x)=>{ctx.save();ctx.translate(x,-43);ctx.globalAlpha=1;if(x>0)ctx.scale(-1,1);
-   // Deep angular recess, stepped brow and lower socket rim.
-   ctx.fillStyle='rgba(1,0,3,.98)';eyeShape();ctx.fill();
-   ctx.strokeStyle='rgba(91,13,22,.98)';ctx.lineWidth=5;ctx.stroke();
-   ctx.strokeStyle='rgba(255,76,87,.62)';ctx.lineWidth=1.25;ctx.beginPath();ctx.moveTo(-59,-20);ctx.lineTo(54,-8);ctx.lineTo(46,3);ctx.stroke();
-   ctx.strokeStyle='rgba(125,24,34,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-44,-7);ctx.lineTo(35,12);ctx.lineTo(46,3);ctx.stroke();
-   // Small inner bevels make the eye read as a fitted optical assembly.
-   ctx.strokeStyle='rgba(255,105,113,.5)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-48,-13);ctx.lineTo(-39,-3);ctx.moveTo(42,-3);ctx.lineTo(34,7);ctx.stroke();ctx.restore()};
-  const eye=(x,pulse,fade,red)=>{ctx.save();ctx.translate(x,-43);ctx.globalAlpha=fade;if(x>0)ctx.scale(-1,1);
-   // Recessed lens with a controlled red core and a thin white-hot optical slit.
-   ctx.shadowColor='rgba(0,0,0,.98)';ctx.shadowBlur=15;ctx.fillStyle='rgba(0,0,2,1)';eyeShape();ctx.fill();ctx.strokeStyle='rgba(0,0,0,1)';ctx.lineWidth=9;ctx.lineJoin='round';ctx.stroke();ctx.shadowColor=red>.5?'#ff1828':'#d9f5ff';ctx.shadowBlur=(7+16*red)*pulse;ctx.fillStyle=red>.5?'rgba(72,3,12,.98)':'rgba(38,55,67,.95)';eyeShape();ctx.fill();
-   ctx.beginPath();ctx.moveTo(-47,-13);ctx.lineTo(43,-3);ctx.lineTo(32,8);ctx.lineTo(-38,-3);ctx.closePath();
-   const lens=ctx.createLinearGradient(0,-14,0,9);lens.addColorStop(0,'rgba('+Math.round(205+50*red)+','+Math.round(235-190*red)+','+Math.round(255-175*red)+','+(.58*pulse)+')');lens.addColorStop(.48,'rgba(255,'+Math.round(235-211*red)+','+Math.round(245-206*red)+','+((.68+.28*red)*pulse)+')');lens.addColorStop(1,'rgba('+Math.round(115+140*red)+','+Math.round(160-145*red)+','+Math.round(180-160*red)+',.98)');ctx.fillStyle=lens;ctx.fill();
-   ctx.shadowBlur=8*pulse;ctx.strokeStyle='rgba(255,218,220,'+((.58+.34*red)*pulse)+')';ctx.lineWidth=1.25;ctx.beginPath();ctx.moveTo(-39,-3);ctx.lineTo(34,5);ctx.stroke();
-   ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,111,120,.8)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(-30,-2);ctx.lineTo(27,4);ctx.stroke();
-   // Tiny segmented highlights inside each lens add a technical optical feel.
-   for(let i=0;i<4;i++){const lx=-24+i*15,ly=-2+i*1.35;ctx.fillStyle='rgba(255,205,207,'+(i===1?.9:.48)+')';ctx.fillRect(lx,ly,5,.8)}
-   ctx.restore()};
-  if(t>2.9){eyeSocket(-83);eyeSocket(83)}if(eyeFade>0){const pulse=.78+.22*Math.sin(t*3.8);eye(-83,pulse,eyeFade,eyeRed);eye(83,pulse,eyeFade,eyeRed)}
-   drawRedOrbLayer(t,true);
-  let battleVolume=0;
-  if(battleAudioAnalyser&&battleAudioData&&currentAudio&&!currentAudio.paused&&!currentAudio.ended){
-   battleAudioAnalyser.getByteTimeDomainData(battleAudioData);
-   let energy=0;for(let i=0;i<battleAudioData.length;i++){const sample=(battleAudioData[i]-128)/128;energy+=sample*sample}
-   battleVolume=Math.min(1,Math.sqrt(energy/battleAudioData.length)*3.4);
-  }
-  drawSoundWaves(t,battleVolume);
-  ctx.restore();
-  animationFrame=requestAnimationFrame(draw);
- }
- animationFrame=requestAnimationFrame(draw);
- function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-}
 window.JarvisBattleMode=Object.freeze({
  start:startBattle,
  handleCommand:async function(text,respond){
@@ -5162,7 +4953,7 @@ function render(type){
  }
  panel.innerHTML=html;panel.hidden=false;status();
 }
-window.ZERO_HOOP_CENTRAL={get:current,refresh:status};
+window.ZERO_HOOP_CENTRAL={get:current,refresh:status,getStats:function(mode){const d=current();return d?statsFor(d,mode):null},getShotMap:function(mode){const d=current();return d?courtSvg(d.shots.filter(q=>q.md===mode)):''}};
 window.ZERO_HOOP_CENTRAL_RENDER=render;
 document.addEventListener('change',function(e){if(e.target&&e.target.id==='btHoopCentralImport'){importFile(e.target.files&&e.target.files[0]);e.target.value=''}});
 window.addEventListener('storage',function(e){if(e.key==='hc'||e.key===STORE){status();const panel=$('#btPerformanceSummary');if(panel&&!panel.hidden){const type=panel.textContent.indexOf('GAME DATA')>=0?'game':'training';render(type)}}});
