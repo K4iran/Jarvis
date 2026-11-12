@@ -4666,25 +4666,11 @@ function renderNotebook(){
 }
 function beginBriefing(type,event){
  sessionType=type;activeEvent=event||activeEvent;
- $('#btLeftPanel').hidden=false;$('#btRightPanel').hidden=false;
- const label=type==='game'?'GAME DAY':'TRAINING';
- $('#btLeftKicker').textContent='MISSION OBJECTIVES / '+label;
- $('#btLeftTitle').textContent=label+' BRIEFING';
- $('#btRightKicker').textContent='MENTAL PREPARATION';
- $('#btRightTitle').textContent='STAY COMPOSED';
- $('#btCustomObjective').hidden=false;
- const suggestions=makeSuggestions(type);
- const suggestedHtml=suggestions.map((s,i)=>'<div class="bt-suggest"><span>✦</span><span>'+esc(s)+'</span><button class="bt-action secondary" style="min-height:26px;padding:3px 7px;font-size:8px" data-bt-action="accept-suggestion" data-index="'+i+'">ADD</button></div>').join('');
- const custom=data.objectives.map((o,i)=>'<div class="bt-objective"><label style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0"><input type="checkbox" data-custom-objective="'+i+'" '+(o.done?'checked':'')+'><span>'+esc(o.text)+'</span></label><button class="bt-action secondary" style="min-height:25px;padding:3px 6px;font-size:8px" data-bt-action="edit-objective" data-index="'+i+'">EDIT</button><button class="bt-action secondary" style="min-height:25px;padding:3px 6px;font-size:8px" data-bt-action="delete-objective" data-index="'+i+'">REMOVE</button></div>').join('');
- $('#btObjectives').innerHTML='<span class="bt-kicker">YOUR OBJECTIVES</span>'+(custom||'<p class="bt-empty">No custom objectives yet. Add your own below.</p>');
- const protocol=type==='game'?['Arrive with enough time to settle in and check your kit and water.','Warm up progressively and get comfortable with the ball.','Choose one simple first-possession cue: communicate, make the read, and play composed.']:['Check your shoes, water and anything you need for practice.','Choose one skill priority before the first drill.','Focus on quality repetitions, listen to coaching feedback and finish with a clear takeaway.'];
- $('#btMental').innerHTML='<div class="bt-callout"><span class="bt-kicker">CONFIDENCE</span><br>You do not need a perfect performance. Trust your preparation and commit to the next good decision.</div><div class="bt-callout"><span class="bt-kicker">PRESSURE RESET</span><ol class="bt-protocol"><li>Relax your shoulders and take a steady, natural breath.</li><li>Release the last play. It is finished.</li><li>Choose one cue: “next play”.</li><li>Put your attention on the next decision you can control.</li></ol></div><div class="bt-callout"><span class="bt-kicker">VISUALISATION</span><br>Picture yourself receiving the ball, reading the floor, staying composed and making the right play. See the whole sequence clearly — then see yourself responding calmly if it does not go perfectly.</div><div class="bt-callout"><span class="bt-kicker">'+(type==='game'?'GAME-DAY':'TRAINING-DAY')+' PROTOCOL</span><ol class="bt-protocol">'+protocol.map(step=>'<li>'+esc(step)+'</li>').join('')+'</ol></div><div class="bt-callout"><span class="bt-kicker">WHY YOU WORK</span><br>'+esc(motivationText())+'</div>';
+ $('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;$('#btCustomObjective').hidden=true;
  if(window.ZERO_HOOP_CENTRAL_RENDER)window.ZERO_HOOP_CENTRAL_RENDER(type);
- renderNotebook();
  $('#btScheduleOverride').hidden=!activeEvent;
- setPrompt('Briefing prepared, sir. Review your objectives, mental cues and notes. We launch when you are ready.');
- setActions('<button class="bt-action secondary" data-bt-action="add-custom">ADD OBJECTIVE</button><button class="bt-action" data-bt-action="launch">BEGIN FINAL SEQUENCE</button>');
- setPrompt('Briefing ready, sir. Review your objectives and cues. We launch when you are ready.');
+ setPrompt((type==='game'?'Game':'Training')+' mode ready. Your recorded performance will appear after the session.');
+ setActions('<button class="bt-action" data-bt-action="launch">BEGIN</button>');
 }
 function addObjective(text){const clean=String(text||'').trim().slice(0,120);if(!clean)return;const item={id:id(),text:clean,done:false};data.objectives.push(item);if(battleStartedAt)battleObjectiveSnapshot.push({id:item.id,text:item.text});save();if(sessionType)beginBriefing(sessionType,activeEvent);if(battleStartedAt){setPrompt('Objective added to the active battle, sir.');setActions('<button class="bt-action secondary" data-bt-action="finish-report">END BATTLE / VIEW REPORT</button>')}}
 function saveNote(){const field=$('#btNoteInput'),text=field.value.trim();if(!text)return;data.notes.push({id:id(),text:text.slice(0,1200),time:Date.now()});data.notes=data.notes.slice(-80);save();field.value='';renderNotebook();setPrompt('Saved to your basketball notebook, sir.')}
@@ -4712,11 +4698,73 @@ function finishCountdown(){
 }
  let battleSpeechQueue=Promise.resolve();
 function setBattleMusicDuck(ducked){if(!battleAudioContext||!battleGain||!battleAudioSource||!currentAudio||currentAudio.paused||currentAudio.ended)return;const now=battleAudioContext.currentTime;battleGain.gain.cancelScheduledValues(now);battleGain.gain.setValueAtTime(battleGain.gain.value,now);battleGain.gain.linearRampToValueAtTime(ducked?0.16:0.9,now+0.24)}
-function speak(text){const message=document.getElementById('msg');if(message)message.textContent=text;const caption=$('#btReportNarration');if(root.classList.contains('bt-reporting')&&caption)caption.textContent=text;else showPanelForSpeech(text);const run=async()=>{setBattleMusicDuck(true);if(typeof window.__zeroOrbSetState==='function')window.__zeroOrbSetState('speaking');try{if(typeof window.speakReply==='function'){try{await window.speakReply(text,true);return}catch(error){console.warn('Battle speech service failed:',error)}}if('speechSynthesis'in window){await new Promise(resolve=>{try{const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.onend=resolve;u.onerror=resolve;window.speechSynthesis.speak(u)}catch(error){resolve()}})}}finally{if(typeof window.__zeroOrbSetState==='function')window.__zeroOrbSetState('idle');setBattleMusicDuck(false)}};battleSpeechQueue=battleSpeechQueue.catch(()=>{}).then(run);return battleSpeechQueue}
-function formatBattleDuration(ms){const seconds=Math.max(0,Math.floor(ms/1000)),minutes=Math.floor(seconds/60),remaining=seconds%60;if(minutes===0)return seconds+' seconds';if(remaining===0)return minutes+' minutes';return minutes+' minutes '+remaining+' seconds'}
-function reportMetric(label,value,detail,narration){return{label:String(label),value:String(value),detail:String(detail||''),narration:String(narration)}}
-function buildBattleReport(){const elapsed=battleStartedAt?Date.now()-battleStartedAt:0,metrics=[reportMetric('SESSION DURATION',formatBattleDuration(elapsed),'Time since the battle began','Your session lasted '+formatBattleDuration(elapsed)+'.')],objectives=battleObjectiveSnapshot.map(o=>{const current=data.objectives.find(item=>item.id===o.id);return{text:o.text,done:!!(current&&current.done)}});if(objectives.length){const completed=objectives.filter(o=>o.done).length,total=objectives.length,pct=Math.round(completed/total*100);metrics.push(reportMetric('OBJECTIVES COMPLETED',completed+' / '+total,pct+'% completed','You completed '+completed+' of '+total+' objectives, which is '+pct+' percent.'))}else metrics.push(reportMetric('OBJECTIVES','None set','No objectives were configured for this battle','No objectives were set for this battle, so there is no objective completion result to report.'));let shotMap='';if(sessionType==='game'||sessionType==='training'){const link=window.ZERO_HOOP_CENTRAL,mode=sessionType==='game'?'g':'p',stats=link&&typeof link.getStats==='function'?link.getStats(mode):null;if(!stats)metrics.push(reportMetric('BASKETBALL DATA','Unavailable','No verified Hoop Central records are connected','Hoop Central data is not available, so I cannot report verified basketball statistics. I will not estimate them.'));else{if(stats.shots>0)metrics.push(reportMetric('SHOTS RECORDED',stats.shots,'Recorded '+(sessionType==='game'?'game':'practice')+' attempts','You have '+stats.shots+' recorded '+(sessionType==='game'?'game':'practice')+' shots.'));else metrics.push(reportMetric('SHOOTING DATA','No attempts','No shots have been recorded for this category','There are no recorded shooting attempts in your Hoop Central '+(sessionType==='game'?'game':'practice')+' data yet.'));const pctMetric=(label,value,makes,attempts)=>{if(value==null||attempts<=0)return;metrics.push(reportMetric(label,value+'%',makes+' / '+attempts+' attempts','Your '+label+' is '+value+' percent, with '+makes+' makes from '+attempts+' attempts.'))};pctMetric('FIELD GOAL PERCENTAGE',stats.fg,stats.fgm,stats.shots);pctMetric('THREE-POINT PERCENTAGE',stats.three,stats.threeM,stats.threeA);pctMetric('FREE-THROW PERCENTAGE',stats.ft,stats.ftM,stats.ftA);if(sessionType==='game'&&stats.gp>0){const avg=[{key:'ppg',label:'POINTS PER GAME',unit:'points'},{key:'apg',label:'ASSISTS PER GAME',unit:'assists'},{key:'rpg',label:'REBOUNDS PER GAME',unit:'rebounds'},{key:'spg',label:'STEALS PER GAME',unit:'steals'},{key:'bpg',label:'BLOCKS PER GAME',unit:'blocks'},{key:'tpg',label:'TURNOVERS PER GAME',unit:'turnovers'}];avg.forEach(x=>{const v=stats[x.key];if(v!=='—'&&v!=null)metrics.push(reportMetric(x.label,v,'Average across '+stats.gp+' recorded games','Your '+x.label.toLowerCase()+' is '+v+' '+x.unit+' per game, averaged across '+stats.gp+' recorded games.'))})}if(Array.isArray(stats.zones))stats.zones.forEach(z=>metrics.push(reportMetric(z.name.toUpperCase()+' ZONE',z.pct+'%',z.makes+' / '+z.attempts+' attempts','In the '+z.name+' zone, you made '+z.makes+' of '+z.attempts+' attempts, for '+z.pct+' percent accuracy.')));if(stats.bestZone){const z=stats.bestZone;metrics.push(reportMetric('BEST RECORDED ZONE',z.name,z.pct+'% · '+z.makes+' / '+z.attempts,'Your best recorded shooting zone is '+z.name+', where you made '+z.makes+' of '+z.attempts+' attempts for '+z.pct+' percent accuracy.'))}const qualified=(stats.zones||[]).filter(z=>z.attempts>=4).slice().sort((a,b)=>(a.pct||0)-(b.pct||0));if(qualified.length>1){const z=qualified[0];if(!stats.bestZone||z.name!==stats.bestZone.name)metrics.push(reportMetric('AREA TO DEVELOP',z.name,z.pct+'% · '+z.makes+' / '+z.attempts,'The lowest-accuracy zone with at least four attempts is '+z.name+', at '+z.pct+' percent from '+z.attempts+' attempts. This is a useful area to review, not a judgement about your ability.'))}if(stats.shots>0&&typeof link.getShotMap==='function')shotMap=link.getShotMap(mode)||''}}return{metrics,shotMap,elapsed}}
-async function finishBattleReview(){if(reportRunning||root.classList.contains('bt-reporting'))return;reportRunning=true;const token=++reportToken,report=buildBattleReport();$('#btCountdown').hidden=true;$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;$('#btReportExperience').hidden=false;root.classList.add('bt-reporting');setActions('');$('#btReportTitle').textContent=sessionType==='game'?'GAME PERFORMANCE':sessionType==='training'?'PRACTICE PERFORMANCE':'BATTLE PERFORMANCE';$('#btReportSub').textContent='Recorded Hoop Central totals and averages · no estimated statistics';$('#btReportMetrics').innerHTML='';$('#btReportVisuals').innerHTML='';$('#btReportNarration').textContent='';setBattleOrb(true,{x:0,y:-0.02,scale:0.84,opacity:0.96,rotation:0,blur:0.35,brightness:0.9});await speak('Battle complete. I am preparing your performance breakdown.');for(let i=0;i<report.metrics.length;i++){if(token!==reportToken)return;const m=report.metrics[i],card=document.createElement('article');card.className='bt-report-card';card.innerHTML='<small>'+esc(m.label)+'</small><strong>'+esc(m.value)+'</strong>'+(m.detail?'<span>'+esc(m.detail)+'</span>':'');$('#btReportMetrics').appendChild(card);card.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});const side=i%2===0?0.48:-0.48,vertical=(Math.floor(i/2)%2===0?0.10:-0.10);setBattleOrb(true,{x:side,y:vertical,scale:0.58,opacity:0.88,rotation:side*0.18,blur:1.15,brightness:0.76});requestAnimationFrame(()=>card.classList.add('is-visible'));await speak(m.narration)}if(token!==reportToken)return;if(report.shotMap){const visual=document.createElement('section');visual.className='bt-report-visual';visual.innerHTML='<h3>RECORDED SHOT MAP</h3>'+report.shotMap;$('#btReportVisuals').appendChild(visual);visual.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});requestAnimationFrame(()=>visual.classList.add('is-visible'));setBattleOrb(true,{x:0.50,y:0.02,scale:0.54,opacity:0.88,rotation:0.12,blur:1.2,brightness:0.74});await speak('This is your recorded shot map. Each marker represents a shot logged in Hoop Central for this category. It is based on your recorded attempts, not an estimate.')}if(token!==reportToken)return;await speak('That concludes your performance report. Use these recorded results to choose what to work on next.');if(token===reportToken)reportRunning=false}
+function speak(text){const message=document.getElementById('msg');if(message)message.textContent=text;const caption=$('#btReportNarration');if(caption)caption.textContent=text;const run=async()=>{setBattleMusicDuck(true);if(typeof window.__zeroOrbSetState==='function')window.__zeroOrbSetState('speaking');try{if(typeof window.speakReply==='function')await window.speakReply(text,true)}catch(error){console.warn('Battle narration could not use the shared ZERO voice:',error)}finally{if(typeof window.__zeroOrbSetState==='function')window.__zeroOrbSetState('idle');setBattleMusicDuck(false)}};battleSpeechQueue=battleSpeechQueue.catch(()=>{}).then(run);return battleSpeechQueue}
+function reportMetric(label,value,detail,narration,satellites,graph){return{label:String(label),value:String(value),detail:String(detail||''),narration:String(narration),satellites:satellites||[],graph:graph||[]}}
+function buildBattleReport(){
+ const link=window.ZERO_HOOP_CENTRAL,mode=sessionType==='game'?'g':'p',stats=link&&typeof link.getStats==='function'?link.getStats(mode):null;
+ if(!stats)return{metrics:[],empty:'Hoop Central data is not connected on this device. Open Battle Mode settings and import your Hoop Central export to see your recorded performance.'};
+ const metrics=[];
+ if(sessionType==='game'&&stats.gp>0){
+  metrics.push(reportMetric('POINTS PER GAME',stats.ppg,'AVERAGE · '+stats.gp+' GAMES','You averaged '+stats.ppg+' points per game across '+stats.gp+' recorded games.',[['ASSISTS / GAME',stats.apg],['REBOUNDS / GAME',stats.rpg],['STEALS / GAME',stats.spg],['TURNOVERS / GAME',stats.tpg]]));
+  metrics.push(reportMetric('ASSISTS PER GAME',stats.apg,'AVERAGE · '+stats.gp+' GAMES','You averaged '+stats.apg+' assists per game across '+stats.gp+' recorded games.',[['POINTS / GAME',stats.ppg],['REBOUNDS / GAME',stats.rpg],['STEALS / GAME',stats.spg],['TURNOVERS / GAME',stats.tpg]]));
+  metrics.push(reportMetric('REBOUNDS PER GAME',stats.rpg,'AVERAGE · '+stats.gp+' GAMES','You averaged '+stats.rpg+' rebounds per game across '+stats.gp+' recorded games.',[['POINTS / GAME',stats.ppg],['ASSISTS / GAME',stats.apg],['STEALS / GAME',stats.spg],['BLOCKS / GAME',stats.bpg]]));
+  metrics.push(reportMetric('STEALS PER GAME',stats.spg,'AVERAGE · '+stats.gp+' GAMES','You averaged '+stats.spg+' steals per game across '+stats.gp+' recorded games.',[['POINTS / GAME',stats.ppg],['ASSISTS / GAME',stats.apg],['BLOCKS / GAME',stats.bpg],['TURNOVERS / GAME',stats.tpg]]));
+ }
+ if(stats.shots>0){
+  if(stats.fg!=null)metrics.push(reportMetric('FIELD GOAL PERCENTAGE',stats.fg+'%',stats.fgm+' / '+stats.shots+' ATTEMPTS','Your field goal percentage is '+stats.fg+' percent, with '+stats.fgm+' makes from '+stats.shots+' attempts.',[['MAKES',stats.fgm],['ATTEMPTS',stats.shots],['3-POINT',stats.three==null?'—':stats.three+'%'],['FREE THROWS',stats.ft==null?'—':stats.ft+'%']]));
+  if(stats.threeA>0)metrics.push(reportMetric('THREE-POINT PERCENTAGE',stats.three+'%',stats.threeM+' / '+stats.threeA+' ATTEMPTS','Your three-point percentage is '+stats.three+' percent, with '+stats.threeM+' makes from '+stats.threeA+' attempts.',[['MAKES',stats.threeM],['ATTEMPTS',stats.threeA],['FIELD GOALS',stats.fg+'%'],['FREE THROWS',stats.ft==null?'—':stats.ft+'%']]));
+  if(stats.ftA>0)metrics.push(reportMetric('FREE-THROW PERCENTAGE',stats.ft+'%',stats.ftM+' / '+stats.ftA+' ATTEMPTS','Your free-throw percentage is '+stats.ft+' percent, with '+stats.ftM+' makes from '+stats.ftA+' attempts.',[['MAKES',stats.ftM],['ATTEMPTS',stats.ftA],['FIELD GOALS',stats.fg+'%'],['THREE-POINT',stats.three==null?'—':stats.three+'%']]));
+  if(Array.isArray(stats.zones)&&stats.zones.length){
+   const sorted=stats.zones.slice().sort((a,b)=>(b.pct||0)-(a.pct||0)),best=sorted[0],worst=sorted[sorted.length-1];
+   metrics.push(reportMetric('BEST SHOOTING ZONE',best.name,best.pct+'% · '+best.makes+'/'+best.attempts,'Your strongest recorded shooting zone is '+best.name+', at '+best.pct+' percent from '+best.attempts+' attempts.',[['MAKES',best.makes],['ATTEMPTS',best.attempts],['ZONE TO REVIEW',worst.name],['ACCURACY',best.pct+'%']],stats.zones));
+   if(worst.name!==best.name)metrics.push(reportMetric('ZONE TO DEVELOP',worst.name,worst.pct+'% · '+worst.makes+'/'+worst.attempts,'Your lowest recorded shooting zone is '+worst.name+', at '+worst.pct+' percent. This gives you a useful area to review in practice.',[['MAKES',worst.makes],['ATTEMPTS',worst.attempts],['BEST ZONE',best.name],['BEST ACCURACY',best.pct+'%']],stats.zones));
+  }
+ }
+ if(!metrics.length)return{metrics:[],empty:'No '+(sessionType==='game'?'game':'practice')+' statistics have been recorded in Hoop Central yet. Log your shots and events there, then reopen this report.'};
+ return{metrics:metrics,empty:''};
+}
+function setReportSatellite(index,label,value){
+ const suffix=['A','B','C','D'][index],ln=$('#btReportSat'+suffix+'Label'),vn=$('#btReportSat'+suffix+'Value');
+ if(ln)ln.textContent=String(label||'');if(vn)vn.textContent=String(value==null?'—':value);
+}
+function drawReportGraph(zones){
+ const host=$('#btReportGraph');if(!host)return;host.innerHTML='';
+ if(!Array.isArray(zones)||!zones.length)return;
+ const list=zones.slice().sort((a,b)=>(b.pct||0)-(a.pct||0)).slice(0,6),max=Math.max(100,...list.map(z=>Number(z.pct)||0));
+ host.innerHTML='<svg viewBox="0 0 220 62" role="img" aria-label="Shooting zone accuracy graph">'+list.map((z,i)=>{const x=5+i*36,h=Math.max(3,(Number(z.pct)||0)/max*42);return '<rect x="'+x+'" y="'+(49-h)+'" width="22" height="'+h+'" rx="3" fill="#ff5366" opacity="'+(.42+i*.08)+'"/><text x="'+(x+11)+'" y="60" fill="#eabdc1" font-size="6" text-anchor="middle">'+(i+1)+'</text>'}).join('')+'</svg>';
+}
+function showReportMetric(metric,index,total){
+ $('#btReportFocusLabel').textContent=metric.label;$('#btReportFocusValue').textContent=metric.value;$('#btReportFocusDetail').textContent=metric.detail;
+ const sats=metric.satellites||[['MAKES','—'],['ATTEMPTS','—'],['BEST ZONE','—'],['SESSION',String(index+1)+' / '+String(total)]];
+ for(let i=0;i<4;i++)setReportSatellite(i,sats[i]?sats[i][0]:'',sats[i]?sats[i][1]:'');
+ drawReportGraph(metric.graph);
+ const focus=$('#btReportFocus');if(focus){focus.style.transform='scale(.94)';requestAnimationFrame(()=>focus.style.transform='scale(1)')}
+}
+async function finishBattleReview(){
+ if(reportRunning||root.classList.contains('bt-reporting'))return;
+ reportRunning=true;const token=++reportToken,report=buildBattleReport();
+ $('#btCountdown').hidden=true;$('#btLeftPanel').hidden=true;$('#btRightPanel').hidden=true;
+ $('#btReportExperience').hidden=false;root.classList.add('bt-reporting');setActions('');
+ $('#btReportGraph').innerHTML='';$('#btReportNarration').textContent='';
+ setBattleOrb(true,{x:0,y:-0.02,scale:0.84,opacity:0.96,rotation:0,flow:1,blur:0.2,brightness:0.92});
+ if(!report.metrics.length){
+  showReportMetric({label:'NO PERFORMANCE DATA',value:'—',detail:'',satellites:[['DATA','NOT LINKED'],['SOURCE','HOOP CENTRAL'],['MODE',sessionType.toUpperCase()],['NEXT STEP','IMPORT EXPORT']]},0,0);
+  await speak(report.empty);reportRunning=false;return;
+ }
+ await speak('Session complete. Here is your recorded performance breakdown.');
+ const poses=[
+  {x:-0.34,y:-0.22,scale:0.65,opacity:0.94,rotation:-0.12,flow:1,blur:0.15,brightness:0.9},
+  {x:0.34,y:-0.18,scale:0.62,opacity:0.96,rotation:0.13,flow:1,blur:0.2,brightness:0.88},
+  {x:-0.28,y:0.2,scale:0.68,opacity:0.95,rotation:-0.1,flow:1,blur:0.15,brightness:0.92},
+  {x:0.28,y:0.18,scale:0.64,opacity:0.96,rotation:0.11,flow:1,blur:0.2,brightness:0.9}
+ ];
+ for(let i=0;i<report.metrics.length;i++){
+  if(token!==reportToken)return;
+  const metric=report.metrics[i];showReportMetric(metric,i,report.metrics.length);setBattleOrb(true,poses[i%poses.length]);
+  await speak(metric.narration);
+ }
+ if(token===reportToken){await speak('That is your recorded breakdown. Take the strongest areas with confidence, and use the development areas to guide your next practice.');reportRunning=false}
+}
 function openDb(){
  return new Promise((resolve,reject)=>{
   if(!('indexedDB'in window)){reject(new Error('This browser does not support local audio storage.'));return}
@@ -4958,7 +5006,7 @@ function render(type){
   if(strength)html+='<div class="bt-intel-strength"><b>RECORDED STRENGTH</b><br>'+strength.name+': '+strength.pct+'% ('+strength.makes+'/'+strength.attempts+'). Keep looking for this opportunity when the defence gives it to you.</div>';
   else html+='<div class="bt-intel-muted">Not enough attempts in a single zone yet to identify a reliable shooting strength.</div>';
   if(s.zones.length)html+='<div class="bt-intel-label">ZONE BREAKDOWN / ACCURACY</div>'+s.zones.map(function(z){return '<div class="bt-intel-copy">'+z.name+' — '+z.pct+'% ('+z.makes+'/'+z.attempts+')</div>'}).join('');
-  if(!s.shots.length)html+='<div class="bt-intel-muted">No shots have been recorded for this session type yet. The chart will populate as you log attempts.</div>';
+  if(!s.shots)html+='<div class="bt-intel-muted">No shots have been recorded for this session type yet. The chart will populate as you log attempts.</div>';
  }
  panel.innerHTML=html;panel.hidden=false;status();
 }
