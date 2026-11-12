@@ -1527,34 +1527,37 @@ body.zen-mode-active #core{visibility:hidden!important}
 }
 </style>
 <style id="zero-organised-settings">
-/* Main settings access lives in the former brand position. */
+/* Monochrome settings access: a mathematically centred vector cog. */
 #bar .br{flex:0 0 auto;justify-content:flex-start;min-width:44px}
-#bar .settings-cog{width:42px;height:42px;min-width:42px;border:0;border-radius:50%;color:#bfefff;background:rgba(88,223,255,.055)}
-#bar .settings-cog .ic{width:23px;height:23px;stroke-width:1.45;transition:transform .28s ease,color .2s ease}
-#bar .settings-cog:hover{background:rgba(88,223,255,.12);box-shadow:0 0 18px rgba(88,223,255,.12)}
-#bar .settings-cog:hover .ic{transform:rotate(28deg);color:#e5fbff}
+#bar .settings-cog{display:grid;place-items:center;width:42px;height:42px;min-width:42px;padding:0;border:0;border-radius:50%;color:#fff;background:transparent}
+#bar .settings-gear-svg{display:block;width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round;overflow:visible;transition:transform .25s ease}
+#bar .settings-cog:hover{background:rgba(255,255,255,.08)}
+#bar .settings-cog:hover .settings-gear-svg{transform:rotate(24deg)}
 #bar .tabs{flex:1}
 #bar .rt{flex:0 0 auto}
-.settings-layout{display:grid;grid-template-columns:164px minmax(0,1fr);gap:20px;min-height:270px}
-.settings-nav{display:flex;flex-direction:column;gap:5px;padding:5px 0}
-.settings-nav button{width:100%;min-height:42px;padding:9px 12px;text-align:left;border:0;border-radius:10px;background:transparent;color:#8ca8bc;font:400 11px Sora,sans-serif;cursor:pointer;transition:background .18s ease,color .18s ease}
-.settings-nav button:hover{background:rgba(88,223,255,.055);color:#d9f7ff}
-.settings-nav button.active{background:rgba(88,223,255,.105);color:#dff9ff;box-shadow:inset 2px 0 #58dfff}
-.settings-content{min-width:0;padding:7px 2px 12px}
-.settings-section-head{margin:0 0 20px}
-.settings-section-head>span{font:9px "JetBrains Mono",monospace;letter-spacing:.16em;color:#64cce8}
-.settings-section-head h2{margin:8px 0 5px;font-size:18px;font-weight:300;letter-spacing:.01em;color:#eaf8ff}
-.settings-section-head p{margin:0;color:#8ba7bc;font-size:11px;line-height:1.6}
-.settings-options{display:grid;gap:0}
-.settings-option{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 2px}
-.settings-option+ .settings-option{border-top:1px solid rgba(88,223,255,.08)}
-.settings-option b,.settings-link-card b{display:block;font-size:12px;font-weight:400;color:#e4f7ff}
-.settings-option small,.settings-link-card small{display:block;margin-top:4px;color:#819db2;font-size:10px;line-height:1.5}
-.settings-link-card{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:8px;padding:15px 14px;border:0;border-radius:12px;text-align:left;text-decoration:none;background:rgba(88,223,255,.065);color:#58dfff;cursor:pointer}
-.settings-link-card:hover{background:rgba(88,223,255,.11)}
-.settings-link-card>span:last-child{font-size:16px;color:#7adcf4}
-@media(max-width:560px){.settings-layout{grid-template-columns:1fr;gap:10px;min-height:0}.settings-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:0}.settings-nav button{min-height:42px;padding:8px 5px;text-align:center;font-size:10px}.settings-nav button.active{box-shadow:inset 0 -2px #58dfff}.settings-content{padding:8px 2px 12px}.settings-section-head{margin-bottom:12px}#bar .br{flex:0 0 42px}#bar .settings-cog{width:40px;height:40px;min-width:40px}}
-@media(prefers-reduced-motion:reduce){#bar .settings-cog .ic,.settings-nav button{transition:none!important}}
+#ov .sheet.fr{background:#080808;color:#f5f5f5;border:1px solid rgba(255,255,255,.14);box-shadow:0 22px 70px rgba(0,0,0,.7)}
+#ov .hd{border-color:rgba(255,255,255,.12)}
+#ov #ot,#ov .settings-nav button,#ov .settings-option,#ov .settings-link-card{color:#f2f2f2}
+#ov .settings-layout{display:grid;grid-template-columns:154px minmax(0,1fr);gap:18px;min-height:230px}
+#ov .settings-nav{display:flex;flex-direction:column;gap:4px;padding:3px 0}
+#ov .settings-nav button{width:100%;min-height:40px;padding:9px 11px;text-align:left;border:0;border-radius:7px;background:transparent;color:#a8a8a8;font:400 11px Sora,sans-serif;cursor:pointer;transition:background .16s ease,color .16s ease}
+#ov .settings-nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+#ov .settings-nav button.active{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 2px 0 #fff}
+#ov .settings-content{min-width:0;padding:5px 2px 12px}
+#ov .settings-options{display:grid;gap:0}
+#ov .settings-option{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:54px;padding:10px 2px;border-bottom:1px solid rgba(255,255,255,.1);font-size:12px}
+#ov .settings-option:first-child{border-top:1px solid rgba(255,255,255,.1)}
+#ov .sw{border-color:rgba(255,255,255,.35);background:#181818}
+#ov .sw::after{background:#777}
+#ov .sw[aria-checked=true]::after{background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.12)}
+#ov .settings-link-list{display:grid;gap:8px}
+#ov .settings-link-card{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:13px 12px;border:1px solid rgba(255,255,255,.12);border-radius:7px;text-align:left;text-decoration:none;background:#111;color:#f5f5f5;font:400 12px Sora,sans-serif;cursor:pointer}
+#ov .settings-link-card:hover{background:#1a1a1a;border-color:rgba(255,255,255,.28)}
+#ov .settings-link-card>span:last-child{color:#aaa;font-size:15px}
+#ov .settings-reset{margin-top:18px;padding:8px 0;border:0;background:none;color:#aaa;font:400 10px Sora,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+#ov .settings-reset:hover{color:#fff}
+@media(max-width:560px){#ov .settings-layout{grid-template-columns:1fr;gap:10px;min-height:0}#ov .settings-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:0}#ov .settings-nav button{min-height:40px;padding:8px 4px;text-align:center;font-size:10px}#ov .settings-nav button.active{box-shadow:inset 0 -2px #fff}#ov .settings-content{padding:5px 2px 10px}#bar .br{flex:0 0 42px}#bar .settings-cog{width:40px;height:40px;min-width:40px}}
+@media(prefers-reduced-motion:reduce){#bar .settings-gear-svg,#ov .settings-nav button{transition:none!important}}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -1569,7 +1572,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 </defs></svg>
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
-<header id="bar"><div class="br"><button class="ib settings-cog" id="gear" type="button" aria-label="Open settings" title="Settings"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2Z"/><path d="m19.4 13.5 1.1.8-1.2 2.1-1.3-.5a7.8 7.8 0 0 1-1.5.9l-.2 1.4h-2.5l-.3-1.4a7.8 7.8 0 0 1-1.7 0l-.8 1.2-2.2-1.2.5-1.4a7.8 7.8 0 0 1-.9-1.5l-1.4-.2v-2.5l1.4-.3a7.8 7.8 0 0 1 0-1.7l-1.2-.8 1.2-2.2 1.4.5a7.8 7.8 0 0 1 1.5-.9l.2-1.4h2.5l.3 1.4a7.8 7.8 0 0 1 1.7 0l.8-1.2 2.2 1.2-.5 1.4a7.8 7.8 0 0 1 .9 1.5l1.4.2v2.5l-1.4.3a7.8 7.8 0 0 1 0 1.7Z"/></svg></button></div><nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-label="Home" title="Home" aria-pressed="true" data-tab="home"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M3.5 10.6 12 3.8l8.5 6.8v9.1a1.3 1.3 0 0 1-1.3 1.3H4.8a1.3 1.3 0 0 1-1.3-1.3z"/><path d="M8.5 21v-7.2h7V21M2.5 11.3 12 3.5l9.5 7.8"/></svg><span class="sr-only">Home</span></button><button class="tab" id="dataTab" type="button" aria-label="Visuals and statistics" title="Visuals &amp; Stats" aria-pressed="false" data-tab="data"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/><path d="M3 21h18M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/></svg><span class="sr-only">Visuals &amp; Stats</span></button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span></div></header><div class="mode-actions" aria-label="Modes"><button id="battleModeLaunch" type="button" aria-label="Enter Battle Mode">Battle</button><button id="focusLaunch" type="button" aria-label="Focus button">Focus</button><button id="zenLaunch" type="button" aria-label="Enter Zen mode">Zen</button></div>
+<header id="bar"><div class="br"><button class="ib settings-cog" id="gear" type="button" aria-label="Open settings" title="Settings"><svg class="settings-gear-svg" viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M9.55 2.4h4.9l.55 2.35a7.8 7.8 0 0 1 1.55.9l2.25-.8 2.45 4.25-1.72 1.62c.1.85.1 1.7 0 2.55l1.72 1.62-2.45 4.25-2.25-.8a7.8 7.8 0 0 1-1.55.9l-.55 2.35h-4.9L9 19.24a7.8 7.8 0 0 1-1.55-.9l-2.25.8-2.45-4.25 1.72-1.62a10.8 10.8 0 0 1 0-2.55L2.75 9.1 5.2 4.85l2.25.8A7.8 7.8 0 0 1 9 4.75L9.55 2.4Z"/><circle cx="12" cy="12" r="3.25"/></svg></button></div><nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-label="Home" title="Home" aria-pressed="true" data-tab="home"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M3.5 10.6 12 3.8l8.5 6.8v9.1a1.3 1.3 0 0 1-1.3 1.3H4.8a1.3 1.3 0 0 1-1.3-1.3z"/><path d="M8.5 21v-7.2h7V21M2.5 11.3 12 3.5l9.5 7.8"/></svg><span class="sr-only">Home</span></button><button class="tab" id="dataTab" type="button" aria-label="Visuals and statistics" title="Visuals &amp; Stats" aria-pressed="false" data-tab="data"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/><path d="M3 21h18M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/></svg><span class="sr-only">Visuals &amp; Stats</span></button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span></div></header><div class="mode-actions" aria-label="Modes"><button id="battleModeLaunch" type="button" aria-label="Enter Battle Mode">Battle</button><button id="focusLaunch" type="button" aria-label="Focus button">Focus</button><button id="zenLaunch" type="button" aria-label="Enter Zen mode">Zen</button></div>
 <main id="stage">
 <section id="center">
 <div class="core" id="core"><div class="halo" id="halo"></div><canvas id="gl" aria-label="Holographic particle orb" role="img"></canvas><canvas id="orbNetworkCanvas" aria-label="Animated particle network orb" role="img"></canvas>
@@ -1809,6 +1812,8 @@ window.JarvisGoogleCalendarReady = window.JarvisGoogleCalendar.init().catch(erro
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
+const ZERO_UI_SETTINGS_KEY='zero.ui.settings.v1';
+try{const saved=JSON.parse(localStorage.getItem(ZERO_UI_SETTINGS_KEY)||'{}');if(saved&&typeof saved==='object'){if(typeof saved.rm==='boolean')S.rm=saved.rm;if(typeof saved.cosmos==='boolean')S.cosmos=saved.cosmos}}catch(e){}
 
 /* Subtle binary rain backdrop. It pauses when motion is reduced or the page is hidden. */
 (function initCosmos(){
@@ -2623,24 +2628,24 @@ function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-ta
 function setView(v){view=v;if(v==='idle'){renderDisp();setTab('home')}else{setTab('data');window.__zeroOrbSetPresentation?.(true,'data')}}
 $$('#bar [data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 $('#dx').onclick=()=>setView('idle');
-let settingsSection='personalisation';
+let settingsSection="personalisation";
 function settingsContent(){
- const toggle=(key,label,description)=>`<div class="settings-option"><div><b>${label}</b><small>${description}</small></div><button class="sw" role="switch" data-t="${key}" aria-label="${label}" aria-checked="${key==='rm'?(S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches):S[key]}"></button></div>`;
- if(settingsSection==='personalisation')return `<div class="settings-section-head"><span>PERSONALISATION</span><h2>Make Z.E.R.O. feel right.</h2><p>Adjust the interface and visual experience.</p></div><div class="settings-options">${toggle('rm','Reduce motion','Limit interface animation and movement.')}${toggle('cosmos','Binary rain background','Show or hide the animated background.')}</div>`;
- if(settingsSection==='configuration')return `<div class="settings-section-head"><span>CONFIGURATION</span><h2>Connected features</h2><p>Settings for tools and modes currently available in Z.E.R.O.</p></div><button type="button" class="settings-link-card" id="battleSettingsOpen"><span><b>Battle Mode</b><small>Soundtrack, session data and internal events</small></span><span aria-hidden="true">↗</span></button>`;
- return `<div class="settings-section-head"><span>ADMINISTRATION</span><h2>Privacy and system information</h2><p>Review policies and information about data, AI providers and safety.</p></div><a href="legal.html" class="settings-link-card"><span><b>Legal &amp; Privacy</b><small>Policies, data, AI providers and safety</small></span><span aria-hidden="true">↗</span></a>`;
+ const toggle=(key,label)=>"<div class=\"settings-option\"><span>"+label+"</span><button class=\"sw\" role=\"switch\" data-t=\""+key+"\" aria-label=\""+label+"\" aria-checked=\""+S[key]+"\"></button></div>";
+ if(settingsSection==="personalisation")return "<div class=\"settings-options\">"+toggle("rm","Reduce motion")+toggle("cosmos","Background effects")+"</div><button type=\"button\" class=\"settings-reset\" data-settings-action=\"reset\">Restore default appearance</button>";
+ if(settingsSection==="configuration")return "<div class=\"settings-link-list\"><button type=\"button\" class=\"settings-link-card\" data-settings-action=\"calendar\"><span>Google Calendar</span><span aria-hidden=\"true\">↗</span></button><button type=\"button\" class=\"settings-link-card\" id=\"battleSettingsOpen\"><span>Battle Mode</span><span aria-hidden=\"true\">↗</span></button></div>";
+ return "<div class=\"settings-link-list\"><a href=\"legal.html\" class=\"settings-link-card\"><span>Legal &amp; Privacy</span><span aria-hidden=\"true\">↗</span></a><button type=\"button\" class=\"settings-link-card\" data-show=\"status\"><span>System status</span><span aria-hidden=\"true\">↗</span></button></div>";
 }
 function settings(){
- const sections=[['personalisation','Personalisation'],['configuration','Configuration'],['administration','Administration']];
- return `<div class="settings-layout"><nav class="settings-nav" aria-label="Settings sections">${sections.map(([id,label])=>`<button type="button" data-settings-section="${id}" class="${settingsSection===id?'active':''}" aria-current="${settingsSection===id?'page':'false'}">${label}</button>`).join('')}</nav><section class="settings-content" id="settingsContent" aria-live="polite">${settingsContent()}</section></div>`;
+ const sections=[["personalisation","Personalisation"],["configuration","Configuration"],["administration","Administration"]];
+ return "<div class=\"settings-layout\"><nav class=\"settings-nav\" aria-label=\"Settings sections\">"+sections.map(([id,label])=>"<button type=\"button\" data-settings-section=\""+id+"\" class=\""+(settingsSection===id?"active":"")+"\" aria-current=\""+(settingsSection===id?"page":"false")+"\">"+label+"</button>").join("")+"</nav><section class=\"settings-content\" id=\"settingsContent\" aria-live=\"polite\">"+settingsContent()+"</section></div>";
 }
 function renderOv(){const p=P[openId];$('#ot').textContent=openId==='set'?'SETTINGS':p.l;$('#ob').innerHTML=openId==='set'?settings():`<p class="mut" style="margin:6px 0">${p.d}</p>${p.v()}<button class="btn" data-show="${openId}">SHOW IN VISUALISATION CHANNEL</button>`}
 function openOv(id){last=document.activeElement;openId=id;clearTimeout(ct);renderOv();const o=$('#ov');o.hidden=false;requestAnimationFrame(()=>{o.classList.add('on');$('#oc').focus()})}
 function closeOv(){if(!openId)return;openId=null;const o=$('#ov');o.classList.remove('on');ct=setTimeout(()=>o.hidden=true,260);last&&last.focus&&last.focus()}
 $('#gear').onclick=()=>openOv('set');
-$('#ov').onclick=e=>{if(e.target.id==='ov'||e.target.closest('#oc'))return closeOv();const section=e.target.closest('[data-settings-section]');if(section){settingsSection=section.dataset.settingsSection;$('#ob').innerHTML=settings();return}const t=e.target.closest('[data-t]');if(t){S[t.dataset.t]=!S[t.dataset.t];t.setAttribute('aria-checked',S[t.dataset.t]);apply();return}const s=e.target.closest('[data-show]');if(s){setView(s.dataset.show);closeOv()}};
+$('#ov').onclick=e=>{if(e.target.id==='ov'||e.target.closest('#oc'))return closeOv();const section=e.target.closest('[data-settings-section]');if(section){settingsSection=section.dataset.settingsSection;$('#ob').innerHTML=settings();return}const action=e.target.closest('[data-settings-action]');if(action){if(action.dataset.settingsAction==='reset'){S.rm=matchMedia('(prefers-reduced-motion: reduce)').matches;S.cosmos=true;apply();if(openId==='set')$('#ob').innerHTML=settings()}else if(action.dataset.settingsAction==='calendar'){closeOv();window.JarvisCalendarPanel?.open?.()}return}const t=e.target.closest('[data-t]');if(t){S[t.dataset.t]=!S[t.dataset.t];t.setAttribute('aria-checked',S[t.dataset.t]);apply();return}const s=e.target.closest('[data-show]');if(s){setView(s.dataset.show);closeOv()}};
 $('#ov').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=$$('#ov button'),a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
-function apply(){const reduceMotion=S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches;document.documentElement.classList.toggle('rm',reduceMotion);const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos;if(window.__zeroUpdateCosmosMotion)window.__zeroUpdateCosmosMotion()}
+function apply(){const reduceMotion=S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches;document.documentElement.classList.toggle('rm',reduceMotion);const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos;if(window.__zeroUpdateCosmosMotion)window.__zeroUpdateCosmosMotion();try{localStorage.setItem(ZERO_UI_SETTINGS_KEY,JSON.stringify({rm:S.rm,cosmos:S.cosmos}))}catch(e){}}
 const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv()};
 
 let wakeEnabled=false, recognition=null, wakeArmed=false, conversationMode=false, recognitionRestartTimer=0;
