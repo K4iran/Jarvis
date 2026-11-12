@@ -48,6 +48,8 @@ export function createOrb(canvas, options = {}) {
   pointGeo.setAttribute("position", new THREE_NS.BufferAttribute(positions, 3));
   pointGeo.setAttribute("color", new THREE_NS.BufferAttribute(pointColors, 3));
   const pointMat = new THREE_NS.PointsMaterial({ color: 0x76c8ff, vertexColors: true, size: 0.42, transparent: true, opacity: 0.72, blending: THREE_NS.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
+  const themeCurrent = new THREE_NS.Color(0x4ca8e8);
+  const themeTarget = themeCurrent.clone();
   const points = new THREE_NS.Points(pointGeo, pointMat);
   // Particle positions expand and drift every frame; the initial geometry
   // bounding sphere becomes stale and can cull the outer cloud as it grows.
@@ -98,8 +100,8 @@ export function createOrb(canvas, options = {}) {
   let resizeObserver = null;
   let isSpeaking = false;
   let presentationActive = false;
-  const presentationTarget = { x: 0, y: 0, scale: 1, opacity: 1, rotation: 0 };
-  const presentationCurrent = { x: 0, y: 0, scale: 1, opacity: 1, rotation: 0 };
+  const presentationTarget = { x: 0, y: 0, scale: 1, opacity: 1, rotation: 0, flow: 0 };
+  const presentationCurrent = { x: 0, y: 0, scale: 1, opacity: 1, rotation: 0, flow: 0 };
 
   function resize() {
     const w = Math.max(1, canvas.clientWidth || window.innerWidth);
@@ -175,8 +177,8 @@ export function createOrb(canvas, options = {}) {
       const lineFlicker = activeState === "listening" ? 0.22 + 0.95 * (0.5 + 0.5 * Math.sin(t * 1.7 + a * 0.071 + b * 0.043)) : 1;
       const edgeGlowA = (activeState === "listening" ? 0.62 + Math.max(0, edgeA - 0.52) * 3.0 : 0.9) * lineFlicker;
       const edgeGlowB = (activeState === "listening" ? 0.62 + Math.max(0, edgeB - 0.52) * 3.0 : 0.9) * lineFlicker;
-      lineColors[o] = 0.62 * edgeGlowA; lineColors[o + 1] = 0.84 * edgeGlowA; lineColors[o + 2] = edgeGlowA;
-      lineColors[o + 3] = 0.62 * edgeGlowB; lineColors[o + 4] = 0.84 * edgeGlowB; lineColors[o + 5] = edgeGlowB;
+      lineColors[o] = themeCurrent.r * edgeGlowA; lineColors[o + 1] = themeCurrent.g * edgeGlowA; lineColors[o + 2] = themeCurrent.b * edgeGlowA;
+      lineColors[o + 3] = themeCurrent.r * edgeGlowB; lineColors[o + 4] = themeCurrent.g * edgeGlowB; lineColors[o + 5] = themeCurrent.b * edgeGlowB;
     }
     lineGeo.setDrawRange(0, links.length * 2);
     lineGeo.attributes.position.needsUpdate = true;
@@ -223,6 +225,10 @@ export function createOrb(canvas, options = {}) {
     voiceActivity = Math.max(0, Math.min(1, Number(level) || 0));
   }
 
+  function setColor(value) {
+    try { themeTarget.set(value); } catch (error) { console.warn("ZERO orb colour could not be changed:", error); }
+  }
+
   function setPresentation(options = {}) {
     presentationActive = options.active === true;
     if (!presentationActive) {
@@ -231,6 +237,7 @@ export function createOrb(canvas, options = {}) {
       presentationTarget.scale = 1;
       presentationTarget.opacity = 1;
       presentationTarget.rotation = 0;
+      presentationTarget.flow = 0;
       return;
     }
     presentationTarget.x = Math.max(-1, Math.min(1, Number(options.x) || 0));
@@ -238,6 +245,7 @@ export function createOrb(canvas, options = {}) {
     presentationTarget.scale = Math.max(0.2, Math.min(1.5, Number(options.scale) || 0.7));
     presentationTarget.opacity = Math.max(0, Math.min(1, options.opacity == null ? 0.78 : Number(options.opacity)));
     presentationTarget.rotation = Number(options.rotation) || 0;
+    presentationTarget.flow = Math.max(0, Math.min(1, Number(options.flow) || 0));
   }
 
   function animate() {
@@ -249,18 +257,27 @@ export function createOrb(canvas, options = {}) {
     const ease = 1 - Math.pow(activeState === "listening" || activeState === "speaking" ? 0.88 : 0.96, dt * 60);
     for (const key of ["radius", "speed", "brightness", "size", "links"]) current[key] += (target[key] - current[key]) * ease;
     const poseEase = 1 - Math.pow(0.90, dt * 60);
-    for (const key of ["x", "y", "scale", "opacity", "rotation"]) {
+    for (const key of ["x", "y", "scale", "opacity", "rotation", "flow"]) {
       const destination = key === "opacity" && !presentationActive ? 1 : presentationTarget[key];
       presentationCurrent[key] += (destination - presentationCurrent[key]) * poseEase;
     }
+    themeCurrent.lerp(themeTarget, 1 - Math.pow(0.90, dt * 60));
+    pointMat.color.copy(themeCurrent);
     const halfHeight = camera.position.z * Math.tan(THREE_NS.MathUtils.degToRad(camera.fov / 2));
+    const flow = presentationCurrent.flow;
+    const swimX = (Math.sin(t * 0.56) * 1.5 + Math.sin(t * 0.23 + 1.2) * 0.65) * flow;
+    const swimY = (Math.sin(t * 0.42 + 0.7) * 1.15 + Math.cos(t * 0.19) * 0.35) * flow;
     presentationGroup.position.set(
-      presentationCurrent.x * halfHeight * camera.aspect * 0.78,
-      presentationCurrent.y * halfHeight * 0.78,
-      0
+      (presentationCurrent.x * 0.78 + swimX / 25) * halfHeight * camera.aspect,
+      (presentationCurrent.y * 0.78 + swimY / 25) * halfHeight,
+      Math.sin(t * 0.34) * 1.8 * flow
     );
     presentationGroup.scale.setScalar(presentationCurrent.scale);
-    presentationGroup.rotation.y = presentationCurrent.rotation;
+    presentationGroup.rotation.set(
+      Math.cos(t * 0.29) * 0.045 * flow,
+      presentationCurrent.rotation + Math.sin(t * 0.36) * 0.12 * flow,
+      Math.sin(t * 0.24 + 1) * 0.035 * flow
+    );
     pointMat.opacity += (current.brightness * 0.85 * presentationCurrent.opacity - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
     const networkBreath = 0.68 + 0.32 * (0.5 + 0.5 * Math.sin(t * (target.electrons ? 3.4 : 0.75)));
@@ -487,14 +504,14 @@ export function createOrb(canvas, options = {}) {
     }
   }
   document.addEventListener('visibilitychange', handleVisibilityChange);
-  const initialColour = new THREE_NS.Color(0x4ca8e8);
-  pointMat.color.copy(initialColour);
+  pointMat.color.copy(themeCurrent);
   animate();
 
   return {
     setState,
     setAnalyser,
     setVoiceActivity,
+    setColor,
     setPresentation,
     destroy() {
       if (destroyed) return;
