@@ -5614,4 +5614,98 @@ status();
 }
 </style>
 
+
+<style id="zero-navbar-liquid-glass-refinement">
+/* Compact, continuous liquid-glass hardware with one consistent control rhythm. */
+#bar{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:max-content!important;max-width:calc(100% - 20px)!important;
+  min-height:58px!important;height:auto!important;
+  margin:10px auto 8px!important;padding:7px 12px!important;
+  gap:12px!important;overflow:visible!important;
+  border:1px solid rgba(255,255,255,.105)!important;
+  border-top-color:rgba(255,255,255,.22)!important;
+  border-radius:24px!important;
+  background:
+    linear-gradient(155deg,rgba(255,255,255,.105) 0%,rgba(255,255,255,.035) 22%,transparent 48%),
+    linear-gradient(180deg,rgba(9,14,27,.76),rgba(3,7,16,.68))!important;
+  -webkit-backdrop-filter:blur(24px) saturate(145%)!important;
+  backdrop-filter:blur(24px) saturate(145%)!important;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.19),
+    inset 0 -1px 1px rgba(0,0,0,.42),
+    0 8px 24px rgba(0,0,0,.34),
+    0 1px 12px rgba(155,205,255,.055)!important;
+  position:relative!important;isolation:isolate!important;
+}
+#bar:before{
+  content:""!important;position:absolute!important;inset:1px!important;
+  border-radius:22px!important;pointer-events:none!important;z-index:0!important;
+  background:linear-gradient(112deg,rgba(255,255,255,.075),transparent 28%,transparent 72%,rgba(255,255,255,.025))!important;
+  opacity:.9!important;
+}
+#bar>*{position:relative!important;z-index:1!important}
+#bar .br,#bar .rt,#bar .tabs,#bar .mode-actions{
+  display:contents!important;
+}
+#bar .settings-cog,
+#bar .tabs .tab,
+#bar .mode-actions button,
+#bar .mode-actions #battleModeLaunch,
+#bar .mode-actions #focusLaunch,
+#bar .mode-actions #zenLaunch{
+  flex:0 0 42px!important;width:42px!important;min-width:42px!important;
+  height:42px!important;min-height:42px!important;
+  margin:0!important;padding:0!important;
+  display:grid!important;place-items:center!important;
+  border:0!important;border-radius:50%!important;
+  background:transparent!important;box-shadow:none!important;
+  color:rgba(245,247,252,.78)!important;
+  transition:color .2s ease,background .2s ease,transform .2s ease!important;
+}
+#bar .settings-cog svg,#bar .tabs .tab svg,#bar .mode-actions button svg{
+  width:20px!important;height:20px!important;
+}
+#bar .settings-cog:hover,#bar .tabs .tab:hover,#bar .mode-actions button:hover{
+  color:#fff!important;background:rgba(255,255,255,.075)!important;
+}
+#bar .tabs .tab.active{color:#fff!important;background:rgba(255,255,255,.055)!important}
+#bar .mode-actions #battleModeLaunch{color:#e9c17e!important}
+#bar .mode-actions #focusLaunch{color:#c7adff!important}
+#bar .mode-actions #zenLaunch{color:#9bd9bd!important}
+#bar .stat{display:none!important}
+#bar .zero-liquid-indicator{
+  z-index:0!important;border:0!important;border-radius:16px 19px 15px 18px!important;
+  background:
+    radial-gradient(ellipse at 28% 18%,rgba(255,255,255,.20),transparent 68%),
+    linear-gradient(145deg,rgba(255,255,255,.095),rgba(255,255,255,.025))!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.15),0 2px 8px rgba(0,0,0,.12)!important;
+  -webkit-backdrop-filter:blur(13px) saturate(155%)!important;
+  backdrop-filter:blur(13px) saturate(155%)!important;
+}
+#bar .zero-liquid-indicator:before{
+  border-radius:inherit!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.13),transparent 62%)!important;
+}
+#bar .zero-liquid-indicator:after{display:none!important;content:none!important}
+@media(max-width:560px){
+  #bar{
+    width:max-content!important;max-width:calc(100% - 12px)!important;
+    min-height:50px!important;margin:7px auto 6px!important;
+    padding:5px 8px!important;gap:7px!important;border-radius:20px!important;
+  }
+  #bar:before{border-radius:18px!important}
+  #bar .settings-cog,#bar .tabs .tab,#bar .mode-actions button,
+  #bar .mode-actions #battleModeLaunch,#bar .mode-actions #focusLaunch,#bar .mode-actions #zenLaunch{
+    flex-basis:38px!important;width:38px!important;min-width:38px!important;
+    height:38px!important;min-height:38px!important;
+  }
+  #bar .settings-cog svg,#bar .tabs .tab svg,#bar .mode-actions button svg{
+    width:19px!important;height:19px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #bar .settings-cog,#bar .tabs .tab,#bar .mode-actions button{transition:none!important}
+}
+</style>
 </body></html>
