@@ -4536,7 +4536,7 @@ status();
         {transform:'translate3d('+(x+7)+'px,'+(y-1)+'px,0) scale(.82,1.18) skewX(7deg)',borderRadius:'38% 62% 42% 58%',offset:.55,easing:'cubic-bezier(.12,.72,.18,1)'},
         {transform:'translate3d('+(x-2)+'px,'+y+'px,0) scale(1.12,.94) skewX(-2deg)',borderRadius:'54% 46% 51% 49%',offset:.82,easing:'cubic-bezier(.18,.7,.22,1)'},
         {transform:target+' scale(1,1) skewX(0deg)',borderRadius:'48% 52% 44% 56%',offset:1}
-      ],{duration:720,easing:'cubic-bezier(.18,.72,.2,1)',fill:'forwards'});
+      ],{duration:1700,easing:'cubic-bezier(.18,.72,.2,1)',fill:'forwards'});
       indicator._motion=motion;
       motion.onfinish=function(){
         if(indicator._motion!==motion)return;
@@ -5079,79 +5079,78 @@ status();
   </filter>
 </svg>
 <style id="zero-navbar-liquid-water-rim-final">
-  /* The centre remains the ordinary active-tab lens. Only this separate outer ring is iridescent. */
+  /* Visible iridescent water rim. The centre lens and its icon stay untouched. */
   #bar .zero-liquid-indicator{
+    overflow:visible!important;
     background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.16),rgba(125,165,220,.055) 48%,rgba(255,255,255,.018) 78%)!important;
     border:1px solid rgba(220,244,255,.13)!important;
     box-shadow:inset 0 1px 2px rgba(255,255,255,.17),0 0 7px rgba(var(--liquid-glow,95,170,255),.07)!important;
   }
   #bar .zero-liquid-indicator .liquid-outline{
     position:absolute!important;
-    inset:-3px!important;
+    inset:-4px!important;
     display:block!important;
     box-sizing:border-box!important;
-    padding:2.6px!important;
-    border:0!important;
+    border:3px solid transparent!important;
     border-radius:50%!important;
-    opacity:0!important;
+    padding:0!important;
+    opacity:1!important;
     pointer-events:none!important;
     transform:rotate(0deg);
     background:
+      linear-gradient(rgba(255,255,255,.025),rgba(255,255,255,.025)) padding-box,
       conic-gradient(from 12deg,
-        rgba(123,211,255,.95) 0deg,
-        rgba(255,255,255,.98) 42deg,
-        rgba(186,151,255,.94) 92deg,
-        rgba(117,247,224,.88) 148deg,
-        rgba(255,255,255,.92) 205deg,
-        rgba(128,177,255,.96) 270deg,
-        rgba(182,231,255,.9) 322deg,
-        rgba(123,211,255,.95) 360deg);
-    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
-    -webkit-mask-composite:xor!important;
-    mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
-    mask-composite:exclude!important;
-    filter:url(#zeroLiquidWaterTexture) saturate(1.22) drop-shadow(0 0 2px rgba(140,205,255,.24));
-    box-shadow:inset 0 0 2px rgba(255,255,255,.42),0 0 3px rgba(130,205,255,.2)!important;
-    transition:opacity .16s ease;
+        rgba(111,207,255,.98) 0deg,
+        rgba(255,255,255,1) 38deg,
+        rgba(183,145,255,.98) 88deg,
+        rgba(112,250,222,.96) 145deg,
+        rgba(255,255,255,.98) 202deg,
+        rgba(116,174,255,.98) 260deg,
+        rgba(206,239,255,.98) 315deg,
+        rgba(111,207,255,.98) 360deg) border-box!important;
+    box-shadow:0 0 3px rgba(130,205,255,.55),0 0 8px rgba(125,190,255,.22),inset 0 0 2px rgba(255,255,255,.75)!important;
+    filter:saturate(1.35);
+    transition:opacity .12s ease;
   }
+  /* Fine, irregular highlights give the rim a wet, rippled surface without masking the ring. */
   #bar .zero-liquid-indicator .liquid-outline:before{
-    content:"";
-    position:absolute;
-    inset:0;
-    border:0;
-    border-radius:50%;
-    pointer-events:none;
+    content:""!important;
+    position:absolute!important;
+    inset:-1px!important;
+    border:1px solid rgba(255,255,255,.55)!important;
+    border-radius:50%!important;
+    pointer-events:none!important;
     background:
-      radial-gradient(ellipse at 24% 18%,rgba(255,255,255,.9),transparent 22%),
-      radial-gradient(ellipse at 72% 76%,rgba(120,247,224,.75),transparent 30%),
-      radial-gradient(ellipse at 55% 35%,rgba(190,153,255,.62),transparent 42%),
-      repeating-radial-gradient(ellipse at 38% 42%,rgba(255,255,255,.24) 0 1px,transparent 2px 5px);
-    mix-blend-mode:screen;
-    filter:blur(.55px);
-    opacity:.82;
+      repeating-radial-gradient(ellipse at 32% 38%,rgba(255,255,255,.22) 0 1px,transparent 2px 5px),
+      radial-gradient(ellipse at 22% 18%,rgba(255,255,255,.95),transparent 23%),
+      radial-gradient(ellipse at 72% 76%,rgba(112,250,222,.72),transparent 32%),
+      radial-gradient(ellipse at 55% 35%,rgba(190,153,255,.62),transparent 45%);
+    mix-blend-mode:screen!important;
+    filter:blur(.35px)!important;
+    opacity:.9!important;
   }
   #bar .zero-liquid-indicator .liquid-outline:after{
-    content:"";
-    position:absolute;
-    top:8%;
-    left:16%;
-    width:34%;
-    height:17%;
-    border-top:1.2px solid rgba(255,255,255,.92);
-    border-radius:50%;
-    transform:rotate(-28deg);
-    filter:blur(.45px) drop-shadow(0 0 2px rgba(255,255,255,.7));
-    pointer-events:none;
+    content:""!important;
+    position:absolute!important;
+    top:5%!important;
+    left:17%!important;
+    width:35%!important;
+    height:18%!important;
+    border-top:1.4px solid rgba(255,255,255,.98)!important;
+    border-radius:50%!important;
+    transform:rotate(-28deg)!important;
+    filter:blur(.35px) drop-shadow(0 0 3px rgba(255,255,255,.85))!important;
+    pointer-events:none!important;
   }
-  #bar .zero-liquid-indicator.settled .liquid-outline{opacity:1}
-  #bar .zero-liquid-indicator.is-moving .liquid-outline{opacity:0}
+  #bar .zero-liquid-indicator.is-moving .liquid-outline{opacity:0!important}
+  #bar .zero-liquid-indicator.settled .liquid-outline{opacity:1!important}
   #bar .zero-liquid-indicator.spin-once .liquid-outline{
     animation:zeroLiquidWaterSettle 1s cubic-bezier(.18,.72,.2,1) 1 both!important;
   }
   @keyframes zeroLiquidWaterSettle{
-    0%{transform:rotate(0deg);filter:url(#zeroLiquidWaterTexture) saturate(1.08) drop-shadow(0 0 1px rgba(140,205,255,.12))}
-    45%{filter:url(#zeroLiquidWaterTexture) saturate(1.48) drop-shadow(0 0 5px rgba(160,205,255,.34))}
-    100%{transform:rotate(360deg);filter:url(#zeroLiquidWaterTexture) saturate(1.22) drop-shadow(0 0 2px rgba(140,205,255,.24))}
+    0%{transform:rotate(0deg);filter:saturate(1.12) drop-shadow(0 0 1px rgba(140,205,255,.2))}
+    45%{filter:saturate(1.65) drop-shadow(0 0 6px rgba(160,205,255,.55))}
+    100%{transform:rotate(360deg);filter:saturate(1.35) drop-shadow(0 0 3px rgba(140,205,255,.3))}
   }
   @media(prefers-reduced-motion:reduce){
     #bar .zero-liquid-indicator.spin-once .liquid-outline{animation:none!important}
