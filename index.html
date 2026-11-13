@@ -4752,9 +4752,7 @@ status();
   opacity:.9!important;
 }
 #bar>*{position:relative!important;z-index:1!important}
-#bar .br,#bar .rt,#bar .tabs,#bar .mode-actions{
-  display:contents!important;
-}
+/* Keep the navbar groups as real flex items so their order and spacing rules apply. */
 #bar .settings-cog,
 #bar .tabs .tab,
 #bar .mode-actions button,
