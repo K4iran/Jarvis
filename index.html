@@ -5755,7 +5755,7 @@ status();
 
 
 <style id="zero-navbar-background-match-final">
-/* The navbar has no separate surface: it inherits the page backdrop exactly. */
+/* Match the page background; use a faint edge-following reflection to reveal the rounded silhouette. */
 #bar{
   background:transparent!important;
   background-image:none!important;
@@ -5770,12 +5770,16 @@ status();
   content:""!important;
   display:block!important;
   position:absolute!important;
-  left:8%!important;right:8%!important;bottom:-5px!important;
-  top:auto!important;height:11px!important;
-  border:0!important;border-radius:0 0 50% 50%!important;
-  background:radial-gradient(ellipse at 50% 0%,rgba(75,145,255,.16) 0%,rgba(75,145,255,.075) 38%,transparent 78%)!important;
-  filter:blur(5px)!important;
-  opacity:1!important;
+  inset:0!important;
+  border:1px solid transparent!important;
+  border-left-color:rgba(75,145,255,.045)!important;
+  border-right-color:rgba(75,145,255,.045)!important;
+  border-bottom-color:rgba(92,166,255,.19)!important;
+  border-radius:24px!important;
+  background:linear-gradient(to bottom,transparent 68%,rgba(75,145,255,.018) 84%,rgba(75,145,255,.055) 100%)!important;
+  box-shadow:0 5px 13px -10px rgba(75,145,255,.42)!important;
+  filter:blur(.55px)!important;
+  opacity:.95!important;
   pointer-events:none!important;
   z-index:0!important;
 }
@@ -5788,6 +5792,9 @@ status();
 }
 #bar .zero-liquid-indicator:before,
 #bar .zero-liquid-indicator:after{display:none!important;content:none!important}
+@media(max-width:560px){
+  #bar:before{border-radius:20px!important}
+}
 </style>
 
 </body></html>
