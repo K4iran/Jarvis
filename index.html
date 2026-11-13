@@ -1792,7 +1792,7 @@ body.zen-mode-active #core{visibility:hidden!important}
 <header id="bar"><div class="br"><button class="ib settings-cog" id="gear" type="button" aria-label="Open settings" title="Settings"><svg class="settings-gear-svg" viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M9.55 2.4h4.9l.55 2.35a7.8 7.8 0 0 1 1.55.9l2.25-.8 2.45 4.25-1.72 1.62c.1.85.1 1.7 0 2.55l1.72 1.62-2.45 4.25-2.25-.8a7.8 7.8 0 0 1-1.55.9l-.55 2.35h-4.9L9 19.24a7.8 7.8 0 0 1-1.55-.9l-2.25.8-2.45-4.25 1.72-1.62a10.8 10.8 0 0 1 0-2.55L2.75 9.1 5.2 4.85l2.25.8A7.8 7.8 0 0 1 9 4.75L9.55 2.4Z"/><circle cx="12" cy="12" r="3.25"/></svg></button></div><nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-label="Home" title="Home" aria-pressed="true" data-tab="home"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M3.5 10.6 12 3.8l8.5 6.8v9.1a1.3 1.3 0 0 1-1.3 1.3H4.8a1.3 1.3 0 0 1-1.3-1.3z"/><path d="M8.5 21v-7.2h7V21M2.5 11.3 12 3.5l9.5 7.8"/></svg><span class="sr-only">Home</span></button><button class="tab" id="dataTab" type="button" aria-label="Visuals and statistics" title="Visuals &amp; Stats" aria-pressed="false" data-tab="data"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/><path d="M3 21h18M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/></svg><span class="sr-only">Visuals &amp; Stats</span></button></nav><div class="rt"><div class="mode-actions" aria-label="Modes">
 <button id="battleModeLaunch" type="button" aria-label="Enter Battle Mode" title="Battle Mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V4l14 3-14 3"/><path d="M5 10v10"/></svg></button>
 <button id="focusLaunch" type="button" aria-label="Focus button" title="Focus"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2v3M22 12h-3M12 22v-3M2 12h3"/></svg></button>
-<button id="zenLaunch" type="button" aria-label="Enter Zen mode" title="Zen Mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 4.5C11 4.8 5 8.2 5 14.2a5.3 5.3 0 0 0 5.4 5.3c6 0 9.4-6 9.1-15Z"/><path d="M4 21c2.8-5.1 6.1-8.2 11-11"/></svg></button>
+
 </div><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span></div></header>
 <main id="stage">
 <section id="center">
@@ -2845,8 +2845,8 @@ async function playZeroStreamBlob(blob, sentence = '') {
 }
 
 function renderDisp(){const p=P[view];$('#disp').dataset.panel=view;$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
-function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-tab',data);$('#homeTab').classList.toggle('active',!data);$('#dataTab').classList.toggle('active',data);$('#homeTab').setAttribute('aria-pressed',String(!data));$('#dataTab').setAttribute('aria-pressed',String(data));window.__zeroOrbSetPresentation?.(data,data?'data':'response');if(data)renderDisp()}
-function setView(v){view=v;if(v==='idle'){renderDisp();setTab('home')}else{setTab('data');window.__zeroOrbSetPresentation?.(true,'data')}}
+function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-tab',data);$('#homeTab').classList.toggle('active',!data);$('#dataTab').classList.toggle('active',data);$('#homeTab').setAttribute('aria-pressed',String(!data));$('#dataTab').setAttribute('aria-pressed',String(data));window.__zeroOrbSetPresentation?.(false,'response');if(data)renderDisp()}
+function setView(v){view=v;if(v==='idle'){renderDisp();setTab('home')}else{setTab('data');window.__zeroOrbSetPresentation?.(false,'response')}}
 $$('#bar [data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 $('#dx').onclick=()=>setView('idle');
 let settingsSection="personalisation";
@@ -3640,7 +3640,7 @@ async function run(t) {
   let zenHandled = false;
   try {
     window.__zenCommandInProgress = true;
-    zenHandled = window.zenHandleCommand ? await window.zenHandleCommand(t, respond) : false;
+    zenHandled = (window.ZeroAudio && await window.ZeroAudio.handleCommand(t, respond)) || (window.zenHandleCommand ? await window.zenHandleCommand(t, respond) : false);
   } catch (zenError) {
     console.error('Zen command failed:', zenError);
     await respond('I could not complete that Zen action. Please try again.');
@@ -4767,7 +4767,7 @@ async function zenHandleCommand(raw,respond){
  return false;
 }
 window.zenHandleCommand=zenHandleCommand;
-zenLaunch.addEventListener('click',zenOpenMode);
+if(zenLaunch)zenLaunch.addEventListener('click',zenOpenMode);
 function zenPulseTree(e){const svg=$z('.zen-tree-svg');if(!svg)return;const target=e&&e.target;const hit=target&&target.closest?target.closest('[data-tree-part],[data-tree-music],.zen-leaf-cluster path,.zen-trunk-volume path,.zen-branch'):null;if(!hit)return;const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const matrix=svg.getScreenCTM();if(!matrix)return;const local=p.matrixTransform(matrix.inverse());const ripple=document.createElementNS('http://www.w3.org/2000/svg','circle');ripple.setAttribute('cx',local.x);ripple.setAttribute('cy',local.y);ripple.setAttribute('r','4');ripple.setAttribute('class','zen-tree-tap-pulse');svg.appendChild(ripple);setTimeout(function(){if(ripple.parentNode)ripple.parentNode.removeChild(ripple)},1050);hit.classList.add('zen-hit-active');setTimeout(function(){hit.classList.remove('zen-hit-active')},850)}
 const zenTreeSvg=$z('.zen-tree-svg');if(zenTreeSvg)zenTreeSvg.addEventListener('click',function(e){const musicHit=e.target&&e.target.closest?e.target.closest('[data-tree-music]'):null;zenPulseTree(e);if(musicHit){zenOpenSpotify();e.stopPropagation()}});
 
@@ -5725,3 +5725,5 @@ status();
 }
 </style>
 </body></html>
+
+<style id="zero-zen-mode-retired">#zenLaunch{display:none!important}</style>
