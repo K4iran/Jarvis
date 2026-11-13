@@ -4544,7 +4544,6 @@ status();
         indicator.style.borderRadius='50%';
         indicator.classList.remove('is-moving');
         indicator.classList.add('settled');
-        motion.cancel();
         indicator._motion=null;
         if(!reduced){
           const outline=indicator.querySelector('.liquid-outline');
@@ -4557,6 +4556,7 @@ status();
             indicator.classList.add('spin-once');
           }
         }
+        motion.cancel();
       };
     }
     currentId=active.id||'active';
