@@ -112,7 +112,7 @@ export function createOrb(canvas, options = {}) {
     // are not cut off at the original orb footprint. Keep the orb's apparent
     // size unchanged by scaling the camera distance with that larger canvas.
     const inPresentationLayer = canvas.parentElement?.id === "zeroOrbPresentationLayer";
-    const canvasOverscan = 1;
+    const canvasOverscan = inPresentationLayer ? 1 : 1.7;
     const halfHorizontalFov = Math.atan(Math.tan(THREE_NS.MathUtils.degToRad(camera.fov / 2)) * Math.min(1, camera.aspect));
     camera.position.z = Math.max(78, 31 / Math.sin(halfHorizontalFov)) * canvasOverscan;
     camera.updateProjectionMatrix();
@@ -175,8 +175,10 @@ export function createOrb(canvas, options = {}) {
       const edgeA = Math.hypot(positions[ai], positions[ai + 1], positions[ai + 2]) / 30;
       const edgeB = Math.hypot(positions[bi], positions[bi + 1], positions[bi + 2]) / 30;
       const lineFlicker = activeState === "listening" ? 0.22 + 0.95 * (0.5 + 0.5 * Math.sin(t * 1.7 + a * 0.071 + b * 0.043)) : 1;
-      const edgeGlowA = (activeState === "listening" ? 0.62 + Math.max(0, edgeA - 0.52) * 3.0 : 0.9) * lineFlicker;
-      const edgeGlowB = (activeState === "listening" ? 0.62 + Math.max(0, edgeB - 0.52) * 3.0 : 0.9) * lineFlicker;
+      const radialFadeA = 1 - THREE_NS.MathUtils.smoothstep(edgeA, 1.0, 1.27);
+      const radialFadeB = 1 - THREE_NS.MathUtils.smoothstep(edgeB, 1.0, 1.27);
+      const edgeGlowA = (activeState === "listening" ? 0.62 + Math.max(0, edgeA - 0.52) * 3.0 : 0.9) * lineFlicker * radialFadeA;
+      const edgeGlowB = (activeState === "listening" ? 0.62 + Math.max(0, edgeB - 0.52) * 3.0 : 0.9) * lineFlicker * radialFadeB;
       lineColors[o] = themeCurrent.r * edgeGlowA; lineColors[o + 1] = themeCurrent.g * edgeGlowA; lineColors[o + 2] = themeCurrent.b * edgeGlowA;
       lineColors[o + 3] = themeCurrent.r * edgeGlowB; lineColors[o + 4] = themeCurrent.g * edgeGlowB; lineColors[o + 5] = themeCurrent.b * edgeGlowB;
     }
@@ -469,6 +471,18 @@ export function createOrb(canvas, options = {}) {
 
 
       }
+      // A soft spherical boundary replaces the old square canvas cutoff:
+      // particles fade radially, then cannot drift beyond the orb's halo.
+      const particleRadius = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
+      const radialLimit = 38;
+      if (particleRadius > radialLimit) {
+        const scale = radialLimit / particleRadius;
+        positions[j] *= scale; positions[j + 1] *= scale; positions[j + 2] *= scale;
+      }
+      const fade = 1 - THREE_NS.MathUtils.smoothstep(Math.min(particleRadius, radialLimit), 29, radialLimit);
+      pointColors[j] *= fade;
+      pointColors[j + 1] *= fade;
+      pointColors[j + 2] *= fade;
     }
     pointGeo.attributes.position.needsUpdate = true;
     pointGeo.attributes.color.needsUpdate = true;
