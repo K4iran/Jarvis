@@ -1560,84 +1560,102 @@ body.zen-mode-active #core{visibility:hidden!important}
 @media(prefers-reduced-motion:reduce){#bar .settings-gear-svg,#ov .settings-nav button{transition:none!important}}
 </style>
 <style id="zero-liquid-glass-navigation">
-/* Z.E.R.O. liquid-glass navigation: keep the existing layout and controls. */
+/* Neutral smoked glass. The liquid, not the bar, is the focal point. */
 #bar{
-  background:linear-gradient(112deg,rgba(11,25,49,.76),rgba(8,16,36,.73) 56%,rgba(19,17,47,.72))!important;
-  border-color:rgba(139,174,235,.105)!important;
-  box-shadow:0 8px 30px rgba(0,0,0,.2),inset 0 1px 0 rgba(211,231,255,.055),inset 0 0 28px rgba(83,112,205,.045)!important;
+  background:rgba(15,16,20,.62)!important;
+  border-color:rgba(255,255,255,.055)!important;
+  box-shadow:0 9px 30px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045)!important;
+  -webkit-backdrop-filter:blur(26px) saturate(112%)!important;
+  backdrop-filter:blur(26px) saturate(112%)!important;
 }
 #bar .tabs{
-  position:relative;
-  isolation:isolate;
-  background:rgba(21,34,65,.34)!important;
-  box-shadow:inset 0 1px 0 rgba(197,219,255,.045),0 0 22px rgba(78,111,205,.045);
+  position:relative;isolation:isolate;
+  background:rgba(255,255,255,.025)!important;
+  border-color:rgba(255,255,255,.035)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
 }
-#bar .tab{
-  position:relative;
-  z-index:1;
-  background:transparent!important;
-  border-color:transparent!important;
-  box-shadow:none!important;
-}
-#bar .tab.active{
-  color:#f0f8ff!important;
-  background:transparent!important;
-  border-color:transparent!important;
-  box-shadow:none!important;
-}
-#bar .tab:hover{background:rgba(133,177,255,.055)!important}
-#bar .tab.active:hover{background:transparent!important}
-#bar .tab.active .nav-icon{
-  filter:drop-shadow(0 0 5px rgba(100,177,255,.32)) drop-shadow(0 0 9px rgba(153,124,255,.17));
-}
+#bar .tab{position:relative;z-index:1;background:transparent!important;border-color:transparent!important;box-shadow:none!important;color:rgba(222,225,232,.62)!important}
+#bar .tab:hover{color:rgba(255,255,255,.9)!important;background:rgba(255,255,255,.035)!important}
+#bar .tab.active{color:#fff!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+#bar .tab.active .nav-icon{filter:drop-shadow(0 0 5px rgba(255,255,255,.24))}
 #bar .zero-liquid-indicator{
-  position:absolute;
-  z-index:0;
-  top:0;
-  left:0;
-  width:44px;
-  height:44px;
-  overflow:hidden;
-  pointer-events:none;
-  border:1px solid rgba(164,207,255,.22);
-  border-radius:15px;
-  background:linear-gradient(122deg,rgba(54,174,255,.27),rgba(126,104,255,.24) 54%,rgba(73,184,255,.23));
-  -webkit-backdrop-filter:blur(13px) saturate(165%);
-  backdrop-filter:blur(13px) saturate(165%);
-  box-shadow:inset 0 1px 0 rgba(239,249,255,.24),inset 0 -9px 18px rgba(54,91,205,.12),0 0 22px rgba(81,139,255,.13);
-  transform:translate3d(0,0,0) scaleX(1);
+  position:absolute;z-index:0;top:0;left:0;width:44px;height:44px;
+  overflow:hidden;pointer-events:none;isolation:isolate;
+  border:1px solid rgba(255,255,255,.42);
+  border-radius:14px 17px 13px 18px;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.34),rgba(220,225,235,.16) 28%,rgba(112,119,133,.13) 62%,rgba(255,255,255,.25)),
+    rgba(215,220,230,.13);
+  -webkit-backdrop-filter:blur(18px) saturate(155%);
+  backdrop-filter:blur(18px) saturate(155%);
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.65),inset 0 -7px 13px rgba(255,255,255,.09),0 2px 10px rgba(0,0,0,.16),0 0 18px rgba(255,255,255,.075);
+  transform:translate3d(0,0,0);
   transform-origin:center;
-  transition:transform .48s cubic-bezier(.22,1,.36,1),width .42s cubic-bezier(.22,1,.36,1),height .42s cubic-bezier(.22,1,.36,1);
-  will-change:transform,width;
+  will-change:transform,width,border-radius;
+  transition:width .5s cubic-bezier(.2,.8,.2,1),height .5s cubic-bezier(.2,.8,.2,1);
 }
 #bar .zero-liquid-indicator:before{
-  content:"";
-  position:absolute;
-  inset:1px;
-  border-radius:inherit;
-  background:radial-gradient(ellipse at 28% 0%,rgba(255,255,255,.24),transparent 58%),linear-gradient(150deg,rgba(180,224,255,.075),transparent 58%);
-  opacity:.9;
+  content:"";position:absolute;z-index:1;inset:1px;border-radius:inherit;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 25% 0%,rgba(255,255,255,.72),transparent 42%),
+    radial-gradient(ellipse at 78% 100%,rgba(255,255,255,.23),transparent 48%),
+    linear-gradient(160deg,rgba(255,255,255,.13),transparent 44%,rgba(255,255,255,.07));
+  mix-blend-mode:screen;
 }
 #bar .zero-liquid-indicator:after{
-  content:"";
-  position:absolute;
-  top:3px;
-  left:22%;
-  width:42%;
-  height:1px;
-  border-radius:100%;
-  background:linear-gradient(90deg,transparent,rgba(239,249,255,.72),transparent);
-  filter:blur(.25px);
-  opacity:.85;
-  transition:left .35s ease,width .35s ease,opacity .25s ease;
+  content:"";position:absolute;z-index:2;top:-45%;left:-45%;width:48%;height:190%;
+  border-radius:50%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.48),rgba(255,255,255,.08),transparent);
+  filter:blur(2px);transform:rotate(24deg);
+  animation:zeroLiquidGlint 3.8s ease-in-out infinite;
 }
-#bar .zero-liquid-indicator.is-moving:after{left:15%;width:70%;opacity:1}
-#bar .tab .nav-icon{transition:filter .24s ease,color .24s ease}
+@keyframes zeroLiquidGlint{
+  0%,18%{left:-55%;opacity:0}
+  35%{opacity:.75}
+  68%{left:115%;opacity:.5}
+  82%,100%{left:125%;opacity:0}
+}
+#bar .zero-liquid-indicator .liquid-ripple{
+  position:absolute;z-index:0;inset:-25%;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,255,255,.34),rgba(255,255,255,.10) 34%,transparent 70%);
+  opacity:0;transform:scale(.35);
+}
+#bar .zero-liquid-indicator.is-moving .liquid-ripple{animation:zeroLiquidRipple .72s ease-out both}
+@keyframes zeroLiquidRipple{
+  0%{opacity:.7;transform:scale(.28)}
+  45%{opacity:.38}
+  100%{opacity:0;transform:scale(1.3)}
+}
+#bar .rt{flex:0 0 auto;display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0}
+#bar .mode-actions{order:0;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-end;gap:3px;margin:0;padding:0}
+#bar .mode-actions button{
+  position:relative!important;inset:auto!important;z-index:3!important;
+  display:grid!important;place-items:center!important;
+  width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;
+  padding:0!important;margin:0!important;
+  border:0!important;border-radius:50%!important;
+  background:transparent!important;color:rgba(220,224,232,.64)!important;
+  box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  font:inherit!important;letter-spacing:0!important;text-transform:none!important;
+  cursor:pointer;transition:color .2s ease,background .2s ease,transform .2s ease!important;
+}
+#bar .mode-actions button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+#bar .mode-actions button:hover{color:#fff!important;background:rgba(255,255,255,.07)!important;transform:translateY(-1px)}
+#bar .mode-actions button:active{transform:scale(.92)}
+#bar .mode-actions button:focus-visible{outline:1px solid rgba(255,255,255,.55);outline-offset:2px}
+#bar .stat{white-space:nowrap}
+#app.data-tab #bar .mode-actions{display:flex!important}
 @media(max-width:560px){
-  #bar .zero-liquid-indicator{border-radius:14px}
+  #bar .rt{gap:2px}
+  #bar .mode-actions{gap:0}
+  #bar .mode-actions button{width:31px!important;min-width:31px!important;height:34px!important}
+  #bar .mode-actions button svg{width:17px;height:17px}
+  #bar .rt .stat{display:none!important}
 }
 @media(prefers-reduced-motion:reduce){
-  #bar .zero-liquid-indicator,#bar .zero-liquid-indicator:after{transition:none!important}
+  #bar .zero-liquid-indicator:after{animation:none!important}
+  #bar .zero-liquid-indicator,#bar .zero-liquid-indicator .liquid-ripple{transition:none!important;animation:none!important}
+  #bar .mode-actions button{transition:none!important}
 }
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
@@ -1653,7 +1671,11 @@ body.zen-mode-active #core{visibility:hidden!important}
 </defs></svg>
 <canvas id="cosmos" aria-hidden="true"></canvas>
 <div id="app">
-<header id="bar"><div class="br"><button class="ib settings-cog" id="gear" type="button" aria-label="Open settings" title="Settings"><svg class="settings-gear-svg" viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M9.55 2.4h4.9l.55 2.35a7.8 7.8 0 0 1 1.55.9l2.25-.8 2.45 4.25-1.72 1.62c.1.85.1 1.7 0 2.55l1.72 1.62-2.45 4.25-2.25-.8a7.8 7.8 0 0 1-1.55.9l-.55 2.35h-4.9L9 19.24a7.8 7.8 0 0 1-1.55-.9l-2.25.8-2.45-4.25 1.72-1.62a10.8 10.8 0 0 1 0-2.55L2.75 9.1 5.2 4.85l2.25.8A7.8 7.8 0 0 1 9 4.75L9.55 2.4Z"/><circle cx="12" cy="12" r="3.25"/></svg></button></div><nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-label="Home" title="Home" aria-pressed="true" data-tab="home"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M3.5 10.6 12 3.8l8.5 6.8v9.1a1.3 1.3 0 0 1-1.3 1.3H4.8a1.3 1.3 0 0 1-1.3-1.3z"/><path d="M8.5 21v-7.2h7V21M2.5 11.3 12 3.5l9.5 7.8"/></svg><span class="sr-only">Home</span></button><button class="tab" id="dataTab" type="button" aria-label="Visuals and statistics" title="Visuals &amp; Stats" aria-pressed="false" data-tab="data"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/><path d="M3 21h18M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/></svg><span class="sr-only">Visuals &amp; Stats</span></button></nav><div class="rt"><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span></div></header><div class="mode-actions" aria-label="Modes"><button id="battleModeLaunch" type="button" aria-label="Enter Battle Mode">Battle</button><button id="focusLaunch" type="button" aria-label="Focus button">Focus</button><button id="zenLaunch" type="button" aria-label="Enter Zen mode">Zen</button></div>
+<header id="bar"><div class="br"><button class="ib settings-cog" id="gear" type="button" aria-label="Open settings" title="Settings"><svg class="settings-gear-svg" viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M9.55 2.4h4.9l.55 2.35a7.8 7.8 0 0 1 1.55.9l2.25-.8 2.45 4.25-1.72 1.62c.1.85.1 1.7 0 2.55l1.72 1.62-2.45 4.25-2.25-.8a7.8 7.8 0 0 1-1.55.9l-.55 2.35h-4.9L9 19.24a7.8 7.8 0 0 1-1.55-.9l-2.25.8-2.45-4.25 1.72-1.62a10.8 10.8 0 0 1 0-2.55L2.75 9.1 5.2 4.85l2.25.8A7.8 7.8 0 0 1 9 4.75L9.55 2.4Z"/><circle cx="12" cy="12" r="3.25"/></svg></button></div><nav class="tabs" aria-label="Main views"><button class="tab active" id="homeTab" type="button" aria-label="Home" title="Home" aria-pressed="true" data-tab="home"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M3.5 10.6 12 3.8l8.5 6.8v9.1a1.3 1.3 0 0 1-1.3 1.3H4.8a1.3 1.3 0 0 1-1.3-1.3z"/><path d="M8.5 21v-7.2h7V21M2.5 11.3 12 3.5l9.5 7.8"/></svg><span class="sr-only">Home</span></button><button class="tab" id="dataTab" type="button" aria-label="Visuals and statistics" title="Visuals &amp; Stats" aria-pressed="false" data-tab="data"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="nav-fill" d="M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/><path d="M3 21h18M4 13h4v7H4zM10 8h4v12h-4zM16 4h4v16h-4z"/></svg><span class="sr-only">Visuals &amp; Stats</span></button></nav><div class="rt"><div class="mode-actions" aria-label="Modes">
+<button id="battleModeLaunch" type="button" aria-label="Enter Battle Mode" title="Battle Mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V4l14 3-14 3"/><path d="M5 10v10"/></svg></button>
+<button id="focusLaunch" type="button" aria-label="Focus button" title="Focus"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2v3M22 12h-3M12 22v-3M2 12h3"/></svg></button>
+<button id="zenLaunch" type="button" aria-label="Enter Zen mode" title="Zen Mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 4.5C11 4.8 5 8.2 5 14.2a5.3 5.3 0 0 0 5.4 5.3c6 0 9.4-6 9.1-15Z"/><path d="M4 21c2.8-5.1 6.1-8.2 11-11"/></svg></button>
+</div><span class="stat" id="stat" data-s="standby" title="System status"><i></i><span id="st">STANDBY</span></span></div></header>
 <main id="stage">
 <section id="center">
 <div class="core" id="core"><div class="halo" id="halo"></div><canvas id="gl" aria-label="Holographic particle orb" role="img"></canvas><canvas id="orbNetworkCanvas" aria-label="Animated particle network orb" role="img"></canvas>
@@ -5258,11 +5280,8 @@ status();
   const nav=document.querySelector('#bar .tabs');
   if(!nav||nav.dataset.zeroLiquidReady==='true')return;
   nav.dataset.zeroLiquidReady='true';
-  let indicator=null;
-  let currentId='';
-  let frame=0;
+  let indicator=null,currentId='',frame=0;
   const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   function ensureIndicator(){
     if(indicator&&indicator.isConnected)return;
     indicator=nav.querySelector('.zero-liquid-indicator');
@@ -5270,55 +5289,58 @@ status();
       indicator=document.createElement('span');
       indicator.className='zero-liquid-indicator';
       indicator.setAttribute('aria-hidden','true');
+      indicator.innerHTML='<span class="liquid-ripple"></span>';
       nav.insertBefore(indicator,nav.firstChild);
     }
   }
-
   function activeButton(){
-    const skill=nav.querySelector('#skillTreeTab[aria-pressed="true"]');
-    return skill||nav.querySelector('.tab.active')||nav.querySelector('.tab');
+    return nav.querySelector('#skillTreeTab[aria-pressed="true"]')||nav.querySelector('.tab.active')||nav.querySelector('.tab');
   }
-
   function positionIndicator(){
     frame=0;
     const active=activeButton();
     if(!active)return;
     ensureIndicator();
-    const navRect=nav.getBoundingClientRect();
-    const tabRect=active.getBoundingClientRect();
-    if(!navRect.width||!tabRect.width)return;
-    const x=tabRect.left-navRect.left;
-    const y=tabRect.top-navRect.top;
+    const nr=nav.getBoundingClientRect(),r=active.getBoundingClientRect();
+    if(!nr.width||!r.width)return;
+    const x=r.left-nr.left,y=r.top-nr.top;
+    const target='translate3d('+x+'px,'+y+'px,0)';
     const changed=currentId!==active.id;
-    indicator.style.width=tabRect.width+'px';
-    indicator.style.height=tabRect.height+'px';
-    indicator.classList.toggle('is-moving',changed&&!reduced&&!!currentId);
-    indicator.style.transform='translate3d('+x+'px,'+y+'px,0) scaleX('+(changed&&!reduced&&currentId?'1.09':'1')+')';
-    if(changed&&!reduced&&currentId){
-      requestAnimationFrame(function(){
-        if(indicator)indicator.style.transform='translate3d('+x+'px,'+y+'px,0) scaleX(1)';
-      });
-      window.setTimeout(function(){if(indicator)indicator.classList.remove('is-moving')},420);
+    indicator.style.width=r.width+'px';indicator.style.height=r.height+'px';
+    if(!currentId||reduced){
+      indicator.style.transform=target;
+    }else if(changed){
+      const from=indicator.style.transform||target;
+      if(indicator._motion)indicator._motion.cancel();
+      indicator.classList.remove('is-moving');
+      void indicator.offsetWidth;
+      indicator.classList.add('is-moving');
+      const motion=indicator.animate([
+        {transform:from,borderRadius:'14px 17px 13px 18px',offset:0},
+        {transform:'translate3d('+(x-5)+'px,'+(y+1)+'px,0) scaleX(1.32) scaleY(.82)',borderRadius:'48% 35% 42% 39%',offset:.34},
+        {transform:'translate3d('+(x+3)+'px,'+(y-1)+'px,0) scaleX(.88) scaleY(1.12)',borderRadius:'35% 48% 38% 46%',offset:.68},
+        {transform:target,borderRadius:'14px 17px 13px 18px',offset:1}
+      ],{duration:720,easing:'cubic-bezier(.22,.85,.25,1)',fill:'forwards'});
+      indicator._motion=motion;
+      motion.onfinish=function(){
+        if(indicator._motion!==motion)return;
+        indicator.style.transform=target;
+        indicator.style.borderRadius='14px 17px 13px 18px';
+        indicator.classList.remove('is-moving');
+        motion.cancel();
+        indicator._motion=null;
+      };
     }
     currentId=active.id||'active';
     indicator.dataset.ready='true';
   }
-
-  function schedule(){
-    if(frame)return;
-    frame=requestAnimationFrame(positionIndicator);
-  }
-
+  function schedule(){if(frame)return;frame=requestAnimationFrame(positionIndicator)}
   const observer=new MutationObserver(schedule);
   observer.observe(nav,{subtree:true,childList:true,attributes:true,attributeFilter:['class','aria-pressed']});
   if(window.ResizeObserver){
-    const resizeObserver=new ResizeObserver(schedule);
-    resizeObserver.observe(nav);
-    nav.querySelectorAll('.tab').forEach(function(tab){resizeObserver.observe(tab)});
-    const childObserver=new MutationObserver(function(){
-      nav.querySelectorAll('.tab').forEach(function(tab){resizeObserver.observe(tab)});
-    });
-    childObserver.observe(nav,{childList:true});
+    const ro=new ResizeObserver(schedule);ro.observe(nav);
+    nav.querySelectorAll('.tab').forEach(t=>ro.observe(t));
+    new MutationObserver(()=>nav.querySelectorAll('.tab').forEach(t=>ro.observe(t))).observe(nav,{childList:true});
   }
   window.addEventListener('resize',schedule,{passive:true});
   schedule();
