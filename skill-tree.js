@@ -100,6 +100,18 @@ const categories = [
     ]
   },
   {
+    id: 'audio', name: 'Audio & Atmosphere', color: '#8B83FF', icon: 'sound',
+    position: [0.2, 6.5, 7.4],
+    skills: [
+      { id: 'nature-sounds', name: 'Nature Sounds', status: 'Active', icon: 'sound',
+        description: 'Play rain, forest ambience or flowing water on request, and stop or switch sounds by voice.',
+        activation: '“Hey ZERO, play rain sounds.”', launch: 'audio' },
+      { id: 'frequencies', name: 'Frequencies', status: 'Active', icon: 'wave',
+        description: 'Play a selected pure tone by frequency, or ask ZERO to stop it.',
+        activation: '“Hey ZERO, play 432 hertz.”', launch: 'audio' }
+    ]
+  },
+  {
     id: 'personalisation', name: 'Personalisation', color: '#FFC15C', icon: 'sliders',
     position: [7.2, -3.8, -6.4],
     skills: [
@@ -756,12 +768,24 @@ function makePlanetTexture(type, baseColor) {
     glow.addColorStop(1, '#8f210d');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, 1024, 512);
-    for (let i = 0; i < 240; i++) {
-      const x = rand() * 1024, y = rand() * 512;
-      ctx.beginPath();
-      ctx.ellipse(x, y, 8 + rand() * 42, 1.5 + rand() * 8, rand() * 3, 0, Math.PI * 2);
-      ctx.fillStyle = rand() > 0.5 ? 'rgba(255,246,173,.20)' : 'rgba(145,35,8,.15)';
-      ctx.fill();
+    // Mirrored hemisphere detail keeps the sun visually balanced from either side.
+    for (let i = 0; i < 420; i++) {
+      const x = 8 + rand() * 504, y = rand() * 512;
+      const rx = 2 + rand() * 24, ry = 1 + rand() * 7;
+      const rotation = (rand() - .5) * 1.4, shade = rand();
+      [x, 1024 - x].forEach(function(px, index) {
+        ctx.save(); ctx.translate(px, y); ctx.rotate(index ? -rotation : rotation);
+        ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fillStyle = shade > .55 ? 'rgba(255,249,190,.25)' : 'rgba(137,35,9,.20)'; ctx.fill();
+        ctx.beginPath(); ctx.ellipse(index ? rx*.12 : -rx*.12, -ry*.2, rx*.48, ry*.42, 0, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,224,116,.12)'; ctx.fill(); ctx.restore();
+      });
+    }
+    for (let i = 0; i < 900; i++) {
+      const x = 4 + rand() * 508, y = rand() * 512, r = .35 + rand() * 1.6;
+      ctx.fillStyle = 'rgba(255,244,178,' + (.06 + rand() * .18) + ')';
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(1024-x,y,r,0,Math.PI*2); ctx.fill();
     }
   } else if (type === 'earth') {
     const ocean = ctx.createLinearGradient(0, 0, 0, 512);
@@ -1735,6 +1759,7 @@ function showSkillPanel(skillNode) {
     conversation:'TRY A CONVERSATION',
     voice:'ACTIVATE VOICE INTERFACE',
     settings:'OPEN SETTINGS',
+    audio:'OPEN AUDIO CONTROLS',
     memory:'OPEN MEMORY COMMANDS',
     weather:'OPEN WEATHER',
   }[skill.launch];
@@ -1860,6 +1885,12 @@ function launchSkill(skillNode) {
     } else {
       window.location.href = 'https://calendar.google.com/calendar/u/0/r';
     }
+    return;
+  }
+
+  if (skill.launch === 'audio') {
+    if (window.ZeroAudio && typeof window.ZeroAudio.open === 'function') window.ZeroAudio.open();
+    else showToast('Audio controls are not available right now.');
     return;
   }
 
@@ -2336,6 +2367,68 @@ function registerCategory(category) {
   return true;
 }
 
+const ZERO_AUDIO_SOUNDS={
+ rain:['https://commons.wikimedia.org/wiki/Special:Redirect/file/Rain%20(1).ogg','https://commons.wikimedia.org/wiki/Special:Redirect/file/Rain.ogg'],
+ forest:['https://commons.wikimedia.org/wiki/Special:Redirect/file/20090610%200%20ambience.ogg','https://commons.wikimedia.org/wiki/Special:Redirect/file/Birds%20forest.ogg'],
+ water:['https://commons.wikimedia.org/wiki/Special:Redirect/file/Water%20flowing%20pouring%20trickling.ogg','https://commons.wikimedia.org/wiki/Special:Redirect/file/Flowing-water-100019.ogg']
+};
+let zeroAudioPlayers={},zeroAudioContext=null,zeroAudioOscillator=null,zeroAudioGain=null,zeroAudioPanel=null;
+function zeroAudioStop(key){
+ const keys=key?[key]:Object.keys(zeroAudioPlayers);
+ keys.forEach(function(k){const a=zeroAudioPlayers[k];if(a){try{a.pause();a.currentTime=0}catch(e){}}});
+ if(!key&&zeroAudioOscillator){const o=zeroAudioOscillator,g=zeroAudioGain;zeroAudioOscillator=null;zeroAudioGain=null;try{const n=zeroAudioContext.currentTime;g.gain.cancelScheduledValues(n);g.gain.setValueAtTime(g.gain.value,n);g.gain.linearRampToValueAtTime(0,n+.4);o.stop(n+.45)}catch(e){}}
+}
+async function zeroAudioPlaySound(key){
+ if(!ZERO_AUDIO_SOUNDS[key])return false;
+ let a=zeroAudioPlayers[key];if(!a){a=new Audio();a.loop=true;a.preload='none';zeroAudioPlayers[key]=a}
+ for(const src of ZERO_AUDIO_SOUNDS[key]){try{a.pause();a.src=src;a.load();await a.play();return true}catch(e){}}
+ return false;
+}
+function zeroAudioPlayFrequency(hz){
+ const f=Number(hz),AC=window.AudioContext||window.webkitAudioContext;
+ if(!Number.isFinite(f)||f<20||f>20000||!AC)return false;
+ zeroAudioStop();
+ try{
+  if(!zeroAudioContext)zeroAudioContext=new AC();
+  if(zeroAudioContext.state==='suspended')zeroAudioContext.resume();
+  const o=zeroAudioContext.createOscillator(),g=zeroAudioContext.createGain();
+  o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,zeroAudioContext.currentTime);g.gain.linearRampToValueAtTime(.035,zeroAudioContext.currentTime+1);
+  o.connect(g);g.connect(zeroAudioContext.destination);o.start();zeroAudioOscillator=o;zeroAudioGain=g;
+  o.onended=function(){if(zeroAudioOscillator===o){zeroAudioOscillator=null;zeroAudioGain=null}};
+  return true;
+ }catch(e){return false}
+}
+function zeroAudioOpen(){
+ if(!zeroAudioPanel){
+  zeroAudioPanel=document.createElement('section');zeroAudioPanel.id='zeroAudioPanel';zeroAudioPanel.setAttribute('role','dialog');zeroAudioPanel.setAttribute('aria-modal','true');
+  zeroAudioPanel.innerHTML='<div class="zero-audio-card"><button type="button" class="zero-audio-close" aria-label="Close">×</button><p class="zero-audio-kicker">Z.E.R.O. / AUDIO</p><h2>Audio & Atmosphere</h2><div class="zero-audio-group"><h3>Nature sounds</h3><div class="zero-audio-actions"><button data-sound="rain">Rain</button><button data-sound="forest">Forest</button><button data-sound="water">Flowing water</button></div></div><div class="zero-audio-group"><h3>Frequencies</h3><div class="zero-audio-actions"><button data-frequency="432">432 Hz</button><button data-frequency="528">528 Hz</button><button data-frequency="639">639 Hz</button></div></div><button type="button" class="zero-audio-stop">Stop audio</button></div>';
+  document.body.appendChild(zeroAudioPanel);
+  zeroAudioPanel.addEventListener('click',async function(e){
+   if(e.target===zeroAudioPanel||e.target.closest('.zero-audio-close')){zeroAudioPanel.classList.remove('is-open');return}
+   const s=e.target.closest('[data-sound]');if(s){const ok=await zeroAudioPlaySound(s.dataset.sound);if(!ok)showToast('That sound could not be played right now.');return}
+   const f=e.target.closest('[data-frequency]');if(f){if(!zeroAudioPlayFrequency(f.dataset.frequency))showToast('The frequency could not be started.');return}
+   if(e.target.closest('.zero-audio-stop'))zeroAudioStop();
+  });
+ }
+ zeroAudioPanel.classList.add('is-open');
+}
+window.ZeroAudio={
+ open:zeroAudioOpen,stop:zeroAudioStop,playSound:zeroAudioPlaySound,playFrequency:zeroAudioPlayFrequency,
+ handleCommand:async function(raw,respond){
+  const q=String(raw||'').toLowerCase();
+  if(/\b(?:stop|turn off|pause)\s+(?:all\s+)?(?:audio|sounds|rain|forest|water|frequency|tone)\b/.test(q)||/\bstop (?:playing|the sound)\b/.test(q)){zeroAudioStop();await respond('Audio stopped.');return true}
+  const s=(q.match(/\b(rain|forest|water)\b/)||[])[1];
+  if(s&&/\b(?:play|start|turn on|put on)\b/.test(q)){const ok=await zeroAudioPlaySound(s);await respond(ok?'Playing '+s+'.':'I could not play that sound right now.');return true}
+  const f=q.match(/\b(?:play|start|generate|put on)\s+(?:a\s+)?(\d{2,5})\s*(?:hz|hertz)\b/)||q.match(/\b(\d{2,5})\s*(?:hz|hertz)\b/);
+  if(f){const ok=zeroAudioPlayFrequency(f[1]);await respond(ok?'Playing '+Number(f[1])+' hertz.':'I could not start that frequency.');return true}
+  return false;
+ }
+};
+  if(!document.getElementById('zero-audio-style')){
+    const st=document.createElement('style');st.id='zero-audio-style';
+    st.textContent='#zeroAudioPanel{position:fixed;inset:0;z-index:100;display:none;place-items:center;padding:18px;background:rgba(2,7,16,.76);backdrop-filter:blur(14px);color:#edf7ff}#zeroAudioPanel.is-open{display:grid}#zeroAudioPanel .zero-audio-card{position:relative;width:min(100%,480px);padding:28px;border-radius:22px;background:rgba(12,22,38,.96);box-shadow:0 24px 90px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.08)}#zeroAudioPanel h2{font-size:25px;font-weight:400;margin:6px 0 24px}#zeroAudioPanel h3{font-size:13px;font-weight:500;color:#a9bfd5;margin:0 0 10px}#zeroAudioPanel .zero-audio-kicker{font:10px ui-monospace,monospace;letter-spacing:.18em;color:#aaa0ff}#zeroAudioPanel .zero-audio-group{margin:18px 0}#zeroAudioPanel .zero-audio-actions{display:flex;gap:8px;flex-wrap:wrap}#zeroAudioPanel button{border:0;border-radius:12px;background:rgba(160,178,210,.12);color:#eaf4ff;padding:11px 15px;font:inherit;cursor:pointer}#zeroAudioPanel .zero-audio-close{position:absolute;right:16px;top:16px;font-size:22px;background:transparent;padding:3px 8px}#zeroAudioPanel .zero-audio-stop{margin-top:8px;background:rgba(151,121,255,.2)}';
+    document.head.appendChild(st);
+  }
 function initialize() {
   addStylesheet();
   addNavAndOverlay();
