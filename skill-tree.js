@@ -744,7 +744,7 @@ function makePlanetTexture(type, baseColor) {
       sunCtx.fillStyle=spot;sunCtx.beginPath();sunCtx.arc(x,y,r,0,Math.PI*2);sunCtx.fill();
     }
     ctx.drawImage(halfCanvas,0,0);ctx.drawImage(halfCanvas,512,0);
-  }  } else if (type === 'earth') {
+  } else if (type === 'earth') {
     const ocean = ctx.createLinearGradient(0, 0, 0, 512);
     ocean.addColorStop(0, '#164a86'); ocean.addColorStop(0.48, '#1475ae'); ocean.addColorStop(1, '#092c60');
     ctx.fillStyle = ocean; ctx.fillRect(0, 0, 1024, 512);
