@@ -1558,6 +1558,87 @@ body.zen-mode-active #core{visibility:hidden!important}
 #ov .settings-reset:hover{color:#fff}
 @media(max-width:560px){#ov .settings-layout{grid-template-columns:1fr;gap:10px;min-height:0}#ov .settings-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:0}#ov .settings-nav button{min-height:40px;padding:8px 4px;text-align:center;font-size:10px}#ov .settings-nav button.active{box-shadow:inset 0 -2px #fff}#ov .settings-content{padding:5px 2px 10px}#bar .br{flex:0 0 42px}#bar .settings-cog{width:40px;height:40px;min-width:40px}}
 @media(prefers-reduced-motion:reduce){#bar .settings-gear-svg,#ov .settings-nav button{transition:none!important}}
+</style>
+<style id="zero-liquid-glass-navigation">
+/* Z.E.R.O. liquid-glass navigation: keep the existing layout and controls. */
+#bar{
+  background:linear-gradient(112deg,rgba(11,25,49,.76),rgba(8,16,36,.73) 56%,rgba(19,17,47,.72))!important;
+  border-color:rgba(139,174,235,.105)!important;
+  box-shadow:0 8px 30px rgba(0,0,0,.2),inset 0 1px 0 rgba(211,231,255,.055),inset 0 0 28px rgba(83,112,205,.045)!important;
+}
+#bar .tabs{
+  position:relative;
+  isolation:isolate;
+  background:rgba(21,34,65,.34)!important;
+  box-shadow:inset 0 1px 0 rgba(197,219,255,.045),0 0 22px rgba(78,111,205,.045);
+}
+#bar .tab{
+  position:relative;
+  z-index:1;
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+#bar .tab.active{
+  color:#f0f8ff!important;
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+#bar .tab:hover{background:rgba(133,177,255,.055)!important}
+#bar .tab.active:hover{background:transparent!important}
+#bar .tab.active .nav-icon{
+  filter:drop-shadow(0 0 5px rgba(100,177,255,.32)) drop-shadow(0 0 9px rgba(153,124,255,.17));
+}
+#bar .zero-liquid-indicator{
+  position:absolute;
+  z-index:0;
+  top:0;
+  left:0;
+  width:44px;
+  height:44px;
+  overflow:hidden;
+  pointer-events:none;
+  border:1px solid rgba(164,207,255,.22);
+  border-radius:15px;
+  background:linear-gradient(122deg,rgba(54,174,255,.27),rgba(126,104,255,.24) 54%,rgba(73,184,255,.23));
+  -webkit-backdrop-filter:blur(13px) saturate(165%);
+  backdrop-filter:blur(13px) saturate(165%);
+  box-shadow:inset 0 1px 0 rgba(239,249,255,.24),inset 0 -9px 18px rgba(54,91,205,.12),0 0 22px rgba(81,139,255,.13);
+  transform:translate3d(0,0,0) scaleX(1);
+  transform-origin:center;
+  transition:transform .48s cubic-bezier(.22,1,.36,1),width .42s cubic-bezier(.22,1,.36,1),height .42s cubic-bezier(.22,1,.36,1);
+  will-change:transform,width;
+}
+#bar .zero-liquid-indicator:before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  background:radial-gradient(ellipse at 28% 0%,rgba(255,255,255,.24),transparent 58%),linear-gradient(150deg,rgba(180,224,255,.075),transparent 58%);
+  opacity:.9;
+}
+#bar .zero-liquid-indicator:after{
+  content:"";
+  position:absolute;
+  top:3px;
+  left:22%;
+  width:42%;
+  height:1px;
+  border-radius:100%;
+  background:linear-gradient(90deg,transparent,rgba(239,249,255,.72),transparent);
+  filter:blur(.25px);
+  opacity:.85;
+  transition:left .35s ease,width .35s ease,opacity .25s ease;
+}
+#bar .zero-liquid-indicator.is-moving:after{left:15%;width:70%;opacity:1}
+#bar .tab .nav-icon{transition:filter .24s ease,color .24s ease}
+@media(max-width:560px){
+  #bar .zero-liquid-indicator{border-radius:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  #bar .zero-liquid-indicator,#bar .zero-liquid-indicator:after{transition:none!important}
+}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -5170,4 +5251,77 @@ status();
 })();
 </script>
 
+
+<script id="zero-liquid-navigation-runtime">
+(function(){
+  'use strict';
+  const nav=document.querySelector('#bar .tabs');
+  if(!nav||nav.dataset.zeroLiquidReady==='true')return;
+  nav.dataset.zeroLiquidReady='true';
+  let indicator=null;
+  let currentId='';
+  let frame=0;
+  const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function ensureIndicator(){
+    if(indicator&&indicator.isConnected)return;
+    indicator=nav.querySelector('.zero-liquid-indicator');
+    if(!indicator){
+      indicator=document.createElement('span');
+      indicator.className='zero-liquid-indicator';
+      indicator.setAttribute('aria-hidden','true');
+      nav.insertBefore(indicator,nav.firstChild);
+    }
+  }
+
+  function activeButton(){
+    const skill=nav.querySelector('#skillTreeTab[aria-pressed="true"]');
+    return skill||nav.querySelector('.tab.active')||nav.querySelector('.tab');
+  }
+
+  function positionIndicator(){
+    frame=0;
+    const active=activeButton();
+    if(!active)return;
+    ensureIndicator();
+    const navRect=nav.getBoundingClientRect();
+    const tabRect=active.getBoundingClientRect();
+    if(!navRect.width||!tabRect.width)return;
+    const x=tabRect.left-navRect.left;
+    const y=tabRect.top-navRect.top;
+    const changed=currentId!==active.id;
+    indicator.style.width=tabRect.width+'px';
+    indicator.style.height=tabRect.height+'px';
+    indicator.classList.toggle('is-moving',changed&&!reduced&&!!currentId);
+    indicator.style.transform='translate3d('+x+'px,'+y+'px,0) scaleX('+(changed&&!reduced&&currentId?'1.09':'1')+')';
+    if(changed&&!reduced&&currentId){
+      requestAnimationFrame(function(){
+        if(indicator)indicator.style.transform='translate3d('+x+'px,'+y+'px,0) scaleX(1)';
+      });
+      window.setTimeout(function(){if(indicator)indicator.classList.remove('is-moving')},420);
+    }
+    currentId=active.id||'active';
+    indicator.dataset.ready='true';
+  }
+
+  function schedule(){
+    if(frame)return;
+    frame=requestAnimationFrame(positionIndicator);
+  }
+
+  const observer=new MutationObserver(schedule);
+  observer.observe(nav,{subtree:true,childList:true,attributes:true,attributeFilter:['class','aria-pressed']});
+  if(window.ResizeObserver){
+    const resizeObserver=new ResizeObserver(schedule);
+    resizeObserver.observe(nav);
+    nav.querySelectorAll('.tab').forEach(function(tab){resizeObserver.observe(tab)});
+    const childObserver=new MutationObserver(function(){
+      nav.querySelectorAll('.tab').forEach(function(tab){resizeObserver.observe(tab)});
+    });
+    childObserver.observe(nav,{childList:true});
+  }
+  window.addEventListener('resize',schedule,{passive:true});
+  schedule();
+})();
+</script>
 </body></html>
