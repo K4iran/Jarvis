@@ -443,6 +443,18 @@ function addNavAndOverlay() {
     if (navButton) navButton.addEventListener('click', openSkillTree);
   }
 
+  // Enforce the requested physical DOM order after Skill Tree has been inserted:
+  // Home, Skill Tree, Visuals & Stats, mode controls, then Settings.
+  const bar = document.getElementById('bar');
+  const settingsGroup = bar && bar.querySelector('.br');
+  const rightGroup = bar && bar.querySelector('.rt');
+  if (bar && settingsGroup && rightGroup) {
+    const status = rightGroup.querySelector('.stat');
+    const modes = rightGroup.querySelector('.mode-actions');
+    if (status && modes) rightGroup.insertBefore(status, modes);
+    bar.appendChild(settingsGroup);
+  }
+
   overlay = document.createElement('section');
   overlay.id = 'zeroSkillTree';
   overlay.hidden = true;
