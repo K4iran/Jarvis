@@ -5239,12 +5239,14 @@ status();
   #bar .rt .mode-actions{order:1!important;flex:0 0 auto!important;width:auto!important;justify-content:flex-end!important;gap:4px!important;margin:0!important;padding:0!important}
   #bar .br{order:3!important;flex:0 0 42px!important;margin-left:0!important;justify-content:flex-end!important}
   @media(max-width:560px){
-    #bar{flex-wrap:nowrap!important;gap:5px!important}
-    #bar .tabs{flex:0 0 auto!important;gap:3px!important}
-    #bar .rt{flex:1 1 auto!important;justify-content:flex-end!important}
+    #bar{display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
+    /* The earlier mobile rule gave .tabs width:100%, which forced Home into the centre. */
+    #bar .tabs{order:1!important;display:flex!important;flex:0 0 auto!important;width:auto!important;max-width:max-content!important;min-width:0!important;margin:0!important;justify-content:flex-start!important;align-self:center!important;gap:3px!important}
+    #bar .tabs #homeTab{margin-left:0!important}
+    #bar .rt{order:2!important;flex:1 1 auto!important;justify-content:flex-end!important;min-width:0!important}
     #bar .rt .stat{display:none!important}
     #bar .rt .mode-actions{flex:0 0 auto!important;gap:1px!important}
-    #bar .br{flex:0 0 38px!important}
+    #bar .br{order:3!important;flex:0 0 38px!important;margin-left:auto!important}
   }
 
   /* Same narrow outer rim, now softly rippled and glass-like rather than a perfect neon circle. */
