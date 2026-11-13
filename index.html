@@ -5724,4 +5724,33 @@ status();
   #bar .tabs{display:flex!important;gap:7px!important;padding:0!important}
 }
 </style>
+
+<style id="zero-navbar-orb-lit-matte">
+/* Matte navbar: the orb is the only bright light source. */
+#bar{
+  border:0!important;
+  background:rgba(5,9,18,.88)!important;
+  -webkit-backdrop-filter:blur(20px)!important;
+  backdrop-filter:blur(20px)!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.34),0 5px 13px -10px rgba(65,145,255,.22)!important;
+}
+#bar:before{display:none!important;content:none!important}
+#bar .zero-liquid-indicator{
+  background:rgba(100,145,205,.075)!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  backdrop-filter:blur(8px)!important;
+}
+#bar .zero-liquid-indicator:before,
+#bar .zero-liquid-indicator:after{display:none!important;content:none!important}
+#bar .settings-cog,#bar .tabs .tab,#bar .mode-actions button{
+  text-shadow:none!important;filter:none!important;
+}
+#bar .settings-cog:hover,#bar .tabs .tab:hover,#bar .mode-actions button:hover{
+  background:rgba(150,180,220,.055)!important;
+}
+#bar .tabs .tab.active{background:rgba(145,175,220,.07)!important}
+@media(prefers-reduced-motion:reduce){#bar{transition:none!important}}
+</style>
+
 </body></html>
