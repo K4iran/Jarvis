@@ -279,7 +279,7 @@ function makeMusicSettings(parent, mode) {
   section.dataset.zeroMusicSettings = mode;
   section.innerHTML =
     '<h3>Preferred music service</h3>' +
-    '<p>Choose what opens when you tap the Music branch. You can also change this here in Zen.</p>' +
+    '<p>Choose what opens when you tap the Music branch. You can also change this in Settings.</p>' +
     '<label>Music service<select data-zero-music-service>' + serviceOptions(musicConfig.service) + '</select></label>' +
     '<label data-zero-custom-wrap' + (musicConfig.service === 'custom' ? '' : ' hidden') + '>Custom music URL' +
     '<input type="url" inputmode="url" autocomplete="url" placeholder="https://…" data-zero-music-custom></label>' +
