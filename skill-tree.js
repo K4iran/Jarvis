@@ -464,7 +464,8 @@ function addNavAndOverlay() {
     navButton.type = 'button';
     navButton.className = 'tab';
     navButton.id = 'skillTreeTab';
-    navButton.textContent = 'Skill Tree';
+    navButton.innerHTML = '<svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v6M12 10 6 16M12 10l6 6"/><circle cx="12" cy="3.5" r="1.5"/><circle cx="6" cy="17.5" r="1.5"/><circle cx="18" cy="17.5" r="1.5"/></svg><span class="sr-only">Skill Tree</span>';
+    navButton.title = 'Skill Tree';
     navButton.setAttribute('aria-pressed', 'false');
     navButton.setAttribute('aria-label', 'Open ZERO Skill Tree');
     nav.insertBefore(navButton, document.getElementById('dataTab') || null);
