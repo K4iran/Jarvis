@@ -200,18 +200,7 @@ function loadMusicConfig() {
   } catch (error) {
     console.warn('ZERO music preferences could not be read.', error);
   }
-  // Keep the user's existing Spotify playlist as the initial Spotify destination.
-  try {
-    const zen = JSON.parse(localStorage.getItem('jarvis.zen.v1') || 'null');
-    const oldLink = zen && zen.preferences && zen.preferences.spotifyLink;
-    return {
-      service: 'spotify',
-      customUrl: '',
-      spotifyLink: typeof oldLink === 'string' && /^https:\/\/open\.spotify\.com\//i.test(oldLink) ? oldLink : ''
-    };
-  } catch (error) {
-    return { service: 'spotify', customUrl: '' };
-  }
+  return { service: 'spotify', customUrl: '' };
 }
 
 function saveMusicConfig(next) {
@@ -245,13 +234,7 @@ function musicDestination() {
       return service.url || 'https://open.spotify.com/';
     }
   }
-  if (musicConfig.service === 'spotify') {
-    try {
-      const zen = JSON.parse(localStorage.getItem('jarvis.zen.v1') || 'null');
-      const oldLink = zen && zen.preferences && zen.preferences.spotifyLink;
-      if (typeof oldLink === 'string' && /^https:\/\/open\.spotify\.com\//i.test(oldLink)) return oldLink;
-    } catch (error) {}
-  }
+
   return service.url;
 }
 
@@ -331,40 +314,13 @@ function mountSettingsMusic() {
   makeMusicSettings(host, 'settings');
 }
 
-function mountZenMusicSettings() {
-  const host = document.getElementById('zenPanelCard');
-  if (!host || !host.isConnected) return;
-  const title = host.querySelector('.zen-panel-head h2');
-  if (!title || title.textContent.trim().toLowerCase() !== 'music') {
-    delete host.dataset.zeroMusicPanel;
-    return;
-  }
-  if (host.querySelector('[data-zero-music-settings="zen"]')) return;
-  const header = host.querySelector('.zen-panel-head');
-  if (!header) return;
-  host.dataset.zeroMusicPanel = 'true';
-  host.innerHTML = '';
-  host.appendChild(header);
-  makeMusicSettings(host, 'zen');
-}
-
 function setupMusicPreferences() {
   const settingsHost = document.getElementById('ob');
   if (settingsHost) {
     new MutationObserver(mountSettingsMusic).observe(settingsHost, { childList: true, subtree: true });
     mountSettingsMusic();
   }
-  const zenPanel = document.getElementById('zenPanelCard');
-  if (zenPanel) {
-    new MutationObserver(mountZenMusicSettings).observe(zenPanel, { childList: true, subtree: true });
-  }
-  document.addEventListener('click', function (event) {
-    const branch = event.target.closest('#zenRoot [data-branch="music"]');
-    if (!branch) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    launchMusicService();
-  }, true);
+
 }
 
 function loadDiscovery() {
@@ -761,33 +717,34 @@ function makePlanetTexture(type, baseColor) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   if (type === 'sun') {
-    const glow = ctx.createLinearGradient(0, 0, 1024, 512);
-    glow.addColorStop(0, '#fff5a6');
-    glow.addColorStop(0.35, '#ffb52e');
-    glow.addColorStop(0.72, '#e85b18');
-    glow.addColorStop(1, '#8f210d');
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, 1024, 512);
-    // Mirrored hemisphere detail keeps the sun visually balanced from either side.
-    for (let i = 0; i < 420; i++) {
-      const x = 8 + rand() * 504, y = rand() * 512;
-      const rx = 2 + rand() * 24, ry = 1 + rand() * 7;
-      const rotation = (rand() - .5) * 1.4, shade = rand();
-      [x, 1024 - x].forEach(function(px, index) {
-        ctx.save(); ctx.translate(px, y); ctx.rotate(index ? -rotation : rotation);
-        ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
-        ctx.fillStyle = shade > .55 ? 'rgba(255,249,190,.25)' : 'rgba(137,35,9,.20)'; ctx.fill();
-        ctx.beginPath(); ctx.ellipse(index ? rx*.12 : -rx*.12, -ry*.2, rx*.48, ry*.42, 0, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(255,224,116,.12)'; ctx.fill(); ctx.restore();
-      });
+    const halfCanvas=document.createElement('canvas');
+    halfCanvas.width=512;halfCanvas.height=512;
+    const sunCtx=halfCanvas.getContext('2d');
+    const glow=sunCtx.createLinearGradient(0,0,0,512);
+    glow.addColorStop(0,'#fff4a0');glow.addColorStop(.28,'#ffc044');
+    glow.addColorStop(.62,'#f58a24');glow.addColorStop(1,'#a93212');
+    sunCtx.fillStyle=glow;sunCtx.fillRect(0,0,512,512);
+    for(let i=0;i<1500;i++){
+      const x=rand()*512,y=rand()*512,rx=1.2+rand()*7,ry=.8+rand()*3.5;
+      sunCtx.beginPath();sunCtx.ellipse(x,y,rx,ry,(rand()-.5)*.5,0,Math.PI*2);
+      sunCtx.fillStyle=rand()>.48?'rgba(255,247,190,'+(.07+rand()*.17)+')':'rgba(133,35,8,'+(.035+rand()*.11)+')';
+      sunCtx.fill();
     }
-    for (let i = 0; i < 900; i++) {
-      const x = 4 + rand() * 508, y = rand() * 512, r = .35 + rand() * 1.6;
-      ctx.fillStyle = 'rgba(255,244,178,' + (.06 + rand() * .18) + ')';
-      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(1024-x,y,r,0,Math.PI*2); ctx.fill();
+    for(let i=0;i<190;i++){
+      const x=rand()*512,y=rand()*512,rx=4+rand()*26,ry=2+rand()*9;
+      sunCtx.save();sunCtx.translate(x,y);sunCtx.rotate((rand()-.5)*.9);
+      sunCtx.beginPath();sunCtx.ellipse(0,0,rx,ry,0,0,Math.PI*2);
+      sunCtx.fillStyle=rand()>.5?'rgba(255,246,174,.17)':'rgba(115,30,8,.14)';
+      sunCtx.fill();sunCtx.restore();
     }
-  } else if (type === 'earth') {
+    for(let i=0;i<14;i++){
+      const x=12+rand()*488,y=18+rand()*476,r=3+rand()*8;
+      const spot=sunCtx.createRadialGradient(x-r*.2,y-r*.2,1,x,y,r);
+      spot.addColorStop(0,'rgba(91,25,9,.52)');spot.addColorStop(.55,'rgba(139,39,10,.27)');spot.addColorStop(1,'rgba(139,39,10,0)');
+      sunCtx.fillStyle=spot;sunCtx.beginPath();sunCtx.arc(x,y,r,0,Math.PI*2);sunCtx.fill();
+    }
+    ctx.drawImage(halfCanvas,0,0);ctx.drawImage(halfCanvas,512,0);
+  }  } else if (type === 'earth') {
     const ocean = ctx.createLinearGradient(0, 0, 0, 512);
     ocean.addColorStop(0, '#164a86'); ocean.addColorStop(0.48, '#1475ae'); ocean.addColorStop(1, '#092c60');
     ctx.fillStyle = ocean; ctx.fillRect(0, 0, 1024, 512);
@@ -906,13 +863,15 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
     group.add(flare);
     const sunlight = new THREE.PointLight('#ffb45c', 3.8, 34, 1.7);
     group.add(sunlight);
-    const wordmark = makeLabelSprite('Z.E.R.O.', '#fff2c8', 34);
-    wordmark.material.opacity = 1;
-    wordmark.material.depthTest = false;
-    wordmark.scale.set(radius * 1.05, radius * .25, 1);
-    wordmark.position.set(0, 0, radius * 1.04);
-    wordmark.renderOrder = 8;
-    group.add(wordmark);
+    [1, -1].forEach(function(side) {
+      const wordmark = makeLabelSprite('Z.E.R.O.', '#fff2c8', 34);
+      wordmark.material.opacity = 1;
+      wordmark.material.depthTest = false;
+      wordmark.scale.set(radius * 1.05, radius * .25, 1);
+      wordmark.position.set(0, 0, side * radius * 1.04);
+      wordmark.renderOrder = 8;
+      group.add(wordmark);
+    });
     const coronaRing = new THREE.Mesh(
       new THREE.TorusGeometry(radius * 1.27, radius * .012, 8, 96),
       new THREE.MeshBasicMaterial({ color: '#ffb64b', transparent: true, opacity: .38, blending: THREE.AdditiveBlending, depthWrite: false })
