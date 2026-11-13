@@ -5075,7 +5075,7 @@ status();
 <svg aria-hidden="true" width="0" height="0" style="position:absolute;pointer-events:none">
   <filter id="zeroLiquidWaterTexture" x="-30%" y="-30%" width="160%" height="160%">
     <feTurbulence type="fractalNoise" baseFrequency=".035 .07" numOctaves="2" seed="13" result="waterNoise"/>
-    <feDisplacementMap in="SourceGraphic" in2="waterNoise" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+    <feDisplacementMap in="SourceGraphic" in2="waterNoise" scale="1.45" xChannelSelector="R" yChannelSelector="G"/>
   </filter>
 </svg>
 <style id="zero-navbar-liquid-water-rim-final">
@@ -5226,6 +5226,71 @@ status();
   #bar .zero-liquid-indicator.settled .liquid-outline{opacity:1!important}
   #bar .zero-liquid-indicator.spin-once .liquid-outline{
     animation:zeroLiquidWaterSettle 1s cubic-bezier(.18,.72,.2,1) 1 both!important;
+  }
+</style>
+
+
+<style id="zero-navbar-icon-order-and-organic-liquid">
+  /* Reorder only existing navbar controls; preserve their size, styling and layout dimensions. */
+  #bar{flex-wrap:nowrap!important}
+  #bar .tabs{order:1!important;flex:0 0 auto!important;justify-content:flex-start!important}
+  #bar .rt{order:2!important;flex:1 1 auto!important;justify-content:flex-end!important;min-width:0!important}
+  #bar .rt .stat{order:0!important;flex:0 0 auto!important;margin-right:10px!important}
+  #bar .rt .mode-actions{order:1!important;flex:0 0 auto!important;width:auto!important;justify-content:flex-end!important;gap:4px!important;margin:0!important;padding:0!important}
+  #bar .br{order:3!important;flex:0 0 42px!important;margin-left:0!important;justify-content:flex-end!important}
+  @media(max-width:560px){
+    #bar{flex-wrap:nowrap!important;gap:5px!important}
+    #bar .tabs{flex:0 0 auto!important;gap:3px!important}
+    #bar .rt{flex:1 1 auto!important;justify-content:flex-end!important}
+    #bar .rt .stat{display:none!important}
+    #bar .rt .mode-actions{flex:0 0 auto!important;gap:1px!important}
+    #bar .br{flex:0 0 38px!important}
+  }
+
+  /* Same narrow outer rim, now softly rippled and glass-like rather than a perfect neon circle. */
+  #bar .zero-liquid-indicator .liquid-outline{
+    inset:-4px!important;
+    border-radius:48% 52% 47% 53% / 51% 46% 54% 49%!important;
+    background:conic-gradient(from 8deg,
+      rgba(120,210,255,.82) 0deg,
+      rgba(255,255,255,.94) 27deg,
+      rgba(190,160,255,.72) 66deg,
+      rgba(130,245,225,.18) 91deg,
+      rgba(120,245,226,.82) 132deg,
+      rgba(255,255,255,.88) 166deg,
+      rgba(255,255,255,.10) 190deg,
+      rgba(132,180,255,.76) 238deg,
+      rgba(198,230,255,.92) 278deg,
+      rgba(155,205,255,.20) 306deg,
+      rgba(120,210,255,.82) 360deg)!important;
+    -webkit-mask:radial-gradient(ellipse closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    mask:radial-gradient(ellipse closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    filter:url(#zeroLiquidWaterTexture) saturate(1.25) drop-shadow(0 0 3px rgba(130,205,255,.38))!important;
+    transform-origin:center!important;
+  }
+  #bar .zero-liquid-indicator .liquid-outline:before{
+    inset:0!important;
+    border-radius:inherit!important;
+    background:
+      radial-gradient(ellipse at 22% 12%,rgba(255,255,255,.96),transparent 22%),
+      radial-gradient(ellipse at 73% 76%,rgba(112,250,222,.58),transparent 30%),
+      conic-gradient(from 190deg,rgba(255,255,255,.12),rgba(255,255,255,.72) 34deg,transparent 72deg,rgba(160,150,255,.42) 132deg,transparent 175deg,rgba(255,255,255,.45) 228deg,transparent 280deg,rgba(130,225,255,.38))!important;
+    -webkit-mask:radial-gradient(ellipse closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    mask:radial-gradient(ellipse closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    mix-blend-mode:screen!important;
+    opacity:.82!important;
+    filter:blur(.22px)!important;
+  }
+  #bar .zero-liquid-indicator .liquid-outline:after{
+    inset:0!important;top:auto!important;left:auto!important;width:auto!important;height:auto!important;
+    border:0!important;border-radius:inherit!important;
+    background:
+      radial-gradient(ellipse at 17% 13%,rgba(255,255,255,.9),transparent 15%),
+      radial-gradient(ellipse at 81% 63%,rgba(190,160,255,.52),transparent 19%),
+      radial-gradient(ellipse at 46% 91%,rgba(120,245,226,.42),transparent 17%)!important;
+    -webkit-mask:radial-gradient(ellipse closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    mask:radial-gradient(ellipse closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    filter:blur(.35px)!important;
   }
 </style>
 
