@@ -75,8 +75,8 @@ const categories = [
       },
       {
         id: 'command-understanding', name: 'Command Understanding', status: 'Active', icon: 'network',
-        description: 'Routes supported requests to features such as Hangman, Zen and Calendar.',
-        activation: '“Hey ZERO, open Zen.” or “Hey ZERO, show my calendar.”',
+        description: 'Routes supported requests to features such as Hangman, audio controls and Calendar.',
+        activation: '“Hey ZERO, play rain sounds.” or “Hey ZERO, show my calendar.”',
         launch: 'conversation'
       }
     ]
@@ -117,7 +117,7 @@ const categories = [
     skills: [
       {
         id: 'preferences', name: 'Preferences', status: 'Active', icon: 'sliders',
-        description: 'Adjust interface and Zen music preferences saved in this browser.',
+        description: 'Adjust interface preferences saved in this browser.',
         activation: '“Hey ZERO, open settings.”',
         launch: 'settings'
       },
