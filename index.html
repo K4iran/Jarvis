@@ -5753,4 +5753,41 @@ status();
 @media(prefers-reduced-motion:reduce){#bar{transition:none!important}}
 </style>
 
+
+<style id="zero-navbar-background-match-final">
+/* The navbar has no separate surface: it inherits the page backdrop exactly. */
+#bar{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  box-shadow:none!important;
+  isolation:isolate!important;
+  overflow:visible!important;
+}
+#bar:before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  left:8%!important;right:8%!important;bottom:-5px!important;
+  top:auto!important;height:11px!important;
+  border:0!important;border-radius:0 0 50% 50%!important;
+  background:radial-gradient(ellipse at 50% 0%,rgba(75,145,255,.16) 0%,rgba(75,145,255,.075) 38%,transparent 78%)!important;
+  filter:blur(5px)!important;
+  opacity:1!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+#bar .zero-liquid-indicator{
+  background:rgba(125,165,220,.045)!important;
+  border:0!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+#bar .zero-liquid-indicator:before,
+#bar .zero-liquid-indicator:after{display:none!important;content:none!important}
+</style>
+
 </body></html>
