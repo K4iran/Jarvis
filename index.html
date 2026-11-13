@@ -4955,5 +4955,13 @@ status();
   #app:not(.data-tab) #msg{margin-top:15px!important}
   #app:not(.data-tab) .ctl{margin-top:18px!important}
 }
+
+/* Give the home orb canvas transparent overscan so the WebGL drawing area is not a square mask. */
+#app:not(.data-tab) #core #orbNetworkCanvas{
+  inset:-35%!important;width:170%!important;height:170%!important;
+}
+#zeroOrbPresentationLayer #orbNetworkCanvas{
+  inset:0!important;width:100%!important;height:100%!important;
+}
 </style>
 </body></html>
