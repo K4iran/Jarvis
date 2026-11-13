@@ -866,7 +866,8 @@ function createOrbVisual(group, radius, color, icon, label, isCenter, locked) {
     [1, -1].forEach(function(side) {
       const wordmark = makeLabelSprite('Z.E.R.O.', '#fff2c8', 34);
       wordmark.material.opacity = 1;
-      wordmark.material.depthTest = false;
+      wordmark.material.depthTest = true;
+      wordmark.material.depthWrite = false;
       wordmark.scale.set(radius * 1.05, radius * .25, 1);
       wordmark.position.set(0, 0, side * radius * 1.04);
       wordmark.renderOrder = 8;
