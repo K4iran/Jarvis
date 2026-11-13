@@ -2990,7 +2990,7 @@ async function zeroNutritionHandleCommand(raw,respond){
  const t=String(raw||'').trim().replace(/^\s*(?:(?:hey[\s,]+)?zero)\b[\s,:-]*/i,'').trim(),q=t.toLowerCase();
  if(zeroNutritionPending&&/^(?:cancel|cancel that|discard|never mind|nevermind)$/i.test(q)){zeroNutritionPending=null;await respond('Food entry cancelled. Nothing was saved.');return true}
  if(zeroNutritionPending&&/^(?:confirm|save it|save the food|confirm food|yes)$/i.test(q)){
-  if(zeroNutritionPending.some(f=>!Number.isFinite(Number(f.cal))||!Number.isFinite(Number(f.pro)))){await respond('I still need a calorie and protein estimate before I can save that food.');return true}
+  if(zeroNutritionPending.some(f=>f.cal===null||f.pro===null||!Number.isFinite(Number(f.cal))||!Number.isFinite(Number(f.pro)))){await respond('I still need a calorie and protein estimate before I can save that food.');return true}
   try{const n=zeroNutritionSave(zeroNutritionPending);zeroNutritionPending=null;await respond('Added to your LifeOS nutrition. Today’s logged total is about '+n.cal+' calories and '+n.pro+' grams of protein.')}catch(e){await respond(e.message)}return true
  }
  if(zeroNutritionPending&&/\d+(?:\.\d+)?\s*(?:kcal|calories?)\b/i.test(q)&&/\d+(?:\.\d+)?\s*(?:g|grams?)\s*(?:of\s+)?protein/i.test(q)){
@@ -3012,7 +3012,7 @@ async function zeroNutritionHandleCommand(raw,respond){
  if(/\b(?:add|log|record|i ate|i had|i've had|i have had)\b/i.test(q)&&!/\bwater\b/i.test(q)){
   const foods=zeroNutritionParseFood(t);if(!foods.length)return false;if(!zeroNutritionRead()){await respond('LifeOS has not been set up in this browser yet.');return true}
   zeroNutritionPending=foods;const f=foods[0];
-  if(Number.isFinite(Number(f.cal))&&Number.isFinite(Number(f.pro)))await respond('I estimate '+f.name+' at about '+f.cal+' calories and '+f.pro+' grams of protein. Say confirm to add it to LifeOS nutrition, or cancel to discard it.');
+  if(f.cal!==null&&f.pro!==null&&Number.isFinite(Number(f.cal))&&Number.isFinite(Number(f.pro)))await respond('I estimate '+f.name+' at about '+f.cal+' calories and '+f.pro+' grams of protein. Say confirm to add it to LifeOS nutrition, or cancel to discard it.');
   else await respond('I have identified '+f.name+', but I do not have a reliable estimate. Tell me its approximate calories and grams of protein, then say confirm.');
   return true
  }
