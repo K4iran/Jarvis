@@ -49,7 +49,6 @@
   function open(mode) {
     activeMode = mode;
     overlay.classList.toggle("zf-weather-presentation", mode === "weather");
-    window.__zeroOrbSetPresentation?.(true, "data");
     overlay.hidden = false;
     requestAnimationFrame(function () { overlay.classList.add("on"); });
     document.getElementById("app")?.classList.add("zf-active");
@@ -57,7 +56,6 @@
   function close() {
     stopWeatherTour();
     overlay.classList.remove("zf-weather-presentation");
-    window.__zeroOrbSetPresentation?.(false, "data");
     overlay.classList.remove("on");
     document.getElementById("app")?.classList.remove("zf-active");
     setTimeout(function () {
