@@ -5070,4 +5070,91 @@ status();
   #app:not(.data-tab) #core{margin-top:clamp(40px,4.2vh,48px)!important}
 }
 </style>
+
+<!-- Final navbar liquid-ring correction: keep the normal centre indicator; confine the iridescent water to its outer rim. -->
+<svg aria-hidden="true" width="0" height="0" style="position:absolute;pointer-events:none">
+  <filter id="zeroLiquidWaterTexture" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency=".035 .07" numOctaves="2" seed="13" result="waterNoise"/>
+    <feDisplacementMap in="SourceGraphic" in2="waterNoise" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<style id="zero-navbar-liquid-water-rim-final">
+  /* The centre remains the ordinary active-tab lens. Only this separate outer ring is iridescent. */
+  #bar .zero-liquid-indicator{
+    background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.16),rgba(125,165,220,.055) 48%,rgba(255,255,255,.018) 78%)!important;
+    border:1px solid rgba(220,244,255,.13)!important;
+    box-shadow:inset 0 1px 2px rgba(255,255,255,.17),0 0 7px rgba(var(--liquid-glow,95,170,255),.07)!important;
+  }
+  #bar .zero-liquid-indicator .liquid-outline{
+    position:absolute!important;
+    inset:-3px!important;
+    display:block!important;
+    box-sizing:border-box!important;
+    padding:2.6px!important;
+    border:0!important;
+    border-radius:50%!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    transform:rotate(0deg);
+    background:
+      conic-gradient(from 12deg,
+        rgba(123,211,255,.95) 0deg,
+        rgba(255,255,255,.98) 42deg,
+        rgba(186,151,255,.94) 92deg,
+        rgba(117,247,224,.88) 148deg,
+        rgba(255,255,255,.92) 205deg,
+        rgba(128,177,255,.96) 270deg,
+        rgba(182,231,255,.9) 322deg,
+        rgba(123,211,255,.95) 360deg);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
+    -webkit-mask-composite:xor!important;
+    mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
+    mask-composite:exclude!important;
+    filter:url(#zeroLiquidWaterTexture) saturate(1.22) drop-shadow(0 0 2px rgba(140,205,255,.24));
+    box-shadow:inset 0 0 2px rgba(255,255,255,.42),0 0 3px rgba(130,205,255,.2)!important;
+    transition:opacity .16s ease;
+  }
+  #bar .zero-liquid-indicator .liquid-outline:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border:0;
+    border-radius:50%;
+    pointer-events:none;
+    background:
+      radial-gradient(ellipse at 24% 18%,rgba(255,255,255,.9),transparent 22%),
+      radial-gradient(ellipse at 72% 76%,rgba(120,247,224,.75),transparent 30%),
+      radial-gradient(ellipse at 55% 35%,rgba(190,153,255,.62),transparent 42%),
+      repeating-radial-gradient(ellipse at 38% 42%,rgba(255,255,255,.24) 0 1px,transparent 2px 5px);
+    mix-blend-mode:screen;
+    filter:blur(.55px);
+    opacity:.82;
+  }
+  #bar .zero-liquid-indicator .liquid-outline:after{
+    content:"";
+    position:absolute;
+    top:8%;
+    left:16%;
+    width:34%;
+    height:17%;
+    border-top:1.2px solid rgba(255,255,255,.92);
+    border-radius:50%;
+    transform:rotate(-28deg);
+    filter:blur(.45px) drop-shadow(0 0 2px rgba(255,255,255,.7));
+    pointer-events:none;
+  }
+  #bar .zero-liquid-indicator.settled .liquid-outline{opacity:1}
+  #bar .zero-liquid-indicator.is-moving .liquid-outline{opacity:0}
+  #bar .zero-liquid-indicator.spin-once .liquid-outline{
+    animation:zeroLiquidWaterSettle 1s cubic-bezier(.18,.72,.2,1) 1 both!important;
+  }
+  @keyframes zeroLiquidWaterSettle{
+    0%{transform:rotate(0deg);filter:url(#zeroLiquidWaterTexture) saturate(1.08) drop-shadow(0 0 1px rgba(140,205,255,.12))}
+    45%{filter:url(#zeroLiquidWaterTexture) saturate(1.48) drop-shadow(0 0 5px rgba(160,205,255,.34))}
+    100%{transform:rotate(360deg);filter:url(#zeroLiquidWaterTexture) saturate(1.22) drop-shadow(0 0 2px rgba(140,205,255,.24))}
+  }
+  @media(prefers-reduced-motion:reduce){
+    #bar .zero-liquid-indicator.spin-once .liquid-outline{animation:none!important}
+  }
+</style>
 </body></html>
