@@ -5157,93 +5157,75 @@ status();
   }
 </style>
 
-<style id="zero-navbar-final-layout-and-organic-wave-ring">
-  /* Use a three-column header grid so the controls cannot drift into the wrong order. */
-  #bar{
-    display:grid!important;
-    grid-template-columns:auto minmax(0,1fr) auto!important;
-    align-items:center!important;
-    justify-content:stretch!important;
-    width:100%!important;
-    box-sizing:border-box!important;
-    column-gap:clamp(8px,2vw,22px)!important;
-  }
-  #bar .tabs{
-    grid-column:1!important;grid-row:1!important;
-    justify-self:start!important;justify-content:flex-start!important;
-    order:initial!important;min-width:0!important;
-  }
-  #bar .rt{
-    grid-column:2!important;grid-row:1!important;
-    justify-self:stretch!important;justify-content:center!important;
-    order:initial!important;min-width:0!important;
-  }
-  #bar .mode-actions{
-    width:100%!important;justify-content:center!important;gap:clamp(8px,2vw,22px)!important;
-  }
-  #bar .br{
-    grid-column:3!important;grid-row:1!important;
-    justify-self:end!important;justify-content:flex-end!important;
-    order:initial!important;flex:0 0 42px!important;
-    margin:0!important;
-  }
+<style id="zero-navbar-home-left-settings-right-and-true-liquid-ring">
+  /* Home starts the navigation; Settings is the final control on the right. */
+  #bar .tabs{order:1!important;margin-right:0!important;justify-content:flex-start!important}
+  #bar .rt{order:2!important;flex:1 1 auto!important;justify-content:center!important}
+  #bar .mode-actions{justify-content:center!important}
+  #bar .br{order:3!important;flex:0 0 42px!important;margin-left:auto!important;justify-content:flex-end!important}
   @media(max-width:560px){
-    #bar{column-gap:4px!important;padding-left:8px!important;padding-right:8px!important}
-    #bar .tabs{gap:4px!important}
     #bar .br{flex-basis:38px!important}
-    #bar .mode-actions{gap:2px!important}
+    #bar .rt{justify-content:center!important}
+    #bar .mode-actions{justify-content:center!important}
   }
 
-  /* Organic, hollow liquid: an uneven perimeter with a real transparent centre. */
+  /* A genuine hollow liquid rim: the centre is transparent, not a second filled disc. */
   #bar .zero-liquid-indicator .liquid-outline{
-    position:absolute!important;inset:-4px!important;display:block!important;
-    box-sizing:border-box!important;border:0!important;padding:0!important;
-    border-radius:47% 53% 45% 55% / 53% 46% 54% 47%!important;
-    opacity:1!important;pointer-events:none!important;
+    position:absolute!important;
+    inset:-4px!important;
+    display:block!important;
+    box-sizing:border-box!important;
+    border:0!important;
+    border-radius:50%!important;
+    padding:0!important;
+    opacity:1!important;
+    pointer-events:none!important;
     background:conic-gradient(from 12deg,
-      rgba(111,207,255,.98) 0deg,rgba(255,255,255,1) 38deg,
-      rgba(183,145,255,.98) 88deg,rgba(112,250,222,.96) 145deg,
-      rgba(255,255,255,.98) 202deg,rgba(116,174,255,.98) 260deg,
-      rgba(206,239,255,.98) 315deg,rgba(111,207,255,.98) 360deg)!important;
-    -webkit-mask:radial-gradient(ellipse 48% 47% at 50% 50%,transparent 0 67%,#000 72% 100%)!important;
-    mask:radial-gradient(ellipse 48% 47% at 50% 50%,transparent 0 67%,#000 72% 100%)!important;
-    filter:url(#zeroLiquidWaterTexture) saturate(1.45) drop-shadow(0 0 3px rgba(130,205,255,.55)) drop-shadow(0 0 7px rgba(125,190,255,.2))!important;
-    transform-origin:50% 50%!important;
+      rgba(111,207,255,.98) 0deg,
+      rgba(255,255,255,1) 38deg,
+      rgba(183,145,255,.98) 88deg,
+      rgba(112,250,222,.96) 145deg,
+      rgba(255,255,255,.98) 202deg,
+      rgba(116,174,255,.98) 260deg,
+      rgba(206,239,255,.98) 315deg,
+      rgba(111,207,255,.98) 360deg)!important;
+    -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    filter:saturate(1.4) drop-shadow(0 0 3px rgba(130,205,255,.55)) drop-shadow(0 0 7px rgba(125,190,255,.2))!important;
+    transition:opacity .12s ease!important;
   }
+  /* Wet reflections are clipped to that same narrow rim, never across the icon. */
   #bar .zero-liquid-indicator .liquid-outline:before{
-    content:""!important;position:absolute!important;inset:0!important;
-    border:0!important;border-radius:inherit!important;
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    border:0!important;
+    border-radius:50%!important;
     background:
-      radial-gradient(ellipse at 22% 12%,rgba(255,255,255,.98),transparent 23%),
-      radial-gradient(ellipse at 76% 78%,rgba(112,250,222,.88),transparent 32%),
-      repeating-radial-gradient(ellipse at 34% 42%,rgba(255,255,255,.28) 0 1px,transparent 2px 6px)!important;
-    -webkit-mask:radial-gradient(ellipse 48% 47% at 50% 50%,transparent 0 67%,#000 72% 100%)!important;
-    mask:radial-gradient(ellipse 48% 47% at 50% 50%,transparent 0 67%,#000 72% 100%)!important;
-    mix-blend-mode:screen!important;opacity:.95!important;pointer-events:none!important;
+      radial-gradient(ellipse at 22% 12%,rgba(255,255,255,.95),transparent 24%),
+      radial-gradient(ellipse at 76% 78%,rgba(112,250,222,.85),transparent 34%),
+      repeating-radial-gradient(ellipse at 34% 42%,rgba(255,255,255,.24) 0 1px,transparent 2px 6px)!important;
+    -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    mix-blend-mode:screen!important;
+    opacity:.9!important;
+    pointer-events:none!important;
   }
   #bar .zero-liquid-indicator .liquid-outline:after{
-    content:""!important;position:absolute!important;inset:0!important;
-    border:0!important;border-radius:inherit!important;
-    background:radial-gradient(ellipse at 20% 10%,rgba(255,255,255,.95),transparent 18%)!important;
-    -webkit-mask:radial-gradient(ellipse 48% 47% at 50% 50%,transparent 0 67%,#000 72% 100%)!important;
-    mask:radial-gradient(ellipse 48% 47% at 50% 50%,transparent 0 67%,#000 72% 100%)!important;
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    top:auto!important;left:auto!important;width:auto!important;height:auto!important;
+    border:0!important;border-radius:50%!important;
+    background:radial-gradient(ellipse at 20% 10%,rgba(255,255,255,.9),transparent 18%)!important;
+    -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
+    mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))!important;
     pointer-events:none!important;
   }
   #bar .zero-liquid-indicator.is-moving .liquid-outline{opacity:0!important}
   #bar .zero-liquid-indicator.settled .liquid-outline{opacity:1!important}
   #bar .zero-liquid-indicator.spin-once .liquid-outline{
-    animation:zeroLiquidOrganicWave 1s cubic-bezier(.18,.72,.2,1) 1 both!important;
-  }
-  @keyframes zeroLiquidOrganicWave{
-    0%{transform:rotate(0deg) scale(1);border-radius:47% 53% 45% 55% / 53% 46% 54% 47%}
-    18%{transform:rotate(65deg) scale(1.035,.97);border-radius:54% 46% 57% 43% / 45% 56% 44% 55%}
-    38%{transform:rotate(145deg) scale(.975,1.035);border-radius:43% 57% 48% 52% / 57% 43% 55% 45%}
-    62%{transform:rotate(245deg) scale(1.025,.985);border-radius:55% 45% 42% 58% / 48% 55% 45% 52%}
-    82%{transform:rotate(320deg) scale(.99,1.02);border-radius:46% 54% 56% 44% / 55% 45% 51% 49%}
-    100%{transform:rotate(360deg) scale(1);border-radius:48% 52% 46% 54% / 52% 47% 53% 48%}
-  }
-  @media(prefers-reduced-motion:reduce){
-    #bar .zero-liquid-indicator.spin-once .liquid-outline{animation:none!important}
+    animation:zeroLiquidWaterSettle 1s cubic-bezier(.18,.72,.2,1) 1 both!important;
   }
 </style>
 
