@@ -4489,8 +4489,12 @@ status();
       indicator=document.createElement('span');
       indicator.className='zero-liquid-indicator';
       indicator.setAttribute('aria-hidden','true');
-      indicator.innerHTML='<span class="liquid-ripple"></span>';
+      indicator.innerHTML='<span class="liquid-ripple"></span><span class="liquid-outline"></span>';
       nav.insertBefore(indicator,nav.firstChild);
+    }else if(!indicator.querySelector('.liquid-outline')){
+      const outline=document.createElement('span');
+      outline.className='liquid-outline';
+      indicator.appendChild(outline);
     }
   }
   function activeButton(){
@@ -4517,10 +4521,13 @@ status();
     indicator.style.width=r.width+'px';indicator.style.height=r.height+'px';
     if(!currentId||reduced){
       indicator.style.transform=target;
+      indicator.style.borderRadius='50%';
+      indicator.classList.remove('is-moving','spin-once');
+      indicator.classList.add('settled');
     }else if(changed){
       const from=indicator.style.transform||target;
       if(indicator._motion)indicator._motion.cancel();
-      indicator.classList.remove('is-moving');
+      indicator.classList.remove('settled','spin-once','is-moving');
       void indicator.offsetWidth;
       indicator.classList.add('is-moving');
       const motion=indicator.animate([
@@ -4534,10 +4541,22 @@ status();
       motion.onfinish=function(){
         if(indicator._motion!==motion)return;
         indicator.style.transform=target;
-        indicator.style.borderRadius='14px 17px 13px 18px';
+        indicator.style.borderRadius='50%';
         indicator.classList.remove('is-moving');
+        indicator.classList.add('settled');
         motion.cancel();
         indicator._motion=null;
+        if(!reduced){
+          const outline=indicator.querySelector('.liquid-outline');
+          indicator.classList.remove('spin-once');
+          if(outline){
+            outline.addEventListener('animationend',function(){
+              indicator.classList.remove('spin-once');
+            },{once:true});
+            void outline.offsetWidth;
+            indicator.classList.add('spin-once');
+          }
+        }
       };
     }
     currentId=active.id||'active';
@@ -4962,6 +4981,93 @@ status();
 }
 #zeroOrbPresentationLayer #orbNetworkCanvas{
   inset:0!important;width:100%!important;height:100%!important;
+}
+</style>
+
+<style id="zero-liquid-circular-settle-and-home-position">
+/* The active tab is a circular glass lens; the separate gel rim is the only part that spins. */
+#bar .zero-liquid-indicator{
+  border-radius:50%!important;
+  overflow:visible!important;
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.19),rgba(var(--liquid-tint,111,190,255),.09) 42%,rgba(255,255,255,.025) 76%)!important;
+  border:1px solid rgba(220,244,255,.16)!important;
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,.22),
+    inset 0 -2px 5px rgba(var(--liquid-glow,95,170,255),.10),
+    0 0 8px rgba(var(--liquid-glow,95,170,255),.08)!important;
+  will-change:transform!important;
+}
+#bar .zero-liquid-indicator:before{
+  content:""!important;display:block!important;position:absolute!important;inset:1px!important;
+  border-radius:50%!important;pointer-events:none!important;
+  background:
+    radial-gradient(ellipse at 28% 16%,rgba(255,255,255,.27),transparent 47%),
+    linear-gradient(145deg,rgba(var(--liquid-tint,111,190,255),.10),transparent 68%)!important;
+  opacity:1!important;mix-blend-mode:screen!important;
+}
+#bar .zero-liquid-indicator:after{display:none!important;content:none!important}
+#bar .zero-liquid-indicator .liquid-outline{
+  position:absolute!important;inset:-3px!important;display:block!important;
+  border:2.5px solid transparent!important;border-radius:50%!important;
+  pointer-events:none!important;opacity:0;transform:rotate(0deg);
+  background:
+    linear-gradient(rgba(255,255,255,.035),rgba(var(--liquid-tint,111,190,255),.055)) padding-box,
+    conic-gradient(from 205deg,
+      rgba(115,207,255,.70) 0deg,
+      rgba(255,255,255,.96) 48deg,
+      rgba(171,145,255,.88) 112deg,
+      rgba(130,246,224,.82) 176deg,
+      rgba(255,255,255,.92) 230deg,
+      rgba(126,177,255,.88) 292deg,
+      rgba(115,207,255,.70) 360deg) border-box!important;
+  box-shadow:
+    inset 0 0 2px rgba(255,255,255,.58),
+    0 0 3px rgba(130,205,255,.22)!important;
+  filter:saturate(1.18) drop-shadow(0 0 2px rgba(140,205,255,.18));
+  transition:opacity .16s ease;
+}
+#bar .zero-liquid-indicator .liquid-outline:before{
+  content:"";position:absolute;inset:0;border:1px solid transparent;border-radius:50%;
+  border-top-color:rgba(255,255,255,.76);border-left-color:rgba(255,255,255,.22);
+  pointer-events:none;filter:blur(.35px);
+}
+#bar .zero-liquid-indicator .liquid-outline:after{
+  content:"";position:absolute;top:1px;left:7px;width:43%;height:28%;
+  border-top:1.2px solid rgba(255,255,255,.84);border-radius:50%;
+  transform:rotate(-28deg);filter:blur(.45px);pointer-events:none;
+}
+#bar .zero-liquid-indicator.settled .liquid-outline{opacity:1}
+#bar .zero-liquid-indicator.is-moving .liquid-outline{opacity:0}
+#bar .zero-liquid-indicator.spin-once .liquid-outline{
+  animation:zeroLiquidRimSettle 1s cubic-bezier(.18,.72,.2,1) 1 both;
+}
+@keyframes zeroLiquidRimSettle{
+  0%{transform:rotate(0deg);filter:saturate(1.05) drop-shadow(0 0 1px rgba(140,205,255,.12))}
+  42%{filter:saturate(1.38) drop-shadow(0 0 4px rgba(160,205,255,.32))}
+  100%{transform:rotate(360deg);filter:saturate(1.18) drop-shadow(0 0 2px rgba(140,205,255,.18))}
+}
+@media(prefers-reduced-motion:reduce){
+  #bar .zero-liquid-indicator.spin-once .liquid-outline{animation:none!important}
+}
+/* Make the movement unmistakable, while preserving the home screen's clear vertical order. */
+#app:not(.data-tab) #bar{
+  margin-top:23px!important;
+  transform:translateY(4px)!important;
+}
+#app:not(.data-tab) #core{
+  margin-top:clamp(30px,3.5vh,36px)!important;
+}
+#app:not(.data-tab) #msg,
+#app:not(.data-tab) .ctl{
+  transform:translateY(-20px)!important;
+}
+@media(max-width:560px){
+  #app:not(.data-tab) #bar{margin-top:20px!important}
+  #app:not(.data-tab) #core{margin-top:clamp(30px,3.5vh,36px)!important}
+}
+@media(min-width:900px){
+  #app:not(.data-tab) #core{margin-top:clamp(40px,4.2vh,48px)!important}
 }
 </style>
 </body></html>
