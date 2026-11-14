@@ -5645,10 +5645,30 @@ status();
     justify-content:center!important;
     overflow:hidden!important;
     pointer-events:none!important;
+    white-space:nowrap!important;
+    color:#EAF8FF!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+    background:transparent!important;
   }
-  @media(prefers-reduced-motion:reduce){
-    #bar .tabs .tab svg{transition:none!important}
-    #app:not(.data-tab) .command-dock .row2{transition:none!important}
+  #app:not(.data-tab) .zero-letter-layer .zero-letter-inner{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 auto!important;
+    white-space:pre!important;
+    will-change:transform;
+  }
+  #app:not(.data-tab) .zero-letter-layer .zero-letter{
+    display:inline-block!important;
+    flex:0 0 auto!important;
+    white-space:pre!important;
+    transform-origin:50% 72%;
+    color:#EAF8FF!important;
+    opacity:1;
+  }
+  #app:not(.data-tab) .zero-letter-layer .zero-letter-placeholder{
+    color:rgba(190,211,225,.55)!important;
   }
 </style>
 <script id="zero-per-character-input-runtime">
