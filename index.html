@@ -4502,7 +4502,7 @@ status();
     ensureIndicator();
     const nr=nav.getBoundingClientRect(),r=active.getBoundingClientRect();
     if(!nr.width||!r.width)return;
-    const size=Math.min(42,r.width,r.height);
+    const size=Math.min(44,r.width,r.height);
     const x=r.left-nr.left+(r.width-size)/2;
     const y=r.top-nr.top+(r.height-size)/2;
     const target='translate3d('+x+'px,'+y+'px,0)';
@@ -5552,6 +5552,73 @@ status();
     #app:not(.data-tab) .command-dock .row2{transition:none!important}
   }
 </style>
+<style id="zero-balanced-navbar-and-keystroke-motion">
+  /* Slightly tighter header; each control group shares the available space evenly. */
+  #bar{
+    padding:4px 12px!important;
+    gap:8px!important;
+  }
+  #bar .br{flex:1 1 0!important;justify-content:flex-start!important}
+  #bar .tabs{
+    flex:2 1 0!important;
+    justify-content:space-evenly!important;
+    gap:0!important;
+  }
+  #bar .rt{
+    flex:2 1 0!important;
+    justify-content:flex-end!important;
+    min-width:0!important;
+  }
+  #bar .rt .mode-actions{
+    flex:1 1 auto!important;
+    justify-content:space-evenly!important;
+    gap:0!important;
+  }
+  #bar .settings-cog,
+  #bar .tabs .tab,
+  #bar .mode-actions button{
+    flex-basis:40px!important;
+    width:40px!important;
+    min-width:40px!important;
+    height:40px!important;
+    min-height:40px!important;
+  }
+  #bar .zero-liquid-indicator{
+    width:44px!important;
+    height:44px!important;
+  }
+  @media(max-width:560px){
+    #bar{padding:3px 7px!important;gap:4px!important}
+    #bar .br{flex:1 1 0!important}
+    #bar .tabs{flex:2 1 0!important;gap:0!important}
+    #bar .rt{flex:2 1 0!important}
+    #bar .rt .mode-actions{gap:0!important}
+    #bar .settings-cog,
+    #bar .tabs .tab,
+    #bar .mode-actions button{
+      flex-basis:36px!important;
+      width:36px!important;
+      min-width:36px!important;
+      height:36px!important;
+      min-height:36px!important;
+    }
+    #bar .settings-cog svg,#bar .tabs .tab svg,#bar .mode-actions button svg{
+      width:18px!important;height:18px!important;
+    }
+  }
+  /* The ripple is a single lightweight overlay, triggered only by actual typing. */
+  #app:not(.data-tab) .command-dock .row2{isolation:isolate!important}
+  #app:not(.data-tab) .command-dock .zero-key-ripple{
+    position:absolute;z-index:1;inset:1px;display:block;pointer-events:none;
+    border:1px solid rgba(110,205,255,.48);border-radius:inherit;
+    opacity:0;transform:scale(.985);
+    box-shadow:0 0 0 0 rgba(70,165,255,0);
+  }
+  #app:not(.data-tab) .command-dock #ci{z-index:2!important}
+  @media(prefers-reduced-motion:reduce){
+    #app:not(.data-tab) .command-dock .zero-key-ripple{display:none!important}
+  }
+</style>
 <script id="zero-lightweight-keystroke-runtime">
 (function(){
   'use strict';
@@ -5559,15 +5626,42 @@ status();
     const input=document.getElementById('ci');
     if(!input||input.dataset.zeroKeystrokeReady==='true')return;
     input.dataset.zeroKeystrokeReady='true';
+    const row=input.closest('.row2');
+    if(!row)return;
+    let ripple=row.querySelector('.zero-key-ripple');
+    if(!ripple){
+      ripple=document.createElement('span');
+      ripple.className='zero-key-ripple';
+      ripple.setAttribute('aria-hidden','true');
+      row.appendChild(ripple);
+    }
+    let textMotion=null,rowMotion=null,rippleMotion=null;
     input.addEventListener('input',function(){
       if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
       if(typeof input.animate!=='function')return;
-      if(input._zeroTypingMotion)input._zeroTypingMotion.cancel();
-      input._zeroTypingMotion=input.animate(
-        [{textShadow:'0 0 0 rgba(95,205,255,0)'},{textShadow:'0 0 7px rgba(95,205,255,.28)'},{textShadow:'0 0 0 rgba(95,205,255,0)'}],
-        {duration:150,easing:'cubic-bezier(.2,.75,.25,1)'}
-      );
-      input._zeroTypingMotion.onfinish=function(){input._zeroTypingMotion=null};
+      if(textMotion)textMotion.cancel();
+      if(rowMotion)rowMotion.cancel();
+      if(rippleMotion)rippleMotion.cancel();
+
+      /* A quick blue pulse follows the newly entered glyphs, then settles cleanly. */
+      textMotion=input.animate([
+        {filter:'brightness(1) drop-shadow(0 0 0 rgba(95,205,255,0))'},
+        {filter:'brightness(1.28) drop-shadow(0 0 3px rgba(95,205,255,.62))',offset:.28},
+        {filter:'brightness(1.08) drop-shadow(0 0 1px rgba(95,205,255,.16))'}
+      ],{duration:310,easing:'cubic-bezier(.16,.8,.25,1)'});
+      rowMotion=row.animate([
+        {boxShadow:'inset 0 -1px 0 rgba(88,190,255,.18),inset 0 -8px 18px rgba(39,141,255,.045),0 4px 16px rgba(0,0,0,.16)'},
+        {boxShadow:'inset 0 0 0 1px rgba(112,207,255,.18),0 0 13px rgba(65,160,255,.17),inset 0 -8px 18px rgba(39,141,255,.07)'},
+        {boxShadow:'inset 0 -1px 0 rgba(88,190,255,.18),inset 0 -8px 18px rgba(39,141,255,.045),0 4px 16px rgba(0,0,0,.16)'}
+      ],{duration:360,easing:'cubic-bezier(.16,.8,.25,1)'});
+      rippleMotion=ripple.animate([
+        {opacity:0,transform:'scale(.985)'},
+        {opacity:.72,transform:'scale(1)',offset:.22},
+        {opacity:0,transform:'scale(1.012)'}
+      ],{duration:380,easing:'cubic-bezier(.16,.8,.25,1)'});
+      textMotion.onfinish=function(){textMotion=null};
+      rowMotion.onfinish=function(){rowMotion=null};
+      rippleMotion.onfinish=function(){rippleMotion=null};
     });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
