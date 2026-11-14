@@ -4480,9 +4480,11 @@ status();
   const nav=document.querySelector('#bar .tabs');
   if(!nav||nav.dataset.zeroLiquidReady==='true')return;
   nav.dataset.zeroLiquidReady='true';
-  let indicator=null,currentId='',frame=0,resizeObserver=null;
+  let indicator=null,currentId='',frame=0,ro=null;
   const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lensWidth=56,lensHeight=42,magnification=1.2;
   function ensureIndicator(){
+    if(indicator&&indicator.isConnected)return;
     indicator=nav.querySelector('.zero-liquid-indicator');
     if(!indicator){
       indicator=document.createElement('span');
@@ -4490,10 +4492,52 @@ status();
       indicator.setAttribute('aria-hidden','true');
       nav.insertBefore(indicator,nav.firstChild);
     }
-    indicator.innerHTML='';
+    indicator.innerHTML='<span class="lens-magnified-layer"></span>';
   }
   function activeButton(){
     return nav.querySelector('#skillTreeTab[aria-pressed="true"]')||nav.querySelector('.tab.active')||nav.querySelector('.tab');
+  }
+  function rebuildMagnifiedLayer(nr){
+    const layer=indicator.querySelector('.lens-magnified-layer');
+    if(!layer)return;
+    layer.innerHTML='';
+    layer.style.width=nr.width+'px';
+    layer.style.height=nr.height+'px';
+    nav.querySelectorAll('.tab').forEach(button=>{
+      const r=button.getBoundingClientRect();
+      const copy=button.cloneNode(true);
+      copy.removeAttribute('id');
+      copy.removeAttribute('aria-pressed');
+      copy.classList.remove('active');
+      copy.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+      copy.querySelectorAll('button').forEach(el=>{
+        el.removeAttribute('id');
+        el.removeAttribute('aria-pressed');
+        el.tabIndex=-1;
+      });
+      copy.style.setProperty('position','absolute','important');
+      copy.style.setProperty('left',(r.left-nr.left)+'px','important');
+      copy.style.setProperty('top',(r.top-nr.top)+'px','important');
+      copy.style.setProperty('width',r.width+'px','important');
+      copy.style.setProperty('height',r.height+'px','important');
+      copy.style.setProperty('min-width',r.width+'px','important');
+      copy.style.setProperty('z-index','1','important');
+      copy.style.setProperty('transform','none','important');
+      copy.style.setProperty('animation','none','important');
+      copy.style.setProperty('pointer-events','none','important');
+      layer.appendChild(copy);
+    });
+  }
+  function syncMagnification(){
+    if(!indicator||!indicator.isConnected)return;
+    const layer=indicator.querySelector('.lens-magnified-layer');
+    if(!layer)return;
+    const m=new DOMMatrixReadOnly(getComputedStyle(indicator).transform);
+    const x=m.m41,y=m.m42;
+    const cx=lensWidth/2,cy=lensHeight/2,k=reduced?1:magnification;
+    const ox=cx-(x+cx)*k;
+    const oy=cy-(y+cy)*k;
+    layer.style.transform='translate3d('+ox+'px,'+oy+'px,0) scale('+k+')';
   }
   function positionIndicator(){
     frame=0;
@@ -4502,47 +4546,60 @@ status();
     ensureIndicator();
     const nr=nav.getBoundingClientRect(),r=active.getBoundingClientRect();
     if(!nr.width||!r.width)return;
-    const size=Math.min(42,r.width,r.height);
-    const x=r.left-nr.left+(r.width-size)/2;
-    const y=r.top-nr.top+(r.height-size)/2;
+    const x=r.left-nr.left+(r.width-lensWidth)/2;
+    const y=r.top-nr.top+(r.height-lensHeight)/2;
     const target='translate3d('+x+'px,'+y+'px,0)';
     const changed=currentId!==active.id;
-    indicator.style.width=size+'px';
-    indicator.style.height=size+'px';
+    indicator.style.width=lensWidth+'px';
+    indicator.style.height=lensHeight+'px';
+    rebuildMagnifiedLayer(nr);
     if(!currentId||reduced){
       if(indicator._motion){indicator._motion.cancel();indicator._motion=null}
       indicator.style.transform=target;
+      indicator.classList.remove('is-moving');
       indicator.classList.add('settled');
+      syncMagnification();
     }else if(changed){
-      if(indicator._motion){
-        const computed=getComputedStyle(indicator).transform;
-        indicator._motion.cancel();
-        indicator.style.transform=computed==='none'?target:computed;
-      }
-      indicator.classList.remove('settled');
+      if(indicator._motion)indicator._motion.cancel();
+      indicator.classList.remove('settled','is-moving');
+      void indicator.offsetWidth;
+      indicator.classList.add('is-moving');
       const from=indicator.style.transform||target;
       const motion=indicator.animate(
         [{transform:from},{transform:target}],
         {duration:1050,easing:'cubic-bezier(.22,.72,.18,1)',fill:'forwards'}
       );
       indicator._motion=motion;
+      const track=()=>{
+        if(indicator._motion!==motion||motion.playState==='finished')return;
+        syncMagnification();
+        indicator._lensFrame=requestAnimationFrame(track);
+      };
+      indicator._lensFrame=requestAnimationFrame(track);
       motion.onfinish=function(){
         if(indicator._motion!==motion)return;
+        cancelAnimationFrame(indicator._lensFrame);
         indicator.style.transform=target;
+        indicator.classList.remove('is-moving');
         indicator.classList.add('settled');
         motion.cancel();
         indicator._motion=null;
+        syncMagnification();
       };
+    }else{
+      syncMagnification();
     }
     currentId=active.id||'active';
+    indicator.dataset.ready='true';
   }
   function schedule(){if(frame)return;frame=requestAnimationFrame(positionIndicator)}
   const observer=new MutationObserver(schedule);
   observer.observe(nav,{subtree:true,childList:true,attributes:true,attributeFilter:['class','aria-pressed']});
   if(window.ResizeObserver){
-    resizeObserver=new ResizeObserver(schedule);
-    resizeObserver.observe(nav);
-    nav.querySelectorAll('.tab').forEach(t=>resizeObserver.observe(t));
+    ro=new ResizeObserver(schedule);
+    ro.observe(nav);
+    nav.querySelectorAll('.tab').forEach(t=>ro.observe(t));
+    new MutationObserver(()=>nav.querySelectorAll('.tab').forEach(t=>ro.observe(t))).observe(nav,{childList:true});
   }
   window.addEventListener('resize',schedule,{passive:true});
   schedule();
@@ -5416,7 +5473,7 @@ status();
 </style>
 
 <style id="zero-final-command-and-navbar-refinement">
-/* One restrained colour for every navigation icon; no enlarged duplicate layer. */
+/* One restrained colour for every navigation icon. The original-size optical lens magnifies the content beneath it. */
 #bar .tabs .tab,
 #bar .tabs .tab.active,
 #bar .tabs #skillTreeTab[aria-pressed="true"],
@@ -5431,12 +5488,14 @@ status();
 #bar .tabs .tab.active{background:transparent!important;border-color:transparent!important}
 #bar .zero-liquid-indicator{
   z-index:4!important;display:block!important;overflow:hidden!important;
-  border-radius:50%!important;
-  border:1px solid rgba(220,238,248,.24)!important;
-  background:rgba(225,240,250,.075)!important;
-  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.19),0 1px 5px rgba(0,0,0,.08)!important;
-  will-change:transform;
+  width:56px!important;height:42px!important;box-sizing:border-box!important;
+  border-radius:22px!important;
+  border:1px solid rgba(255,255,255,.32)!important;
+  background:rgba(245,248,252,.075)!important;
+  -webkit-backdrop-filter:blur(1.2px) saturate(1.08)!important;
+  backdrop-filter:blur(1.2px) saturate(1.08)!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.34),inset 0 -1px 2px rgba(255,255,255,.10),0 2px 9px rgba(0,0,0,.10)!important;
+  transform-origin:top left!important;will-change:transform!important;
 }
 #bar .zero-liquid-indicator:before{
   content:""!important;position:absolute!important;inset:0!important;
@@ -5444,10 +5503,24 @@ status();
   background:linear-gradient(145deg,rgba(255,255,255,.17),transparent 52%)!important;
 }
 #bar .zero-liquid-indicator:after,
-#bar .zero-liquid-indicator .lens-magnified-layer,
 #bar .zero-liquid-indicator .liquid-outline,
 #bar .zero-liquid-indicator .liquid-ripple,
 #bar .zero-liquid-indicator .lens-icon{display:none!important}
+
+#bar .zero-liquid-indicator .lens-magnified-layer{
+  position:absolute!important;left:0!important;top:0!important;z-index:2!important;
+  display:block!important;transform-origin:top left!important;
+  will-change:transform!important;pointer-events:none!important;
+}
+#bar .zero-liquid-indicator .lens-magnified-layer .tab{
+  display:grid!important;place-items:center!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:50%!important;
+  outline:0!important;background:transparent!important;box-shadow:none!important;
+  filter:none!important;color:inherit!important;opacity:1!important;
+}
+#bar .zero-liquid-indicator .lens-magnified-layer svg{
+  width:22px!important;height:22px!important;overflow:visible!important;
+}
 #bar .tabs .tab.active svg,
 #bar .tabs #skillTreeTab[aria-pressed="true"] svg{animation:none!important}
 
