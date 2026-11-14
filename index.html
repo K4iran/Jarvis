@@ -5554,10 +5554,10 @@ status();
   }
 </style>
 <style id="zero-precision-navbar-and-letter-animation">
-  /* Four equal icon slots; Settings keeps its fixed far-right slot. */
+  /* Five evenly spaced navigation icons plus a fixed Settings slot. */
   #bar{
     display:grid!important;
-    grid-template-columns:repeat(4,minmax(0,1fr)) 38px!important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) 38px!important;
     grid-template-rows:minmax(0,1fr)!important;
     align-items:center!important;
     column-gap:0!important;
@@ -5568,10 +5568,10 @@ status();
     box-sizing:border-box!important;
   }
   #bar .tabs{
-    grid-column:1 / span 2!important;
+    grid-column:1 / span 3!important;
     grid-row:1!important;
     display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
     align-items:center!important;
     justify-items:center!important;
     width:100%!important;
@@ -5582,7 +5582,7 @@ status();
     gap:0!important;
   }
   #bar .rt{
-    grid-column:3 / span 2!important;
+    grid-column:4 / span 2!important;
     grid-row:1!important;
     display:grid!important;
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -5597,7 +5597,7 @@ status();
   }
   #bar .rt .mode-actions{display:contents!important}
   #bar .br{
-    grid-column:5!important;
+    grid-column:6!important;
     grid-row:1!important;
     display:flex!important;
     align-items:center!important;
@@ -5610,33 +5610,19 @@ status();
     margin:0!important;
     padding:0!important;
   }
-  #bar #homeTab{grid-column:1!important;grid-row:1!important}
-  #bar #dataTab{grid-column:2!important;grid-row:1!important}
   #bar #battleModeLaunch{grid-column:1!important;grid-row:1!important}
   #bar #focusLaunch{grid-column:2!important;grid-row:1!important}
-  #bar .settings-cog{
-    display:grid!important;
-    flex:0 0 31px!important;
-    width:31px!important;
-    min-width:31px!important;
-    max-width:31px!important;
-    height:32px!important;
-    min-height:32px!important;
-    max-height:32px!important;
-    margin:0!important;
-    padding:0!important;
-    place-items:center!important;
-  }
+  #bar .settings-cog,
   #bar .tabs .tab,
   #bar .rt .mode-actions button{
     display:grid!important;
     flex:none!important;
-    width:32px!important;
-    min-width:32px!important;
-    max-width:32px!important;
-    height:32px!important;
-    min-height:32px!important;
-    max-height:32px!important;
+    width:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
     margin:0!important;
     padding:0!important;
     place-items:center!important;
@@ -5644,6 +5630,18 @@ status();
     align-self:center!important;
   }
   #bar .rt .stat{display:none!important}
+  @media(max-width:380px){
+    #bar .settings-cog,
+    #bar .tabs .tab,
+    #bar .rt .mode-actions button{
+      width:24px!important;
+      min-width:24px!important;
+      max-width:24px!important;
+      height:24px!important;
+      min-height:24px!important;
+      max-height:24px!important;
+    }
+  }
 
   /* Keep the native input for keyboard/caret; render animated glyphs above it. */
   #app:not(.data-tab) .command-dock .row2{
@@ -5747,31 +5745,11 @@ status();
 
     function animateGlyph(glyph,index){
       const delay=Math.min(index*24,168);
-      glyph.style.opacity='0';
-      glyph.style.transform='translate3d(0,13px,0) scale(.22) rotateX(-38deg)';
-      if(typeof glyph.animate==='function'){
-        try{
-          const animation=glyph.animate([
-            {opacity:0,transform:'translate3d(0,13px,0) scale(.22) rotateX(-38deg)',filter:'blur(7px)',textShadow:'0 0 0 rgba(88,223,255,0)'},
-            {opacity:1,transform:'translate3d(0,-2px,0) scale(1.16) rotateX(4deg)',filter:'blur(0)',textShadow:'0 0 15px rgba(88,223,255,.48)',offset:.62},
-            {opacity:1,transform:'translate3d(0,0,0) scale(.97) rotateX(0)',filter:'blur(0)',textShadow:'0 0 4px rgba(88,223,255,.18)',offset:.82},
-            {opacity:1,transform:'translate3d(0,0,0) scale(1) rotateX(0)',filter:'blur(0)',textShadow:'0 0 0 rgba(88,223,255,0)'}
-          ],{duration:520,delay,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'});
-          animation.onfinish=()=>{
-            glyph.style.opacity='1';
-            glyph.style.transform='none';
-            glyph.style.filter='none';
-            glyph.style.textShadow='none';
-            animation.cancel();
-          };
-          return;
-        }catch(_){}
-      }
-      requestAnimationFrame(()=>{
-        glyph.style.transition='opacity .42s ease,transform .52s cubic-bezier(.16,1,.3,1)';
-        glyph.style.opacity='1';
-        glyph.style.transform='none';
-      });
+      glyph.style.opacity='1';
+      glyph.style.transform='none';
+      glyph.style.setProperty('animation',
+        'zeroTypingGlyph 560ms cubic-bezier(.16,1,.3,1) '+delay+'ms both',
+        'important');
     }
 
     function makeGlyph(character,index,shouldAnimate){
@@ -5858,4 +5836,30 @@ status();
   else boot();
 })();
 </script>
+<style id="zero-final-typing-overlay-guard">
+  /* Keep native text invisible while preserving the caret; glyphs render above it. */
+  #app:not(.data-tab) .command-dock .row2{position:relative!important;isolation:isolate!important}
+  #app:not(.data-tab) .command-dock #ci{
+    color:transparent!important;
+    -webkit-text-fill-color:transparent!important;
+    text-shadow:none!important;
+    position:relative!important;
+    z-index:1!important;
+    caret-color:#75DFFF!important;
+  }
+  #app:not(.data-tab) .command-dock #ci::placeholder{
+    color:transparent!important;
+    -webkit-text-fill-color:transparent!important;
+  }
+  #app:not(.data-tab) .zero-letter-layer{z-index:4!important}
+  @keyframes zeroTypingGlyph{
+    0%{opacity:0;transform:translate3d(0,13px,0) scale(.22) rotateX(-38deg);filter:blur(7px);text-shadow:0 0 0 rgba(88,223,255,0)}
+    62%{opacity:1;transform:translate3d(0,-2px,0) scale(1.16) rotateX(4deg);filter:blur(0);text-shadow:0 0 15px rgba(88,223,255,.48)}
+    82%{opacity:1;transform:translate3d(0,0,0) scale(.97) rotateX(0);filter:blur(0);text-shadow:0 0 4px rgba(88,223,255,.18)}
+    100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotateX(0);filter:blur(0);text-shadow:0 0 0 rgba(88,223,255,0)}
+  }
+  @media(prefers-reduced-motion:reduce){
+    #app:not(.data-tab) .zero-letter-layer .zero-letter{animation:none!important;opacity:1!important;transform:none!important}
+  }
+</style>
 </body></html>
