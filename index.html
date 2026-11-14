@@ -5588,4 +5588,122 @@ status();
   #bar .zero-liquid-indicator .lens-magnified-layer{transform:none!important}
 }
 </style>
+
+<style id="zero-command-input-light-and-keystroke-motion">
+  /* A dark, non-glossy surface: the orb is the only light source. */
+  #app:not(.data-tab) .command-dock .row2{
+    position:relative!important;isolation:isolate!important;overflow:hidden!important;
+    border:1px solid rgba(82,157,205,.20)!important;
+    border-radius:17px!important;
+    background:#010207!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+    box-shadow:inset 0 -1px 0 rgba(88,190,255,.20),inset 0 -8px 18px rgba(39,141,255,.055),0 4px 16px rgba(0,0,0,.16)!important;
+    transition:border-color .28s ease,box-shadow .32s ease!important;
+  }
+  /* Blue light source at the top, softly falling toward the lower curve. */
+  #app:not(.data-tab) .command-dock .row2:before{
+    content:""!important;position:absolute!important;inset:0!important;z-index:0!important;
+    border-radius:inherit!important;pointer-events:none!important;
+    background:radial-gradient(ellipse 58% 82% at 50% -8%,rgba(35,145,255,.25),rgba(28,119,220,.10) 38%,transparent 78%)!important;
+    opacity:.82!important;box-shadow:inset 0 -1px 0 rgba(88,205,255,.20)!important;
+  }
+  /* A restrained blue rim reveals the curved lower edge; no white specular shine. */
+  #app:not(.data-tab) .command-dock .row2:after{
+    content:""!important;position:absolute!important;left:8%;right:8%;bottom:0!important;height:12px!important;
+    z-index:0!important;pointer-events:none!important;border-radius:0 0 16px 16px!important;
+    background:radial-gradient(ellipse at 50% 100%,rgba(45,157,255,.28),rgba(36,125,230,.09) 48%,transparent 78%)!important;
+    filter:blur(5px)!important;opacity:.9!important;
+  }
+  #app:not(.data-tab) .command-dock:focus-within .row2{
+    border-color:rgba(78,174,239,.34)!important;
+    box-shadow:inset 0 -1px 0 rgba(88,205,255,.28),inset 0 -9px 20px rgba(39,141,255,.075),0 4px 18px rgba(0,0,0,.18)!important;
+  }
+  #app:not(.data-tab) .command-dock:focus-within .row2:before{opacity:1!important}
+  #app:not(.data-tab) .command-dock .row2 .zero-input-typing-wrap{
+    position:relative!important;z-index:2!important;flex:1 1 auto!important;min-width:0!important;
+    height:42px!important;display:flex!important;align-items:center!important;
+  }
+  #app:not(.data-tab) .command-dock .zero-input-typing-wrap #ci{
+    position:relative!important;z-index:4!important;width:100%!important;min-width:0!important;
+    color:transparent!important;-webkit-text-fill-color:transparent!important;
+    caret-color:#75DFFF!important;background:transparent!important;
+  }
+  #app:not(.data-tab) .command-dock .zero-input-typing-overlay{
+    position:absolute!important;z-index:3!important;left:0!important;right:0!important;top:0!important;bottom:0!important;
+    display:flex!important;align-items:center!important;overflow:hidden!important;white-space:pre!important;
+    pointer-events:none!important;user-select:none!important;
+    color:#EAF8FF!important;font:400 14px/1.5 Sora,system-ui,sans-serif!important;letter-spacing:.01em!important;
+    text-shadow:0 0 7px rgba(70,175,255,.13)!important;
+  }
+  #app:not(.data-tab) .command-dock .zero-input-typing-overlay:empty{display:none!important}
+  #app:not(.data-tab) .command-dock .zero-input-typing-overlay span{
+    display:inline-block!important;white-space:pre!important;flex:none!important;
+  }
+  #app:not(.data-tab) .command-dock .zero-input-typing-overlay span.is-new{
+    animation:zeroKeystrokeMaterialize .22s cubic-bezier(.18,.72,.25,1) both!important;
+  }
+  @keyframes zeroKeystrokeMaterialize{
+    from{opacity:0;transform:translate3d(0,5px,0);filter:blur(2px)}
+    to{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}
+  }
+  #app:not(.data-tab) .command-dock #ci::placeholder{
+    color:rgba(190,211,225,.55)!important;-webkit-text-fill-color:rgba(190,211,225,.55)!important;
+  }
+  @media(max-width:560px){
+    #app:not(.data-tab) .command-dock .zero-input-typing-overlay{font-size:13px!important}
+  }
+  @media(prefers-reduced-motion:reduce){
+    #app:not(.data-tab) .command-dock .zero-input-typing-overlay span.is-new{animation:none!important}
+    #app:not(.data-tab) .command-dock .row2{transition:none!important}
+  }
+</style>
+<script id="zero-command-keystroke-runtime">
+(function(){
+  function install(){
+    const input=document.getElementById('ci');
+    if(!input||input.dataset.keystrokeReady==='true')return;
+    const row=input.closest('.row2');
+    if(!row)return;
+    const wrap=document.createElement('div');
+    wrap.className='zero-input-typing-wrap';
+    const overlay=document.createElement('div');
+    overlay.className='zero-input-typing-overlay';
+    overlay.setAttribute('aria-hidden','true');
+    input.parentNode.insertBefore(wrap,input);
+    wrap.appendChild(input);
+    wrap.appendChild(overlay);
+    input.dataset.keystrokeReady='true';
+
+    let previous='';
+    function render(){
+      const value=input.value||'';
+      if(value===previous)return;
+      let prefix=0;
+      while(prefix<previous.length&&prefix<value.length&&previous[prefix]===value[prefix])prefix++;
+      let suffix=0;
+      while(suffix<previous.length-prefix&&suffix<value.length-prefix&&
+        previous[previous.length-1-suffix]===value[value.length-1-suffix])suffix++;
+      const inserted=value.slice(prefix,value.length-suffix);
+      const fragment=document.createDocumentFragment();
+      for(let i=0;i<value.length;i++){
+        const span=document.createElement('span');
+        span.textContent=value[i];
+        if(i>=prefix&&i<prefix+inserted.length&&inserted.length)span.className='is-new';
+        fragment.appendChild(span);
+      }
+      overlay.replaceChildren(fragment);
+      previous=value;
+      overlay.scrollLeft=wrap.scrollLeft;
+    }
+    input.addEventListener('input',render);
+    input.addEventListener('compositionend',render);
+    input.addEventListener('focus',render);
+    input.addEventListener('blur',()=>{previous=input.value||'';});
+    render();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
+  else install();
+})();
+</script>
+
 </body></html>
