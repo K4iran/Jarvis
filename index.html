@@ -5554,56 +5554,61 @@ status();
   }
 </style>
 <style id="zero-precision-navbar-and-letter-animation">
-  /* Restore the original left / centre / right navbar groups.
-     Only tighten gaps; do not increase the bar or move controls into new slots. */
+  /* Settings stays anchored at its existing left-hand coordinate.
+     The four remaining controls share the full remaining navbar width evenly. */
   #bar{
     display:flex!important;
     flex-wrap:nowrap!important;
     align-items:center!important;
-    justify-content:space-between!important;
-    column-gap:4px!important;
+    justify-content:flex-start!important;
+    column-gap:0!important;
   }
   #bar .br{
     display:flex!important;
     flex:0 0 40px!important;
+    width:40px!important;
     min-width:40px!important;
     justify-content:flex-start!important;
   }
   #bar .tabs{
     display:flex!important;
-    flex:1 1 auto!important;
-    min-width:0!important;
+    flex:1 1 0!important;
     width:auto!important;
-    justify-content:center!important;
-    gap:3px!important;
+    min-width:0!important;
+    justify-content:space-evenly!important;
+    gap:0!important;
     margin:0!important;
   }
   #bar .rt{
     display:flex!important;
-    flex:0 0 auto!important;
-    min-width:0!important;
-    justify-content:flex-end!important;
-    gap:3px!important;
-  }
-  #bar .mode-actions{
-    display:flex!important;
-    flex:0 0 auto!important;
+    flex:1 1 0!important;
     width:auto!important;
     min-width:0!important;
-    justify-content:flex-end!important;
-    gap:2px!important;
+    justify-content:space-evenly!important;
+    gap:0!important;
+    margin:0!important;
+  }
+  #bar .rt .stat{display:none!important}
+  #bar .mode-actions{
+    display:flex!important;
+    flex:1 1 0!important;
+    width:100%!important;
+    min-width:0!important;
+    justify-content:space-evenly!important;
+    gap:0!important;
     margin:0!important;
     padding:0!important;
   }
+  #bar .tabs .tab,
+  #bar .mode-actions button{flex:0 0 auto!important}
   @media(max-width:560px){
-    #bar{column-gap:3px!important}
-    #bar .tabs{gap:2px!important}
-    #bar .rt{gap:2px!important}
-    #bar .mode-actions{gap:1px!important}
+    #bar{column-gap:0!important}
+    #bar .br{flex-basis:40px!important;width:40px!important;min-width:40px!important}
+    #bar .tabs,#bar .rt,#bar .mode-actions{gap:0!important}
   }
 
-  /* Keep the native input for keyboard/caret behaviour, but render visible text
-     as persistent per-character spans directly over its text area. */
+  /* Native input remains responsible for keyboard, selection and caret.
+     A separate glyph layer renders each character and animates it with WAAPI. */
   #app:not(.data-tab) .command-dock .row2{
     position:relative!important;
     isolation:isolate!important;
@@ -5615,7 +5620,7 @@ status();
     text-align:center!important;
     caret-color:#75DFFF!important;
     position:relative!important;
-    z-index:3!important;
+    z-index:5!important;
   }
   #app:not(.data-tab) .command-dock #ci::placeholder{
     color:transparent!important;
@@ -5636,62 +5641,43 @@ status();
     background:transparent!important;
   }
   #app:not(.data-tab) .zero-letter-layer .zero-letter-inner{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    flex:0 0 auto;
-    white-space:pre;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 auto!important;
+    white-space:pre!important;
     will-change:transform;
   }
   #app:not(.data-tab) .zero-letter-layer .zero-letter{
-    display:inline-block;
-    flex:0 0 auto;
-    white-space:pre;
+    display:inline-block!important;
+    flex:0 0 auto!important;
+    white-space:pre!important;
     transform-origin:50% 72%;
-    color:#EAF8FF;
+    color:#EAF8FF!important;
+    opacity:1;
   }
   #app:not(.data-tab) .zero-letter-layer .zero-letter-placeholder{
-    color:rgba(190,211,225,.55);
-  }
-  #app:not(.data-tab) .zero-letter-layer .zero-letter.is-entering{
-    animation:zeroLetterOpen .48s cubic-bezier(.16,1,.3,1) both;
-  }
-  @keyframes zeroLetterOpen{
-    0%{
-      opacity:0;
-      transform:translate3d(0,.52em,0) scale(.48) rotateX(-28deg);
-      filter:blur(6px);
-      text-shadow:0 0 0 rgba(88,223,255,0);
-    }
-    58%{
-      opacity:1;
-      transform:translate3d(0,-.09em,0) scale(1.12) rotateX(3deg);
-      filter:blur(0);
-      text-shadow:0 0 13px rgba(88,223,255,.42);
-    }
-    78%{transform:translate3d(0,0,0) scale(.975)}
-    100%{
-      opacity:1;
-      transform:translate3d(0,0,0) scale(1);
-      filter:blur(0);
-      text-shadow:0 0 0 rgba(88,223,255,0);
-    }
+    color:rgba(190,211,225,.55)!important;
   }
   @media(prefers-reduced-motion:reduce){
-    #app:not(.data-tab) .zero-letter-layer .zero-letter.is-entering{animation:none!important}
+    #app:not(.data-tab) .zero-letter-layer .zero-letter{animation:none!important}
   }
 </style>
 <script id="zero-per-character-input-runtime">
 (function(){
   'use strict';
+  const STYLE_ID='zero-precision-navbar-and-letter-animation';
+  let installedInput=null;
 
   function install(){
     const input=document.getElementById('ci');
-    if(!input||input.dataset.zeroLetterReady==='true')return;
+    if(!input||input===installedInput)return;
     const row=input.closest('.row2');
     if(!row)return;
-    input.dataset.zeroLetterReady='true';
+    installedInput=input;
 
+    const oldLayer=row.querySelector('.zero-letter-layer');
+    if(oldLayer)oldLayer.remove();
     const layer=document.createElement('div');
     layer.className='zero-letter-layer';
     layer.setAttribute('aria-hidden','true');
@@ -5701,25 +5687,26 @@ status();
     row.appendChild(layer);
 
     let previous='';
+    let composing=false;
+    let renderQueued=false;
+    const glyphs=[];
     const reduced=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function syncGeometry(){
+      if(!input.isConnected||!row.isConnected)return;
       const ir=input.getBoundingClientRect();
       const rr=row.getBoundingClientRect();
       const cs=getComputedStyle(input);
-      const borderLeft=parseFloat(cs.borderLeftWidth)||0;
-      const borderRight=parseFloat(cs.borderRightWidth)||0;
-      const borderTop=parseFloat(cs.borderTopWidth)||0;
-      const borderBottom=parseFloat(cs.borderBottomWidth)||0;
-      const padLeft=parseFloat(cs.paddingLeft)||0;
-      const padRight=parseFloat(cs.paddingRight)||0;
-
-      /* Match the input's usable text box, not its outer border box. */
-      layer.style.left=(ir.left-rr.left+borderLeft+padLeft)+'px';
-      layer.style.top=(ir.top-rr.top+borderTop)+'px';
-      layer.style.width=Math.max(0,ir.width-borderLeft-borderRight-padLeft-padRight)+'px';
-      layer.style.height=Math.max(0,ir.height-borderTop-borderBottom)+'px';
-
+      const bl=parseFloat(cs.borderLeftWidth)||0;
+      const br=parseFloat(cs.borderRightWidth)||0;
+      const bt=parseFloat(cs.borderTopWidth)||0;
+      const bb=parseFloat(cs.borderBottomWidth)||0;
+      const pl=parseFloat(cs.paddingLeft)||0;
+      const pr=parseFloat(cs.paddingRight)||0;
+      layer.style.left=(ir.left-rr.left+bl+pl)+'px';
+      layer.style.top=(ir.top-rr.top+bt)+'px';
+      layer.style.width=Math.max(0,ir.width-bl-br-pl-pr)+'px';
+      layer.style.height=Math.max(0,ir.height-bt-bb)+'px';
       for(const key of ['fontFamily','fontSize','fontWeight','fontStyle','fontVariant','lineHeight','letterSpacing','wordSpacing','textTransform']){
         layer.style[key]=cs[key];
       }
@@ -5727,91 +5714,110 @@ status();
       inner.style.transform='translateX('+(-input.scrollLeft)+'px)';
     }
 
-    function makeGlyph(character,staggerIndex,animate){
+    function animateGlyph(glyph,index){
+      if(reduced()||typeof glyph.animate!=='function')return;
+      const delay=Math.min(index*24,168);
+      try{
+        const animation=glyph.animate([
+          {opacity:0,transform:'translate3d(0,13px,0) scale(.22) rotateX(-38deg)',filter:'blur(7px)',textShadow:'0 0 0 rgba(88,223,255,0)'},
+          {opacity:1,transform:'translate3d(0,-2px,0) scale(1.16) rotateX(4deg)',filter:'blur(0)',textShadow:'0 0 15px rgba(88,223,255,.48)',offset:.62},
+          {opacity:1,transform:'translate3d(0,0,0) scale(.97) rotateX(0)',filter:'blur(0)',textShadow:'0 0 4px rgba(88,223,255,.18)',offset:.82},
+          {opacity:1,transform:'translate3d(0,0,0) scale(1) rotateX(0)',filter:'blur(0)',textShadow:'0 0 0 rgba(88,223,255,0)'}
+        ],{duration:520,delay,easing:'cubic-bezier(.16,1,.3,1)',fill:'both'});
+        animation.onfinish=()=>{glyph.style.opacity='1';glyph.style.transform='none';glyph.style.filter='none';glyph.style.textShadow='none';};
+      }catch(_){
+        glyph.style.opacity='0';
+        glyph.style.transform='translateY(10px) scale(.4)';
+        requestAnimationFrame(()=>{glyph.style.transition='opacity .42s ease,transform .52s cubic-bezier(.16,1,.3,1)';glyph.style.opacity='1';glyph.style.transform='none';});
+      }
+    }
+
+    function makeGlyph(character,index,shouldAnimate){
       const glyph=document.createElement('span');
       glyph.className='zero-letter';
       glyph.textContent=character===' '?'\u00A0':character;
-      if(animate&&!reduced()){
-        glyph.classList.add('is-entering');
-        glyph.style.animationDelay=Math.min(staggerIndex*30,210)+'ms';
-        glyph.addEventListener('animationend',function(){
-          glyph.classList.remove('is-entering');
-          glyph.style.animationDelay='';
-        },{once:true});
-      }
+      if(shouldAnimate)animateGlyph(glyph,index);
       return glyph;
     }
 
-    function render(animateInserted){
+    function render(shouldAnimate){
+      if(!input.isConnected)return;
       const value=input.value||'';
       const oldChars=Array.from(previous);
-      const newChars=Array.from(value);
+      const nextChars=Array.from(value);
       const oldNodes=Array.from(inner.querySelectorAll('.zero-letter'));
 
-      if(!newChars.length){
+      if(!nextChars.length){
         inner.replaceChildren();
-        const placeholder=document.createElement('span');
-        placeholder.className='zero-letter-placeholder';
-        placeholder.textContent=input.placeholder||'';
-        inner.appendChild(placeholder);
-        previous=value;
+        if(input.placeholder){
+          const placeholder=document.createElement('span');
+          placeholder.className='zero-letter-placeholder';
+          placeholder.textContent=input.placeholder;
+          inner.appendChild(placeholder);
+        }
+        previous='';
         syncGeometry();
         return;
       }
 
       let prefix=0;
-      while(prefix<oldChars.length&&prefix<newChars.length&&oldChars[prefix]===newChars[prefix])prefix++;
-
+      while(prefix<oldChars.length&&prefix<nextChars.length&&oldChars[prefix]===nextChars[prefix])prefix++;
       let suffix=0;
-      while(
-        suffix<oldChars.length-prefix&&
-        suffix<newChars.length-prefix&&
-        oldChars[oldChars.length-1-suffix]===newChars[newChars.length-1-suffix]
-      )suffix++;
+      while(suffix<oldChars.length-prefix&&suffix<nextChars.length-prefix&&
+        oldChars[oldChars.length-1-suffix]===nextChars[nextChars.length-1-suffix])suffix++;
 
-      /* Preserve unchanged glyph nodes so their entry animations are never
-         cancelled by the next keystroke. Only the edited range is replaced. */
       const oldEnd=oldChars.length-suffix;
-      const newEnd=newChars.length-suffix;
+      const newEnd=nextChars.length-suffix;
       const anchor=suffix?oldNodes[oldEnd]:null;
 
       if(!oldChars.length)inner.replaceChildren();
       for(let i=prefix;i<oldEnd;i++){
-        if(oldNodes[i]&&oldNodes[i].parentNode===inner)inner.removeChild(oldNodes[i]);
+        if(oldNodes[i]&&oldNodes[i].parentNode===inner)oldNodes[i].remove();
       }
-
       const fragment=document.createDocumentFragment();
       for(let i=prefix;i<newEnd;i++){
-        fragment.appendChild(makeGlyph(newChars[i],i-prefix,animateInserted));
+        fragment.appendChild(makeGlyph(nextChars[i],i-prefix,shouldAnimate));
       }
       inner.insertBefore(fragment,anchor);
-
       previous=value;
       syncGeometry();
     }
 
-    input.addEventListener('input',function(event){
-      render(!event.isComposing);
-    });
-    input.addEventListener('compositionend',function(){
-      render(true);
-    });
+    function queueRender(animate){
+      if(renderQueued)return;
+      renderQueued=true;
+      requestAnimationFrame(()=>{renderQueued=false;render(animate&&!composing);});
+    }
+
+    input.addEventListener('beforeinput',()=>queueRender(true),true);
+    input.addEventListener('input',e=>render(!e.isComposing&&!composing),true);
+    input.addEventListener('change',()=>render(false),true);
+    input.addEventListener('compositionstart',()=>{composing=true;},true);
+    input.addEventListener('compositionend',()=>{composing=false;render(true);},true);
+    input.addEventListener('keyup',()=>queueRender(true),true);
+    input.addEventListener('paste',()=>queueRender(true),true);
+    input.addEventListener('cut',()=>queueRender(false),true);
     input.addEventListener('scroll',syncGeometry,{passive:true});
     input.addEventListener('focus',syncGeometry);
     input.addEventListener('blur',syncGeometry);
     window.addEventListener('resize',syncGeometry,{passive:true});
-
     if(window.ResizeObserver){
       const observer=new ResizeObserver(syncGeometry);
       observer.observe(row);
       observer.observe(input);
     }
-
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(syncGeometry).catch(()=>{});
     render(false);
   }
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
-  else install();
+  function boot(){
+    install();
+    const observer=new MutationObserver(()=>install());
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    window.addEventListener('pageshow',install);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
 })();
 </script>
 </body></html>
