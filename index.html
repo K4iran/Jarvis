@@ -5554,76 +5554,113 @@ status();
   }
 </style>
 <style id="zero-precision-navbar-and-letter-animation">
-  /* Keep the settings control in its original 44px left-hand slot.
-     The four navigation/mode icons each receive one equal-width grid cell. */
+  /* Compact flex layout: Home/Stats first, modes evenly spaced, Settings fixed at the far right. */
   #bar{
-    display:grid!important;
-    grid-template-columns:44px repeat(4,minmax(0,1fr))!important;
-    align-items:center!important;
-    column-gap:0!important;
-    justify-content:stretch!important;
-  }
-  #bar .br{
-    grid-column:1!important;
     display:flex!important;
-    flex:0 0 44px!important;
-    width:44px!important;
-    min-width:44px!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    gap:5px!important;
+    height:60px!important;
+    min-height:60px!important;
+    max-height:60px!important;
+    padding:5px 8px!important;
+    box-sizing:border-box!important;
+  }
+  #bar .tabs{
+    order:1!important;
+    display:flex!important;
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
     margin:0!important;
     padding:0!important;
-    justify-content:flex-start!important;
+    gap:0!important;
+    align-items:center!important;
+    justify-content:space-evenly!important;
+  }
+  #bar .rt{
+    order:2!important;
+    display:flex!important;
+    flex:1 1 0!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0!important;
+    gap:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  #bar .mode-actions{
+    display:flex!important;
+    flex:1 1 auto!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0!important;
+    gap:0!important;
+    align-items:center!important;
+    justify-content:space-evenly!important;
+  }
+  #bar .br{
+    order:3!important;
+    display:flex!important;
+    flex:0 0 38px!important;
+    width:38px!important;
+    min-width:38px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
   }
   #bar .settings-cog{
-    flex:0 0 42px!important;
-    width:42px!important;
-    min-width:42px!important;
-    height:42px!important;
+    display:grid!important;
+    flex:0 0 31px!important;
+    width:31px!important;
+    min-width:31px!important;
+    max-width:31px!important;
+    height:32px!important;
+    min-height:32px!important;
+    max-height:32px!important;
     margin:0!important;
+    padding:0!important;
   }
-  #bar .tabs,
-  #bar .rt,
-  #bar .mode-actions{
-    display:contents!important;
+  #bar .tabs .tab{
+    display:grid!important;
+    flex:0 0 32px!important;
+    width:32px!important;
+    min-width:32px!important;
+    max-width:32px!important;
+    height:32px!important;
+    min-height:32px!important;
+    max-height:32px!important;
+    margin:0!important;
+    padding:0!important;
+    place-items:center!important;
   }
-  #bar #homeTab{grid-column:2!important}
-  #bar #dataTab{grid-column:3!important}
-  #bar #battleModeLaunch{grid-column:4!important}
-  #bar #focusLaunch{grid-column:5!important}
-  #bar .tabs .tab,
   #bar .mode-actions button{
-    justify-self:center!important;
-    align-self:center!important;
+    display:grid!important;
+    flex:0 0 31px!important;
+    width:31px!important;
+    min-width:31px!important;
+    max-width:31px!important;
+    height:32px!important;
+    min-height:32px!important;
+    max-height:32px!important;
     margin:0!important;
-    flex:none!important;
+    padding:0!important;
+    place-items:center!important;
   }
   #bar .rt .stat{display:none!important}
   @media(max-width:560px){
     #bar{
-      grid-template-columns:44px repeat(4,minmax(0,1fr))!important;
-      column-gap:0!important;
+      height:60px!important;
+      min-height:60px!important;
+      max-height:60px!important;
+      padding:5px 8px!important;
+      gap:5px!important;
     }
-    #bar .br{
-      flex:0 0 44px!important;
-      width:44px!important;
-      min-width:44px!important;
-    }
-    #bar .settings-cog{
-      width:42px!important;
-      min-width:42px!important;
-      height:42px!important;
-    }
-    #bar .tabs .tab{
-      width:42px!important;
-      height:42px!important;
-      min-height:42px!important;
-      padding:8px 7px!important;
-    }
-    #bar .mode-actions button{
-      width:42px!important;
-      height:42px!important;
-      min-width:42px!important;
-      min-height:42px!important;
-    }
+    #bar .tabs,
+    #bar .rt{min-width:0!important}
+    #bar .br{flex-basis:38px!important;width:38px!important;min-width:38px!important}
   }
 
   /* Keep the native input for keyboard/caret; render animated glyphs above it. */
