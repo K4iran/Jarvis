@@ -4498,8 +4498,11 @@ status();
     if(!nr.width||!r.width)return;
     const width=r.width+8;
     const height=r.height+8;
-    const x=r.left-nr.left-nav.clientLeft+(r.width-width)/2;
-    const y=r.top-nr.top-nav.clientTop+(r.height-height)/2;
+    const navStyle=getComputedStyle(nav);
+    const padLeft=parseFloat(navStyle.paddingLeft)||0;
+    const padTop=parseFloat(navStyle.paddingTop)||0;
+    const x=r.left-nr.left-nav.clientLeft-padLeft+(r.width-width)/2;
+    const y=r.top-nr.top-nav.clientTop-padTop+(r.height-height)/2;
     const target='translate3d('+x+'px,'+y+'px,0)';
     const changed=currentId!==active.id;
     indicator.style.left='0px';
@@ -6001,8 +6004,8 @@ status();
     const navRect=nav.getBoundingClientRect();
     const width=navRect.width;
     if(width>0){
-      controls.style.width=width+'px';
-      controls.style.maxWidth='none';
+      controls.style.setProperty('width',width+'px','important');
+      controls.style.setProperty('max-width','none','important');
     }
     const centerRect=center.getBoundingClientRect();
     const rowRect=row.getBoundingClientRect();
