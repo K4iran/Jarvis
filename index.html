@@ -6039,10 +6039,14 @@ status();
 </script>
 
 <style id="zero-analytics-navbar-parity">
-/* Keep the Visuals & Stats header in the same finished position as the Home navbar. */
+/* Match the Home navbar's position and grid-item behaviour in Visuals & Stats. */
 #app.data-tab #bar{
   margin-top:20px!important;
   transform:translateY(4px)!important;
+}
+/* Home exposes the mode buttons as individual grid items; do the same in data view. */
+#app.data-tab #bar .mode-actions{
+  display:contents!important;
 }
 </style>
 </body></html>
