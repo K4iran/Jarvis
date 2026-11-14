@@ -4502,13 +4502,14 @@ status();
     ensureIndicator();
     const nr=nav.getBoundingClientRect(),r=active.getBoundingClientRect();
     if(!nr.width||!r.width)return;
-    const size=Math.min(44,r.width,r.height);
-    const x=r.left-nr.left+(r.width-size)/2;
-    const y=r.top-nr.top+(r.height-size)/2;
+    const width=Math.min(52,r.width+10);
+    const height=Math.min(44,r.height+4);
+    const x=r.left-nr.left+(r.width-width)/2;
+    const y=r.top-nr.top+(r.height-height)/2;
     const target='translate3d('+x+'px,'+y+'px,0)';
     const changed=currentId!==active.id;
-    indicator.style.width=size+'px';
-    indicator.style.height=size+'px';
+    indicator.style.width=width+'px';
+    indicator.style.height=height+'px';
     if(!currentId||reduced){
       if(indicator._motion){indicator._motion.cancel();indicator._motion=null}
       indicator.style.transform=target;
@@ -5552,117 +5553,177 @@ status();
     #app:not(.data-tab) .command-dock .row2{transition:none!important}
   }
 </style>
-<style id="zero-balanced-navbar-and-keystroke-motion">
-  /* Slightly tighter header; each control group shares the available space evenly. */
+<style id="zero-precision-navbar-and-letter-animation">
+  /* Five controls sit on a single mathematical grid: identical centre-to-centre spacing. */
   #bar{
+    display:grid!important;
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    align-items:center!important;
+    justify-items:center!important;
+    column-gap:0!important;
     padding:4px 12px!important;
-    gap:8px!important;
   }
-  #bar .br{flex:1 1 0!important;justify-content:flex-start!important}
-  #bar .tabs{
-    flex:2 1 0!important;
-    justify-content:space-evenly!important;
-    gap:0!important;
+  #bar .br,#bar .tabs,#bar .rt,#bar .mode-actions{display:contents!important}
+  #bar .settings-cog{grid-column:1!important;grid-row:1!important}
+  #bar #homeTab{grid-column:2!important;grid-row:1!important}
+  #bar #dataTab{grid-column:3!important;grid-row:1!important}
+  #bar #battleModeLaunch{grid-column:4!important;grid-row:1!important}
+  #bar #focusLaunch{grid-column:5!important;grid-row:1!important}
+  #bar #stat{grid-column:6!important;grid-row:1!important;justify-self:center!important}
+  #bar .settings-cog,#bar .tabs .tab,#bar .mode-actions button{
+    justify-self:center!important;
+    flex:none!important;
+    width:40px!important;min-width:40px!important;max-width:40px!important;
+    height:40px!important;min-height:40px!important;max-height:40px!important;
+    margin:0!important;padding:0!important;
   }
-  #bar .rt{
-    flex:2 1 0!important;
-    justify-content:flex-end!important;
-    min-width:0!important;
-  }
-  #bar .rt .mode-actions{
-    flex:1 1 auto!important;
-    justify-content:space-evenly!important;
-    gap:0!important;
-  }
-  #bar .settings-cog,
-  #bar .tabs .tab,
-  #bar .mode-actions button{
-    flex-basis:40px!important;
-    width:40px!important;
-    min-width:40px!important;
-    height:40px!important;
-    min-height:40px!important;
-  }
+  #bar .tabs .tab{display:grid!important;place-items:center!important}
   #bar .zero-liquid-indicator{
-    width:44px!important;
-    height:44px!important;
+    width:52px!important;height:44px!important;
+    border-radius:14px!important;
+    clip-path:none!important;
   }
-  @media(max-width:560px){
-    #bar{padding:3px 7px!important;gap:4px!important}
-    #bar .br{flex:1 1 0!important}
-    #bar .tabs{flex:2 1 0!important;gap:0!important}
-    #bar .rt{flex:2 1 0!important}
-    #bar .rt .mode-actions{gap:0!important}
-    #bar .settings-cog,
-    #bar .tabs .tab,
-    #bar .mode-actions button{
-      flex-basis:36px!important;
-      width:36px!important;
-      min-width:36px!important;
-      height:36px!important;
-      min-height:36px!important;
+  #bar .zero-liquid-indicator:before,
+  #bar .zero-liquid-indicator:after{border-radius:inherit!important}
+  @media(max-width:620px){
+    #bar{
+      grid-template-columns:repeat(5,minmax(0,1fr))!important;
+      padding:3px 8px!important;
     }
-    #bar .settings-cog svg,#bar .tabs .tab svg,#bar .mode-actions button svg{
-      width:18px!important;height:18px!important;
+    #bar #stat{display:none!important}
+    #bar .settings-cog,#bar .tabs .tab,#bar .mode-actions button{
+      width:36px!important;min-width:36px!important;max-width:36px!important;
+      height:36px!important;min-height:36px!important;max-height:36px!important;
+    }
+    #bar .zero-liquid-indicator{
+      width:46px!important;height:40px!important;border-radius:13px!important;
     }
   }
-  /* The ripple is a single lightweight overlay, triggered only by actual typing. */
-  #app:not(.data-tab) .command-dock .row2{isolation:isolate!important}
-  #app:not(.data-tab) .command-dock .zero-key-ripple{
-    position:absolute;z-index:1;inset:1px;display:block;pointer-events:none;
-    border:1px solid rgba(110,205,255,.48);border-radius:inherit;
-    opacity:0;transform:scale(.985);
-    box-shadow:0 0 0 0 rgba(70,165,255,0);
+
+  /* A transparent native input keeps the real caret and keyboard; this layer renders
+     each glyph independently so the letters themselves can animate into place. */
+  #app:not(.data-tab) .command-dock .row2{position:relative!important}
+  #app:not(.data-tab) .command-dock #ci{
+    color:transparent!important;
+    -webkit-text-fill-color:transparent!important;
+    text-shadow:none!important;
+    caret-color:#75DFFF!important;
+    position:relative!important;z-index:3!important;
   }
-  #app:not(.data-tab) .command-dock #ci{z-index:2!important}
+  #app:not(.data-tab) .command-dock #ci::placeholder{
+    color:transparent!important;-webkit-text-fill-color:transparent!important;
+  }
+  #app:not(.data-tab) .zero-letter-layer{
+    position:absolute;z-index:2;display:block;overflow:hidden;
+    pointer-events:none;white-space:nowrap;color:#EAF8FF;
+    text-align:left;box-sizing:border-box;
+    contain:layout paint;
+  }
+  #app:not(.data-tab) .zero-letter-layer .zero-letter-inner{
+    display:inline-block;white-space:pre;will-change:transform;
+  }
+  #app:not(.data-tab) .zero-letter-layer .zero-letter{
+    display:inline-block;white-space:pre;
+    transform-origin:50% 75%;
+  }
+  #app:not(.data-tab) .zero-letter-layer .zero-letter-placeholder{
+    color:rgba(190,211,225,.55);
+  }
   @media(prefers-reduced-motion:reduce){
-    #app:not(.data-tab) .command-dock .zero-key-ripple{display:none!important}
+    #app:not(.data-tab) .zero-letter-layer .zero-letter{animation:none!important}
   }
 </style>
-<script id="zero-lightweight-keystroke-runtime">
+<script id="zero-per-character-input-runtime">
 (function(){
   'use strict';
   function install(){
     const input=document.getElementById('ci');
-    if(!input||input.dataset.zeroKeystrokeReady==='true')return;
-    input.dataset.zeroKeystrokeReady='true';
+    if(!input||input.dataset.zeroLetterReady==='true')return;
     const row=input.closest('.row2');
     if(!row)return;
-    let ripple=row.querySelector('.zero-key-ripple');
-    if(!ripple){
-      ripple=document.createElement('span');
-      ripple.className='zero-key-ripple';
-      ripple.setAttribute('aria-hidden','true');
-      row.appendChild(ripple);
-    }
-    let textMotion=null,rowMotion=null,rippleMotion=null;
-    input.addEventListener('input',function(){
-      if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-      if(typeof input.animate!=='function')return;
-      if(textMotion)textMotion.cancel();
-      if(rowMotion)rowMotion.cancel();
-      if(rippleMotion)rippleMotion.cancel();
+    input.dataset.zeroLetterReady='true';
 
-      /* A quick blue pulse follows the newly entered glyphs, then settles cleanly. */
-      textMotion=input.animate([
-        {filter:'brightness(1) drop-shadow(0 0 0 rgba(95,205,255,0))'},
-        {filter:'brightness(1.28) drop-shadow(0 0 3px rgba(95,205,255,.62))',offset:.28},
-        {filter:'brightness(1.08) drop-shadow(0 0 1px rgba(95,205,255,.16))'}
-      ],{duration:310,easing:'cubic-bezier(.16,.8,.25,1)'});
-      rowMotion=row.animate([
-        {boxShadow:'inset 0 -1px 0 rgba(88,190,255,.18),inset 0 -8px 18px rgba(39,141,255,.045),0 4px 16px rgba(0,0,0,.16)'},
-        {boxShadow:'inset 0 0 0 1px rgba(112,207,255,.18),0 0 13px rgba(65,160,255,.17),inset 0 -8px 18px rgba(39,141,255,.07)'},
-        {boxShadow:'inset 0 -1px 0 rgba(88,190,255,.18),inset 0 -8px 18px rgba(39,141,255,.045),0 4px 16px rgba(0,0,0,.16)'}
-      ],{duration:360,easing:'cubic-bezier(.16,.8,.25,1)'});
-      rippleMotion=ripple.animate([
-        {opacity:0,transform:'scale(.985)'},
-        {opacity:.72,transform:'scale(1)',offset:.22},
-        {opacity:0,transform:'scale(1.012)'}
-      ],{duration:380,easing:'cubic-bezier(.16,.8,.25,1)'});
-      textMotion.onfinish=function(){textMotion=null};
-      rowMotion.onfinish=function(){rowMotion=null};
-      rippleMotion.onfinish=function(){rippleMotion=null};
+    const layer=document.createElement('div');
+    layer.className='zero-letter-layer';
+    layer.setAttribute('aria-hidden','true');
+    const inner=document.createElement('span');
+    inner.className='zero-letter-inner';
+    layer.appendChild(inner);
+    row.appendChild(layer);
+
+    let previous=input.value||'';
+    let resizeObserver=null;
+    const reduced=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function syncGeometry(){
+      const ir=input.getBoundingClientRect(),rr=row.getBoundingClientRect();
+      const cs=getComputedStyle(input);
+      layer.style.left=(ir.left-rr.left)+'px';
+      layer.style.top=(ir.top-rr.top)+'px';
+      layer.style.width=ir.width+'px';
+      layer.style.height=ir.height+'px';
+      for(const key of ['fontFamily','fontSize','fontWeight','fontStyle','fontVariant','lineHeight','letterSpacing','wordSpacing','textIndent','textTransform','paddingTop','paddingRight','paddingBottom','paddingLeft']){
+        layer.style[key]=cs[key];
+      }
+      layer.style.textAlign=cs.textAlign;
+      layer.style.color=cs.color==='rgba(0, 0, 0, 0)'?'#EAF8FF':cs.color;
+      inner.style.transform='translateX('+(-input.scrollLeft)+'px)';
+    }
+
+    function commonDiff(oldText,newText){
+      let start=0;
+      while(start<oldText.length&&start<newText.length&&oldText[start]===newText[start])start++;
+      let suffix=0;
+      while(suffix<oldText.length-start&&suffix<newText.length-start&&oldText[oldText.length-1-suffix]===newText[newText.length-1-suffix])suffix++;
+      return {start,end:newText.length-suffix};
+    }
+
+    function render(animateNew){
+      const value=input.value||'';
+      const diff=commonDiff(previous,value);
+      inner.replaceChildren();
+      if(!value){
+        const placeholder=document.createElement('span');
+        placeholder.className='zero-letter-placeholder';
+        placeholder.textContent=input.placeholder||'';
+        inner.appendChild(placeholder);
+      }else{
+        for(let i=0;i<value.length;i++){
+          const glyph=document.createElement('span');
+          glyph.className='zero-letter';
+          glyph.textContent=value[i]===' '?'\u00A0':value[i];
+          inner.appendChild(glyph);
+          if(animateNew&&i>=diff.start&&i<diff.end&&!reduced()&&typeof glyph.animate==='function'){
+            glyph.animate([
+              {opacity:0,transform:'translate3d(0,11px,0) scale(.78)',filter:'blur(4px)'},
+              {opacity:1,transform:'translate3d(0,-2px,0) scale(1.07)',filter:'blur(0)',offset:.68},
+              {opacity:1,transform:'translate3d(0,0,0) scale(1)',filter:'blur(0)'}
+            ],{
+              duration:430,
+              delay:Math.min((i-diff.start)*24,180),
+              easing:'cubic-bezier(.16,1,.3,1)',
+              fill:'both'
+            });
+          }
+        }
+      }
+      previous=value;
+      syncGeometry();
+    }
+
+    input.addEventListener('input',function(event){
+      render(!event.isComposing);
     });
+    input.addEventListener('scroll',syncGeometry,{passive:true});
+    input.addEventListener('focus',syncGeometry);
+    input.addEventListener('blur',syncGeometry);
+    window.addEventListener('resize',syncGeometry,{passive:true});
+    if(window.ResizeObserver){
+      resizeObserver=new ResizeObserver(syncGeometry);
+      resizeObserver.observe(row);
+      resizeObserver.observe(input);
+    }
+    render(false);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
   else install();
