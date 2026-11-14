@@ -4480,9 +4480,9 @@ status();
   const nav=document.querySelector('#bar .tabs');
   if(!nav||nav.dataset.zeroLiquidReady==='true')return;
   nav.dataset.zeroLiquidReady='true';
-  let indicator=null,currentId='',frame=0;
+  let indicator=null,currentId='',frame=0,ro=null;
   const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const lensWidth=56;
+  const lensWidth=56,lensHeight=42,magnification=1.2;
   function ensureIndicator(){
     if(indicator&&indicator.isConnected)return;
     indicator=nav.querySelector('.zero-liquid-indicator');
@@ -4492,10 +4492,52 @@ status();
       indicator.setAttribute('aria-hidden','true');
       nav.insertBefore(indicator,nav.firstChild);
     }
-    indicator.innerHTML='<span class="lens-icon"></span>';
+    indicator.innerHTML='<span class="lens-magnified-layer"></span>';
   }
   function activeButton(){
     return nav.querySelector('#skillTreeTab[aria-pressed="true"]')||nav.querySelector('.tab.active')||nav.querySelector('.tab');
+  }
+  function rebuildMagnifiedLayer(nr){
+    const layer=indicator.querySelector('.lens-magnified-layer');
+    if(!layer)return;
+    layer.innerHTML='';
+    layer.style.width=nr.width+'px';
+    layer.style.height=nr.height+'px';
+    nav.querySelectorAll('.tab').forEach(button=>{
+      const r=button.getBoundingClientRect();
+      const copy=button.cloneNode(true);
+      copy.removeAttribute('id');
+      copy.removeAttribute('aria-pressed');
+      copy.classList.remove('active');
+      copy.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+      copy.querySelectorAll('button').forEach(el=>{
+        el.removeAttribute('id');
+        el.removeAttribute('aria-pressed');
+        el.tabIndex=-1;
+      });
+      copy.style.setProperty('position','absolute','important');
+      copy.style.setProperty('left',(r.left-nr.left)+'px','important');
+      copy.style.setProperty('top',(r.top-nr.top)+'px','important');
+      copy.style.setProperty('width',r.width+'px','important');
+      copy.style.setProperty('height',r.height+'px','important');
+      copy.style.setProperty('min-width',r.width+'px','important');
+      copy.style.setProperty('z-index','1','important');
+      copy.style.setProperty('transform','none','important');
+      copy.style.setProperty('animation','none','important');
+      copy.style.setProperty('pointer-events','none','important');
+      layer.appendChild(copy);
+    });
+  }
+  function syncMagnification(){
+    if(!indicator||!indicator.isConnected)return;
+    const layer=indicator.querySelector('.lens-magnified-layer');
+    if(!layer)return;
+    const m=new DOMMatrixReadOnly(getComputedStyle(indicator).transform);
+    const x=m.m41,y=m.m42;
+    const cx=lensWidth/2,cy=lensHeight/2,k=reduced?1:magnification;
+    const ox=cx-(x+cx)*k;
+    const oy=cy-(y+cy)*k;
+    layer.style.transform='translate3d('+ox+'px,'+oy+'px,0) scale('+k+')';
   }
   function positionIndicator(){
     frame=0;
@@ -4505,24 +4547,18 @@ status();
     const nr=nav.getBoundingClientRect(),r=active.getBoundingClientRect();
     if(!nr.width||!r.width)return;
     const x=r.left-nr.left+(r.width-lensWidth)/2;
-    const y=r.top-nr.top+(r.height-42)/2;
+    const y=r.top-nr.top+(r.height-lensHeight)/2;
     const target='translate3d('+x+'px,'+y+'px,0)';
     const changed=currentId!==active.id;
-    const icon=indicator.querySelector('.lens-icon');
-    if(changed&&icon){
-      const clone=active.cloneNode(true);
-      clone.removeAttribute('id');
-      clone.removeAttribute('aria-pressed');
-      clone.classList.remove('active');
-      clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-      icon.innerHTML=clone.innerHTML;
-    }
     indicator.style.width=lensWidth+'px';
-    indicator.style.height='42px';
+    indicator.style.height=lensHeight+'px';
+    rebuildMagnifiedLayer(nr);
     if(!currentId||reduced){
+      if(indicator._motion){indicator._motion.cancel();indicator._motion=null}
       indicator.style.transform=target;
       indicator.classList.remove('is-moving');
       indicator.classList.add('settled');
+      syncMagnification();
     }else if(changed){
       if(indicator._motion)indicator._motion.cancel();
       indicator.classList.remove('settled','is-moving');
@@ -4534,14 +4570,24 @@ status();
         {transform:target,offset:1}
       ],{duration:1550,easing:'cubic-bezier(.18,.78,.18,1)',fill:'forwards'});
       indicator._motion=motion;
+      const track=()=>{
+        if(indicator._motion!==motion||motion.playState==='finished')return;
+        syncMagnification();
+        indicator._lensFrame=requestAnimationFrame(track);
+      };
+      indicator._lensFrame=requestAnimationFrame(track);
       motion.onfinish=function(){
         if(indicator._motion!==motion)return;
+        cancelAnimationFrame(indicator._lensFrame);
         indicator.style.transform=target;
         indicator.classList.remove('is-moving');
         indicator.classList.add('settled');
         motion.cancel();
         indicator._motion=null;
+        syncMagnification();
       };
+    }else{
+      syncMagnification();
     }
     currentId=active.id||'active';
     indicator.dataset.ready='true';
@@ -4550,7 +4596,7 @@ status();
   const observer=new MutationObserver(schedule);
   observer.observe(nav,{subtree:true,childList:true,attributes:true,attributeFilter:['class','aria-pressed']});
   if(window.ResizeObserver){
-    const ro=new ResizeObserver(schedule);ro.observe(nav);
+    ro=new ResizeObserver(schedule);ro.observe(nav);
     nav.querySelectorAll('.tab').forEach(t=>ro.observe(t));
     new MutationObserver(()=>nav.querySelectorAll('.tab').forEach(t=>ro.observe(t))).observe(nav,{childList:true});
   }
@@ -5356,73 +5402,59 @@ status();
 
 
 <style id="zero-navbar-optical-glass-lens">
-  /* Replace every previous liquid-ring treatment with one quiet optical-glass lens. */
+  /* Neutral optical lens: magnify the actual navbar content passing beneath it. */
   #bar .tabs{position:relative!important;isolation:isolate!important}
   #bar .tabs .tab{position:relative!important;z-index:2!important}
   #bar .zero-liquid-indicator{
     position:absolute!important;left:0!important;top:0!important;
-    z-index:1!important;display:block!important;pointer-events:none!important;
+    z-index:4!important;display:block!important;pointer-events:none!important;
     box-sizing:border-box!important;overflow:hidden!important;
     border-radius:22px!important;
-    border:1px solid rgba(225,244,255,.27)!important;
-    background:
-      linear-gradient(145deg,rgba(245,251,255,.20),rgba(175,211,239,.105) 45%,rgba(224,241,255,.13))!important;
-    -webkit-backdrop-filter:blur(1.5px) saturate(1.38) contrast(1.06)!important;
-    backdrop-filter:blur(1.5px) saturate(1.38) contrast(1.06)!important;
+    border:1px solid rgba(255,255,255,.32)!important;
+    background:rgba(245,248,252,.075)!important;
+    -webkit-backdrop-filter:blur(1.2px) saturate(1.08)!important;
+    backdrop-filter:blur(1.2px) saturate(1.08)!important;
     box-shadow:
-      inset 0 1px 1px rgba(255,255,255,.38),
-      inset 0 -1px 2px rgba(175,220,255,.13),
-      0 2px 9px rgba(100,170,225,.10)!important;
-    transform-origin:center!important;
+      inset 0 1px 1px rgba(255,255,255,.34),
+      inset 0 -1px 2px rgba(255,255,255,.10),
+      0 2px 9px rgba(0,0,0,.10)!important;
+    transform-origin:top left!important;
     will-change:transform!important;
   }
   #bar .zero-liquid-indicator:before{
     content:""!important;position:absolute!important;inset:0!important;
-    border-radius:inherit!important;pointer-events:none!important;
+    z-index:3!important;border-radius:inherit!important;pointer-events:none!important;
     background:
-      linear-gradient(112deg,rgba(255,255,255,.28),transparent 31%,transparent 70%,rgba(255,255,255,.09)),
-      radial-gradient(ellipse at 18% 0%,rgba(255,255,255,.22),transparent 48%)!important;
-    opacity:.8!important;
+      linear-gradient(110deg,rgba(255,255,255,.24),transparent 32%,transparent 72%,rgba(255,255,255,.12)),
+      radial-gradient(ellipse at 22% 0%,rgba(255,255,255,.16),transparent 52%)!important;
   }
   #bar .zero-liquid-indicator:after{
     content:""!important;position:absolute!important;inset:0!important;
-    border-radius:inherit!important;pointer-events:none!important;
-    border:1px solid rgba(255,255,255,.10)!important;
-    box-shadow:inset 0 0 0 1px rgba(90,155,205,.045)!important;
+    z-index:4!important;border-radius:inherit!important;pointer-events:none!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.055)!important;
   }
-  #bar .zero-liquid-indicator .lens-icon{
-    position:absolute!important;inset:0!important;z-index:2!important;
+  #bar .zero-liquid-indicator .lens-magnified-layer{
+    position:absolute!important;left:0!important;top:0!important;
+    z-index:2!important;display:block!important;
+    transform-origin:top left!important;
+    will-change:transform!important;pointer-events:none!important;
+  }
+  #bar .zero-liquid-indicator .lens-magnified-layer .tab{
     display:grid!important;place-items:center!important;
-    transform:scale(1.12)!important;transform-origin:center!important;
-    pointer-events:none!important;
+    margin:0!important;padding:0!important;
+    border:0!important;border-radius:50%!important;
+    outline:0!important;background:transparent!important;
+    box-shadow:none!important;filter:none!important;
+    color:inherit!important;opacity:1!important;
   }
-  #bar .zero-liquid-indicator .lens-icon svg{
-    width:22px!important;height:22px!important;
-    overflow:visible!important;
-    filter:drop-shadow(0 0 .7px rgba(255,255,255,.45))!important;
-  }
-  #bar .zero-liquid-indicator .lens-icon>*{
-    display:grid!important;place-items:center!important;
-    width:100%!important;height:100%!important;
-  }
-  #bar .zero-liquid-indicator .lens-icon button{
-    display:grid!important;place-items:center!important;
-    width:100%!important;height:100%!important;
-    padding:0!important;border:0!important;background:transparent!important;
-    color:inherit!important;
-  }
-  /* A restrained refraction highlight catches light along the curved glass edge. */
-  #bar .zero-liquid-indicator.settled{
-    box-shadow:
-      inset 0 1px 1px rgba(255,255,255,.42),
-      inset 0 -1px 2px rgba(175,220,255,.16),
-      0 2px 10px rgba(100,170,225,.12)!important;
-  }
-  #bar .zero-liquid-indicator.is-moving{
-    filter:brightness(1.045) saturate(1.12)!important;
+  #bar .zero-liquid-indicator .lens-magnified-layer svg{
+    width:22px!important;height:22px!important;overflow:visible!important;
   }
   #bar .zero-liquid-indicator .liquid-outline,
-  #bar .zero-liquid-indicator .liquid-ripple{display:none!important}
+  #bar .zero-liquid-indicator .liquid-ripple,
+  #bar .zero-liquid-indicator .lens-icon{display:none!important}
+  #bar .zero-liquid-indicator.is-moving{filter:brightness(1.025)!important}
   #bar .tabs .tab.active svg,
   #bar .tabs #skillTreeTab[aria-pressed="true"] svg{
     animation:zeroNavIconSettle .48s cubic-bezier(.2,.75,.25,1) both;
