@@ -61,7 +61,7 @@ export function createOrb(canvas, options = {}) {
   const lineGeo = new THREE_NS.BufferGeometry();
   lineGeo.setAttribute("position", new THREE_NS.BufferAttribute(linePositions, 3));
   lineGeo.setAttribute("color", new THREE_NS.BufferAttribute(lineColors, 3));
-  const lineMat = new THREE_NS.LineBasicMaterial({ color: 0xffffff, vertexColors: true, transparent: true, opacity: 0.10, blending: THREE_NS.AdditiveBlending, depthWrite: false });
+  const lineMat = new THREE_NS.LineBasicMaterial({ color: 0xffffff, vertexColors: true, transparent: true, opacity: 0.085, blending: THREE_NS.AdditiveBlending, depthWrite: false });
   const lines = new THREE_NS.LineSegments(lineGeo, lineMat);
   presentationGroup.add(lines);
 
@@ -148,18 +148,22 @@ export function createOrb(canvas, options = {}) {
         const dx = positions[ai] - positions[bj], dy = positions[ai + 1] - positions[bj + 1], dz = positions[ai + 2] - positions[bj + 2];
         // Connections breathe in and out: some links temporarily fade away,
         // then reconnect as the network flows through a slow travelling wave.
-        const phase = t * (target.electrons ? 2.1 : 1.25) + i * 0.037 + j * 0.019;
-        const linkWave = Math.sin(phase);
         const detailBoost = target.electrons ? 1.10 : activeState === "listening" ? 1.55 : 1.0;
+        // Keep the connection radius almost steady; a small slow drift adds life
+        // without making the network repeatedly pop in and out.
         const dynamicDistance = linkDistance * detailBoost *
-          (0.82 + 0.18 * Math.sin(t * (target.electrons ? 1.15 : 0.7) + i * 0.011));
-        if (linkWave > -0.30 && dx * dx + dy * dy + dz * dz < dynamicDistance * dynamicDistance) {
+          (0.96 + 0.04 * Math.sin(t * 0.42 + i * 0.011));
+        const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        const fadeLimit = dynamicDistance * 1.16;
+        if (distance < fadeLimit) {
+          // Links ease out near the edge of their range instead of switching off abruptly.
+          const linkFade = 1 - THREE_NS.MathUtils.smoothstep(distance, dynamicDistance * 0.88, fadeLimit);
           // On the outward surge, selected particles briefly shed most of
           // their neighbours, retaining a single tether before reconnecting.
           const looseA = vocalMotion && outward > 0.35 && Math.sin(t * 10.5 + phases[i] * 1.7) > 0.42;
           const looseB = vocalMotion && outward > 0.35 && Math.sin(t * 10.5 + phases[j] * 1.7) > 0.42;
           if ((looseA && connectionCounts[i] >= 1) || (looseB && connectionCounts[j] >= 1)) continue;
-          links.push([i, j]);
+          links.push([i, j, linkFade]);
           connectionCounts[i]++;
           connectionCounts[j]++;
           if (links.length >= linkBudget) break;
@@ -169,16 +173,17 @@ export function createOrb(canvas, options = {}) {
     }
     const used = links.length * 6;
     for (let k = 0; k < links.length; k++) {
-      const [a, b] = links[k], ai = a * 3, bi = b * 3, o = k * 6;
+      const [a, b, linkFade] = links[k], ai = a * 3, bi = b * 3, o = k * 6;
       linePositions[o] = positions[ai]; linePositions[o + 1] = positions[ai + 1]; linePositions[o + 2] = positions[ai + 2];
       linePositions[o + 3] = positions[bi]; linePositions[o + 4] = positions[bi + 1]; linePositions[o + 5] = positions[bi + 2];
       const edgeA = Math.hypot(positions[ai], positions[ai + 1], positions[ai + 2]) / 30;
       const edgeB = Math.hypot(positions[bi], positions[bi + 1], positions[bi + 2]) / 30;
-      const lineFlicker = activeState === "listening" ? 0.22 + 0.95 * (0.5 + 0.5 * Math.sin(t * 1.7 + a * 0.071 + b * 0.043)) : 1;
+      // A gentle, slow luminance drift replaces the old per-link flicker.
+      const lineBreath = 0.86 + 0.14 * (0.5 + 0.5 * Math.sin(t * 0.55 + a * 0.013 + b * 0.009));
       const radialFadeA = 1 - THREE_NS.MathUtils.smoothstep(edgeA, 1.0, 1.27);
       const radialFadeB = 1 - THREE_NS.MathUtils.smoothstep(edgeB, 1.0, 1.27);
-      const edgeGlowA = (activeState === "listening" ? 0.62 + Math.max(0, edgeA - 0.52) * 3.0 : 0.9) * lineFlicker * radialFadeA;
-      const edgeGlowB = (activeState === "listening" ? 0.62 + Math.max(0, edgeB - 0.52) * 3.0 : 0.9) * lineFlicker * radialFadeB;
+      const edgeGlowA = (activeState === "listening" ? 0.72 + Math.max(0, edgeA - 0.52) * 2.6 : 0.94) * lineBreath * radialFadeA * linkFade;
+      const edgeGlowB = (activeState === "listening" ? 0.72 + Math.max(0, edgeB - 0.52) * 2.6 : 0.94) * lineBreath * radialFadeB * linkFade;
       lineColors[o] = themeCurrent.r * edgeGlowA; lineColors[o + 1] = themeCurrent.g * edgeGlowA; lineColors[o + 2] = themeCurrent.b * edgeGlowA;
       lineColors[o + 3] = themeCurrent.r * edgeGlowB; lineColors[o + 4] = themeCurrent.g * edgeGlowB; lineColors[o + 5] = themeCurrent.b * edgeGlowB;
     }
@@ -280,10 +285,11 @@ export function createOrb(canvas, options = {}) {
       presentationCurrent.rotation + Math.sin(t * 0.36) * 0.12 * flow,
       Math.sin(t * 0.24 + 1) * 0.035 * flow
     );
-    pointMat.opacity += (current.brightness * 0.85 * presentationCurrent.opacity - pointMat.opacity) * ease;
+    // +34% particle luminance while retaining the renderer’s state-based response.
+    pointMat.opacity += (current.brightness * 0.85 * 1.34 * presentationCurrent.opacity - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
-    const networkBreath = 0.68 + 0.32 * (0.5 + 0.5 * Math.sin(t * (target.electrons ? 3.4 : 0.75)));
-    const networkOpacity = current.links * (activeState === "listening" ? 0.19 : 0.12) * networkBreath * presentationCurrent.opacity;
+    const networkBreath = 0.92 + 0.08 * (0.5 + 0.5 * Math.sin(t * 0.48));
+    const networkOpacity = current.links * (activeState === "listening" ? 0.155 : 0.105) * networkBreath * presentationCurrent.opacity;
     lineMat.opacity += (networkOpacity - lineMat.opacity) * ease;
     let bass = 0, mids = 0;
     if (analyser && audioData) {
@@ -332,7 +338,7 @@ export function createOrb(canvas, options = {}) {
       // overlapping currents before the next outward pulse.
       const radialLen = Math.hypot(positions[j], positions[j + 1], positions[j + 2]) || 1;
       const nx = positions[j] / radialLen, ny = positions[j + 1] / radialLen, nz = positions[j + 2] / radialLen;
-      const swirl = isVocal ? (1 - expandAmount) * (isSpeaking ? 5.8 : 4.8) : 0;
+      const swirl = isVocal ? (1 - expandAmount) * (isSpeaking ? 5.8 : 4.8) : target.electrons ? 1.6 : 2.4;
       const edgeFactor = Math.max(0, (Math.hypot(base[j], base[j + 1], base[j + 2]) / 25) - 0.58) / 0.42;
       let edgeX = 0, edgeY = 0, edgeZ = 0;
       const edgeWave = Math.sin(p * 3.2 - t * (3.2 + soundEnergy * 10) + bass * 7);
@@ -356,7 +362,7 @@ export function createOrb(canvas, options = {}) {
       }
       const blackHole = activeState === "thinking";
       const blackHoleFlow = blackHole ? 1 : 0;
-      const drift = current.speed * (0.35 + speeds[i]) * dt * (isVocal ? 20 : target.electrons ? 12 : 8);
+      const drift = current.speed * (0.35 + speeds[i]) * dt * (isVocal ? 20 : target.electrons ? 12 : 9.6);
       const baseRadius = Math.hypot(base[j], base[j + 1], base[j + 2]) / 25;
       const orbital = blackHoleFlow * (5.0 + 4.2 * baseRadius);
       const thinkingWarp = blackHoleFlow * (0.8 + baseRadius * 1.5) *
@@ -486,7 +492,7 @@ export function createOrb(canvas, options = {}) {
     }
     pointGeo.attributes.position.needsUpdate = true;
     pointGeo.attributes.color.needsUpdate = true;
-    points.rotation.y += dt * (isListening ? 0.19 : current.speed * 0.12);
+    points.rotation.y += dt * (isListening ? 0.19 : current.speed * 0.14);
     points.rotation.x = isListening ? Math.sin(t * 0.10) * 0.13 : Math.sin(t * 0.13) * 0.10;
     lines.rotation.copy(points.rotation);
     electrons.rotation.copy(points.rotation);
