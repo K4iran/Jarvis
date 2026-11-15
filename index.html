@@ -4672,14 +4672,18 @@ status();
       lens.setAttribute('aria-hidden','true');
       indicator.appendChild(lens);
     }
-    const lensButton=active.cloneNode(true);
-    lensButton.removeAttribute('id');
-    lensButton.removeAttribute('aria-pressed');
-    lensButton.removeAttribute('aria-current');
-    lensButton.tabIndex=-1;
-    lensButton.disabled=true;
-    lensButton.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
-    lens.replaceChildren(lensButton);
+    const lensActiveId=active.id||active.getAttribute('aria-label')||'active';
+    if(lens.dataset.activeId!==lensActiveId){
+      const lensButton=active.cloneNode(true);
+      lensButton.removeAttribute('id');
+      lensButton.removeAttribute('aria-pressed');
+      lensButton.removeAttribute('aria-current');
+      lensButton.tabIndex=-1;
+      lensButton.disabled=true;
+      lensButton.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
+      lens.replaceChildren(lensButton);
+      lens.dataset.activeId=lensActiveId;
+    }
     if(!currentId||reduced){
       if(indicator._motion){indicator._motion.cancel();indicator._motion=null}
       indicator.style.transform=target;
