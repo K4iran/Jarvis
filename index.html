@@ -1194,7 +1194,7 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
   .zero-boot-content{position:relative;z-index:1;width:min(360px,calc(100vw - 52px));display:flex;flex-direction:column;align-items:center}
   .zero-boot-brand{display:flex;align-items:center;gap:10px;font:500 12px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.34em;color:rgba(225,241,255,.86)}
   .zero-boot-mark{width:25px;height:25px;display:grid;place-items:center;border:1px solid rgba(142,207,246,.45);border-radius:50%;font:500 13px 'Sora',sans-serif;letter-spacing:0;color:#b9e6ff;box-shadow:0 0 22px rgba(80,174,235,.14),inset 0 0 12px rgba(80,174,235,.12)}
-  .zero-boot-orb{position:relative;width:150px;height:150px;margin:38px 0 28px;display:grid;place-items:center;filter:drop-shadow(0 0 34px rgba(66,165,232,.30)) drop-shadow(0 0 72px rgba(66,165,232,.16))}
+  .zero-boot-orb{position:relative;width:150px;height:150px;margin:38px 0 28px;display:grid;place-items:center;filter:drop-shadow(0 0 28px rgba(66,165,232,.12))}
   .zero-boot-orb canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
   .zero-boot-orb.has-particle-orb>span{display:none!important}
   .zero-boot-orb:not(.has-particle-orb){transform:scale(1.5);filter:brightness(1.15) drop-shadow(0 0 28px rgba(66,165,232,.12))}
@@ -1272,9 +1272,9 @@ window.__zeroBootOrbDestroy = () => {
 };
 if (screen && canvas && screen.isConnected) {
   try {
-    const rawBrightness = 0.62;
+    const rawBrightness = 0.40;
     const brightness = 0.04 + 7.96 * Math.pow(rawBrightness, 2.15);
-    canvas.style.filter = `brightness(${brightness}) saturate(${1.35 - rawBrightness * 0.55}) contrast(1.08)`;
+    canvas.style.filter = `brightness(${brightness}) saturate(${1.35 - rawBrightness * 0.85})`;
     bootOrb = createOrb(canvas, {
       particleCount: 2000,
       maxLines: 8000,
@@ -3997,7 +3997,7 @@ addEventListener('pagehide',()=>{
 
 <script src="./zero-features.js?v=weather-inline-3"></script>
 <script type="module">
-import { createOrb } from './orb-network.js?v=particle-brightness-25-1';
+import { createOrb } from './orb-network.js?v=main-orb-brightness-34-2';
 
 (() => {
   const canvas = document.getElementById('orbNetworkCanvas');
@@ -4017,6 +4017,7 @@ import { createOrb } from './orb-network.js?v=particle-brightness-25-1';
       particleCount: 2000,
       maxLines: 8000,
       lineDistance: 8,
+      particleBrightnessMultiplier: 2.25,
       transparent: true
     });
 
