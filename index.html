@@ -4021,6 +4021,9 @@ import { createOrb } from './orb-network.js?v=main-orb-brightness-34-2';
       particleBrightnessMultiplier: 2.25,
       transparent: true
     });
+    // The settings script runs before this module, so its first apply() may
+    // happen before the orb API exists. Apply the saved theme directly now.
+    orb.setColor(document.documentElement.dataset.theme === 'light' ? 0x1236c8 : 0x4ca8e8);
 
     let presentationToken = 0;
     let presentationActive = false;
