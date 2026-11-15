@@ -4643,7 +4643,7 @@ status();
     }
   }
   function activeButton(){
-    return nav.querySelector('#skillTreeTab[aria-pressed="true"]')||nav.querySelector('.tab.active')||nav.querySelector('.tab');
+    return nav.querySelector('.tabs .tab.active')||nav.querySelector('.tabs .tab[aria-pressed="true"]')||nav.querySelector('.tabs .tab');
   }
   function positionIndicator(){
     frame=0;
@@ -4652,38 +4652,17 @@ status();
     ensureIndicator();
     const nr=nav.getBoundingClientRect(),r=active.getBoundingClientRect();
     if(!nr.width||!r.width)return;
-    const width=r.width+16;
-    const height=r.height+8;
-    const navStyle=getComputedStyle(nav);
-    const padLeft=parseFloat(navStyle.paddingLeft)||0;
-    const padTop=parseFloat(navStyle.paddingTop)||0;
-    const x=r.left-nr.left-nav.clientLeft-padLeft+(r.width-width)/2;
-    const y=r.top-nr.top-nav.clientTop-padTop+(r.height-height)/2;
+    const width=r.width+18;
+    const height=Math.max(28,r.height-8);
+    const x=r.left-nr.left-nav.clientLeft+(r.width-width)/2;
+    const y=r.top-nr.top-nav.clientTop+(r.height-height)/2;
     const target='translate3d('+x+'px,'+y+'px,0)';
     const changed=currentId!==active.id;
     indicator.style.left='0px';
     indicator.style.top='0px';
     indicator.style.width=width+'px';
     indicator.style.height=height+'px';
-    let lens=indicator.querySelector('.lens-magnified-layer');
-    if(!lens){
-      lens=document.createElement('span');
-      lens.className='lens-magnified-layer';
-      lens.setAttribute('aria-hidden','true');
-      indicator.appendChild(lens);
-    }
-    const lensActiveId=active.id||active.getAttribute('aria-label')||'active';
-    if(lens.dataset.activeId!==lensActiveId){
-      const lensButton=active.cloneNode(true);
-      lensButton.removeAttribute('id');
-      lensButton.removeAttribute('aria-pressed');
-      lensButton.removeAttribute('aria-current');
-      lensButton.tabIndex=-1;
-      lensButton.disabled=true;
-      lensButton.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
-      lens.replaceChildren(lensButton);
-      lens.dataset.activeId=lensActiveId;
-    }
+    indicator.querySelector('.lens-magnified-layer')?.remove();
     if(!currentId||reduced){
       if(indicator._motion){indicator._motion.cancel();indicator._motion=null}
       indicator.style.transform=target;
@@ -6581,6 +6560,49 @@ html[data-theme="light"] #bar .zero-liquid-indicator .lens-magnified-layer>.tab{
   color:#075fc5!important;
   filter:drop-shadow(0 0 4px rgba(0,105,235,.24))!important;
 }
+</style>
+
+
+<style id="zero-indicator-precision-correction">
+/* One wide, shallow blue glass lens. The real active icon is enlarged in place; no duplicate icon layer. */
+#bar{position:relative!important}
+#bar .tabs{background:transparent!important;border:0!important;box-shadow:none!important}
+#bar .zero-liquid-indicator{
+  position:absolute!important;z-index:0!important;
+  border-radius:18px!important;
+  overflow:hidden!important;
+  background:linear-gradient(145deg,rgba(65,145,255,.27),rgba(20,94,220,.20) 58%,rgba(92,170,255,.25))!important;
+  border:1px solid rgba(102,174,255,.48)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.32),inset 0 -4px 9px rgba(17,78,190,.16),0 2px 11px rgba(35,117,240,.17)!important;
+  -webkit-backdrop-filter:blur(1.5px) saturate(1.45)!important;
+  backdrop-filter:blur(1.5px) saturate(1.45)!important;
+}
+#bar .zero-liquid-indicator:before{
+  content:""!important;display:block!important;position:absolute!important;inset:0!important;
+  border-radius:inherit!important;pointer-events:none!important;z-index:0!important;
+  background:linear-gradient(115deg,rgba(255,255,255,.25),transparent 48%,rgba(70,155,255,.10))!important;
+}
+#bar .zero-liquid-indicator:after,
+#bar .zero-liquid-indicator .lens-magnified-layer,
+#bar .zero-liquid-indicator .liquid-outline,
+#bar .zero-liquid-indicator .liquid-ripple,
+#bar .zero-liquid-indicator .lens-icon{display:none!important;content:none!important}
+#bar .tabs .tab,
+#bar .tabs .tab.active{
+  position:relative!important;z-index:1!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+}
+#bar .tabs .tab.active svg{
+  transform:scale(1.22)!important;
+  transform-origin:center!important;
+  filter:drop-shadow(0 0 4px rgba(80,160,255,.34))!important;
+}
+html[data-theme="light"] #bar .zero-liquid-indicator{
+  background:linear-gradient(145deg,rgba(47,132,255,.24),rgba(24,100,225,.19) 58%,rgba(83,160,255,.24))!important;
+  border-color:rgba(31,111,231,.42)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.48),inset 0 -4px 9px rgba(17,78,190,.10),0 2px 11px rgba(35,117,240,.13)!important;
+}
+html[data-theme="light"] #bar .tabs .tab.active svg{filter:drop-shadow(0 0 4px rgba(20,100,225,.25))!important}
 </style>
 
 </body></html>
