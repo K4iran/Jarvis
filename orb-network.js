@@ -286,7 +286,7 @@ export function createOrb(canvas, options = {}) {
       Math.sin(t * 0.24 + 1) * 0.035 * flow
     );
     // +34% particle luminance while retaining the renderer’s state-based response.
-    pointMat.opacity += (current.brightness * 0.85 * 1.34 * presentationCurrent.opacity - pointMat.opacity) * ease;
+    pointMat.opacity += (current.brightness * 0.85 * 1.675 * presentationCurrent.opacity - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
     const networkBreath = 0.92 + 0.08 * (0.5 + 0.5 * Math.sin(t * 0.48));
     const networkOpacity = current.links * (activeState === "listening" ? 0.155 : 0.105) * networkBreath * presentationCurrent.opacity;
