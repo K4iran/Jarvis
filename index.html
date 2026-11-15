@@ -4072,7 +4072,7 @@ import { createOrb } from './orb-network.js?v=main-orb-brightness-34-2';
     window.__zeroOrbSetAnalyser = (analyser) => orb.setAnalyser(analyser);
     window.__zeroOrbSetVoiceActivity = (level) => orb.setVoiceActivity(level);
     window.__zeroOrbSetPresentation = applyPresentation;
-    window.__zeroOrbSetBattleTheme = (active) => orb.setColor(active ? 0xff3d4d : 0x4ca8e8);
+    window.__zeroOrbSetBattleTheme = (active) => orb.setColor(active ? 0xff3d4d : 0x1236c8);
     window.__zeroOrbSetBattlePresentation = (active, pose = {}) => {
       if (!active) { presentationLayer.style.filter = ''; applyPresentation(false); return; }
       applyPresentation(true, 'battle');orb.setPresentation({ active: true, flow: 1, ...pose });
