@@ -355,9 +355,9 @@ export function createOrb(canvas, options = {}) {
         edgeY = Math.sin(p * 1.3 + t * (1.5 + soundEnergy * 2.5)) * edgeMotion + edgeFlutter * 0.55;
         edgeZ = Math.cos(p * 0.8 - t * (1.2 + soundEnergy * 2.2)) * edgeMotion;
         const glow = 1 + edgeFlash * (0.75 + 0.25 * Math.sin(t * 8 + p * 2));
-        pointColors[j] = 0.72 + glow * 0.22;
-        pointColors[j + 1] = 0.88 + glow * 0.18;
-        pointColors[j + 2] = 1.0 + glow * 0.24;
+        pointColors[j] = 0.12 + glow * 0.12;
+        pointColors[j + 1] = 0.22 + glow * 0.18;
+        pointColors[j + 2] = 0.72 + glow * 0.25;
       } else {
         pointColors[j] = pointColors[j + 1] = pointColors[j + 2] = 1;
       }
