@@ -4645,6 +4645,27 @@ status();
   function activeButton(){
     return nav.querySelector('.tabs .tab.active')||nav.querySelector('.tabs .tab[aria-pressed="true"]')||nav.querySelector('.tabs .tab');
   }
+  function burstParticles(host){
+    if(reduced)return;
+    const count=10;
+    for(let i=0;i<count;i++){
+      const dot=document.createElement('i');
+      dot.className='zero-nav-burst-particle';
+      host.appendChild(dot);
+      const angle=(Math.PI*2*i/count)+Math.random()*.22;
+      const distance=16+Math.random()*15;
+      const dx=Math.cos(angle)*distance;
+      const dy=Math.sin(angle)*distance;
+      const size=2+Math.random()*1.8;
+      dot.style.width=size+'px';
+      dot.style.height=size+'px';
+      dot.animate(
+        [{transform:'translate(-50%,-50%) scale(.45)',opacity:.95},
+         {transform:'translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px)) scale(.15)',opacity:0}],
+        {duration:460+Math.random()*160,easing:'cubic-bezier(.15,.7,.3,1)'}
+      ).onfinish=()=>dot.remove();
+    }
+  }
   function positionIndicator(){
     frame=0;
     const active=activeButton();
@@ -4653,9 +4674,12 @@ status();
     const nr=nav.getBoundingClientRect(),r=active.getBoundingClientRect();
     if(!nr.width||!r.width)return;
     const width=r.width+18;
+    const icon=active.querySelector('.nav-icon,svg,i')||active;
+    const ir=icon.getBoundingClientRect();
     const height=Math.max(28,r.height-8);
     const x=r.left-nr.left-nav.clientLeft+(r.width-width)/2;
-    const y=r.top-nr.top-nav.clientTop+(r.height-height)/2;
+    const iconCenterY=ir.top+ir.height/2;
+    const y=iconCenterY-nr.top-nav.clientTop-height/2;
     const target='translate3d('+x+'px,'+y+'px,0)';
     const changed=currentId!==active.id;
     indicator.style.left='0px';
@@ -4688,6 +4712,11 @@ status();
         indicator.style.transform=target;
         indicator.classList.remove('is-moving');
         indicator.classList.add('settled','arrived');
+        const settle=indicator.animate(
+          [{transform:target+' scale(1)'},{transform:target+' scale(1.13)',offset:.42},{transform:target+' scale(1)'}],
+          {duration:420,easing:'cubic-bezier(.2,.8,.2,1)'}
+        );
+        burstParticles(indicator);
         motion.cancel();
         indicator._motion=null;
       };
@@ -6605,4 +6634,21 @@ html[data-theme="light"] #bar .zero-liquid-indicator{
 html[data-theme="light"] #bar .tabs .tab.active svg{filter:drop-shadow(0 0 4px rgba(20,100,225,.25))!important}
 </style>
 
+
+
+<style id="zero-navbar-settle-alignment-and-particles">
+/* Align the lens to the icon's actual visual centre, not the button's padded box. */
+#bar .zero-liquid-indicator{transform-origin:center!important}
+#bar .zero-nav-burst-particle{
+  position:absolute!important;left:50%!important;top:50%!important;
+  display:block!important;border-radius:50%!important;pointer-events:none!important;
+  z-index:3!important;background:rgba(143,211,255,.98)!important;
+  box-shadow:0 0 5px rgba(91,178,255,.9),0 0 11px rgba(62,143,255,.55)!important;
+  will-change:transform,opacity!important;
+}
+html[data-theme="light"] #bar .zero-nav-burst-particle{
+  background:rgba(35,126,255,.95)!important;
+  box-shadow:0 0 5px rgba(35,126,255,.7),0 0 10px rgba(35,126,255,.35)!important;
+}
+</style>
 </body></html>
