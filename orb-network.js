@@ -49,7 +49,7 @@ export function createOrb(canvas, options = {}) {
   pointGeo.setAttribute("position", new THREE_NS.BufferAttribute(positions, 3));
   pointGeo.setAttribute("color", new THREE_NS.BufferAttribute(pointColors, 3));
   const pointMat = new THREE_NS.PointsMaterial({ color: 0x76c8ff, vertexColors: true, size: 0.42, transparent: true, opacity: 0.72, blending: THREE_NS.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
-  const themeCurrent = new THREE_NS.Color(0x4ca8e8);
+  const themeCurrent = new THREE_NS.Color(0x1236c8);
   const themeTarget = themeCurrent.clone();
   const points = new THREE_NS.Points(pointGeo, pointMat);
   // Particle positions expand and drift every frame; the initial geometry
