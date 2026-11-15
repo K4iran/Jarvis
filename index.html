@@ -1233,6 +1233,8 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
   }
 </style>
 <style id="zero-startup-light-appearance">
+/* Do not paint the legacy CSS-only boot orb while the particle canvas module starts. */
+#zero-startup-sequence .zero-boot-orb>span{display:none!important}
 html[data-theme="light"] #zero-startup-sequence{background:radial-gradient(ellipse at 50% 43%,rgba(83,157,235,.12),transparent 44%),radial-gradient(ellipse at 50% 100%,rgba(105,151,210,.10),transparent 50%),#f3f6fb!important;color:#17283b!important}
 html[data-theme="light"] #zero-startup-sequence:before{background-image:linear-gradient(rgba(35,104,190,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(35,104,190,.065) 1px,transparent 1px)!important}
 html[data-theme="light"] #zero-startup-sequence:after{background:conic-gradient(from 0deg at 50% 50%,transparent 0 32%,rgba(50,125,220,.045) 39%,transparent 46% 100%)!important}
@@ -4650,7 +4652,7 @@ status();
     ensureIndicator();
     const nr=nav.getBoundingClientRect(),r=active.getBoundingClientRect();
     if(!nr.width||!r.width)return;
-    const width=r.width+8;
+    const width=r.width+16;
     const height=r.height+8;
     const navStyle=getComputedStyle(nav);
     const padLeft=parseFloat(navStyle.paddingLeft)||0;
@@ -4663,6 +4665,21 @@ status();
     indicator.style.top='0px';
     indicator.style.width=width+'px';
     indicator.style.height=height+'px';
+    let lens=indicator.querySelector('.lens-magnified-layer');
+    if(!lens){
+      lens=document.createElement('span');
+      lens.className='lens-magnified-layer';
+      lens.setAttribute('aria-hidden','true');
+      indicator.appendChild(lens);
+    }
+    const lensButton=active.cloneNode(true);
+    lensButton.removeAttribute('id');
+    lensButton.removeAttribute('aria-pressed');
+    lensButton.removeAttribute('aria-current');
+    lensButton.tabIndex=-1;
+    lensButton.disabled=true;
+    lensButton.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
+    lens.replaceChildren(lensButton);
     if(!currentId||reduced){
       if(indicator._motion){indicator._motion.cancel();indicator._motion=null}
       indicator.style.transform=target;
@@ -6526,4 +6543,41 @@ html[data-theme="light"] #bar .tabs .tab{position:relative!important;z-index:1!i
 html[data-theme="light"] #bar .tabs .tab svg,
 html[data-theme="light"] #bar .tabs .tab .nav-icon{position:relative!important;z-index:2!important}
 </style>
+
+<style id="zero-indicator-optical-lens-final">
+/* A slightly wider blue optical-glass pill, with the selected icon magnified inside it. */
+#bar .zero-liquid-indicator{
+  width:calc(var(--zero-indicator-width, 100%) + 0px)!important;
+  background:linear-gradient(145deg,rgba(74,158,255,.24),rgba(24,105,235,.18) 55%,rgba(91,174,255,.22))!important;
+  border:1px solid rgba(92,166,255,.46)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.34),inset 0 -5px 11px rgba(20,91,205,.16),0 2px 12px rgba(20,105,235,.16),0 0 13px rgba(46,135,255,.12)!important;
+  -webkit-backdrop-filter:blur(1.2px) saturate(1.35)!important;
+  backdrop-filter:blur(1.2px) saturate(1.35)!important;
+}
+#bar .zero-liquid-indicator .lens-magnified-layer{
+  position:absolute!important;inset:0!important;z-index:2!important;
+  display:grid!important;place-items:center!important;
+  overflow:hidden!important;pointer-events:none!important;
+}
+#bar .zero-liquid-indicator .lens-magnified-layer>.tab{
+  transform:scale(1.18)!important;
+  transform-origin:center!important;
+  color:#d9efff!important;
+  filter:drop-shadow(0 0 5px rgba(71,155,255,.38))!important;
+}
+#bar .zero-liquid-indicator .lens-magnified-layer>.tab svg{
+  width:23px!important;height:23px!important;
+  stroke:currentColor!important;
+}
+html[data-theme="light"] #bar .zero-liquid-indicator{
+  background:linear-gradient(145deg,rgba(43,132,255,.23),rgba(27,106,238,.17) 55%,rgba(83,163,255,.22))!important;
+  border-color:rgba(28,105,230,.36)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.48),inset 0 -5px 11px rgba(18,82,190,.10),0 3px 12px rgba(27,103,220,.13),0 0 13px rgba(46,135,255,.10)!important;
+}
+html[data-theme="light"] #bar .zero-liquid-indicator .lens-magnified-layer>.tab{
+  color:#075fc5!important;
+  filter:drop-shadow(0 0 4px rgba(0,105,235,.24))!important;
+}
+</style>
+
 </body></html>
