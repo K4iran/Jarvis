@@ -6463,4 +6463,44 @@ html[data-theme="light"] #bar .zero-liquid-indicator .liquid-ripple{
 }
 </style>
 
+
+<style id="zero-light-mode-actual-rendered-input-and-indicator-fix">
+/* The animated typing layer, not the native input, paints the visible characters. */
+html[data-theme="light"] #app:not(.data-tab) .zero-letter-layer,
+html[data-theme="light"] #app:not(.data-tab) .zero-letter-layer .zero-letter-inner,
+html[data-theme="light"] #app:not(.data-tab) .zero-letter-layer .zero-letter{
+  color:#111820!important;
+  -webkit-text-fill-color:#111820!important;
+  text-shadow:none!important;
+}
+html[data-theme="light"] #app:not(.data-tab) .zero-letter-layer .zero-letter-placeholder{
+  color:#687789!important;
+  -webkit-text-fill-color:#687789!important;
+}
+
+/* Force a translucent blue-only indicator and keep every nav icon above it. */
+html[data-theme="light"] #bar .tabs{position:relative!important;isolation:isolate!important}
+html[data-theme="light"] #bar .zero-liquid-indicator{
+  z-index:0!important;
+  background:rgba(42,125,255,.17)!important;
+  border:1px solid rgba(35,112,245,.24)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.28),0 2px 8px rgba(25,100,225,.07)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(160%)!important;
+  backdrop-filter:blur(18px) saturate(160%)!important;
+}
+html[data-theme="light"] #bar .zero-liquid-indicator::before{
+  background:linear-gradient(145deg,rgba(255,255,255,.20),rgba(55,135,255,.07) 52%,rgba(25,105,235,.10))!important;
+  mix-blend-mode:normal!important;
+}
+html[data-theme="light"] #bar .zero-liquid-indicator::after{
+  background:linear-gradient(90deg,transparent,rgba(80,155,255,.22),rgba(45,125,255,.05),transparent)!important;
+  opacity:.35!important;
+}
+html[data-theme="light"] #bar .zero-liquid-indicator .liquid-ripple{
+  background:radial-gradient(ellipse,rgba(75,150,255,.17),rgba(45,125,245,.05) 40%,transparent 72%)!important;
+}
+html[data-theme="light"] #bar .tabs .tab{position:relative!important;z-index:1!important}
+html[data-theme="light"] #bar .tabs .tab svg,
+html[data-theme="light"] #bar .tabs .tab .nav-icon{position:relative!important;z-index:2!important}
+</style>
 </body></html>
