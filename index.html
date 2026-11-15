@@ -4647,11 +4647,16 @@ status();
   }
   function burstParticles(host){
     if(reduced)return;
+    const hostRect=host.getBoundingClientRect(),navRect=nav.getBoundingClientRect();
+    const centerX=hostRect.left+hostRect.width/2-navRect.left-nav.clientLeft;
+    const centerY=hostRect.top+hostRect.height/2-navRect.top-nav.clientTop;
     const count=10;
     for(let i=0;i<count;i++){
       const dot=document.createElement('i');
       dot.className='zero-nav-burst-particle';
-      host.appendChild(dot);
+      nav.appendChild(dot);
+      dot.style.left=centerX+'px';
+      dot.style.top=centerY+'px';
       const angle=(Math.PI*2*i/count)+Math.random()*.22;
       const distance=16+Math.random()*15;
       const dx=Math.cos(angle)*distance;
