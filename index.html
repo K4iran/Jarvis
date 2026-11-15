@@ -1544,9 +1544,9 @@ window.JarvisGoogleCalendarReady = window.JarvisGoogleCalendar.init().catch(erro
 </script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true};
+const S={rm:matchMedia('(prefers-reduced-motion: reduce)').matches,cosmos:true,theme:'dark'};
 const ZERO_UI_SETTINGS_KEY='zero.ui.settings.v1';
-try{const saved=JSON.parse(localStorage.getItem(ZERO_UI_SETTINGS_KEY)||'{}');if(saved&&typeof saved==='object'){if(typeof saved.rm==='boolean')S.rm=saved.rm;if(typeof saved.cosmos==='boolean')S.cosmos=saved.cosmos}}catch(e){}
+try{const saved=JSON.parse(localStorage.getItem(ZERO_UI_SETTINGS_KEY)||'{}');if(saved&&typeof saved==='object'){if(typeof saved.rm==='boolean')S.rm=saved.rm;if(typeof saved.cosmos==='boolean')S.cosmos=saved.cosmos;if(saved.theme==='light'||saved.theme==='dark')S.theme=saved.theme}}catch(e){}
 
 /* Subtle binary rain backdrop. It pauses when motion is reduced or the page is hidden. */
 (function initCosmos(){
@@ -2364,7 +2364,7 @@ $('#dx').onclick=()=>setView('idle');
 let settingsSection="personalisation";
 function settingsContent(){
  const toggle=(key,label)=>"<div class=\"settings-option\"><span>"+label+"</span><button class=\"sw\" role=\"switch\" data-t=\""+key+"\" aria-label=\""+label+"\" aria-checked=\""+S[key]+"\"></button></div>";
- if(settingsSection==="personalisation")return "<div class=\"settings-options\">"+toggle("rm","Reduce motion")+toggle("cosmos","Background effects")+"</div><button type=\"button\" class=\"settings-reset\" data-settings-action=\"reset\">Restore default appearance</button>";
+ if(settingsSection==="personalisation")return "<div class=\"settings-options\"><div class=\"settings-option settings-theme-option\"><span>Appearance</span><div class=\"settings-theme-choices\" role=\"group\" aria-label=\"Appearance\"><button type=\"button\" class=\"settings-theme-choice "+(S.theme==='dark'?"active":"")+\" data-theme-choice=\"dark\" aria-pressed=\""+(S.theme==='dark')+\"\">Dark</button><button type=\"button\" class=\"settings-theme-choice "+(S.theme==='light'?"active":"")+\" data-theme-choice=\"light\" aria-pressed=\""+(S.theme==='light')+\"\">Light</button></div></div>"+toggle("rm","Reduce motion")+toggle("cosmos","Background effects")+"</div><button type=\"button\" class=\"settings-reset\" data-settings-action=\"reset\">Restore default appearance</button>";
  if(settingsSection==="configuration")return "<div class=\"settings-link-list\"><button type=\"button\" class=\"settings-link-card\" data-settings-action=\"calendar\"><span>Google Calendar</span><span aria-hidden=\"true\">↗</span></button><button type=\"button\" class=\"settings-link-card\" id=\"battleSettingsOpen\"><span>Battle Mode</span><span aria-hidden=\"true\">↗</span></button></div>";
  return "<div class=\"settings-link-list\"><a href=\"legal.html\" class=\"settings-link-card\"><span>Legal &amp; Privacy</span><span aria-hidden=\"true\">↗</span></a><button type=\"button\" class=\"settings-link-card\" data-show=\"status\"><span>System status</span><span aria-hidden=\"true\">↗</span></button></div>";
 }
@@ -2376,9 +2376,9 @@ function renderOv(){const p=P[openId];$('#ot').textContent=openId==='set'?'SETTI
 function openOv(id){last=document.activeElement;openId=id;clearTimeout(ct);renderOv();const o=$('#ov');o.hidden=false;requestAnimationFrame(()=>{o.classList.add('on');$('#oc').focus()})}
 function closeOv(){if(!openId)return;openId=null;const o=$('#ov');o.classList.remove('on');ct=setTimeout(()=>o.hidden=true,260);last&&last.focus&&last.focus()}
 $('#gear').onclick=()=>openOv('set');
-$('#ov').onclick=e=>{if(e.target.id==='ov'||e.target.closest('#oc'))return closeOv();const section=e.target.closest('[data-settings-section]');if(section){settingsSection=section.dataset.settingsSection;$('#ob').innerHTML=settings();return}const action=e.target.closest('[data-settings-action]');if(action){if(action.dataset.settingsAction==='reset'){S.rm=matchMedia('(prefers-reduced-motion: reduce)').matches;S.cosmos=true;apply();if(openId==='set')$('#ob').innerHTML=settings()}else if(action.dataset.settingsAction==='calendar'){closeOv();window.JarvisCalendarPanel?.open?.()}return}const t=e.target.closest('[data-t]');if(t){S[t.dataset.t]=!S[t.dataset.t];t.setAttribute('aria-checked',S[t.dataset.t]);apply();return}const s=e.target.closest('[data-show]');if(s){setView(s.dataset.show);closeOv()}};
+$('#ov').onclick=e=>{if(e.target.id==='ov'||e.target.closest('#oc'))return closeOv();const section=e.target.closest('[data-settings-section]');if(section){settingsSection=section.dataset.settingsSection;$('#ob').innerHTML=settings();return}const action=e.target.closest('[data-settings-action]');if(action){if(action.dataset.settingsAction==='reset'){S.rm=matchMedia('(prefers-reduced-motion: reduce)').matches;S.cosmos=true;S.theme='dark';apply();if(openId==='set')$('#ob').innerHTML=settings()}else if(action.dataset.settingsAction==='calendar'){closeOv();window.JarvisCalendarPanel?.open?.()}return}const themeChoice=e.target.closest('[data-theme-choice]');if(themeChoice){S.theme=themeChoice.dataset.themeChoice;apply();if(openId==='set')$('#ob').innerHTML=settings();return}const t=e.target.closest('[data-t]');if(t){S[t.dataset.t]=!S[t.dataset.t];t.setAttribute('aria-checked',S[t.dataset.t]);apply();return}const s=e.target.closest('[data-show]');if(s){setView(s.dataset.show);closeOv()}};
 $('#ov').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=$$('#ov button'),a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
-function apply(){const reduceMotion=S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches;document.documentElement.classList.toggle('rm',reduceMotion);const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos;if(window.__zeroUpdateCosmosMotion)window.__zeroUpdateCosmosMotion();try{localStorage.setItem(ZERO_UI_SETTINGS_KEY,JSON.stringify({rm:S.rm,cosmos:S.cosmos}))}catch(e){}}
+function apply(){const reduceMotion=S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches;document.documentElement.classList.toggle('rm',reduceMotion);document.documentElement.dataset.theme=S.theme==='light'?'light':'dark';const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos;if(window.__zeroUpdateCosmosMotion)window.__zeroUpdateCosmosMotion();try{localStorage.setItem(ZERO_UI_SETTINGS_KEY,JSON.stringify({rm:S.rm,cosmos:S.cosmos,theme:S.theme}))}catch(e){}}\napply();
 const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv()};
 
 let wakeEnabled=false, recognition=null, wakeArmed=false, conversationMode=false, recognitionRestartTimer=0;
@@ -6232,4 +6232,41 @@ status();
   window.setTimeout(()=>{if(!finished)finish();},7200);
 })();
 </script>
+<style id="zero-light-appearance-theme">
+/* Light appearance changes neutral interface surfaces only. Orb/canvas layers and chromatic effects are intentionally excluded. */
+html[data-theme="light"]{color-scheme:light;--bg:#f2f4f7;--bg2:#e9edf2;--t:#202832;--m:#68727e;--ln:rgba(45,58,72,.16);--ln2:rgba(45,58,72,.3)}
+html[data-theme="light"] body{background:radial-gradient(ellipse at 50% 38%,#fff 0,#f3f5f8 48%,#e8edf2 100%)!important;color:#202832}
+html[data-theme="light"] #bar{background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(246,248,251,.76))!important;border-bottom-color:rgba(40,52,66,.14)!important;box-shadow:0 4px 18px rgba(30,43,58,.045)}
+html[data-theme="light"] #bar .settings-cog{color:#303a45!important}
+html[data-theme="light"] #bar .settings-cog:hover{background:rgba(35,48,63,.07)!important}
+html[data-theme="light"] #bar .tab{color:rgba(48,59,72,.62)!important}
+html[data-theme="light"] #bar .tab:hover{color:#1f2a35!important;background:rgba(35,48,63,.045)!important}
+html[data-theme="light"] #bar .tab.active{color:#202b36!important}
+html[data-theme="light"] #bar .tab.active .nav-icon{filter:none!important}
+html[data-theme="light"] #bar .zero-liquid-indicator{border-color:rgba(55,68,82,.2)!important;background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(229,234,241,.7) 55%,rgba(255,255,255,.82))!important;box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95),inset 0 -7px 13px rgba(75,90,108,.055),0 2px 10px rgba(35,48,63,.09)!important}
+html[data-theme="light"] #bar .zero-liquid-indicator:before{background:radial-gradient(ellipse at 25% 0%,rgba(255,255,255,.95),transparent 44%),radial-gradient(ellipse at 78% 100%,rgba(90,106,124,.08),transparent 48%),linear-gradient(160deg,rgba(255,255,255,.45),transparent 44%,rgba(90,106,124,.035))!important;mix-blend-mode:normal!important}
+html[data-theme="light"] #bar .stat{color:#66717d!important}
+html[data-theme="light"] #ov{background:rgba(31,42,54,.24)!important}
+html[data-theme="light"] #ov .sheet.fr{background:rgba(250,252,254,.97)!important;color:#202832!important;border:1px solid rgba(45,58,72,.12)!important;box-shadow:0 22px 70px rgba(30,43,58,.18)!important}
+html[data-theme="light"] #ov .hd{border-color:rgba(45,58,72,.12)!important}
+html[data-theme="light"] #ov #ot,html[data-theme="light"] #ov .settings-nav button,html[data-theme="light"] #ov .settings-option,html[data-theme="light"] #ov .settings-link-card{color:#27323e!important}
+html[data-theme="light"] #ov .settings-nav button{color:#65717e!important}
+html[data-theme="light"] #ov .settings-nav button:hover{background:rgba(45,58,72,.06)!important;color:#202832!important}
+html[data-theme="light"] #ov .settings-nav button.active{background:rgba(45,58,72,.085)!important;color:#202832!important;box-shadow:inset 2px 0 #596675!important}
+html[data-theme="light"] #ov .settings-option,html[data-theme="light"] #ov .settings-option:first-child{border-color:rgba(45,58,72,.12)!important}
+html[data-theme="light"] #ov .sw{border-color:rgba(45,58,72,.28)!important;background:#e7ebf0!important}
+html[data-theme="light"] #ov .sw::after{background:#9aa4af!important}
+html[data-theme="light"] #ov .sw[aria-checked=true]::after{background:#fff!important;box-shadow:0 0 0 2px rgba(45,58,72,.12)!important}
+html[data-theme="light"] #ov .settings-link-card{background:#f0f3f6!important;border-color:rgba(45,58,72,.13)!important}
+html[data-theme="light"] #ov .settings-link-card:hover{background:#e8edf2!important;border-color:rgba(45,58,72,.22)!important}
+html[data-theme="light"] #ov .settings-link-card>span:last-child{color:#78838f!important}
+html[data-theme="light"] #ov .settings-reset{color:#68737f!important}
+html[data-theme="light"] #ov .settings-reset:hover{color:#202832!important}
+#ov .settings-theme-choices{display:flex;gap:5px;padding:3px;border:1px solid rgba(128,145,162,.22);border-radius:9px;background:rgba(128,145,162,.07)}
+#ov .settings-theme-choice{min-width:58px;padding:7px 10px;border:0;border-radius:6px;background:transparent;color:inherit;font:400 10px Sora,sans-serif;cursor:pointer;transition:background .16s ease,color .16s ease,box-shadow .16s ease}
+#ov .settings-theme-choice.active{background:rgba(128,145,162,.2);color:inherit;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+html[data-theme="light"] #ov .settings-theme-choices{border-color:rgba(45,58,72,.14);background:rgba(45,58,72,.045)}
+html[data-theme="light"] #ov .settings-theme-choice.active{background:#fff;color:#202832;box-shadow:0 1px 4px rgba(30,43,58,.13)}
+@media(prefers-reduced-motion:reduce){#ov .settings-theme-choice{transition:none!important}}
+</style>
 </body></html>
