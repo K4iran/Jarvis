@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><script id="zero-early-appearance-bootstrap">(function(){try{const saved=JSON.parse(localStorage.getItem('zero.ui.settings.v1')||'{}');document.documentElement.dataset.theme=saved&&saved.theme==='light'?'light':'dark'}catch(_){document.documentElement.dataset.theme='dark'}})();</script>
 <meta name="theme-color" content="#050914">
 <meta name="description" content="Z.E.R.O. — a voice-first personal AI assistant with a holographic interface.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23050914'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%2358DFFF' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2358DFFF' fill-opacity='.15'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%23D8F7FF'/%3E%3C/svg%3E">
@@ -1231,6 +1231,29 @@ h1{margin:0;padding-left:.22em;font-weight:300;letter-spacing:.22em;font-size:cl
     #zero-startup-sequence:after,.zero-boot-core,.zero-boot-orbit,.zero-boot-scan,.zero-boot-cursor{animation:none!important}
     #zero-startup-sequence,.zero-boot-progress span{transition:none!important}
   }
+</style>
+<style id="zero-startup-light-appearance">
+html[data-theme="light"] #zero-startup-sequence{background:radial-gradient(ellipse at 50% 43%,rgba(83,157,235,.12),transparent 44%),radial-gradient(ellipse at 50% 100%,rgba(105,151,210,.10),transparent 50%),#f3f6fb!important;color:#17283b!important}
+html[data-theme="light"] #zero-startup-sequence:before{background-image:linear-gradient(rgba(35,104,190,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(35,104,190,.065) 1px,transparent 1px)!important}
+html[data-theme="light"] #zero-startup-sequence:after{background:conic-gradient(from 0deg at 50% 50%,transparent 0 32%,rgba(50,125,220,.045) 39%,transparent 46% 100%)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-noise{opacity:.055!important;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(45,105,180,.055) 4px)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-brand{color:rgba(28,54,83,.82)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-mark{color:#1768c5!important;border-color:rgba(35,112,210,.38)!important;box-shadow:0 0 22px rgba(55,130,220,.10),inset 0 0 12px rgba(55,130,220,.08)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-title{color:#17283b!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-kicker{color:rgba(42,91,145,.72)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-subtitle{color:rgba(49,86,128,.72)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-check{color:rgba(49,78,112,.68)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-check b{color:rgba(55,99,151,.58)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-check.is-ready{color:#244b78!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-check.is-ready b{color:#1768c5!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-check-dot{background:rgba(55,110,175,.25)!important;box-shadow:0 0 0 3px rgba(55,110,175,.07)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-progress{background:rgba(48,105,170,.13)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-progress span{background:linear-gradient(90deg,#2878d5,#83c5ff)!important;box-shadow:0 0 12px rgba(70,145,230,.42)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-footer{color:rgba(57,94,139,.62)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-core{background:radial-gradient(circle at 38% 34%,#fff 0,#b9e3ff 9%,#4c9ce5 28%,#18528d 58%,rgba(35,89,145,.08) 74%)!important;box-shadow:0 0 20px rgba(55,140,225,.36),0 0 56px rgba(52,125,220,.18),inset -8px -9px 18px rgba(0,0,0,.18)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-core:after{border-color:rgba(49,119,199,.25)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-orbit{border-color:rgba(55,125,205,.30)!important}
+html[data-theme="light"] #zero-startup-sequence .zero-boot-scan{background:linear-gradient(90deg,transparent,rgba(35,115,210,.58),transparent)!important}
 </style>
 </head><body>
 <div id="zero-startup-sequence" class="is-active" role="status" aria-live="polite" aria-label="Z.E.R.O. starting">
