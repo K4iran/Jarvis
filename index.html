@@ -2378,7 +2378,7 @@ function closeOv(){if(!openId)return;openId=null;const o=$('#ov');o.classList.re
 $('#gear').onclick=()=>openOv('set');
 $('#ov').onclick=e=>{if(e.target.id==='ov'||e.target.closest('#oc'))return closeOv();const section=e.target.closest('[data-settings-section]');if(section){settingsSection=section.dataset.settingsSection;$('#ob').innerHTML=settings();return}const action=e.target.closest('[data-settings-action]');if(action){if(action.dataset.settingsAction==='reset'){S.rm=matchMedia('(prefers-reduced-motion: reduce)').matches;S.cosmos=true;S.theme='dark';apply();if(openId==='set')$('#ob').innerHTML=settings()}else if(action.dataset.settingsAction==='calendar'){closeOv();window.JarvisCalendarPanel?.open?.()}return}const themeChoice=e.target.closest('[data-theme-choice]');if(themeChoice){S.theme=themeChoice.dataset.themeChoice;apply();if(openId==='set')$('#ob').innerHTML=settings();return}const t=e.target.closest('[data-t]');if(t){S[t.dataset.t]=!S[t.dataset.t];t.setAttribute('aria-checked',S[t.dataset.t]);apply();return}const s=e.target.closest('[data-show]');if(s){setView(s.dataset.show);closeOv()}};
 $('#ov').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=$$('#ov button'),a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
-function apply(){const reduceMotion=S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches;document.documentElement.classList.toggle('rm',reduceMotion);document.documentElement.dataset.theme=S.theme==='light'?'light':'dark';const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos;if(window.__zeroUpdateCosmosMotion)window.__zeroUpdateCosmosMotion();try{localStorage.setItem(ZERO_UI_SETTINGS_KEY,JSON.stringify({rm:S.rm,cosmos:S.cosmos,theme:S.theme}))}catch(e){}}
+function apply(){const reduceMotion=S.rm||matchMedia('(prefers-reduced-motion: reduce)').matches;document.documentElement.classList.toggle('rm',reduceMotion);document.documentElement.dataset.theme=S.theme==='light'?'light':'dark';if(window.__zeroOrbSetThemeColor)window.__zeroOrbSetThemeColor(S.theme==='light'?0x1236c8:0x4ca8e8);const cosmos=$('#cosmos');if(cosmos)cosmos.hidden=!S.cosmos;if(window.__zeroUpdateCosmosMotion)window.__zeroUpdateCosmosMotion();try{localStorage.setItem(ZERO_UI_SETTINGS_KEY,JSON.stringify({rm:S.rm,cosmos:S.cosmos,theme:S.theme}))}catch(e){}}
 apply();
 const refresh=()=>{if(view==='status')renderDisp();if(openId==='status')renderOv()};
 
@@ -4068,6 +4068,7 @@ import { createOrb } from './orb-network.js?v=main-orb-brightness-34-2';
       responding: 'speaking'
     };
 
+    window.__zeroOrbSetThemeColor = (color) => orb.setColor(color);
     window.__zeroOrbSetState = (state) => orb.setState(state);
     window.__zeroOrbSetAnalyser = (analyser) => orb.setAnalyser(analyser);
     window.__zeroOrbSetVoiceActivity = (level) => orb.setVoiceActivity(level);
