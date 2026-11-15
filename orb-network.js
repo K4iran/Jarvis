@@ -49,7 +49,7 @@ export function createOrb(canvas, options = {}) {
   pointGeo.setAttribute("position", new THREE_NS.BufferAttribute(positions, 3));
   pointGeo.setAttribute("color", new THREE_NS.BufferAttribute(pointColors, 3));
   const pointMat = new THREE_NS.PointsMaterial({ color: 0x76c8ff, vertexColors: true, size: 0.42, transparent: true, opacity: 0.72, blending: THREE_NS.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
-  const themeCurrent = new THREE_NS.Color(0x1236c8);
+  const themeCurrent = new THREE_NS.Color(document.documentElement.dataset.theme === "light" ? 0x1236c8 : 0x4ca8e8);
   const themeTarget = themeCurrent.clone();
   const points = new THREE_NS.Points(pointGeo, pointMat);
   // Particle positions expand and drift every frame; the initial geometry
@@ -355,9 +355,15 @@ export function createOrb(canvas, options = {}) {
         edgeY = Math.sin(p * 1.3 + t * (1.5 + soundEnergy * 2.5)) * edgeMotion + edgeFlutter * 0.55;
         edgeZ = Math.cos(p * 0.8 - t * (1.2 + soundEnergy * 2.2)) * edgeMotion;
         const glow = 1 + edgeFlash * (0.75 + 0.25 * Math.sin(t * 8 + p * 2));
-        pointColors[j] = 0.12 + glow * 0.12;
-        pointColors[j + 1] = 0.22 + glow * 0.18;
-        pointColors[j + 2] = 0.72 + glow * 0.25;
+        if (document.documentElement.dataset.theme === "light") {
+          pointColors[j] = 0.12 + glow * 0.12;
+          pointColors[j + 1] = 0.22 + glow * 0.18;
+          pointColors[j + 2] = 0.72 + glow * 0.25;
+        } else {
+          pointColors[j] = 0.72 + glow * 0.22;
+          pointColors[j + 1] = 0.88 + glow * 0.18;
+          pointColors[j + 2] = 1.0 + glow * 0.24;
+        }
       } else {
         pointColors[j] = pointColors[j + 1] = pointColors[j + 2] = 1;
       }
