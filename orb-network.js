@@ -13,6 +13,7 @@ export function createOrb(canvas, options = {}) {
   const count = Math.max(300, options.particleCount || 2000);
   const maxLines = Math.max(100, options.maxLines || 8000);
   const linkDistance = options.lineDistance || 8;
+  const particleBrightnessMultiplier = Number.isFinite(options.particleBrightnessMultiplier) ? options.particleBrightnessMultiplier : 1.675;
   const scene = new THREE_NS.Scene();
   const presentationGroup = new THREE_NS.Group();
   scene.add(presentationGroup);
@@ -286,7 +287,7 @@ export function createOrb(canvas, options = {}) {
       Math.sin(t * 0.24 + 1) * 0.035 * flow
     );
     // +34% particle luminance while retaining the renderer’s state-based response.
-    pointMat.opacity += (current.brightness * 0.85 * 1.675 * presentationCurrent.opacity - pointMat.opacity) * ease;
+    pointMat.opacity += (current.brightness * 0.85 * particleBrightnessMultiplier * presentationCurrent.opacity - pointMat.opacity) * ease;
     pointMat.size += (current.size - pointMat.size) * ease;
     const networkBreath = 0.92 + 0.08 * (0.5 + 0.5 * Math.sin(t * 0.48));
     const networkOpacity = current.links * (activeState === "listening" ? 0.155 : 0.105) * networkBreath * presentationCurrent.opacity;
