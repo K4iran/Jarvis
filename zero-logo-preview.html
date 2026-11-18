@@ -51,6 +51,10 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
         <filter id="baseGlow" x="-30%" y="-30%" width="160%" height="160%">
           <feGaussianBlur stdDeviation="2.2"/>
         </filter>
+        <filter id="runnerGlow" x="-250%" y="-250%" width="600%" height="600%">
+          <feGaussianBlur stdDeviation="2.8" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
       </defs>
       <g aria-hidden="true">
         <path class="base-trace" d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
