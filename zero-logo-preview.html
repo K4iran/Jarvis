@@ -23,9 +23,10 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 @keyframes trace-z{0%{opacity:1;stroke-dashoffset:1}31.8%{opacity:1;stroke-dashoffset:0}33.333%{opacity:0;stroke-dashoffset:0}100%{opacity:0}}
 @keyframes trace-e{0%,33.333%{opacity:0;stroke-dashoffset:1}34.8%{opacity:1;stroke-dashoffset:1}65.1%{opacity:1;stroke-dashoffset:0}66.666%{opacity:0;stroke-dashoffset:0}100%{opacity:0}}
 @keyframes trace-r{0%,66.666%{opacity:0;stroke-dashoffset:1}68.2%{opacity:1;stroke-dashoffset:1}98.4%{opacity:1;stroke-dashoffset:0}100%{opacity:0}}
-.base-trace{fill:none;stroke:#65baff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;opacity:.24;filter:url(#baseGlow);pointer-events:none}
-.trace{fill:none;stroke:#b9e6ff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:.038 .962;pathLength:1;opacity:0;filter:url(#traceGlow);pointer-events:none}
-.trace-core{stroke:#e8f7ff;stroke-width:1.25;filter:none}
+.base-trace{fill:none;stroke:#65baff;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;opacity:.48;filter:url(#baseGlow);pointer-events:none}
+.base-core{fill:none;stroke:#8dceff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.58;pointer-events:none}
+.trace{fill:none;stroke:#c8edff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:.075 .925;pathLength:1;opacity:0;filter:url(#traceGlow);pointer-events:none}
+.trace-core{stroke:#ffffff;stroke-width:2.1;filter:none}
 .trace-z{animation:trace-z 12s linear infinite}
 .trace-e{animation:trace-e 12s linear infinite}
 .trace-r{animation:trace-r 12s linear infinite}
@@ -51,16 +52,25 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
     
       <defs>
         <filter id="traceGlow" x="-35%" y="-35%" width="170%" height="170%">
-          <feGaussianBlur stdDeviation="2.4"/>
+          <feGaussianBlur stdDeviation="3.8"/>
         </filter>
         <filter id="baseGlow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="2.1"/>
+          <feGaussianBlur stdDeviation="3.6"/>
         </filter>
       </defs>
       <g aria-hidden="true">
         <path class="base-trace" d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
         <path class="base-trace" d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
         <path class="base-trace" d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
+        <path class="base-core" d="M8 8H116L113 31 42 128 116 151H4L8 128 79 31H8Z"/>
+        <path class="base-trace" d="M133 128H160V151H133Z"/>
+        <path class="base-core" d="M133 128H160V151H133Z"/>
+        <path class="base-core" d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
+        <path class="base-trace" d="M291 128H318V151H291Z"/>
+        <path class="base-core" d="M291 128H318V151H291Z"/>
+        <path class="base-core" d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
+        <path class="base-trace" d="M484 128H511V151H484Z"/>
+        <path class="base-core" d="M484 128H511V151H484Z"/>
         <path class="trace trace-z" d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
         <path class="trace trace-core trace-z" d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
         <path class="trace trace-e" d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
