@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050608">
+<title>Z.E.R.O. — Identity Preview</title>
+<style>
+:root{color-scheme:dark;background:#050608;color:#f5f7fa;font-family:Sora,Inter,system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#050608}
+body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
+.scene{width:min(100vw,1100px);min-height:100svh;display:grid;place-items:center;padding:24px}
+.logo{display:flex;align-items:center;justify-content:center;gap:clamp(2px,.7vw,10px);width:100%;max-width:980px;filter:drop-shadow(0 12px 32px rgba(0,0,0,.28))}
+.wordmark{width:min(74%,760px);height:auto;overflow:visible;flex:1 1 auto}
+.orb-shell{position:relative;flex:0 0 auto;width:clamp(100px,17vw,174px);aspect-ratio:1;isolation:isolate}
+#orb{position:absolute;inset:0;width:100%;height:100%;display:block}
+.orb-aura{position:absolute;inset:12%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(69,154,220,.16),rgba(35,101,168,.07) 45%,transparent 72%);filter:blur(10px)}
+.caption{position:fixed;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));text-align:center;color:rgba(190,211,231,.24);font:9px/1.4 ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase}
+@media(max-width:560px){.scene{padding:16px}.logo{gap:0}.wordmark{width:73%}.orb-shell{width:clamp(78px,22vw,112px)}}
+@media(prefers-reduced-motion:reduce){.caption{display:none}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
+</head>
+<body>
+<main class="scene" aria-label="Z.E.R.O. logo preview">
+  <div class="logo">
+    <svg class="wordmark" viewBox="0 0 530 160" role="img" aria-label="Z.E.R.">
+      <defs>
+        <linearGradient id="glassInk" x1="0" y1="0" x2=".18" y2="1">
+          <stop offset="0" stop-color="#ffffff"/>
+          <stop offset=".52" stop-color="#f5f8fb"/>
+          <stop offset="1" stop-color="#dce8f2"/>
+        </linearGradient>
+        <linearGradient id="edgeLight" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity=".72"/>
+          <stop offset=".45" stop-color="#9edbff" stop-opacity=".12"/>
+          <stop offset="1" stop-color="#ffffff" stop-opacity=".42"/>
+        </linearGradient>
+      </defs>
+      <g fill="url(#glassInk)" stroke="url(#edgeLight)" stroke-width=".65" stroke-linejoin="round">
+        <!-- Z -->
+        <path d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
+        <path d="M133 128H160V151H133Z"/>
+        <!-- E -->
+        <path d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
+        <path d="M291 128H318V151H291Z"/>
+        <!-- R -->
+        <path d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
+        <path d="M484 128H511V151H484Z"/>
+      </g>
+      <g fill="none" stroke="#ffffff" stroke-linecap="round" opacity=".28">
+        <path d="M15 12H100M194 12H264M351 12H408" stroke-width="1.1"/>
+      </g>
+      <g fill="none" stroke="#8dcfff" stroke-linecap="round" opacity=".2">
+        <path d="M16 146H105M194 147H267M352 147H435" stroke-width="1"/>
+      </g>
+    </svg>
+    <div class="orb-shell"><div class="orb-aura"></div><canvas id="orb" aria-label="Slowly rotating three-dimensional particle sphere"></canvas></div>
+  </div>
+</main>
+<div class="caption">Z.E.R.O. / identity system</div>
+<script type="module">
+import * as THREE from "three";
+
+const canvas = document.querySelector("#orb");
+const shell = canvas.parentElement;
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let renderer, frame = 0, observer;
+
+try {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(34, 1, .1, 500);
+  camera.position.set(0, 0, 230);
+  renderer = new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:"low-power"});
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setClearColor(0x000000,0);
+
+  const root = new THREE.Group();
+  scene.add(root);
+
+  // Subtle transparent glass volume: the Fresnel rim makes the sphere read
+  // as a rounded object instead of a flat circular particle outline.
+  const glass = new THREE.Mesh(
+    new THREE.SphereGeometry(56,64,48),
+    new THREE.ShaderMaterial({
+      transparent:true, depthWrite:false, side:THREE.FrontSide,
+      uniforms:{uTint:{value:new THREE.Color("#72bfff")}},
+      vertexShader:`varying vec3 vNormal; varying vec3 vView; void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);vNormal=normalize(normalMatrix*normal);vView=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}`,
+      fragmentShader:`uniform vec3 uTint; varying vec3 vNormal; varying vec3 vView; void main(){float f=pow(1.0-max(dot(normalize(vNormal),normalize(vView)),0.0),2.2);float center=pow(max(dot(normalize(vNormal),normalize(vView)),0.0),7.0);vec3 c=mix(uTint,vec3(.92,.97,1.0),center*.18);gl_FragColor=vec4(c,.025+f*.19);}`
+    })
+  );
+  root.add(glass);
+
+  // Fibonacci distribution gives even coverage over the entire 3D sphere,
+  // including the front, sides and rear — not a 2D perimeter ring.
+  const count = 1750, positions = new Float32Array(count*3), colors = new Float32Array(count*3), sizes = new Float32Array(count);
+  const blue = new THREE.Color("#65baff"), ice = new THREE.Color("#eaf7ff");
+  const golden = Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<count;i++){
+    const y=1-(i/(count-1))*2;
+    const radius=Math.sqrt(1-y*y);
+    const theta=golden*i;
+    const x=Math.cos(theta)*radius, z=Math.sin(theta)*radius;
+    const r=55.2 + (Math.random()-.5)*1.8;
+    const k=i*3;
+    positions[k]=x*r;positions[k+1]=y*r;positions[k+2]=z*r;
+    const mix=Math.random()*.62;
+    const color=blue.clone().lerp(ice,mix);
+    const sparkle=Math.random()>.91;
+    if(sparkle)color.lerp(new THREE.Color("#ffffff"),.55);
+    colors[k]=color.r;colors[k+1]=color.g;colors[k+2]=color.b;
+    sizes[i]=sparkle?1.8+Math.random()*1.2:.75+Math.random()*.9;
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
+  geometry.setAttribute("color",new THREE.BufferAttribute(colors,3));
+  geometry.setAttribute("size",new THREE.BufferAttribute(sizes,1));
+  const material=new THREE.PointsMaterial({
+    size:1.55,color:0xffffff,vertexColors:true,transparent:true,opacity:.92,
+    blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
+  });
+  const particles=new THREE.Points(geometry,material);
+  root.add(particles);
+
+  // A very fine, translucent equatorial glint adds a glass highlight without
+  // turning the sphere back into a simple outlined ring.
+  const glint=new THREE.Mesh(
+    new THREE.TorusGeometry(56.8,.16,4,180),
+    new THREE.MeshBasicMaterial({color:0x8bcfff,transparent:true,opacity:.16,blending:THREE.AdditiveBlending})
+  );
+  glint.rotation.x=THREE.MathUtils.degToRad(68);
+  glint.rotation.y=THREE.MathUtils.degToRad(-18);
+  root.add(glint);
+
+  function resize(){
+    const rect=shell.getBoundingClientRect();
+    const w=Math.max(1,rect.width),h=Math.max(1,rect.height);
+    renderer.setSize(w,h,false);
+    camera.aspect=w/h;
+    camera.position.z=230;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  observer=new ResizeObserver(resize);observer.observe(shell);
+
+  const clock=new THREE.Clock();
+  function animate(){
+    frame=requestAnimationFrame(animate);
+    const t=clock.getElapsedTime();
+    if(!reducedMotion){
+      root.rotation.y=t*.115;
+      root.rotation.x=Math.sin(t*.22)*.12;
+      root.rotation.z=Math.sin(t*.13)*.035;
+      glint.rotation.z=t*.035;
+    }
+    renderer.render(scene,camera);
+  }
+  animate();
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){cancelAnimationFrame(frame)}else if(!frame)animate()});
+}catch(error){
+  console.error("Z.E.R.O. logo orb could not initialise:",error);
+  shell.style.background="radial-gradient(circle,rgba(75,157,220,.22),transparent 70%)";
+  shell.style.border="1px solid rgba(130,195,240,.22)";
+  shell.style.borderRadius="50%";
+}
+</script>
+</body>
+</html>
