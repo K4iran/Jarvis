@@ -10,9 +10,9 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#050608}
 body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
-.scene{width:min(100vw,1100px);min-height:100svh;display:grid;place-items:center;padding:24px}
-.logo{--orb-size:clamp(116px,20.5vw,214px);--logo-gap:clamp(5px,.8vw,12px);position:relative;width:100%;max-width:980px;min-height:var(--orb-size);display:flex;align-items:center;justify-content:flex-start;filter:drop-shadow(0 12px 32px rgba(0,0,0,.28))}
-.wordmark{display:block;width:calc(100% - var(--orb-size) - var(--logo-gap));height:auto;flex:none;overflow:visible;opacity:0;clip-path:inset(0 100% 0 0);animation:letters-unveil 1.15s cubic-bezier(.2,.72,.18,1) .42s forwards}
+.scene{width:min(100vw,1280px);min-height:100svh;display:grid;place-items:center;padding:24px}
+.logo{--orb-size:clamp(170px,25vw,300px);--logo-gap:clamp(10px,1.2vw,18px);position:relative;width:100%;max-width:1180px;min-height:var(--orb-size);display:flex;align-items:center;justify-content:flex-start;filter:drop-shadow(0 16px 42px rgba(0,0,0,.34))}
+.wordmark{display:block;width:calc(100% - var(--orb-size) - var(--logo-gap));height:auto;flex:none;overflow:visible;transform:scaleY(1.18);transform-origin:left center;opacity:0;clip-path:inset(0 100% 0 0);animation:letters-unveil 1.15s cubic-bezier(.2,.72,.18,1) .42s forwards}
 .orb-shell{position:absolute;left:0;top:50%;width:var(--orb-size);aspect-ratio:1;isolation:isolate;transform:translateY(-50%);animation:orb-arrive 1.55s cubic-bezier(.18,.78,.18,1) .08s forwards;z-index:2}
 #orb{position:absolute;inset:0;width:100%;height:100%;display:block}
 .orb-aura{position:absolute;inset:12%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(69,154,220,.2),rgba(35,101,168,.09) 45%,transparent 72%);filter:blur(12px)}
@@ -20,7 +20,7 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 @keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size));transform:translate(0,-50%) scale(1)}}
 @keyframes letters-unveil{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
 @keyframes caption-in{to{opacity:1}}
-@media(max-width:560px){.scene{padding:16px}.logo{--orb-size:clamp(70px,21vw,112px);--logo-gap:4px;min-height:var(--orb-size)}}
+@media(max-width:560px){.scene{padding:16px}.logo{--orb-size:clamp(94px,27vw,132px);--logo-gap:6px;min-height:var(--orb-size)}.wordmark{transform:scaleY(1.12)}}
 @media(prefers-reduced-motion:reduce){.orb-shell{left:calc(100% - var(--orb-size));animation:none}.wordmark{opacity:1;clip-path:none;animation:none}.caption{display:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
@@ -32,13 +32,13 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
       <defs>
         <filter id="glass3d" x="-8%" y="-18%" width="116%" height="140%" color-interpolation-filters="sRGB">
           <feTurbulence type="fractalNoise" baseFrequency=".018 .055" numOctaves="1" seed="7" result="microRipples"/>
-          <feDisplacementMap in="SourceGraphic" in2="microRipples" scale="1.15" xChannelSelector="R" yChannelSelector="G" result="warpedGlass"/>
+          <feDisplacementMap in="SourceGraphic" in2="microRipples" scale="2.1" xChannelSelector="R" yChannelSelector="G" result="warpedGlass"/>
           <feGaussianBlur in="SourceAlpha" stdDeviation="1.25" result="softAlpha"/>
-          <feOffset in="softAlpha" dx="0" dy="3.2" result="depthOffset"/>
+          <feOffset in="softAlpha" dx="0" dy="7" result="depthOffset"/>
           <feFlood flood-color="#173b5b" flood-opacity=".9" result="depthColor"/>
           <feComposite in="depthColor" in2="depthOffset" operator="in" result="extrudedDepth"/>
           <feGaussianBlur in="SourceAlpha" stdDeviation="1.7" result="bevelBlur"/>
-          <feSpecularLighting in="bevelBlur" surfaceScale="5.5" specularConstant=".92" specularExponent="24" lighting-color="#f4fbff" result="edgeSpecular">
+          <feSpecularLighting in="bevelBlur" surfaceScale="8" specularConstant=".92" specularExponent="24" lighting-color="#f4fbff" result="edgeSpecular">
             <fePointLight x="-110" y="-90" z="170"/>
           </feSpecularLighting>
           <feComposite in="edgeSpecular" in2="SourceAlpha" operator="in" result="edgeShine"/>
