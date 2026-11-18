@@ -20,17 +20,11 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 @keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size) - 14px);transform:translate(0,-50%) scale(1)}}
 @keyframes letters-unveil{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
 @keyframes caption-in{to{opacity:1}}
-@keyframes trace-z{0%{opacity:1;stroke-dashoffset:1}31.8%{opacity:1;stroke-dashoffset:0}33.333%{opacity:0;stroke-dashoffset:0}100%{opacity:0}}
-@keyframes trace-e{0%,33.333%{opacity:0;stroke-dashoffset:1}34.8%{opacity:1;stroke-dashoffset:1}65.1%{opacity:1;stroke-dashoffset:0}66.666%{opacity:0;stroke-dashoffset:0}100%{opacity:0}}
-@keyframes trace-r{0%,66.666%{opacity:0;stroke-dashoffset:1}68.2%{opacity:1;stroke-dashoffset:1}98.4%{opacity:1;stroke-dashoffset:0}100%{opacity:0}}
-.base-trace{fill:none;stroke:#65baff;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;opacity:.48;filter:url(#baseGlow);pointer-events:none}
-.base-core{fill:none;stroke:#8dceff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.58;pointer-events:none}
-.trace{fill:none;stroke:#c8edff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:.075 .925;pathLength:1;opacity:0;filter:url(#traceGlow);pointer-events:none}
-.trace-core{stroke:#ffffff;stroke-width:2.1;filter:none}
-.trace-z{animation:trace-z 12s linear infinite}
-.trace-e{animation:trace-e 12s linear infinite}
-.trace-r{animation:trace-r 12s linear infinite}
-@media(prefers-reduced-motion:reduce){.trace{display:none}}
+.base-trace{fill:none;stroke:#65baff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:.28;filter:url(#baseGlow);pointer-events:none}
+.base-core{fill:none;stroke:#8dceff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.28;pointer-events:none}
+.track-path{fill:none;stroke:none;pointer-events:none}
+.runner-light{fill:#f5fbff;stroke:#bde8ff;stroke-width:1.1;filter:url(#runnerGlow);pointer-events:none}
+@media(prefers-reduced-motion:reduce){.runner-light{display:none}}
 
 @media(max-width:560px){.scene{padding:16px}.logo{--orb-size:clamp(94px,27vw,132px);--logo-gap:0px;min-height:var(--orb-size)}}
 @media(prefers-reduced-motion:reduce){.orb-shell{left:calc(100% - var(--orb-size) - 14px);animation:none}.wordmark{opacity:1;clip-path:none;animation:none}.caption{display:none}}
@@ -52,10 +46,10 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
     
       <defs>
         <filter id="traceGlow" x="-35%" y="-35%" width="170%" height="170%">
-          <feGaussianBlur stdDeviation="3.8"/>
+          <feGaussianBlur stdDeviation="2.6"/>
         </filter>
         <filter id="baseGlow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="3.6"/>
+          <feGaussianBlur stdDeviation="2.2"/>
         </filter>
       </defs>
       <g aria-hidden="true">
@@ -71,12 +65,10 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
         <path class="base-core" d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
         <path class="base-trace" d="M484 128H511V151H484Z"/>
         <path class="base-core" d="M484 128H511V151H484Z"/>
-        <path class="trace trace-z" d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
-        <path class="trace trace-core trace-z" d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
-        <path class="trace trace-e" d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
-        <path class="trace trace-core trace-e" d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
-        <path class="trace trace-r" d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
-        <path class="trace trace-core trace-r" d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
+        <path class="track-path" data-track d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
+        <path class="track-path" data-track d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
+        <path class="track-path" data-track d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344Z"/>
+        <circle class="runner-light" id="runnerLight" cx="8" cy="8" r="3.2"/>
       </g>
 </svg>
     <div class="orb-shell"><div class="orb-aura"></div><canvas id="orb" aria-label="Slowly rotating three-dimensional particle sphere"></canvas></div>
@@ -188,5 +180,37 @@ try {
   shell.style.borderRadius="50%";
 }
 </script>
+
+<script>
+(() => {
+  const svg = document.querySelector(".wordmark");
+  const light = document.querySelector("#runnerLight");
+  if (!svg || !light || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const tracks = [...svg.querySelectorAll("[data-track]")].map(path => ({
+    path,
+    length: path.getTotalLength()
+  }));
+  const totalLength = tracks.reduce((sum, track) => sum + track.length, 0);
+  if (!totalLength) return;
+  let start = 0;
+  const loopSeconds = 18;
+  function move(now) {
+    if (!start) start = now;
+    const distance = ((now - start) / 1000 / loopSeconds % 1) * totalLength;
+    let remaining = distance;
+    let active = tracks[tracks.length - 1];
+    for (const track of tracks) {
+      if (remaining <= track.length) { active = track; break; }
+      remaining -= track.length;
+    }
+    const point = active.path.getPointAtLength(Math.min(remaining, active.length));
+    light.setAttribute("cx", point.x.toFixed(2));
+    light.setAttribute("cy", point.y.toFixed(2));
+    requestAnimationFrame(move);
+  }
+  requestAnimationFrame(move);
+})();
+</script>
+
 </body>
 </html>
