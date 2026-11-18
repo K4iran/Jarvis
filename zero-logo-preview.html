@@ -157,7 +157,7 @@ try {
     renderer.render(scene,camera);
   }
   animate();
-  document.addEventListener("visibilitychange",()=>{if(document.hidden){cancelAnimationFrame(frame)}else if(!frame)animate()});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0}else if(!frame)animate()});
 }catch(error){
   console.error("Z.E.R.O. logo orb could not initialise:",error);
   shell.style.background="radial-gradient(circle,rgba(75,157,220,.22),transparent 70%)";
