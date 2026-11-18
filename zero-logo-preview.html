@@ -20,8 +20,8 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 @keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size) - 14px);transform:translate(0,-50%) scale(1)}}
 @keyframes letters-unveil{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
 @keyframes caption-in{to{opacity:1}}
-.base-trace{fill:none;stroke:#65baff;stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round;opacity:.46;filter:url(#baseGlow);pointer-events:none}
-.base-core{fill:none;stroke:#8dceff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.36;pointer-events:none}
+.base-trace{fill:none;stroke:#65baff;stroke-width:7.2;stroke-linecap:round;stroke-linejoin:round;opacity:.82;filter:url(#baseGlow);pointer-events:none}
+.base-core{fill:none;stroke:#a8dcff;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;opacity:.72;filter:url(#coreGlow);pointer-events:none}
 .track-path{fill:none;stroke:none;pointer-events:none}
 .runner-streak{fill:#f5fbff;filter:url(#runnerGlow);pointer-events:none}
 @media(prefers-reduced-motion:reduce){.runner-light{display:none}}
@@ -48,11 +48,14 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
         <filter id="traceGlow" x="-35%" y="-35%" width="170%" height="170%">
           <feGaussianBlur stdDeviation="2.6"/>
         </filter>
-        <filter id="baseGlow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="2.8"/>
+        <filter id="baseGlow" x="-45%" y="-45%" width="190%" height="190%">
+          <feGaussianBlur stdDeviation="5.8"/>
+        </filter>
+        <filter id="coreGlow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.4"/>
         </filter>
         <filter id="runnerGlow" x="-250%" y="-250%" width="600%" height="600%">
-          <feGaussianBlur stdDeviation="3.6" result="blur"/>
+          <feGaussianBlur stdDeviation="2.4" result="blur"/>
           <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
@@ -198,7 +201,7 @@ try {
 
   // A single short streak made from closely spaced points. Its centre is
   // brightest; opacity and size taper smoothly towards both ends.
-  const samples = 15, halfLength = 13, loopSeconds = 17;
+  const samples = 35, halfLength = 24, loopSeconds = 17;
   const dots = [];
   for (let i = 0; i < samples; i++) {
     const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -226,8 +229,8 @@ try {
       const p = pointAt(centre + t * halfLength);
       dot.setAttribute("cx", p.x.toFixed(2));
       dot.setAttribute("cy", p.y.toFixed(2));
-      dot.setAttribute("r", (0.75 + weight * 1.75).toFixed(2));
-      dot.style.opacity = (0.035 + weight * 0.965).toFixed(3);
+      dot.setAttribute("r", (0.28 + weight * 0.72).toFixed(2));
+      dot.style.opacity = (0.025 + weight * 0.975).toFixed(3);
     });
     requestAnimationFrame(move);
   }
