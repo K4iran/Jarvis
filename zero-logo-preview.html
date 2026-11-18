@@ -20,7 +20,7 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 @keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size) - 14px);transform:translate(0,-50%) scale(1)}}
 @keyframes letters-unveil{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
 @keyframes caption-in{to{opacity:1}}
-.base-trace{fill:none;stroke:#174b73;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;opacity:1;filter:none;pointer-events:none}
+.base-trace{fill:none;stroke:#006edb;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;opacity:1;filter:none;pointer-events:none}
 .base-core{display:none}
 .track-path{fill:none;stroke:none;pointer-events:none}
 .runner-streak{fill:#f5fbff;filter:none;pointer-events:none}
@@ -76,6 +76,7 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
         <path class="track-path" data-track d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
         <path class="track-path" data-track d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344Z"/>
         <g id="runnerStreak" aria-hidden="true"></g>
+        <g id="reverseRunnerStreak" aria-hidden="true"></g>
       </g>
 </svg>
     <div class="orb-shell"><div class="orb-aura"></div><canvas id="orb" aria-label="Slowly rotating three-dimensional particle sphere"></canvas></div>
@@ -235,6 +236,48 @@ try {
     requestAnimationFrame(move);
   }
   requestAnimationFrame(move);
+
+  // A second streak starts at the lower-right tip of the R and travels
+  // backwards around the R outline, independently of the main forward light.
+  const reverseGroup = svg.querySelector("#reverseRunnerStreak");
+  const rTrack = tracks[2];
+  if (reverseGroup && rTrack) {
+    const reverseDots = [];
+    for (let i = 0; i < samples; i++) {
+      const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      dot.setAttribute("class", "runner-streak");
+      reverseGroup.appendChild(dot);
+      reverseDots.push(dot);
+    }
+
+    let startDistance = 0, closest = Infinity;
+    for (let i = 0; i <= 1200; i++) {
+      const d = (i / 1200) * rTrack.length;
+      const p = rTrack.path.getPointAtLength(d);
+      const distance = Math.hypot(p.x - 473, p.y - 151);
+      if (distance < closest) { closest = distance; startDistance = d; }
+    }
+
+    let reverseStart = 0;
+    const reverseLoopSeconds = 10;
+    function moveReverse(now) {
+      if (!reverseStart) reverseStart = now;
+      const travelled = ((now - reverseStart) / 1000 / reverseLoopSeconds) * rTrack.length;
+      const centre = startDistance - travelled;
+      reverseDots.forEach((dot, i) => {
+        const t = (i / (samples - 1)) * 2 - 1;
+        const weight = Math.exp(-Math.pow(t * 2.35, 2));
+        const d = ((centre + t * halfLength) % rTrack.length + rTrack.length) % rTrack.length;
+        const p = rTrack.path.getPointAtLength(d);
+        dot.setAttribute("cx", p.x.toFixed(2));
+        dot.setAttribute("cy", p.y.toFixed(2));
+        dot.setAttribute("r", (0.28 + weight * 0.72).toFixed(2));
+        dot.style.opacity = (0.025 + weight * 0.975).toFixed(3);
+      });
+      requestAnimationFrame(moveReverse);
+    }
+    requestAnimationFrame(moveReverse);
+  }
 })();
 </script>
 
