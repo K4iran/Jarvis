@@ -11,17 +11,17 @@
 html,body{margin:0;min-height:100%;background:#050608}
 body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 .scene{width:min(100vw,1280px);min-height:100svh;display:grid;place-items:center;padding:24px}
-.logo{--orb-size:clamp(170px,25vw,300px);--logo-gap:clamp(10px,1.2vw,18px);position:relative;width:100%;max-width:1180px;min-height:var(--orb-size);display:flex;align-items:center;justify-content:flex-start;filter:drop-shadow(0 16px 42px rgba(0,0,0,.34))}
-.wordmark{display:block;width:calc(100% - var(--orb-size) - var(--logo-gap));height:auto;flex:none;overflow:visible;transform:scaleY(1.18);transform-origin:left center;opacity:0;clip-path:inset(0 100% 0 0);animation:letters-unveil 1.15s cubic-bezier(.2,.72,.18,1) .42s forwards}
+.logo{--orb-size:clamp(170px,25vw,300px);--logo-gap:0px;position:relative;width:100%;max-width:1180px;min-height:var(--orb-size);display:flex;align-items:center;justify-content:flex-start;filter:drop-shadow(0 16px 42px rgba(0,0,0,.34))}
+.wordmark{display:block;width:calc(100% - var(--orb-size) - var(--logo-gap));height:auto;flex:none;overflow:visible;transform:none;transform-origin:left center;opacity:0;clip-path:inset(0 100% 0 0);animation:letters-unveil 1.15s cubic-bezier(.2,.72,.18,1) .42s forwards}
 .orb-shell{position:absolute;left:0;top:50%;width:var(--orb-size);aspect-ratio:1;isolation:isolate;transform:translateY(-50%);animation:orb-arrive 1.55s cubic-bezier(.18,.78,.18,1) .08s forwards;z-index:2}
 #orb{position:absolute;inset:0;width:100%;height:100%;display:block}
 .orb-aura{position:absolute;inset:12%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(69,154,220,.2),rgba(35,101,168,.09) 45%,transparent 72%);filter:blur(12px)}
 .caption{position:fixed;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));text-align:center;color:rgba(190,211,231,.24);font:9px/1.4 ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase;opacity:0;animation:caption-in .5s ease 1.7s forwards}
-@keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size));transform:translate(0,-50%) scale(1)}}
+@keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size) - 14px);transform:translate(0,-50%) scale(1)}}
 @keyframes letters-unveil{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
 @keyframes caption-in{to{opacity:1}}
-@media(max-width:560px){.scene{padding:16px}.logo{--orb-size:clamp(94px,27vw,132px);--logo-gap:6px;min-height:var(--orb-size)}.wordmark{transform:scaleY(1.12)}}
-@media(prefers-reduced-motion:reduce){.orb-shell{left:calc(100% - var(--orb-size));animation:none}.wordmark{opacity:1;clip-path:none;animation:none}.caption{display:none}}
+@media(max-width:560px){.scene{padding:16px}.logo{--orb-size:clamp(94px,27vw,132px);--logo-gap:0px;min-height:var(--orb-size)}}
+@media(prefers-reduced-motion:reduce){.orb-shell{left:calc(100% - var(--orb-size) - 14px);animation:none}.wordmark{opacity:1;clip-path:none;animation:none}.caption{display:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
 </head>
@@ -29,76 +29,13 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 <main class="scene" aria-label="Z.E.R.O. logo preview">
   <div class="logo">
     <svg class="wordmark" viewBox="0 0 530 160" role="img" aria-label="Z.E.R.">
-      <defs>
-        <filter id="glass3d" x="-8%" y="-18%" width="116%" height="140%" color-interpolation-filters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency=".018 .055" numOctaves="1" seed="7" result="microRipples"/>
-          <feDisplacementMap in="SourceGraphic" in2="microRipples" scale="2.1" xChannelSelector="R" yChannelSelector="G" result="warpedGlass"/>
-          <feGaussianBlur in="SourceAlpha" stdDeviation="1.25" result="softAlpha"/>
-          <feOffset in="softAlpha" dx="0" dy="7" result="depthOffset"/>
-          <feFlood flood-color="#173b5b" flood-opacity=".9" result="depthColor"/>
-          <feComposite in="depthColor" in2="depthOffset" operator="in" result="extrudedDepth"/>
-          <feGaussianBlur in="SourceAlpha" stdDeviation="1.7" result="bevelBlur"/>
-          <feSpecularLighting in="bevelBlur" surfaceScale="8" specularConstant=".92" specularExponent="24" lighting-color="#f4fbff" result="edgeSpecular">
-            <fePointLight x="-110" y="-90" z="170"/>
-          </feSpecularLighting>
-          <feComposite in="edgeSpecular" in2="SourceAlpha" operator="in" result="edgeShine"/>
-          <feMerge>
-            <feMergeNode in="extrudedDepth"/>
-            <feMergeNode in="warpedGlass"/>
-            <feMergeNode in="edgeShine"/>
-          </feMerge>
-        </filter>
-        <linearGradient id="glassInk" x1="0" y1="0" x2=".12" y2="1">
-          <stop offset="0" stop-color="#eaf7ff"/>
-          <stop offset=".16" stop-color="#b9dcf5"/>
-          <stop offset=".34" stop-color="#f8fcff"/>
-          <stop offset=".52" stop-color="#9fc4e2"/>
-          <stop offset=".72" stop-color="#e5f4ff"/>
-          <stop offset="1" stop-color="#789fbe"/>
-        </linearGradient>
-        <linearGradient id="edgeLight" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#ffffff" stop-opacity=".96"/>
-          <stop offset=".3" stop-color="#a8ddff" stop-opacity=".58"/>
-          <stop offset=".62" stop-color="#5da9df" stop-opacity=".38"/>
-          <stop offset="1" stop-color="#ffffff" stop-opacity=".82"/>
-        </linearGradient>
-        <linearGradient id="reflection" x1="0" y1="0" x2=".65" y2="1">
-          <stop offset="0" stop-color="#ffffff" stop-opacity=".72"/>
-          <stop offset=".22" stop-color="#dff4ff" stop-opacity=".2"/>
-          <stop offset=".48" stop-color="#ffffff" stop-opacity="0"/>
-          <stop offset=".72" stop-color="#70b9ec" stop-opacity=".12"/>
-          <stop offset="1" stop-color="#ffffff" stop-opacity=".3"/>
-        </linearGradient>
-        <clipPath id="letterClip">
-          <path d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
-          <path d="M133 128H160V151H133Z"/>
-          <path d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
-          <path d="M291 128H318V151H291Z"/>
-          <path d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
-          <path d="M484 128H511V151H484Z"/>
-        </clipPath>
-      </defs>
-      <g filter="url(#glass3d)" fill="url(#glassInk)" stroke="url(#edgeLight)" stroke-width="1.15" stroke-linejoin="round">
-        <!-- Z -->
+      <g fill="#65baff">
         <path d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
         <path d="M133 128H160V151H133Z"/>
-        <!-- E -->
         <path d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
         <path d="M291 128H318V151H291Z"/>
-        <!-- R -->
         <path d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
         <path d="M484 128H511V151H484Z"/>
-      </g>
-      <g clip-path="url(#letterClip)" pointer-events="none">
-        <rect x="0" y="0" width="530" height="160" fill="url(#reflection)" opacity=".82"/>
-        <path d="M-8 40L530 0" stroke="#ffffff" stroke-width="5" opacity=".12"/>
-        <path d="M-8 47L530 7" stroke="#d9f2ff" stroke-width="1.2" opacity=".36"/>
-      </g>
-      <g fill="none" stroke="#ffffff" stroke-linecap="round" opacity=".42">
-        <path d="M15 12H100M194 12H264M351 12H408" stroke-width="1.1"/>
-      </g>
-      <g fill="none" stroke="#8dcfff" stroke-linecap="round" opacity=".2">
-        <path d="M16 146H105M194 147H267M352 147H435" stroke-width="1"/>
       </g>
     </svg>
     <div class="orb-shell"><div class="orb-aura"></div><canvas id="orb" aria-label="Slowly rotating three-dimensional particle sphere"></canvas></div>
