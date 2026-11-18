@@ -205,6 +205,7 @@ try {
     seed = (seed * 16807) % 2147483647;
     return (seed - 1) / 2147483646;
   };
+  const perimeterDots = [];
   for (const path of svg.querySelectorAll("[data-perimeter]")) {
     const length = path.getTotalLength();
     const count = Math.ceil(length / 1.65);
@@ -212,6 +213,8 @@ try {
       const p = path.getPointAtLength((i / count) * length);
       const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       const radius = 0.48 + random() * 0.43;
+      const phase = random() * Math.PI * 2;
+      const drift = 0.2 + random() * 0.16;
       dot.setAttribute("class", "perimeter-particle");
       dot.setAttribute("cx", p.x.toFixed(2));
       dot.setAttribute("cy", p.y.toFixed(2));
@@ -219,6 +222,7 @@ try {
       dot.setAttribute("fill", palette[Math.floor(random() * palette.length)]);
       dot.style.opacity = (0.48 + random() * 0.46).toFixed(2);
       perimeter.appendChild(dot);
+      perimeterDots.push({dot, x:p.x, y:p.y, phase, drift, rate:0.00045 + random() * 0.00035});
     }
   }
 
@@ -252,6 +256,12 @@ try {
   let startTime = 0;
   function move(now) {
     if (!startTime) startTime = now;
+    const seconds = now / 1000;
+    perimeterDots.forEach(({dot, x, y, phase, drift, rate}) => {
+      const angle = seconds * rate * Math.PI * 2 + phase;
+      dot.setAttribute("cx", (x + Math.cos(angle) * drift).toFixed(2));
+      dot.setAttribute("cy", (y + Math.sin(angle) * drift).toFixed(2));
+    });
     const centre = ((now - startTime) / 1000 / loopSeconds % 1) * totalLength;
     dots.forEach((dot, i) => {
       const t = (i / (samples - 1)) * 2 - 1;
@@ -288,7 +298,9 @@ try {
     }
 
     let reverseStart = 0;
-    const reverseLoopSeconds = 10;
+    // Match the forward streak's distance-per-second so neither light
+    // appears to accelerate relative to the other.
+    const reverseLoopSeconds = loopSeconds * rTrack.length / totalLength;
     function moveReverse(now) {
       if (!reverseStart) reverseStart = now;
       const travelled = ((now - reverseStart) / 1000 / reverseLoopSeconds) * rTrack.length;
