@@ -1793,7 +1793,6 @@ const say=(t,persist=true)=>{
   const message = $('#msg');
   if (!message) return;
   const text = String(t ?? '');
-  if (persist && text.length > 90) window.__zeroOrbSetPresentation?.(true,'response');
   const runId = ++messageTypingRun;
   clearTimeout(messageTypingTimer);
   message.dataset.persistent = persist ? 'true' : '';
@@ -2271,7 +2270,6 @@ async function streamZeroReply(message, options = {}) {
     message.dataset.persistent = 'true';
     message.dataset.typing = 'true';
     message.textContent = fullReply;
-    if (fullReply.length > 90) window.__zeroOrbSetPresentation?.(true,'response');
   };
 
   const processEvent = eventText => {
@@ -2382,8 +2380,8 @@ async function playZeroStreamBlob(blob, sentence = '') {
 }
 
 function renderDisp(){const p=P[view];$('#disp').dataset.panel=view;$('#dt').textContent=p?p.l:'Visualisation channel';$('#dv').innerHTML=`<div class="fade">${p?p.v():idleHTML}</div>`;$('#dx').hidden=!p}
-function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-tab',data);$('#homeTab').classList.toggle('active',!data);$('#dataTab').classList.toggle('active',data);$('#homeTab').setAttribute('aria-pressed',String(!data));$('#dataTab').setAttribute('aria-pressed',String(data));window.__zeroOrbSetPresentation?.(data,data?'data':'response');if(data)renderDisp()}
-function setView(v){view=v;if(v==='idle'){renderDisp();setTab('home')}else{setTab('data');window.__zeroOrbSetPresentation?.(true,'data')}}
+function setTab(tab){const data=tab==='data';$('#app').classList.toggle('data-tab',data);$('#homeTab').classList.toggle('active',!data);$('#dataTab').classList.toggle('active',data);$('#homeTab').setAttribute('aria-pressed',String(!data));$('#dataTab').setAttribute('aria-pressed',String(data));window.__zeroOrbSetPresentation?.(false,'response');if(data)renderDisp()}
+function setView(v){view=v;if(v==='idle'){renderDisp();setTab('home')}else{setTab('data')}}
 $$('#bar [data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 $('#dx').onclick=()=>setView('idle');
 let settingsSection="personalisation";
@@ -3225,7 +3223,8 @@ async function run(t) {
     const dataPanelOpen = app?.classList.contains('data-tab') ||
       document.getElementById('zeroFeatureOverlay')?.classList.contains('on') ||
       (document.getElementById('jarvis-calendar-panel')?.style.display === 'block');
-    if (replyText.length > 90) window.__zeroOrbSetPresentation?.(true,'response');
+    const explicitlyAskedToShow = wakeEnabled && /\b(show|display|bring up|pull up|put up|visuali[sz]e|present)\b/i.test(String(t || ''));
+    if (explicitlyAskedToShow && replyText.length > 35) window.__zeroOrbSetPresentation?.(true,'response');
     else if (!dataPanelOpen) window.__zeroOrbSetPresentation?.(false,'response');
     addConversationTurn('assistant', reply);
     say(reply);
@@ -5235,7 +5234,7 @@ status();
   transform:none!important;
 }
 #app:not(.data-tab) #core{
-  margin-top:clamp(25px,3vh,31px)!important;
+  margin-top:clamp(21px,3vh,27px)!important;
 }
 #app:not(.data-tab) #msg,
 #app:not(.data-tab) .ctl{
@@ -5243,10 +5242,10 @@ status();
 }
 @media(max-width:560px){
   #app:not(.data-tab) #bar{margin-top:0!important;transform:none!important}
-  #app:not(.data-tab) #core{margin-top:clamp(27px,3.2vh,33px)!important}
+  #app:not(.data-tab) #core{margin-top:clamp(23px,3.2vh,29px)!important}
 }
 @media(min-width:900px){
-  #app:not(.data-tab) #core{margin-top:clamp(35px,3.7vh,43px)!important}
+  #app:not(.data-tab) #core{margin-top:clamp(31px,3.7vh,39px)!important}
 }
 </style>
 
