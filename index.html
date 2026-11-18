@@ -6777,4 +6777,13 @@ html[data-theme="dark"] #bar:after{
   #bar{scroll-behavior:auto!important}
 }
 </style>
+
+<style id="zero-navbar-remove-root-safe-area-gap">
+/* The navbar already accounts for the device safe area. Do not offset the
+   entire document as well, or the bar can appear below the top on first load. */
+:root{padding-top:0!important}
+html{scroll-padding-top:calc(60px + env(safe-area-inset-top,0px))!important}
+#bar{position:fixed!important;top:0!important;inset:0 0 auto 0!important;margin:0!important;transform:none!important}
+</style>
+
 </body></html>
