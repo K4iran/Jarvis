@@ -11,14 +11,17 @@
 html,body{margin:0;min-height:100%;background:#050608}
 body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 .scene{width:min(100vw,1100px);min-height:100svh;display:grid;place-items:center;padding:24px}
-.logo{display:flex;align-items:center;justify-content:center;gap:clamp(2px,.7vw,10px);width:100%;max-width:980px;filter:drop-shadow(0 12px 32px rgba(0,0,0,.28))}
-.wordmark{width:min(74%,760px);height:auto;overflow:visible;flex:1 1 auto}
-.orb-shell{position:relative;flex:0 0 auto;width:clamp(100px,22.35vw,219px);aspect-ratio:1;isolation:isolate}
+.logo{--orb-size:clamp(116px,20.5vw,214px);--logo-gap:clamp(5px,.8vw,12px);position:relative;width:100%;max-width:980px;min-height:var(--orb-size);display:flex;align-items:center;justify-content:flex-start;filter:drop-shadow(0 12px 32px rgba(0,0,0,.28))}
+.wordmark{display:block;width:calc(100% - var(--orb-size) - var(--logo-gap));height:auto;flex:none;overflow:visible;opacity:0;clip-path:inset(0 100% 0 0);animation:letters-unveil 1.15s cubic-bezier(.2,.72,.18,1) .42s forwards}
+.orb-shell{position:absolute;left:0;top:50%;width:var(--orb-size);aspect-ratio:1;isolation:isolate;transform:translateY(-50%);animation:orb-arrive 1.55s cubic-bezier(.18,.78,.18,1) .08s forwards;z-index:2}
 #orb{position:absolute;inset:0;width:100%;height:100%;display:block}
-.orb-aura{position:absolute;inset:12%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(69,154,220,.16),rgba(35,101,168,.07) 45%,transparent 72%);filter:blur(10px)}
-.caption{position:fixed;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));text-align:center;color:rgba(190,211,231,.24);font:9px/1.4 ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase}
-@media(max-width:560px){.scene{padding:16px}.logo{gap:0}.wordmark{width:73%}.orb-shell{width:clamp(78px,21vw,118px)}}
-@media(prefers-reduced-motion:reduce){.caption{display:none}}
+.orb-aura{position:absolute;inset:12%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(69,154,220,.2),rgba(35,101,168,.09) 45%,transparent 72%);filter:blur(12px)}
+.caption{position:fixed;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));text-align:center;color:rgba(190,211,231,.24);font:9px/1.4 ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase;opacity:0;animation:caption-in .5s ease 1.7s forwards}
+@keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size));transform:translate(0,-50%) scale(1)}}
+@keyframes letters-unveil{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
+@keyframes caption-in{to{opacity:1}}
+@media(max-width:560px){.scene{padding:16px}.logo{--orb-size:clamp(70px,21vw,112px);--logo-gap:4px;min-height:var(--orb-size)}}
+@media(prefers-reduced-motion:reduce){.orb-shell{left:calc(100% - var(--orb-size));animation:none}.wordmark{opacity:1;clip-path:none;animation:none}.caption{display:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
 </head>
@@ -27,6 +30,24 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
   <div class="logo">
     <svg class="wordmark" viewBox="0 0 530 160" role="img" aria-label="Z.E.R.">
       <defs>
+        <filter id="glass3d" x="-8%" y="-18%" width="116%" height="140%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency=".018 .055" numOctaves="1" seed="7" result="microRipples"/>
+          <feDisplacementMap in="SourceGraphic" in2="microRipples" scale="1.15" xChannelSelector="R" yChannelSelector="G" result="warpedGlass"/>
+          <feGaussianBlur in="SourceAlpha" stdDeviation="1.25" result="softAlpha"/>
+          <feOffset in="softAlpha" dx="0" dy="3.2" result="depthOffset"/>
+          <feFlood flood-color="#173b5b" flood-opacity=".9" result="depthColor"/>
+          <feComposite in="depthColor" in2="depthOffset" operator="in" result="extrudedDepth"/>
+          <feGaussianBlur in="SourceAlpha" stdDeviation="1.7" result="bevelBlur"/>
+          <feSpecularLighting in="bevelBlur" surfaceScale="5.5" specularConstant=".92" specularExponent="24" lighting-color="#f4fbff" result="edgeSpecular">
+            <fePointLight x="-110" y="-90" z="170"/>
+          </feSpecularLighting>
+          <feComposite in="edgeSpecular" in2="SourceAlpha" operator="in" result="edgeShine"/>
+          <feMerge>
+            <feMergeNode in="extrudedDepth"/>
+            <feMergeNode in="warpedGlass"/>
+            <feMergeNode in="edgeShine"/>
+          </feMerge>
+        </filter>
         <linearGradient id="glassInk" x1="0" y1="0" x2=".12" y2="1">
           <stop offset="0" stop-color="#eaf7ff"/>
           <stop offset=".16" stop-color="#b9dcf5"/>
@@ -57,7 +78,7 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
           <path d="M484 128H511V151H484Z"/>
         </clipPath>
       </defs>
-      <g fill="url(#glassInk)" stroke="url(#edgeLight)" stroke-width=".65" stroke-linejoin="round">
+      <g filter="url(#glass3d)" fill="url(#glassInk)" stroke="url(#edgeLight)" stroke-width="1.15" stroke-linejoin="round">
         <!-- Z -->
         <path d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
         <path d="M133 128H160V151H133Z"/>
