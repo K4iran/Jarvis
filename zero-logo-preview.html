@@ -20,10 +20,10 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 @keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size) - 14px);transform:translate(0,-50%) scale(1)}}
 @keyframes letters-unveil{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
 @keyframes caption-in{to{opacity:1}}
-.base-trace{fill:none;stroke:#65baff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:.28;filter:url(#baseGlow);pointer-events:none}
-.base-core{fill:none;stroke:#8dceff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.28;pointer-events:none}
+.base-trace{fill:none;stroke:#65baff;stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round;opacity:.46;filter:url(#baseGlow);pointer-events:none}
+.base-core{fill:none;stroke:#8dceff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.36;pointer-events:none}
 .track-path{fill:none;stroke:none;pointer-events:none}
-.runner-light{fill:#f5fbff;stroke:#bde8ff;stroke-width:1.1;filter:url(#runnerGlow);pointer-events:none}
+.runner-streak{fill:#f5fbff;filter:url(#runnerGlow);pointer-events:none}
 @media(prefers-reduced-motion:reduce){.runner-light{display:none}}
 
 @media(max-width:560px){.scene{padding:16px}.logo{--orb-size:clamp(94px,27vw,132px);--logo-gap:0px;min-height:var(--orb-size)}}
@@ -49,10 +49,10 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
           <feGaussianBlur stdDeviation="2.6"/>
         </filter>
         <filter id="baseGlow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="2.2"/>
+          <feGaussianBlur stdDeviation="2.8"/>
         </filter>
         <filter id="runnerGlow" x="-250%" y="-250%" width="600%" height="600%">
-          <feGaussianBlur stdDeviation="2.8" result="blur"/>
+          <feGaussianBlur stdDeviation="3.6" result="blur"/>
           <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
@@ -72,7 +72,7 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
         <path class="track-path" data-track d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
         <path class="track-path" data-track d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
         <path class="track-path" data-track d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344Z"/>
-        <circle class="runner-light" id="runnerLight" cx="8" cy="8" r="3.2"/>
+        <g id="runnerStreak" aria-hidden="true"></g>
       </g>
 </svg>
     <div class="orb-shell"><div class="orb-aura"></div><canvas id="orb" aria-label="Slowly rotating three-dimensional particle sphere"></canvas></div>
@@ -188,28 +188,47 @@ try {
 <script>
 (() => {
   const svg = document.querySelector(".wordmark");
-  const light = document.querySelector("#runnerLight");
-  if (!svg || !light || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const streak = svg?.querySelector("#runnerStreak");
+  if (!svg || !streak || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const tracks = [...svg.querySelectorAll("[data-track]")].map(path => ({
-    path,
-    length: path.getTotalLength()
+    path, length: path.getTotalLength()
   }));
   const totalLength = tracks.reduce((sum, track) => sum + track.length, 0);
   if (!totalLength) return;
-  let start = 0;
-  const loopSeconds = 18;
-  function move(now) {
-    if (!start) start = now;
-    const distance = ((now - start) / 1000 / loopSeconds % 1) * totalLength;
-    let remaining = distance;
-    let active = tracks[tracks.length - 1];
+
+  // A single short streak made from closely spaced points. Its centre is
+  // brightest; opacity and size taper smoothly towards both ends.
+  const samples = 15, halfLength = 13, loopSeconds = 17;
+  const dots = [];
+  for (let i = 0; i < samples; i++) {
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("class", "runner-streak");
+    streak.appendChild(dot);
+    dots.push(dot);
+  }
+
+  function pointAt(distance) {
+    let d = ((distance % totalLength) + totalLength) % totalLength;
     for (const track of tracks) {
-      if (remaining <= track.length) { active = track; break; }
-      remaining -= track.length;
+      if (d <= track.length) return track.path.getPointAtLength(d);
+      d -= track.length;
     }
-    const point = active.path.getPointAtLength(Math.min(remaining, active.length));
-    light.setAttribute("cx", point.x.toFixed(2));
-    light.setAttribute("cy", point.y.toFixed(2));
+    return tracks[0].path.getPointAtLength(0);
+  }
+
+  let startTime = 0;
+  function move(now) {
+    if (!startTime) startTime = now;
+    const centre = ((now - startTime) / 1000 / loopSeconds % 1) * totalLength;
+    dots.forEach((dot, i) => {
+      const t = (i / (samples - 1)) * 2 - 1;
+      const weight = Math.exp(-Math.pow(t * 2.35, 2));
+      const p = pointAt(centre + t * halfLength);
+      dot.setAttribute("cx", p.x.toFixed(2));
+      dot.setAttribute("cy", p.y.toFixed(2));
+      dot.setAttribute("r", (0.75 + weight * 1.75).toFixed(2));
+      dot.style.opacity = (0.035 + weight * 0.965).toFixed(3);
+    });
     requestAnimationFrame(move);
   }
   requestAnimationFrame(move);
