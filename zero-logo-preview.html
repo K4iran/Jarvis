@@ -20,7 +20,7 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
 @keyframes orb-arrive{0%{left:0;transform:translate(0,-50%) scale(1.02)}100%{left:calc(100% - var(--orb-size) - 14px);transform:translate(0,-50%) scale(1)}}
 @keyframes letters-unveil{0%{opacity:0;clip-path:inset(0 100% 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
 @keyframes caption-in{to{opacity:1}}
-.base-trace{fill:none;stroke:#249cff;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;opacity:1;filter:none;pointer-events:none}
+.base-trace{display:none}.perimeter-particle{pointer-events:none}
 .base-core{display:none}
 .track-path{fill:none;stroke:none;pointer-events:none}
 .runner-streak{fill:#f5fbff;filter:none;pointer-events:none}
@@ -60,18 +60,19 @@ body{min-height:100svh;display:grid;place-items:center;overflow:hidden}
         </filter>
       </defs>
       <g aria-hidden="true">
-        <path class="base-trace" d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
-        <path class="base-trace" d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
-        <path class="base-trace" d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
+        <path class="base-trace" data-perimeter d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
+        <path class="base-trace" data-perimeter d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
+        <path class="base-trace" data-perimeter d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
         <path class="base-core" d="M8 8H116L113 31 42 128 116 151H4L8 128 79 31H8Z"/>
-        <path class="base-trace" d="M133 128H160V151H133Z"/>
+        <path class="base-trace" data-perimeter d="M133 128H160V151H133Z"/>
         <path class="base-core" d="M133 128H160V151H133Z"/>
         <path class="base-core" d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
-        <path class="base-trace" d="M291 128H318V151H291Z"/>
+        <path class="base-trace" data-perimeter d="M291 128H318V151H291Z"/>
         <path class="base-core" d="M291 128H318V151H291Z"/>
         <path class="base-core" d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344ZM370 31V87H410C429 87 441 76 441 59C441 41 429 31 410 31Z"/>
-        <path class="base-trace" d="M484 128H511V151H484Z"/>
+        <path class="base-trace" data-perimeter d="M484 128H511V151H484Z"/>
         <path class="base-core" d="M484 128H511V151H484Z"/>
+        <g id="perimeterParticles" aria-hidden="true"></g>
         <path class="track-path" data-track d="M8 8H116L113 31 42 128H116V151H4L8 128 79 31H8Z"/>
         <path class="track-path" data-track d="M187 8H276V31H211V67H260V91H211V128H276V151H187Z"/>
         <path class="track-path" data-track d="M344 8H414C449 8 468 27 468 58C468 81 456 97 436 105L473 151H442L409 110H370V151H344Z"/>
@@ -193,7 +194,35 @@ try {
 (() => {
   const svg = document.querySelector(".wordmark");
   const streak = svg?.querySelector("#runnerStreak");
-  if (!svg || !streak || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const perimeter = svg?.querySelector("#perimeterParticles");
+  if (!svg || !streak || !perimeter) return;
+
+  // Build a tightly packed, colour-varied particle outline from the exact
+  // vector contours. The dark letter interiors remain untouched.
+  const palette = ["#83c7f5", "#9bd5fa", "#6eb5eb", "#b2def8", "#75b9e9"];
+  let seed = 74129;
+  const random = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  for (const path of svg.querySelectorAll("[data-perimeter]")) {
+    const length = path.getTotalLength();
+    const count = Math.ceil(length / 1.65);
+    for (let i = 0; i < count; i++) {
+      const p = path.getPointAtLength((i / count) * length);
+      const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      const radius = 0.48 + random() * 0.43;
+      dot.setAttribute("class", "perimeter-particle");
+      dot.setAttribute("cx", p.x.toFixed(2));
+      dot.setAttribute("cy", p.y.toFixed(2));
+      dot.setAttribute("r", radius.toFixed(2));
+      dot.setAttribute("fill", palette[Math.floor(random() * palette.length)]);
+      dot.style.opacity = (0.48 + random() * 0.46).toFixed(2);
+      perimeter.appendChild(dot);
+    }
+  }
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const tracks = [...svg.querySelectorAll("[data-track]")].map(path => ({
     path, length: path.getTotalLength()
   }));
