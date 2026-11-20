@@ -6953,6 +6953,49 @@ body.zero-focus-active> :not(#zeroFocusMode){visibility:hidden!important;pointer
 @media(prefers-reduced-motion:reduce){
 #zeroFocusMode *,#zeroFocusMode *:before,#zeroFocusMode *:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}
 }
+
+#zeroFocusMode .zf-session-grid,#zeroFocusMode .zf-lower-grid{display:none!important}
+#zeroFocusMode .zf-shell:has(#zfSessionView:not([hidden])){max-width:none;padding:0;min-height:100dvh}
+#zeroFocusMode .zf-shell:has(#zfSessionView:not([hidden]))>.zf-top{display:none}
+#zeroFocusMode .zf-immersive{position:fixed;inset:0;z-index:2;overflow:hidden;min-height:100dvh;background:radial-gradient(ellipse at 50% 46%,#102d4a 0%,#07182b 42%,#030914 100%);color:#eaf7ff}
+#zeroFocusMode .zf-ambient{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 48%,rgba(49,128,189,.16),transparent 55%),linear-gradient(180deg,rgba(1,7,15,.32),transparent 28%,transparent 70%,rgba(1,7,15,.55)}
+#zeroFocusMode .zf-stage-art{position:absolute;inset:0;display:grid;place-items:center;padding:8vh 4vw 10vh}
+#zeroFocusMode .zf-stage-art svg{display:block;width:min(86vw,82vh);height:min(86vw,82vh);max-width:1100px;max-height:1100px;overflow:visible}
+#zeroFocusMode .zf-overlay-top{position:absolute;z-index:4;top:calc(18px + env(safe-area-inset-top,0px));left:clamp(14px,3vw,36px);right:clamp(14px,3vw,36px);display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+#zeroFocusMode .zf-glass-btn{pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 15px;border:1px solid rgba(166,213,248,.2);border-radius:999px;background:rgba(9,26,44,.38);backdrop-filter:blur(18px) saturate(135%);-webkit-backdrop-filter:blur(18px) saturate(135%);color:#e5f5ff;font-size:12px;box-shadow:0 5px 22px rgba(0,0,0,.13);transition:background .18s,border-color .18s,transform .18s}
+#zeroFocusMode .zf-glass-btn:hover{background:rgba(34,82,121,.48);border-color:rgba(166,213,248,.38)}
+#zeroFocusMode .zf-glass-btn:active{transform:scale(.97)}
+#zeroFocusMode .zf-back-btn{min-width:84px}
+#zeroFocusMode .zf-back-btn span:first-child{font-size:19px;line-height:1}
+#zeroFocusMode .zf-pause-btn{width:44px;padding:0;font-size:17px}
+#zeroFocusMode .zf-live-clock{display:flex;align-items:center;gap:10px;padding:10px 16px;border:1px solid rgba(166,213,248,.16);border-radius:999px;background:rgba(5,18,33,.4);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font:300 17px/1 "JetBrains Mono",monospace;font-variant-numeric:tabular-nums;color:#f0f9ff}
+#zeroFocusMode .zf-live-dot{width:6px;height:6px;border-radius:50%;background:#77caff;box-shadow:0 0 12px #77caff}
+#zeroFocusMode .zf-live-state{font:500 9px/1 Sora,system-ui,sans-serif;letter-spacing:.13em;color:#8fb8d8}
+#zeroFocusMode .zf-overlay-bottom{position:absolute;z-index:3;left:clamp(18px,5vw,64px);right:clamp(18px,5vw,64px);bottom:calc(22px + env(safe-area-inset-bottom,0px));display:grid;justify-items:center;gap:8px;text-align:center;pointer-events:none}
+#zeroFocusMode .zf-scene-info{display:grid;gap:4px}
+#zeroFocusMode .zf-scene-caption{font-size:clamp(17px,2.4vw,23px);font-weight:300;letter-spacing:.015em;color:#e4f4ff}
+#zeroFocusMode .zf-scene-sub{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#8aacc8}
+#zeroFocusMode .zf-session-objective{max-width:min(680px,85vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:rgba(193,220,242,.65)}
+#zeroFocusMode .zf-scene-progress{width:min(240px,55vw);height:2px;margin-top:7px;background:rgba(140,190,228,.16);overflow:hidden;border-radius:2px}
+#zeroFocusMode .zf-scene-progress span{display:block;width:0;height:100%;background:#8bd2ff;box-shadow:0 0 9px #65bfff;transition:width .25s linear}
+#zeroFocusMode .zf-pause-shade{position:absolute;z-index:5;inset:0;display:grid;place-items:center;background:rgba(1,7,15,.48);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#zeroFocusMode .zf-pause-card{display:grid;justify-items:center;gap:16px;padding:32px 38px;border:1px solid rgba(163,210,245,.17);border-radius:24px;background:rgba(7,24,42,.72);box-shadow:0 20px 70px rgba(0,0,0,.25)}
+#zeroFocusMode .zf-pause-kicker{font-size:9px;letter-spacing:.2em;color:#8ab9db}
+#zeroFocusMode .zf-pause-card strong{font-size:25px;font-weight:300;color:#eef8ff}
+#zeroFocusMode .zf-resume-btn{padding:0 22px;background:rgba(39,108,161,.38)}
+#zeroFocusMode .zf-session-data{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#zeroFocusMode .zf-review-stats{grid-template-columns:repeat(3,1fr)}
+@media(max-width:600px){
+ #zeroFocusMode .zf-stage-art{padding:12vh 0 14vh}
+ #zeroFocusMode .zf-stage-art svg{width:min(96vw,70vh);height:min(96vw,70vh);max-width:none;max-height:none}
+ #zeroFocusMode .zf-live-clock{gap:7px;padding:9px 11px;font-size:14px}
+ #zeroFocusMode .zf-live-state{font-size:8px}
+ #zeroFocusMode .zf-glass-btn{min-height:40px;padding:0 12px}
+ #zeroFocusMode .zf-back-btn{min-width:72px}
+ #zeroFocusMode .zf-overlay-bottom{bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+}
+@media(prefers-reduced-motion:reduce){#zeroFocusMode .zf-stage-art *{animation:none!important;transition:none!important}}
+
 </style>
 <section id="zeroFocusMode" aria-label="Z.E.R.O. Focus Mode" aria-hidden="true">
  <div class="zf-shell">
@@ -6973,41 +7016,33 @@ body.zero-focus-active> :not(#zeroFocusMode){visibility:hidden!important;pointer
    <div class="zf-field"><label for="zfDoneDefinition">What does done look like?</label><input id="zfDoneDefinition" maxlength="180" placeholder="A clear result you can recognise"></div>
    <div class="zf-field"><label for="zfSpotify">Music — optional Spotify playlist or track link</label><input id="zfSpotify" type="url" placeholder="https://open.spotify.com/playlist/..."></div>
    <p class="zf-note">Music is optional. Leave it blank for silence. Your last Spotify link is saved on this device.</p>
-   <div class="zf-setup-foot"><button class="zf-secondary" id="zfHistoryOpen" type="button">Session history</button><button class="zf-primary" id="zfStart" type="button">Start focus session</button></div>
+   <div class="zf-setup-foot"><button class="zf-secondary" id="zfHistoryOpen" type="button">Session history</button><button class="zf-secondary" id="zfResumeSaved" type="button" hidden>Resume paused session</button><button class="zf-primary" id="zfStart" type="button">Start focus session</button></div>
   </section>
   <section class="zf-view" id="zfSessionView" hidden>
-   <div class="zf-session-grid">
-    <div class="zf-session-main">
-     <h1 class="zf-session-title" id="zfSessionTitle">Focus session</h1>
-     <div class="zf-session-meta" id="zfSessionMeta">STUDY · SESSION ACTIVE</div>
-     <div class="zf-clock-wrap">
-      <div class="zf-clock" aria-label="Focus timer"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="zf-track" cx="50" cy="50" r="46"></circle><circle class="zf-progress" id="zfClockProgress" cx="50" cy="50" r="46" stroke-dasharray="289.03" stroke-dashoffset="0"></circle></svg><span class="zf-time" id="zfTime">25:00</span></div>
-      <div class="zf-clock-side"><strong id="zfClockState">Your time. Your objective.</strong><span id="zfClockHint">One step at a time. The next checkpoint arrives in five minutes.</span></div>
-     </div>
-     <div class="zf-controls"><button class="zf-primary" id="zfPause" type="button">Pause</button><button class="zf-secondary" id="zfFinish" type="button">Finish session</button><button class="zf-secondary" id="zfExitSession" type="button">Exit</button></div>
-     <div class="zf-music" id="zfMusicPanel"><div class="zf-music-copy"><strong>Focus soundtrack</strong><span id="zfMusicLabel">Silence — no music connected</span></div><div class="zf-music-actions"><button class="zf-secondary" id="zfOpenSpotify" type="button" hidden>Open Spotify</button><button class="zf-secondary" id="zfEditMusic" type="button">Change</button></div></div>
-     <p class="zf-notice">Focus environment is active. This website can suppress its own interruptions, but it cannot silence Android system notifications. Turn on Android Do Not Disturb for device-wide blocking.</p>
+   <div class="zf-immersive" id="zfImmersive">
+    <div class="zf-ambient" aria-hidden="true"></div>
+    <div class="zf-stage-art" id="zfScene" aria-label="Focus animation"></div>
+    <div class="zf-overlay-top">
+     <button class="zf-glass-btn zf-back-btn" id="zfBack" type="button" aria-label="Back to session setup"><span aria-hidden="true">←</span><span>Back</span></button>
+     <div class="zf-live-clock"><span class="zf-live-dot"></span><span id="zfTime">25:00</span><span class="zf-live-state" id="zfClockState">FOCUSING</span></div>
+     <button class="zf-glass-btn zf-pause-btn" id="zfPause" type="button" aria-label="Pause focus session">Ⅱ</button>
     </div>
-    <div class="zf-scene-card">
-     <div class="zf-scene" id="zfScene" aria-label="Focus visual"></div>
-     <div class="zf-scene-caption" id="zfSceneCaption">Deadeye · Concentration</div>
-     <div class="zf-scene-sub" id="zfSceneSub">Checkpoint 1 of 6</div>
+    <div class="zf-overlay-bottom">
+     <div class="zf-scene-info"><span class="zf-scene-caption" id="zfSceneCaption">Deadeye</span><span class="zf-scene-sub" id="zfSceneSub">Concentration</span></div>
+     <div class="zf-session-objective" id="zfSessionTitle">Your objective</div>
      <div class="zf-scene-progress"><span id="zfSceneProgress"></span></div>
     </div>
+    <div class="zf-pause-shade" id="zfPauseShade" hidden>
+     <div class="zf-pause-card"><span class="zf-pause-kicker">SESSION PAUSED</span><strong>Take your time.</strong><button class="zf-glass-btn zf-resume-btn" id="zfResumeOverlay" type="button">Resume focus</button></div>
+    </div>
    </div>
-   <div class="zf-lower-grid">
-    <section class="zf-panel">
-     <div class="zf-panel-head"><span class="zf-panel-title">Mission control</span><span class="zf-panel-hint" id="zfTaskCount">0 tasks</span></div>
-     <div class="zf-task-list" id="zfTaskList"></div>
-     <div class="zf-add-row"><input id="zfNewTask" maxlength="120" placeholder="Add a supporting task"><button id="zfAddTask" type="button">Add</button></div>
-     <div class="zf-definition" id="zfDefinition"></div>
-    </section>
-    <section class="zf-panel">
-     <div class="zf-panel-head"><span class="zf-panel-title">Distraction capture</span><span class="zf-panel-hint">Park it. Return to work.</span></div>
-     <div class="zf-empty" id="zfDistractionHint">If something unrelated comes to mind, capture it here instead of switching tasks.</div>
-     <div class="zf-distraction-list" id="zfDistractionList"></div>
-     <div class="zf-capture"><input id="zfDistractionInput" maxlength="160" placeholder="Capture a thought"><button id="zfCapture" type="button">Save</button></div>
-    </section>
+   <div class="zf-session-data" aria-hidden="true">
+    <div id="zfTaskCount"></div><div id="zfTaskList"></div><div id="zfDistractionList"></div>
+    <input id="zfNewTask"><input id="zfDistractionInput">
+    <div id="zfDefinition"></div><span id="zfMusicLabel"></span><button id="zfOpenSpotify" type="button" hidden></button><button id="zfEditMusic" type="button"></button>
+    <button id="zfAddTask" type="button"></button><button id="zfCapture" type="button"></button>
+    <button id="zfFinish" type="button"></button><button id="zfExitSession" type="button"></button>
+    <div id="zfMusicPanel"></div><div id="zfClockHint"></div><svg><circle id="zfClockProgress"></circle></svg>
    </div>
   </section>
   <section class="zf-view zf-review" id="zfReviewView" hidden>
@@ -7057,15 +7092,15 @@ function showToast(message){var el=$("zfToast");el.textContent=message;el.hidden
 function showView(name){["Setup","Session","Review","History"].forEach(function(v){$("zf"+v+"View").hidden=v.toLowerCase()!==name;});}
 function open(){root.classList.add("is-open");root.setAttribute("aria-hidden","false");document.body.classList.add("zero-focus-active");if(data.active&&data.active.status==="active"){restoreClock();renderSession();showView("session");startTicker();}else if(data.active&&data.active.status==="review"){renderReview();showView("review");}else{showSetup();showView("setup");}setTimeout(function(){$("zfClose").focus();},40);}
 function close(force){if(data.active&&data.active.status==="active"&&!force){showToast("Finish or pause your session before closing.");return;}stopTicker();root.classList.remove("is-open");root.setAttribute("aria-hidden","true");document.body.classList.remove("zero-focus-active");launch.focus();}
-function showSetup(){var last=data.history[0];$("zfCarry").hidden=!last||!last.notes;$("zfCarry").textContent=last&&last.notes?"Carry-forward from your last session: "+last.notes:"";$("zfSpotify").value=data.settings.spotify||"";}
+function showSetup(){var last=data.history[0];$("zfCarry").hidden=!last||!last.notes;$("zfCarry").textContent=last&&last.notes?"Carry-forward from your last session: "+last.notes:"";$("zfSpotify").value=data.settings.spotify||"";$("zfResumeSaved").hidden=!(data.active&&data.active.status==="active");}
 function duration(){var custom=Number($("zfCustomMinutes").value);return custom>=5&&custom<=240?Math.round(custom):selectedMinutes;}
 function start(){var objective=$("zfObjective").value.trim();if(!objective){$("zfObjective").focus();showToast("Add one main objective first.");return;}var mins=duration();var tasks=$("zfTasksInput").value.split(/\n/).map(function(t){return t.trim();}).filter(Boolean).slice(0,20).map(function(t,i){return {id:"t"+Date.now()+"_"+i,text:t,done:false};});var music=$("zfSpotify").value.trim();if(music&&!validSpotify(music)){showToast("Use a valid Spotify link, or leave music blank.");return;}data.settings.spotify=music;data.active={status:"active",objective:objective,category:$("zfCategory").value,definition:$("zfDoneDefinition").value.trim(),durationMs:mins*60000,remainingMs:mins*60000,startedAt:Date.now(),lastTickAt:Date.now(),paused:false,tasks:tasks,distractions:[],notes:""};persist();renderSession();showView("session");startTicker();}
 function restoreClock(){var s=data.active;if(!s)return;if(!s.paused&&s.lastTickAt){s.remainingMs=Math.max(0,s.remainingMs-(Date.now()-s.lastTickAt));s.lastTickAt=Date.now();if(s.remainingMs<=0){s.remainingMs=0;s.status="review";s.completedNaturally=true;}}persist();}
 function startTicker(){stopTicker();if(!data.active||data.active.status!=="active")return;interval=setInterval(tick,250);tick();}
 function stopTicker(){if(interval){clearInterval(interval);interval=null;}}
 function tick(){var s=data.active;if(!s||s.status!=="active")return;if(!s.paused&&s.lastTickAt){var now=Date.now();s.remainingMs=Math.max(0,s.remainingMs-(now-s.lastTickAt));s.lastTickAt=now;}updateClock();if(s.remainingMs<=0){s.status="review";s.completedNaturally=true;persist();stopTicker();renderReview();showView("review");showToast("Focus session complete.");return;}if(Math.floor(s.remainingMs/1000)%5===0)persist();}
-function updateClock(){var s=data.active;if(!s)return;var sec=Math.ceil(s.remainingMs/1000);$("zfTime").textContent=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");var fraction=s.durationMs?Math.max(0,Math.min(1,s.remainingMs/s.durationMs)):0;$("zfClockProgress").style.strokeDashoffset=String(CIRC*(1-fraction));$("zfPause").textContent=s.paused?"Resume":"Pause";$("zfClockState").textContent=s.paused?"Session paused":"Your time. Your objective.";var elapsed=s.durationMs-s.remainingMs;var sceneIndex=Math.floor(elapsed/300000)%6;renderScene(sceneIndex,elapsed%300000);$("zfSceneSub").textContent="Checkpoint "+(sceneIndex+1)+" of 6 · changes every 5 minutes";$("zfSceneProgress").style.width=String((elapsed%300000)/300000*100)+"%";}
-function togglePause(){var s=data.active;if(!s||s.status!=="active")return;if(s.paused){s.paused=false;s.lastTickAt=Date.now();}else{s.paused=true;s.lastTickAt=null;}persist();updateClock();}
+function updateClock(){var s=data.active;if(!s)return;var sec=Math.ceil(s.remainingMs/1000);$("zfTime").textContent=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");$("zfPause").textContent=s.paused?"▶":"Ⅱ";$("zfPause").setAttribute("aria-label",s.paused?"Resume focus session":"Pause focus session");$("zfPauseShade").hidden=!s.paused;$("zfClockState").textContent=s.paused?"PAUSED":"FOCUSING";var elapsed=s.durationMs-s.remainingMs;var sceneIndex=Math.floor(elapsed/300000)%6;renderScene(sceneIndex,elapsed%300000);}
+function togglePause(){var s=data.active;if(!s||s.status!=="active")return;if(s.paused){s.paused=false;s.lastTickAt=Date.now();}else{s.paused=true;s.lastTickAt=null;}persist();$("zfPause").textContent=s.paused?"▶":"Ⅱ";$("zfPause").setAttribute("aria-label",s.paused?"Resume focus session":"Pause focus session");$("zfPauseShade").hidden=!s.paused;$("zfClockState").textContent=s.paused?"PAUSED":"FOCUSING";}
 function renderSession(){var s=data.active;if(!s)return;$("zfSessionTitle").textContent=s.objective;$("zfSessionMeta").textContent=s.category.toUpperCase()+" · "+(s.paused?"PAUSED":"SESSION ACTIVE");$("zfDefinition").textContent=s.definition?"Done looks like: "+s.definition:"";renderTasks();renderDistractions();var link=data.settings.spotify||"";$("zfMusicLabel").textContent=link?"Spotify soundtrack saved":"Silence — no music connected";$("zfOpenSpotify").hidden=!link;updateClock();}
 function renderTasks(){var s=data.active,el=$("zfTaskList");if(!s)return;var done=s.tasks.filter(function(t){return t.done;}).length;$("zfTaskCount").textContent=done+"/"+s.tasks.length+" complete";if(!s.tasks.length){el.innerHTML='<div class="zf-task-empty">No supporting tasks yet. Keep the objective simple, or add the next action below.</div>';return;}el.innerHTML=s.tasks.map(function(t,i){return '<label class="zf-task'+(t.done?" done":"")+(i===s.tasks.findIndex(function(x){return !x.done;})&&!t.done?" zf-task-next":"")+'"><input type="checkbox" data-task="'+esc(t.id)+'" '+(t.done?"checked":"")+'><span>'+esc(t.text)+'</span></label>';}).join("");}
 function renderDistractions(){var s=data.active,el=$("zfDistractionList");if(!s)return;el.innerHTML=s.distractions.length?s.distractions.map(function(d){return '<div class="zf-task"><span>'+esc(d)+'</span></div>';}).join(""):'<div class="zf-task-empty">Nothing parked yet.</div>';}
@@ -7080,16 +7115,67 @@ function renderReview(){var s=data.active;if(!s)return;var done=s.tasks.filter(f
 function saveReview(){var s=data.active;if(!s)return;var record={id:Date.now(),objective:s.objective,category:s.category,plannedMinutes:Math.round(s.durationMs/60000),focusedMinutes:elapsedMinutes(s),tasksDone:s.tasks.filter(function(t){return t.done;}).length,tasksTotal:s.tasks.length,distractions:s.distractions.length,rating:Number($("zfReviewRating").value),notes:$("zfReviewNotes").value.trim(),date:new Date().toISOString(),completedNaturally:!!s.completedNaturally};data.history.unshift(record);data.history=data.history.slice(0,100);data.active=null;persist();showSetup();showView("setup");showToast("Session review saved.");}
 function discardReview(){if(!window.confirm("Discard this session review?"))return;data.active=null;persist();showSetup();showView("setup");}
 function renderHistory(){var el=$("zfHistoryList");if(!data.history.length){el.innerHTML='<p class="zf-history-empty">No saved sessions yet. Your completed focus sessions will appear here.</p>';return;}el.innerHTML=data.history.map(function(h){var date=new Date(h.date);return '<article class="zf-history-item"><div><strong>'+esc(h.objective)+'</strong><small>'+esc(h.category)+' · '+date.toLocaleDateString()+' · '+h.tasksDone+'/'+h.tasksTotal+' tasks</small></div><b>'+h.focusedMinutes+' min</b></article>';}).join("");}
-function sceneSvg(index){var scenes=[
-'<svg viewBox="0 0 300 220" role="img" aria-label="A glowing target representing concentration"><g class="zf-glow" fill="none" stroke="#7cc8ff" stroke-width="1.4"><circle cx="150" cy="108" r="78" opacity=".28"/><circle class="zf-target-pulse" cx="150" cy="108" r="57" opacity=".62"/><circle cx="150" cy="108" r="34" opacity=".78"/><circle cx="150" cy="108" r="12"/><path d="M150 12v22M150 182v22M54 108h22M224 108h22" opacity=".45"/></g><g class="zf-darts" stroke="#c5eaff" stroke-width="2" stroke-linecap="round"><path d="m143 105 21-25m-24 23-8-2m30-25-1-8"/><path d="m151 105 13 5m-13-5 2-12" opacity=".5"/></g></svg>',
-'<svg viewBox="0 0 300 220" role="img" aria-label="A holographic chessboard representing strategy"><g transform="translate(65 26)"><rect x="0" y="0" width="170" height="170" fill="none" stroke="#7cc8ff" opacity=".7"/>'+Array.from({length:64},function(_,i){var x=(i%8)*21.25,y=Math.floor(i/8)*21.25;return '<rect x="'+x+'" y="'+y+'" width="21.25" height="21.25" fill="'+((i+Math.floor(i/8))%2?"#214c70":"#0a2037")+'" opacity=".82"/>';}).join("")+'<g class="zf-glow" fill="#c5eaff" font-size="19" text-anchor="middle"><text x="31" y="39">♜</text><text x="73" y="39">♞</text><text x="116" y="39">♝</text><text x="158" y="39">♛</text><text x="31" y="165">♙</text><text x="73" y="165">♙</text><text x="116" y="165">♙</text><text x="158" y="165">♙</text><text class="zf-chess-piece" x="73" y="123">♘</text></g></g></svg>',
-'<svg viewBox="0 0 300 220" role="img" aria-label="A target showing progress through repeated attempts"><g fill="none" stroke="#7cc8ff" stroke-width="1.5"><circle cx="150" cy="108" r="79" opacity=".28"/><circle cx="150" cy="108" r="56" opacity=".48"/><circle cx="150" cy="108" r="31" opacity=".7"/><circle cx="150" cy="108" r="9"/></g><g class="zf-glow" stroke="#d4efff" stroke-width="2" stroke-linecap="round"><path d="m145 102 9-22m-13 19-8-1"/><path d="m151 106 17-27m-17 27 2-12" opacity=".8"/><path d="m154 110 21-5m-21 5-5 7" opacity=".5"/></g><path d="M150 14v18M150 184v18M56 108h18M226 108h18" stroke="#79c4ff" opacity=".55"/></svg>',
-'<svg viewBox="0 0 300 220" role="img" aria-label="A gyroscope representing balance and alignment"><g class="zf-glow" fill="none" stroke="#7cc8ff" stroke-width="2"><ellipse class="zf-ring-a" cx="150" cy="108" rx="78" ry="36"/><ellipse class="zf-ring-b" cx="150" cy="108" rx="78" ry="36" transform="rotate(60 150 108)"/><ellipse class="zf-ring-c" cx="150" cy="108" rx="78" ry="36" transform="rotate(-60 150 108)"/><circle cx="150" cy="108" r="9" fill="#8bcfff" fill-opacity=".35"/></g></svg>',
-'<svg viewBox="0 0 300 220" role="img" aria-label="A rotating Rubik cube representing problem solving"><g class="zf-cube" transform="translate(94 38)">'+Array.from({length:9},function(_,i){var x=(i%3)*38,y=Math.floor(i/3)*38;return '<rect x="'+x+'" y="'+y+'" width="34" height="34" rx="4" fill="'+["#287ab7","#15476f","#4096d1","#1b5c8d","#6ab9ee","#245b87","#398ac2","#153d61","#78c5f2"][i]+'" stroke="#9edaff" stroke-opacity=".6"/>';}).join("")+'</g><path d="M88 180h124" stroke="#69baff" opacity=".4"/></svg>',
-'<svg viewBox="0 0 300 220" role="img" aria-label="A protective shield representing protected attention"><g class="zf-shield-pulse zf-glow"><path d="M150 24 218 49v48c0 45-27 77-68 100-41-23-68-55-68-100V49Z" fill="rgba(43,117,174,.13)" stroke="#83ceff" stroke-width="2"/><path d="m117 108 22 22 45-48" fill="none" stroke="#d7f1ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 39 204 59v38c0 34-20 61-54 82-34-21-54-48-54-82V59Z" fill="none" stroke="#69baff" opacity=".38"/></g></svg>'
-];return scenes[index%scenes.length];}
-function renderScene(index,within){$("zfScene").innerHTML=sceneSvg(index);$("zfSceneCaption").textContent=sceneNames[index].name+" · "+sceneNames[index].meaning;$("zfSceneProgress").style.width=String(within/300000*100)+"%";}
-function bind(){launch.addEventListener("click",open);$("zfClose").addEventListener("click",function(){close(false);});$("zfStart").addEventListener("click",start);$("zfPause").addEventListener("click",togglePause);$("zfFinish").addEventListener("click",finish);$("zfExitSession").addEventListener("click",finish);$("zfAddTask").addEventListener("click",addTask);$("zfNewTask").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addTask();}});$("zfCapture").addEventListener("click",capture);$("zfDistractionInput").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();capture();}});$("zfTaskList").addEventListener("change",function(e){var id=e.target&&e.target.getAttribute("data-task");if(!id||!data.active)return;var task=data.active.tasks.find(function(t){return t.id===id;});if(task){task.done=e.target.checked;persist();renderTasks();}});$("zfOpenSpotify").addEventListener("click",spotifyOpen);$("zfEditMusic").addEventListener("click",editMusic);$("zfSaveReview").addEventListener("click",saveReview);$("zfDiscardReview").addEventListener("click",discardReview);$("zfHistoryOpen").addEventListener("click",function(){renderHistory();showView("history");});$("zfHistoryBack").addEventListener("click",function(){showSetup();showView("setup");});$("zfDurations").addEventListener("click",function(e){var b=e.target.closest("[data-minutes]");if(!b)return;selectedMinutes=Number(b.getAttribute("data-minutes"));$("zfCustomMinutes").value="";Array.from($("zfDurations").querySelectorAll("[data-minutes]")).forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});});$("zfCustomMinutes").addEventListener("input",function(){if(this.value){Array.from($("zfDurations").querySelectorAll("[data-minutes]")).forEach(function(x){x.setAttribute("aria-pressed","false");});}});document.addEventListener("keydown",function(e){if(!root.classList.contains("is-open"))return;if(e.key==="Escape"){e.preventDefault();if(data.active&&data.active.status==="active")showToast("Finish or pause your session before closing.");else close(true);}if(e.code==="Space"&&data.active&&data.active.status==="active"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();togglePause();}});document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&root.classList.contains("is-open")&&data.active&&data.active.status==="active"){restoreClock();updateClock();}});}
+var operaMoves=["e2e4","e7e5","g1f3","d7d6","d2d4","c8g4","d4e5","g4f3","d1f3","d6e5","f1c4","g8f6","f3b3","d8e7","b1c3","c7c6","c1g5","b7b5","c3b5","c6b5","c4b5","b8d7","e1c1","a8d8","b5d7","d8d7","h1d1","e7e6","d7d8","e6b8","d1d8"];
+var chessStart="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+var chessGlyph={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+function chessBoardAt(plies){
+ var rows=chessStart.split("/"),board=[];
+ rows.forEach(function(row,r){var line=[];for(var c=0;c<row.length;c++){var ch=row[c];if(/[1-8]/.test(ch)){for(var n=0;n<Number(ch);n++)line.push("");}else line.push(ch);}board=board.concat(line);});
+ function at(s){return (8-Number(s[1]))*8+"abcdefgh".indexOf(s[0]);}
+ for(var k=0;k<Math.min(plies,operaMoves.length);k++){
+  var mv=operaMoves[k],from=at(mv.slice(0,2)),to=at(mv.slice(2,4)),piece=board[from],captured=board[to];
+  board[from]="";
+  if(piece==="P"&&mv.slice(2,4)==="e.p.")board[to-8]="";
+  board[to]=piece;
+  if(piece==="K"&&Math.abs(to-from)===2){if(to>from){board[to-1]=board[from+3];board[from+3]="";}else{board[to+1]=board[from-4];board[from-4]="";}}
+ }
+ return board;
+}
+function chessSvg(within){
+ var plies=Math.min(operaMoves.length,Math.floor(within/300000*operaMoves.length));
+ var board=chessBoardAt(plies),squares="",pieces="";
+ for(var r=0;r<8;r++)for(var c=0;c<8;c++){var x=110+c*97.5,y=110+r*97.5;var light=(r+c)%2===0;squares+='<rect x="'+x+'" y="'+y+'" width="97.5" height="97.5" rx="1" fill="'+(light?"#8fb6d0":"#173c5c")+'" fill-opacity="'+(light?".86":".94")+'" stroke="#9fd8ff" stroke-opacity=".11" stroke-width="1"/>';if(board[r*8+c]){var p=board[r*8+c],white=p===p.toUpperCase();pieces+='<text x="'+(x+48.75)+'" y="'+(y+69)+'" text-anchor="middle" font-size="68" font-family="DejaVu Sans,Segoe UI Symbol,serif" fill="'+(white?"#f1f8ff":"#071725")+'" stroke="'+(white?"#244b68":"#9dc5df")+'" stroke-width="1.5" paint-order="stroke" filter="url(#pieceGlow)">'+chessGlyph[p]+'</text>';}}
+ var labels="";for(var i=0;i<8;i++){labels+='<text x="'+(158.75+i*97.5)+'" y="907" text-anchor="middle" font-size="15" fill="#9fc9e7" opacity=".7">'+"abcdefgh"[i]+'</text><text x="91" y="'+(170+i*97.5)+'" text-anchor="middle" font-size="15" fill="#9fc9e7" opacity=".7">'+(8-i)+'</text>';}
+ var last=plies?operaMoves[plies-1]:"";
+ var toX=last?(158.75+"abcdefgh".indexOf(last[2])*97.5):0,toY=last?(158.75+(8-Number(last[3]))*97.5):0;
+ var highlight=last?'<rect x="'+(110+"abcdefgh".indexOf(last[2])*97.5)+'" y="'+(110+(8-Number(last[3]))*97.5)+'" width="97.5" height="97.5" fill="#80d3ff" fill-opacity=".25"/><circle cx="'+toX+'" cy="'+toY+'" r="42" fill="none" stroke="#a7e1ff" stroke-width="2" opacity=".85"/>':"";
+ return '<svg viewBox="0 0 1000 1000" role="img" aria-label="A complete animated chess game, the Opera Game">'+
+ '<defs><filter id="pieceGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><radialGradient id="boardHalo"><stop stop-color="#3c9bd4" stop-opacity=".2"/><stop offset="1" stop-color="#3c9bd4" stop-opacity="0"/></radialGradient></defs>'+
+ '<circle cx="500" cy="500" r="480" fill="url(#boardHalo)"/><rect x="96" y="96" width="808" height="808" rx="12" fill="#071a2b" stroke="#85cfff" stroke-opacity=".65" stroke-width="2"/>'+
+ '<g>'+squares+highlight+'</g><g>'+pieces+'</g><g>'+labels+'</g>'+
+ '<path d="M110 70H890M110 930H890" stroke="#8bcfff" stroke-opacity=".24"/><text x="500" y="48" fill="#a9d8f7" text-anchor="middle" font-size="18" letter-spacing="5">THE OPERA GAME · MORPHY, 1858</text>'+
+ '<text x="500" y="968" fill="#8cb5d5" text-anchor="middle" font-size="15" letter-spacing="3">'+(plies===operaMoves.length?"CHECKMATE":"MOVE "+Math.floor(plies/2+1)+" · "+(plies%2===0?"WHITE TO MOVE":"BLACK TO MOVE"))+'</text></svg>';
+}
+function targetSvg(within){
+ var n=Math.min(6,Math.floor(within/45000)+1),darts="";
+ for(var i=0;i<n;i++){var a=(-90+i*57)*Math.PI/180,rad=18+(i%3)*17,cx=500+Math.cos(a)*rad,cy=500+Math.sin(a)*rad;darts+='<g transform="translate('+cx+' '+cy+') rotate('+(i*57+45)+')"><path d="M-8 0 95 0" stroke="#d9f3ff" stroke-width="8" stroke-linecap="round"/><path d="M-8 0 -28 -13 -23 0 -28 13Z" fill="#78caff"/><path d="M92 -5 110 0 92 5Z" fill="#aee5ff"/></g>';}
+ return '<svg viewBox="0 0 1000 1000" role="img" aria-label="Precision target with darts progressively landing closer to the bullseye"><defs><radialGradient id="targetCore"><stop stop-color="#a8e7ff" stop-opacity=".8"/><stop offset="1" stop-color="#2675ad" stop-opacity=".04"/></radialGradient><filter id="targetGlow"><feGaussianBlur stdDeviation="8"/></filter></defs><circle cx="500" cy="500" r="420" fill="none" stroke="#6bb8ed" stroke-opacity=".12" stroke-width="2"/><circle cx="500" cy="500" r="360" fill="#0b2740" stroke="#83cfff" stroke-width="3"/><circle cx="500" cy="500" r="300" fill="#153e60" stroke="#a5ddff" stroke-width="2"/><circle cx="500" cy="500" r="240" fill="#0a2742" stroke="#83cfff" stroke-width="3"/><circle cx="500" cy="500" r="180" fill="#1c5279" stroke="#a5ddff" stroke-width="2"/><circle cx="500" cy="500" r="120" fill="#0c2b48" stroke="#83cfff" stroke-width="3"/><circle cx="500" cy="500" r="62" fill="url(#targetCore)" stroke="#d2f1ff" stroke-width="3"/><circle cx="500" cy="500" r="14" fill="#d9f5ff" filter="url(#targetGlow)"/><path d="M500 35V965M35 500H965" stroke="#9ad9ff" stroke-opacity=".12" stroke-dasharray="4 14"/>'+darts+'</svg>';
+}
+function gyroscopeSvg(within){
+ var a=within/1000;
+ return '<svg viewBox="0 0 1000 1000" role="img" aria-label="Three interlocking rotating gyroscope rings"><defs><filter id="gyroGlow"><feGaussianBlur stdDeviation="7"/></filter></defs><circle cx="500" cy="500" r="10" fill="#d5f3ff"/><g fill="none" stroke="#78caff" stroke-width="5" filter="url(#gyroGlow)" opacity=".45"><ellipse cx="500" cy="500" rx="370" ry="170" transform="rotate('+(a*42)+' 500 500)"/><ellipse cx="500" cy="500" rx="370" ry="170" transform="rotate('+(60-a*34)+' 500 500)"/></g><g fill="none" stroke="#9bdcff" stroke-width="3"><ellipse cx="500" cy="500" rx="370" ry="170" transform="rotate('+(a*42)+' 500 500)"/><ellipse cx="500" cy="500" rx="370" ry="170" transform="rotate('+(60-a*34)+' 500 500)"/><ellipse cx="500" cy="500" rx="370" ry="170" transform="rotate('+(120+a*28)+' 500 500)"/></g><circle cx="500" cy="500" r="48" fill="#1b5b85" stroke="#b3e7ff" stroke-width="3"/><circle cx="500" cy="500" r="14" fill="#e1f7ff"/></svg>';
+}
+function cubeSvg(within){
+ var progress=Math.min(1,within/300000),turn=within/1000*9,tiles="";
+ var colors=["#5bb9ed","#1a4c73","#8dd8ff","#287ba9","#2f90c8","#153b5b","#a5e3ff","#23618c","#4ba7d9"];
+ for(var f=0;f<6;f++){var ox=220+(f%3)*190,oy=250+Math.floor(f/3)*190;for(var i=0;i<9;i++){var x=ox+(i%3)*48,y=oy+Math.floor(i/3)*48;var col=(i+Math.floor(progress*9)+f)%9;tiles+='<rect x="'+x+'" y="'+y+'" width="43" height="43" rx="5" fill="'+colors[col]+'" stroke="#b5e8ff" stroke-opacity=".5"/>';}}
+ return '<svg viewBox="0 0 1000 1000" role="img" aria-label="A detailed rotating six-face puzzle cube gradually solving"><g transform="rotate('+turn+' 500 500)">'+tiles+'</g><circle cx="500" cy="500" r="330" fill="none" stroke="#72c5f4" stroke-opacity=".25" stroke-width="2" stroke-dasharray="3 16"/></svg>';
+}
+function shieldSvg(within){
+ var p=.5+.5*Math.sin(within/9000);
+ return '<svg viewBox="0 0 1000 1000" role="img" aria-label="A protective shield with a pulsing energy field"><defs><radialGradient id="shieldField"><stop stop-color="#3c9bd4" stop-opacity=".22"/><stop offset="1" stop-color="#3c9bd4" stop-opacity="0"/></radialGradient></defs><circle cx="500" cy="500" r="'+(350+p*35)+'" fill="url(#shieldField)" stroke="#78caff" stroke-opacity="'+(.2+p*.3)+'" stroke-width="3"/><path d="M500 115 790 230V465c0 210-118 346-290 432-172-86-290-222-290-432V230Z" fill="rgba(32,104,154,.18)" stroke="#8bd2ff" stroke-width="7"/><path d="M500 165 744 262V463c0 178-96 294-244 373-148-79-244-195-244-373V262Z" fill="none" stroke="#b0e4ff" stroke-opacity=".55" stroke-width="3"/><path d="m365 505 95 98 188-210" fill="none" stroke="#d8f4ff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/><circle cx="500" cy="500" r="410" fill="none" stroke="#75c7f7" stroke-opacity=".15" stroke-dasharray="4 20"/></svg>';
+}
+function renderScene(index,within){
+ var captions=[["Deadeye","Concentration"],["Strategist","A complete five-minute chess game"],["Perfect Shot","Persistence through repetition"],["Gyroscope","Balance and alignment"],["Rubik's Cube","Problem-solving"],["Sentinel","Protect your attention"]];
+ var markup=index===0?targetSvg(within):index===1?chessSvg(within):index===2?targetSvg(within):index===3?gyroscopeSvg(within):index===4?cubeSvg(within):shieldSvg(within);
+ $("zfScene").innerHTML=markup;
+ $("zfSceneCaption").textContent=captions[index][0];
+ $("zfSceneSub").textContent=captions[index][1];
+ $("zfSceneProgress").style.width=String(within/300000*100)+"%";
+}
+function backToSetup(){var s=data.active;if(s&&s.status==="active"&&!s.paused){s.paused=true;s.lastTickAt=null;persist();}stopTicker();showSetup();showView("setup");}
+function resumeSaved(){if(!data.active||data.active.status!=="active")return;data.active.paused=false;data.active.lastTickAt=Date.now();persist();renderSession();showView("session");startTicker();}
+function bind(){launch.addEventListener("click",open);$("zfClose").addEventListener("click",function(){close(false);});$("zfBack").addEventListener("click",backToSetup);$("zfResumeSaved").addEventListener("click",resumeSaved);$("zfResumeOverlay").addEventListener("click",togglePause);$("zfStart").addEventListener("click",start);$("zfPause").addEventListener("click",togglePause);$("zfFinish").addEventListener("click",finish);$("zfExitSession").addEventListener("click",finish);$("zfAddTask").addEventListener("click",addTask);$("zfNewTask").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addTask();}});$("zfCapture").addEventListener("click",capture);$("zfDistractionInput").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();capture();}});$("zfTaskList").addEventListener("change",function(e){var id=e.target&&e.target.getAttribute("data-task");if(!id||!data.active)return;var task=data.active.tasks.find(function(t){return t.id===id;});if(task){task.done=e.target.checked;persist();renderTasks();}});$("zfOpenSpotify").addEventListener("click",spotifyOpen);$("zfEditMusic").addEventListener("click",editMusic);$("zfSaveReview").addEventListener("click",saveReview);$("zfDiscardReview").addEventListener("click",discardReview);$("zfHistoryOpen").addEventListener("click",function(){renderHistory();showView("history");});$("zfHistoryBack").addEventListener("click",function(){showSetup();showView("setup");});$("zfDurations").addEventListener("click",function(e){var b=e.target.closest("[data-minutes]");if(!b)return;selectedMinutes=Number(b.getAttribute("data-minutes"));$("zfCustomMinutes").value="";Array.from($("zfDurations").querySelectorAll("[data-minutes]")).forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});});$("zfCustomMinutes").addEventListener("input",function(){if(this.value){Array.from($("zfDurations").querySelectorAll("[data-minutes]")).forEach(function(x){x.setAttribute("aria-pressed","false");});}});document.addEventListener("keydown",function(e){if(!root.classList.contains("is-open"))return;if(e.key==="Escape"){e.preventDefault();if(data.active&&data.active.status==="active")showToast("Finish or pause your session before closing.");else close(true);}if(e.code==="Space"&&data.active&&data.active.status==="active"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();togglePause();}});document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&root.classList.contains("is-open")&&data.active&&data.active.status==="active"){restoreClock();updateClock();}});}
 load();bind();showSetup();
 if(data.active&&data.active.status==="active"){restoreClock();}
 })();
