@@ -6816,4 +6816,283 @@ html{scroll-padding-top:calc(60px + env(safe-area-inset-top,0px))!important}
   stroke-width:1.65!important;stroke-linecap:round!important;stroke-linejoin:round!important;
 }
 </style>
+<!-- ZERO_FOCUS_MODE_V1 -->
+<style id="zero-focus-mode-v1">
+#zeroFocusMode{position:fixed;inset:0;z-index:20000;display:none;overflow:auto;overscroll-behavior:contain;background:#050b17;color:#e8f5ff;font-family:Sora,system-ui,sans-serif}
+#zeroFocusMode.is-open{display:block}
+body.zero-focus-active{overflow:hidden!important}
+body.zero-focus-active> :not(#zeroFocusMode){visibility:hidden!important;pointer-events:none!important}
+#zeroFocusMode *{box-sizing:border-box}
+#zeroFocusMode button,#zeroFocusMode input,#zeroFocusMode select,#zeroFocusMode textarea{font:inherit}
+#zeroFocusMode button{cursor:pointer}
+#zeroFocusMode .zf-shell{min-height:100%;max-width:1180px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) clamp(16px,4vw,42px) calc(22px + env(safe-area-inset-bottom,0px))}
+#zeroFocusMode .zf-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:clamp(26px,5vh,54px)}
+#zeroFocusMode .zf-brand{display:flex;align-items:center;gap:11px;color:#dff5ff;font-size:13px;letter-spacing:.12em}
+#zeroFocusMode .zf-brand-mark{width:27px;height:27px;border:1px solid rgba(110,190,255,.6);border-radius:50%;display:grid;place-items:center;color:#80caff;box-shadow:0 0 18px rgba(68,151,255,.14)}
+#zeroFocusMode .zf-brand-mark:after{content:"";width:7px;height:7px;border-radius:50%;background:#9cdbff;box-shadow:0 0 12px #63baff}
+#zeroFocusMode .zf-top-actions{display:flex;gap:8px;align-items:center}
+#zeroFocusMode .zf-quiet{font-size:11px;color:#85a8c4}
+#zeroFocusMode .zf-icon-btn{width:38px;height:38px;border:0;background:rgba(140,190,230,.07);border-radius:50%;color:#b8d9f0;font-size:18px}
+#zeroFocusMode .zf-icon-btn:hover{background:rgba(105,174,235,.14)}
+#zeroFocusMode .zf-view{animation:zfFade .28s ease both}
+#zeroFocusMode .zf-setup{max-width:760px;margin:0 auto}
+#zeroFocusMode .zf-heading{font-size:clamp(27px,5vw,42px);font-weight:300;letter-spacing:-.035em;margin:0 0 8px;color:#eff9ff}
+#zeroFocusMode .zf-sub{margin:0 0 28px;color:#8faec7;font-size:13px;line-height:1.65}
+#zeroFocusMode .zf-form-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+#zeroFocusMode .zf-field{display:grid;gap:8px;margin-bottom:16px;min-width:0}
+#zeroFocusMode .zf-field label{font-size:11px;color:#9bb8d0}
+#zeroFocusMode .zf-field input,#zeroFocusMode .zf-field select,#zeroFocusMode .zf-field textarea{width:100%;min-width:0;border:1px solid rgba(126,177,218,.16);border-radius:12px;background:rgba(13,29,49,.72);color:#eaf6ff;padding:13px 14px;outline:none}
+#zeroFocusMode .zf-field textarea{min-height:100px;resize:vertical;line-height:1.6}
+#zeroFocusMode .zf-field input:focus,#zeroFocusMode .zf-field select:focus,#zeroFocusMode .zf-field textarea:focus{border-color:rgba(107,183,255,.65);box-shadow:0 0 0 3px rgba(67,143,220,.1)}
+#zeroFocusMode .zf-field input::placeholder,#zeroFocusMode .zf-field textarea::placeholder{color:#617f9a}
+#zeroFocusMode .zf-duration-row{display:flex;flex-wrap:wrap;gap:7px}
+#zeroFocusMode .zf-duration{border:1px solid rgba(126,177,218,.16);border-radius:9px;padding:9px 13px;background:rgba(13,29,49,.62);color:#9dbbd3;font-size:12px}
+#zeroFocusMode .zf-duration[aria-pressed=true]{background:rgba(48,116,183,.23);color:#e4f5ff;border-color:rgba(106,184,255,.55)}
+#zeroFocusMode .zf-duration-custom{width:82px!important;padding:8px 9px!important}
+#zeroFocusMode .zf-note{font-size:11px;color:#7899b6;line-height:1.55;margin:-4px 0 16px}
+#zeroFocusMode .zf-primary{border:0;border-radius:11px;padding:13px 20px;background:#246db4;color:#fff;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(23,91,160,.2);transition:transform .16s,background .16s}
+#zeroFocusMode .zf-primary:hover{background:#2d7bc6}
+#zeroFocusMode .zf-primary:active{transform:scale(.97)}
+#zeroFocusMode .zf-secondary{border:1px solid rgba(135,184,225,.2);border-radius:10px;padding:10px 14px;background:rgba(120,166,205,.07);color:#bcd5e9;font-size:12px}
+#zeroFocusMode .zf-secondary:hover{background:rgba(120,166,205,.13)}
+#zeroFocusMode .zf-setup-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:8px}
+#zeroFocusMode .zf-carry{padding:12px 14px;margin:0 0 20px;border-radius:10px;background:rgba(69,125,178,.09);color:#9dbbd4;font-size:11px;line-height:1.55}
+#zeroFocusMode .zf-session-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr);gap:clamp(18px,4vw,48px);align-items:center}
+#zeroFocusMode .zf-session-main{min-width:0}
+#zeroFocusMode .zf-session-title{font-size:clamp(21px,3vw,30px);font-weight:300;line-height:1.25;margin:0 0 8px;overflow-wrap:anywhere}
+#zeroFocusMode .zf-session-meta{font-size:11px;color:#83a5c2;margin-bottom:24px}
+#zeroFocusMode .zf-clock-wrap{display:flex;align-items:center;gap:22px;margin:16px 0 23px}
+#zeroFocusMode .zf-clock{position:relative;width:clamp(148px,24vw,208px);aspect-ratio:1;flex:none;display:grid;place-items:center}
+#zeroFocusMode .zf-clock svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+#zeroFocusMode .zf-clock circle{fill:none;stroke-width:2.4}
+#zeroFocusMode .zf-clock .zf-track{stroke:rgba(111,160,202,.16)}
+#zeroFocusMode .zf-clock .zf-progress{stroke:#69baff;stroke-linecap:round;filter:drop-shadow(0 0 5px rgba(82,174,255,.35));transition:stroke-dashoffset .35s linear}
+#zeroFocusMode .zf-time{font:300 clamp(32px,6vw,48px)/1 "JetBrains Mono",monospace;letter-spacing:-.07em;color:#f0f8ff}
+#zeroFocusMode .zf-clock-side{display:grid;gap:7px}
+#zeroFocusMode .zf-clock-side strong{font-size:13px;font-weight:400;color:#d7ebfa}
+#zeroFocusMode .zf-clock-side span{font-size:11px;line-height:1.55;color:#819fba}
+#zeroFocusMode .zf-controls{display:flex;flex-wrap:wrap;gap:8px}
+#zeroFocusMode .zf-scene-card{min-width:0;padding:18px 16px 14px;border-radius:20px;background:rgba(12,27,47,.56);min-height:280px;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden}
+#zeroFocusMode .zf-scene{width:min(100%,300px);height:230px;display:grid;place-items:center;color:#81caff}
+#zeroFocusMode .zf-scene svg{width:100%;height:100%;overflow:visible}
+#zeroFocusMode .zf-scene-caption{font-size:12px;color:#a6c5df;margin-top:8px}
+#zeroFocusMode .zf-scene-sub{font-size:10px;color:#6f91af;margin-top:4px}
+#zeroFocusMode .zf-scene .zf-glow{filter:drop-shadow(0 0 8px rgba(91,181,255,.4))}
+#zeroFocusMode .zf-target-pulse{transform-origin:center;animation:zfTargetPulse 4s ease-in-out infinite}
+#zeroFocusMode .zf-darts{animation:zfDartShift 5s ease-in-out infinite}
+#zeroFocusMode .zf-chess-piece{animation:zfChessMove 5s ease-in-out infinite}
+#zeroFocusMode .zf-ring-a{transform-origin:center;animation:zfSpin 8s linear infinite}
+#zeroFocusMode .zf-ring-b{transform-origin:center;animation:zfSpin 11s linear infinite reverse}
+#zeroFocusMode .zf-ring-c{transform-origin:center;animation:zfTilt 7s ease-in-out infinite}
+#zeroFocusMode .zf-cube{transform-origin:center;animation:zfCubeTurn 5s ease-in-out infinite}
+#zeroFocusMode .zf-shield-pulse{transform-origin:center;animation:zfShield 4s ease-in-out infinite}
+#zeroFocusMode .zf-scene-progress{width:100%;height:2px;margin-top:12px;background:rgba(117,164,207,.12);overflow:hidden}
+#zeroFocusMode .zf-scene-progress span{display:block;height:100%;width:0;background:#69baff;box-shadow:0 0 8px #69baff;transition:width .4s linear}
+#zeroFocusMode .zf-lower-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
+#zeroFocusMode .zf-panel{padding:17px 18px;border-radius:14px;background:rgba(10,24,42,.62);min-width:0}
+#zeroFocusMode .zf-panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:13px}
+#zeroFocusMode .zf-panel-title{font-size:13px;font-weight:400;color:#d9edfc}
+#zeroFocusMode .zf-panel-hint{font-size:10px;color:#789ab8}
+#zeroFocusMode .zf-task-list,#zeroFocusMode .zf-distraction-list{display:grid;gap:8px}
+#zeroFocusMode .zf-task{display:flex;align-items:flex-start;gap:9px;padding:8px 0;color:#b8d2e7;font-size:12px;line-height:1.5}
+#zeroFocusMode .zf-task input{margin:3px 0 0;accent-color:#66b8ff;flex:none}
+#zeroFocusMode .zf-task.done span{text-decoration:line-through;color:#6487a5}
+#zeroFocusMode .zf-task-next{color:#e7f5ff!important}
+#zeroFocusMode .zf-task-empty,#zeroFocusMode .zf-empty{font-size:11px;color:#708eaa;line-height:1.6}
+#zeroFocusMode .zf-add-row{display:flex;gap:7px;margin-top:10px}
+#zeroFocusMode .zf-add-row input{flex:1;min-width:0;border:1px solid rgba(126,177,218,.15);border-radius:8px;background:rgba(2,11,22,.4);padding:9px 10px;color:#e8f5ff;font-size:12px}
+#zeroFocusMode .zf-add-row button{border:0;border-radius:8px;background:rgba(75,143,204,.2);color:#c9e6fb;padding:0 12px}
+#zeroFocusMode .zf-capture{display:flex;gap:7px;margin-top:10px}
+#zeroFocusMode .zf-capture input{flex:1;min-width:0;border:1px solid rgba(126,177,218,.15);border-radius:8px;background:rgba(2,11,22,.4);padding:9px 10px;color:#e8f5ff;font-size:12px}
+#zeroFocusMode .zf-capture button{border:0;border-radius:8px;background:rgba(75,143,204,.2);color:#c9e6fb;padding:0 12px;font-size:11px}
+#zeroFocusMode .zf-definition{font-size:11px;color:#89a9c4;line-height:1.6;margin-top:13px}
+#zeroFocusMode .zf-music{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:15px;padding:12px 14px;border-radius:12px;background:rgba(10,24,42,.55)}
+#zeroFocusMode .zf-music-copy{display:grid;gap:4px}
+#zeroFocusMode .zf-music-copy strong{font-size:12px;font-weight:400;color:#d6eafa}
+#zeroFocusMode .zf-music-copy span{font-size:10px;color:#7899b5}
+#zeroFocusMode .zf-music-actions{display:flex;gap:7px;flex-wrap:wrap}
+#zeroFocusMode .zf-notice{margin-top:14px;color:#7595b1;font-size:10px;line-height:1.55}
+#zeroFocusMode .zf-review{max-width:680px;margin:0 auto}
+#zeroFocusMode .zf-review-score{font-size:clamp(38px,8vw,62px);font-weight:300;color:#c8eaff;letter-spacing:-.06em}
+#zeroFocusMode .zf-review-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}
+#zeroFocusMode .zf-review-stat{padding:14px;border-radius:12px;background:rgba(12,28,49,.7)}
+#zeroFocusMode .zf-review-stat strong{display:block;font-size:22px;font-weight:300;color:#e9f6ff}
+#zeroFocusMode .zf-review-stat span{font-size:10px;color:#819fba}
+#zeroFocusMode .zf-review-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+#zeroFocusMode .zf-history{max-width:760px;margin:0 auto}
+#zeroFocusMode .zf-history-item{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px 0;border-bottom:1px solid rgba(125,169,207,.1)}
+#zeroFocusMode .zf-history-item strong{font-size:13px;font-weight:400;color:#dceeff}
+#zeroFocusMode .zf-history-item small{display:block;margin-top:4px;color:#789ab6;font-size:10px}
+#zeroFocusMode .zf-history-item b{font-size:13px;font-weight:400;color:#9ccfff}
+#zeroFocusMode .zf-history-empty{color:#819fba;font-size:12px;line-height:1.6}
+#zeroFocusMode .zf-toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:10px 14px;border-radius:9px;background:#163754;color:#e5f5ff;font-size:11px;z-index:4;box-shadow:0 6px 25px rgba(0,0,0,.3)}
+#zeroFocusMode [hidden]{display:none!important}
+@keyframes zfFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes zfTargetPulse{0%,100%{transform:scale(.97);opacity:.72}50%{transform:scale(1.03);opacity:1}}
+@keyframes zfDartShift{0%,100%{transform:translate(0,0)}50%{transform:translate(2px,-2px)}}
+@keyframes zfChessMove{0%,35%,100%{transform:translate(0,0)}55%,78%{transform:translate(35px,-35px)}}
+@keyframes zfSpin{to{transform:rotate(360deg)}}
+@keyframes zfTilt{0%,100%{transform:rotateX(0deg) rotateY(0deg)}50%{transform:rotateX(28deg) rotateY(-25deg)}}
+@keyframes zfCubeTurn{0%,100%{transform:rotateY(0deg) rotateX(0deg)}50%{transform:rotateY(18deg) rotateX(-12deg)}}
+@keyframes zfShield{0%,100%{transform:scale(.97);opacity:.72}50%{transform:scale(1.04);opacity:1}}
+@media(max-width:760px){
+#zeroFocusMode .zf-session-grid{grid-template-columns:1fr}
+#zeroFocusMode .zf-scene-card{min-height:220px;grid-row:1}
+#zeroFocusMode .zf-scene{height:180px}
+#zeroFocusMode .zf-lower-grid{grid-template-columns:1fr}
+#zeroFocusMode .zf-form-grid{grid-template-columns:1fr}
+#zeroFocusMode .zf-clock-wrap{gap:14px}
+}
+@media(max-width:420px){
+#zeroFocusMode .zf-shell{padding-left:14px;padding-right:14px}
+#zeroFocusMode .zf-review-stats{grid-template-columns:1fr 1fr}
+#zeroFocusMode .zf-clock{width:138px}
+#zeroFocusMode .zf-clock-wrap{align-items:center}
+#zeroFocusMode .zf-time{font-size:30px}
+}
+@media(prefers-reduced-motion:reduce){
+#zeroFocusMode *,#zeroFocusMode *:before,#zeroFocusMode *:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}
+}
+</style>
+<section id="zeroFocusMode" aria-label="Z.E.R.O. Focus Mode" aria-hidden="true">
+ <div class="zf-shell">
+  <header class="zf-top">
+   <div class="zf-brand"><span class="zf-brand-mark" aria-hidden="true"></span><span>Z.E.R.O. / FOCUS</span></div>
+   <div class="zf-top-actions"><span class="zf-quiet" id="zfTopStatus">Ready when you are</span><button class="zf-icon-btn" id="zfClose" type="button" aria-label="Close Focus Mode" title="Close">×</button></div>
+  </header>
+  <section class="zf-view zf-setup" id="zfSetupView">
+   <h1 class="zf-heading">Make space for what matters.</h1>
+   <p class="zf-sub">Set one clear objective. Z.E.R.O. will keep the session, tasks and checkpoints together while you work.</p>
+   <div class="zf-carry" id="zfCarry" hidden></div>
+   <div class="zf-form-grid">
+    <div class="zf-field"><label for="zfObjective">Main objective</label><input id="zfObjective" maxlength="120" placeholder="What needs your attention?"></div>
+    <div class="zf-field"><label for="zfCategory">Focus area</label><select id="zfCategory"><option>Study</option><option>Deep work</option><option>Reading</option><option>Basketball</option><option>Personal</option><option>Other</option></select></div>
+   </div>
+   <div class="zf-field"><label>Session length</label><div class="zf-duration-row" id="zfDurations"><button class="zf-duration" type="button" data-minutes="25" aria-pressed="true">25 min</button><button class="zf-duration" type="button" data-minutes="50" aria-pressed="false">50 min</button><button class="zf-duration" type="button" data-minutes="90" aria-pressed="false">90 min</button><input class="zf-field zf-duration zf-duration-custom" id="zfCustomMinutes" type="number" min="5" max="240" placeholder="Custom"></div></div>
+   <div class="zf-field"><label for="zfTasksInput">Supporting tasks — one per line</label><textarea id="zfTasksInput" placeholder="Break the objective into clear next actions&#10;Example: Read the chapter&#10;Make revision notes"></textarea></div>
+   <div class="zf-field"><label for="zfDoneDefinition">What does done look like?</label><input id="zfDoneDefinition" maxlength="180" placeholder="A clear result you can recognise"></div>
+   <div class="zf-field"><label for="zfSpotify">Music — optional Spotify playlist or track link</label><input id="zfSpotify" type="url" placeholder="https://open.spotify.com/playlist/..."></div>
+   <p class="zf-note">Music is optional. Leave it blank for silence. Your last Spotify link is saved on this device.</p>
+   <div class="zf-setup-foot"><button class="zf-secondary" id="zfHistoryOpen" type="button">Session history</button><button class="zf-primary" id="zfStart" type="button">Start focus session</button></div>
+  </section>
+  <section class="zf-view" id="zfSessionView" hidden>
+   <div class="zf-session-grid">
+    <div class="zf-session-main">
+     <h1 class="zf-session-title" id="zfSessionTitle">Focus session</h1>
+     <div class="zf-session-meta" id="zfSessionMeta">STUDY · SESSION ACTIVE</div>
+     <div class="zf-clock-wrap">
+      <div class="zf-clock" aria-label="Focus timer"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="zf-track" cx="50" cy="50" r="46"></circle><circle class="zf-progress" id="zfClockProgress" cx="50" cy="50" r="46" stroke-dasharray="289.03" stroke-dashoffset="0"></circle></svg><span class="zf-time" id="zfTime">25:00</span></div>
+      <div class="zf-clock-side"><strong id="zfClockState">Your time. Your objective.</strong><span id="zfClockHint">One step at a time. The next checkpoint arrives in five minutes.</span></div>
+     </div>
+     <div class="zf-controls"><button class="zf-primary" id="zfPause" type="button">Pause</button><button class="zf-secondary" id="zfFinish" type="button">Finish session</button><button class="zf-secondary" id="zfExitSession" type="button">Exit</button></div>
+     <div class="zf-music" id="zfMusicPanel"><div class="zf-music-copy"><strong>Focus soundtrack</strong><span id="zfMusicLabel">Silence — no music connected</span></div><div class="zf-music-actions"><button class="zf-secondary" id="zfOpenSpotify" type="button" hidden>Open Spotify</button><button class="zf-secondary" id="zfEditMusic" type="button">Change</button></div></div>
+     <p class="zf-notice">Focus environment is active. This website can suppress its own interruptions, but it cannot silence Android system notifications. Turn on Android Do Not Disturb for device-wide blocking.</p>
+    </div>
+    <div class="zf-scene-card">
+     <div class="zf-scene" id="zfScene" aria-label="Focus visual"></div>
+     <div class="zf-scene-caption" id="zfSceneCaption">Deadeye · Concentration</div>
+     <div class="zf-scene-sub" id="zfSceneSub">Checkpoint 1 of 6</div>
+     <div class="zf-scene-progress"><span id="zfSceneProgress"></span></div>
+    </div>
+   </div>
+   <div class="zf-lower-grid">
+    <section class="zf-panel">
+     <div class="zf-panel-head"><span class="zf-panel-title">Mission control</span><span class="zf-panel-hint" id="zfTaskCount">0 tasks</span></div>
+     <div class="zf-task-list" id="zfTaskList"></div>
+     <div class="zf-add-row"><input id="zfNewTask" maxlength="120" placeholder="Add a supporting task"><button id="zfAddTask" type="button">Add</button></div>
+     <div class="zf-definition" id="zfDefinition"></div>
+    </section>
+    <section class="zf-panel">
+     <div class="zf-panel-head"><span class="zf-panel-title">Distraction capture</span><span class="zf-panel-hint">Park it. Return to work.</span></div>
+     <div class="zf-empty" id="zfDistractionHint">If something unrelated comes to mind, capture it here instead of switching tasks.</div>
+     <div class="zf-distraction-list" id="zfDistractionList"></div>
+     <div class="zf-capture"><input id="zfDistractionInput" maxlength="160" placeholder="Capture a thought"><button id="zfCapture" type="button">Save</button></div>
+    </section>
+   </div>
+  </section>
+  <section class="zf-view zf-review" id="zfReviewView" hidden>
+   <h1 class="zf-heading" id="zfReviewHeading">Session complete.</h1>
+   <p class="zf-sub" id="zfReviewSub">Take a moment to review what you got done.</p>
+   <div class="zf-review-score" id="zfReviewTime">25 min</div>
+   <div class="zf-review-stats"><div class="zf-review-stat"><strong id="zfReviewTasks">0/0</strong><span>Tasks completed</span></div><div class="zf-review-stat"><strong id="zfReviewCaptures">0</strong><span>Distractions captured</span></div><div class="zf-review-stat"><strong id="zfReviewFocus">—</strong><span>Focus rating</span></div></div>
+   <div class="zf-field"><label for="zfReviewRating">How focused were you?</label><select id="zfReviewRating"><option value="5">5 — Fully focused</option><option value="4">4 — Mostly focused</option><option value="3">3 — Mixed</option><option value="2">2 — Distracted often</option><option value="1">1 — Hard to settle</option></select></div>
+   <div class="zf-field"><label for="zfReviewNotes">What went well? What should carry forward?</label><textarea id="zfReviewNotes" placeholder="A quick note for your next session…"></textarea></div>
+   <div class="zf-review-actions"><button class="zf-primary" id="zfSaveReview" type="button">Save session review</button><button class="zf-secondary" id="zfDiscardReview" type="button">Discard review</button></div>
+  </section>
+  <section class="zf-view zf-history" id="zfHistoryView" hidden>
+   <h1 class="zf-heading">Your focus history.</h1><p class="zf-sub">A record of sessions completed on this device.</p>
+   <div id="zfHistoryList"></div>
+   <div class="zf-review-actions"><button class="zf-secondary" id="zfHistoryBack" type="button">Back to setup</button></div>
+  </section>
+ </div>
+ <div class="zf-toast" id="zfToast" hidden role="status" aria-live="polite"></div>
+</section>
+<script id="zero-focus-mode-runtime-v1">
+(function(){
+"use strict";
+var root=document.getElementById("zeroFocusMode");
+var launch=document.getElementById("focusLaunch");
+if(!root||!launch||root.dataset.ready==="true")return;
+root.dataset.ready="true";
+var $=function(id){return document.getElementById(id);};
+var KEY="zero.focus.mode.v1";
+var CIRC=289.03;
+var sceneNames=[
+ {name:"Deadeye",meaning:"Concentration"},
+ {name:"Strategist",meaning:"Strategic thinking"},
+ {name:"Perfect Shot",meaning:"Persistence"},
+ {name:"Gyroscope",meaning:"Alignment"},
+ {name:"Rubik's Cube",meaning:"Problem-solving"},
+ {name:"Sentinel",meaning:"Protection"}
+];
+var selectedMinutes=25;
+var interval=null;
+var toastTimer=null;
+var data={settings:{spotify:""},history:[],active:null};
+function safeParse(raw,fallback){try{return raw?JSON.parse(raw):fallback;}catch(e){return fallback;}}
+function load(){try{var saved=safeParse(localStorage.getItem(KEY),null);if(saved&&typeof saved==="object"){data.settings=saved.settings||data.settings;data.history=Array.isArray(saved.history)?saved.history:[];data.active=saved.active||null;}}catch(e){}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function showToast(message){var el=$("zfToast");el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.hidden=true;},2300);}
+function showView(name){["Setup","Session","Review","History"].forEach(function(v){$("zf"+v+"View").hidden=v.toLowerCase()!==name;});}
+function open(){root.classList.add("is-open");root.setAttribute("aria-hidden","false");document.body.classList.add("zero-focus-active");if(data.active&&data.active.status==="active"){restoreClock();renderSession();showView("session");startTicker();}else if(data.active&&data.active.status==="review"){renderReview();showView("review");}else{showSetup();showView("setup");}setTimeout(function(){$("zfClose").focus();},40);}
+function close(force){if(data.active&&data.active.status==="active"&&!force){showToast("Finish or pause your session before closing.");return;}stopTicker();root.classList.remove("is-open");root.setAttribute("aria-hidden","true");document.body.classList.remove("zero-focus-active");launch.focus();}
+function showSetup(){var last=data.history[0];$("zfCarry").hidden=!last||!last.notes;$("zfCarry").textContent=last&&last.notes?"Carry-forward from your last session: "+last.notes:"";$("zfSpotify").value=data.settings.spotify||"";}
+function duration(){var custom=Number($("zfCustomMinutes").value);return custom>=5&&custom<=240?Math.round(custom):selectedMinutes;}
+function start(){var objective=$("zfObjective").value.trim();if(!objective){$("zfObjective").focus();showToast("Add one main objective first.");return;}var mins=duration();var tasks=$("zfTasksInput").value.split(/\n/).map(function(t){return t.trim();}).filter(Boolean).slice(0,20).map(function(t,i){return {id:"t"+Date.now()+"_"+i,text:t,done:false};});var music=$("zfSpotify").value.trim();if(music&&!validSpotify(music)){showToast("Use a valid Spotify link, or leave music blank.");return;}data.settings.spotify=music;data.active={status:"active",objective:objective,category:$("zfCategory").value,definition:$("zfDoneDefinition").value.trim(),durationMs:mins*60000,remainingMs:mins*60000,startedAt:Date.now(),lastTickAt:Date.now(),paused:false,tasks:tasks,distractions:[],notes:""};persist();renderSession();showView("session");startTicker();}
+function restoreClock(){var s=data.active;if(!s)return;if(!s.paused&&s.lastTickAt){s.remainingMs=Math.max(0,s.remainingMs-(Date.now()-s.lastTickAt));s.lastTickAt=Date.now();if(s.remainingMs<=0){s.remainingMs=0;s.status="review";s.completedNaturally=true;}}persist();}
+function startTicker(){stopTicker();if(!data.active||data.active.status!=="active")return;interval=setInterval(tick,250);tick();}
+function stopTicker(){if(interval){clearInterval(interval);interval=null;}}
+function tick(){var s=data.active;if(!s||s.status!=="active")return;if(!s.paused&&s.lastTickAt){var now=Date.now();s.remainingMs=Math.max(0,s.remainingMs-(now-s.lastTickAt));s.lastTickAt=now;}updateClock();if(s.remainingMs<=0){s.status="review";s.completedNaturally=true;persist();stopTicker();renderReview();showView("review");showToast("Focus session complete.");return;}if(Math.floor(s.remainingMs/1000)%5===0)persist();}
+function updateClock(){var s=data.active;if(!s)return;var sec=Math.ceil(s.remainingMs/1000);$("zfTime").textContent=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");var fraction=s.durationMs?Math.max(0,Math.min(1,s.remainingMs/s.durationMs)):0;$("zfClockProgress").style.strokeDashoffset=String(CIRC*(1-fraction));$("zfPause").textContent=s.paused?"Resume":"Pause";$("zfClockState").textContent=s.paused?"Session paused":"Your time. Your objective.";var elapsed=s.durationMs-s.remainingMs;var sceneIndex=Math.floor(elapsed/300000)%6;renderScene(sceneIndex,elapsed%300000);$("zfSceneSub").textContent="Checkpoint "+(sceneIndex+1)+" of 6 · changes every 5 minutes";$("zfSceneProgress").style.width=String((elapsed%300000)/300000*100)+"%";}
+function togglePause(){var s=data.active;if(!s||s.status!=="active")return;if(s.paused){s.paused=false;s.lastTickAt=Date.now();}else{s.paused=true;s.lastTickAt=null;}persist();updateClock();}
+function renderSession(){var s=data.active;if(!s)return;$("zfSessionTitle").textContent=s.objective;$("zfSessionMeta").textContent=s.category.toUpperCase()+" · "+(s.paused?"PAUSED":"SESSION ACTIVE");$("zfDefinition").textContent=s.definition?"Done looks like: "+s.definition:"";renderTasks();renderDistractions();var link=data.settings.spotify||"";$("zfMusicLabel").textContent=link?"Spotify soundtrack saved":"Silence — no music connected";$("zfOpenSpotify").hidden=!link;updateClock();}
+function renderTasks(){var s=data.active,el=$("zfTaskList");if(!s)return;var done=s.tasks.filter(function(t){return t.done;}).length;$("zfTaskCount").textContent=done+"/"+s.tasks.length+" complete";if(!s.tasks.length){el.innerHTML='<div class="zf-task-empty">No supporting tasks yet. Keep the objective simple, or add the next action below.</div>';return;}el.innerHTML=s.tasks.map(function(t,i){return '<label class="zf-task'+(t.done?" done":"")+(i===s.tasks.findIndex(function(x){return !x.done;})&&!t.done?" zf-task-next":"")+'"><input type="checkbox" data-task="'+esc(t.id)+'" '+(t.done?"checked":"")+'><span>'+esc(t.text)+'</span></label>';}).join("");}
+function renderDistractions(){var s=data.active,el=$("zfDistractionList");if(!s)return;el.innerHTML=s.distractions.length?s.distractions.map(function(d){return '<div class="zf-task"><span>'+esc(d)+'</span></div>';}).join(""):'<div class="zf-task-empty">Nothing parked yet.</div>';}
+function addTask(){var input=$("zfNewTask"),value=input.value.trim();if(!value||!data.active)return;data.active.tasks.push({id:"t"+Date.now(),text:value,done:false});input.value="";persist();renderTasks();}
+function capture(){var input=$("zfDistractionInput"),value=input.value.trim();if(!value||!data.active)return;data.active.distractions.push(value);input.value="";persist();renderDistractions();showToast("Captured. Back to the objective.");}
+function validSpotify(value){try{var u=new URL(value);return (u.hostname==="open.spotify.com"||u.hostname==="spotify.link"||u.hostname==="www.spotify.com")&&u.protocol==="https:";}catch(e){return false;}}
+function spotifyOpen(){var link=data.settings.spotify;if(link&&validSpotify(link))window.open(link,"_blank","noopener,noreferrer");}
+function editMusic(){var link=window.prompt("Paste a Spotify playlist or track link. Leave blank for silence.",data.settings.spotify||"");if(link===null)return;link=link.trim();if(link&&!validSpotify(link)){showToast("That doesn't look like a Spotify link.");return;}data.settings.spotify=link;persist();renderSession();}
+function finish(){var s=data.active;if(!s||s.status!=="active")return;if(!window.confirm("Finish this focus session and open your review?"))return;s.status="review";s.completedNaturally=false;s.lastTickAt=null;stopTicker();persist();renderReview();showView("review");}
+function elapsedMinutes(s){return Math.max(0,Math.round((s.durationMs-s.remainingMs)/60000));}
+function renderReview(){var s=data.active;if(!s)return;var done=s.tasks.filter(function(t){return t.done;}).length;$("zfReviewHeading").textContent=s.completedNaturally?"Session complete.":"Session review";$("zfReviewSub").textContent=s.objective;$("zfReviewTime").textContent=elapsedMinutes(s)+" focused min";$("zfReviewTasks").textContent=done+"/"+s.tasks.length;$("zfReviewCaptures").textContent=s.distractions.length;$("zfReviewFocus").textContent="Rate it";$("zfReviewRating").value="5";$("zfReviewNotes").value=s.notes||"";}
+function saveReview(){var s=data.active;if(!s)return;var record={id:Date.now(),objective:s.objective,category:s.category,plannedMinutes:Math.round(s.durationMs/60000),focusedMinutes:elapsedMinutes(s),tasksDone:s.tasks.filter(function(t){return t.done;}).length,tasksTotal:s.tasks.length,distractions:s.distractions.length,rating:Number($("zfReviewRating").value),notes:$("zfReviewNotes").value.trim(),date:new Date().toISOString(),completedNaturally:!!s.completedNaturally};data.history.unshift(record);data.history=data.history.slice(0,100);data.active=null;persist();showSetup();showView("setup");showToast("Session review saved.");}
+function discardReview(){if(!window.confirm("Discard this session review?"))return;data.active=null;persist();showSetup();showView("setup");}
+function renderHistory(){var el=$("zfHistoryList");if(!data.history.length){el.innerHTML='<p class="zf-history-empty">No saved sessions yet. Your completed focus sessions will appear here.</p>';return;}el.innerHTML=data.history.map(function(h){var date=new Date(h.date);return '<article class="zf-history-item"><div><strong>'+esc(h.objective)+'</strong><small>'+esc(h.category)+' · '+date.toLocaleDateString()+' · '+h.tasksDone+'/'+h.tasksTotal+' tasks</small></div><b>'+h.focusedMinutes+' min</b></article>';}).join("");}
+function sceneSvg(index){var scenes=[
+'<svg viewBox="0 0 300 220" role="img" aria-label="A glowing target representing concentration"><g class="zf-glow" fill="none" stroke="#7cc8ff" stroke-width="1.4"><circle cx="150" cy="108" r="78" opacity=".28"/><circle class="zf-target-pulse" cx="150" cy="108" r="57" opacity=".62"/><circle cx="150" cy="108" r="34" opacity=".78"/><circle cx="150" cy="108" r="12"/><path d="M150 12v22M150 182v22M54 108h22M224 108h22" opacity=".45"/></g><g class="zf-darts" stroke="#c5eaff" stroke-width="2" stroke-linecap="round"><path d="m143 105 21-25m-24 23-8-2m30-25-1-8"/><path d="m151 105 13 5m-13-5 2-12" opacity=".5"/></g></svg>',
+'<svg viewBox="0 0 300 220" role="img" aria-label="A holographic chessboard representing strategy"><g transform="translate(65 26)"><rect x="0" y="0" width="170" height="170" fill="none" stroke="#7cc8ff" opacity=".7"/>'+Array.from({length:64},function(_,i){var x=(i%8)*21.25,y=Math.floor(i/8)*21.25;return '<rect x="'+x+'" y="'+y+'" width="21.25" height="21.25" fill="'+((i+Math.floor(i/8))%2?"#214c70":"#0a2037")+'" opacity=".82"/>';}).join("")+'<g class="zf-glow" fill="#c5eaff" font-size="19" text-anchor="middle"><text x="31" y="39">♜</text><text x="73" y="39">♞</text><text x="116" y="39">♝</text><text x="158" y="39">♛</text><text x="31" y="165">♙</text><text x="73" y="165">♙</text><text x="116" y="165">♙</text><text x="158" y="165">♙</text><text class="zf-chess-piece" x="73" y="123">♘</text></g></g></svg>',
+'<svg viewBox="0 0 300 220" role="img" aria-label="A target showing progress through repeated attempts"><g fill="none" stroke="#7cc8ff" stroke-width="1.5"><circle cx="150" cy="108" r="79" opacity=".28"/><circle cx="150" cy="108" r="56" opacity=".48"/><circle cx="150" cy="108" r="31" opacity=".7"/><circle cx="150" cy="108" r="9"/></g><g class="zf-glow" stroke="#d4efff" stroke-width="2" stroke-linecap="round"><path d="m145 102 9-22m-13 19-8-1"/><path d="m151 106 17-27m-17 27 2-12" opacity=".8"/><path d="m154 110 21-5m-21 5-5 7" opacity=".5"/></g><path d="M150 14v18M150 184v18M56 108h18M226 108h18" stroke="#79c4ff" opacity=".55"/></svg>',
+'<svg viewBox="0 0 300 220" role="img" aria-label="A gyroscope representing balance and alignment"><g class="zf-glow" fill="none" stroke="#7cc8ff" stroke-width="2"><ellipse class="zf-ring-a" cx="150" cy="108" rx="78" ry="36"/><ellipse class="zf-ring-b" cx="150" cy="108" rx="78" ry="36" transform="rotate(60 150 108)"/><ellipse class="zf-ring-c" cx="150" cy="108" rx="78" ry="36" transform="rotate(-60 150 108)"/><circle cx="150" cy="108" r="9" fill="#8bcfff" fill-opacity=".35"/></g></svg>',
+'<svg viewBox="0 0 300 220" role="img" aria-label="A rotating Rubik cube representing problem solving"><g class="zf-cube" transform="translate(94 38)">'+Array.from({length:9},function(_,i){var x=(i%3)*38,y=Math.floor(i/3)*38;return '<rect x="'+x+'" y="'+y+'" width="34" height="34" rx="4" fill="'+["#287ab7","#15476f","#4096d1","#1b5c8d","#6ab9ee","#245b87","#398ac2","#153d61","#78c5f2"][i]+'" stroke="#9edaff" stroke-opacity=".6"/>';}).join("")+'</g><path d="M88 180h124" stroke="#69baff" opacity=".4"/></svg>',
+'<svg viewBox="0 0 300 220" role="img" aria-label="A protective shield representing protected attention"><g class="zf-shield-pulse zf-glow"><path d="M150 24 218 49v48c0 45-27 77-68 100-41-23-68-55-68-100V49Z" fill="rgba(43,117,174,.13)" stroke="#83ceff" stroke-width="2"/><path d="m117 108 22 22 45-48" fill="none" stroke="#d7f1ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 39 204 59v38c0 34-20 61-54 82-34-21-54-48-54-82V59Z" fill="none" stroke="#69baff" opacity=".38"/></g></svg>'
+];return scenes[index%scenes.length];}
+function renderScene(index,within){$("zfScene").innerHTML=sceneSvg(index);$("zfSceneCaption").textContent=sceneNames[index].name+" · "+sceneNames[index].meaning;$("zfSceneProgress").style.width=String(within/300000*100)+"%";}
+function bind(){launch.addEventListener("click",open);$("zfClose").addEventListener("click",function(){close(false);});$("zfStart").addEventListener("click",start);$("zfPause").addEventListener("click",togglePause);$("zfFinish").addEventListener("click",finish);$("zfExitSession").addEventListener("click",finish);$("zfAddTask").addEventListener("click",addTask);$("zfNewTask").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addTask();}});$("zfCapture").addEventListener("click",capture);$("zfDistractionInput").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();capture();}});$("zfTaskList").addEventListener("change",function(e){var id=e.target&&e.target.getAttribute("data-task");if(!id||!data.active)return;var task=data.active.tasks.find(function(t){return t.id===id;});if(task){task.done=e.target.checked;persist();renderTasks();}});$("zfOpenSpotify").addEventListener("click",spotifyOpen);$("zfEditMusic").addEventListener("click",editMusic);$("zfSaveReview").addEventListener("click",saveReview);$("zfDiscardReview").addEventListener("click",discardReview);$("zfHistoryOpen").addEventListener("click",function(){renderHistory();showView("history");});$("zfHistoryBack").addEventListener("click",function(){showSetup();showView("setup");});$("zfDurations").addEventListener("click",function(e){var b=e.target.closest("[data-minutes]");if(!b)return;selectedMinutes=Number(b.getAttribute("data-minutes"));$("zfCustomMinutes").value="";Array.from($("zfDurations").querySelectorAll("[data-minutes]")).forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});});$("zfCustomMinutes").addEventListener("input",function(){if(this.value){Array.from($("zfDurations").querySelectorAll("[data-minutes]")).forEach(function(x){x.setAttribute("aria-pressed","false");});}});document.addEventListener("keydown",function(e){if(!root.classList.contains("is-open"))return;if(e.key==="Escape"){e.preventDefault();if(data.active&&data.active.status==="active")showToast("Finish or pause your session before closing.");else close(true);}if(e.code==="Space"&&data.active&&data.active.status==="active"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();togglePause();}});document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&root.classList.contains("is-open")&&data.active&&data.active.status==="active"){restoreClock();updateClock();}});}
+load();bind();showSetup();
+if(data.active&&data.active.status==="active"){restoreClock();}
+})();
+</script>
+<!-- /ZERO_FOCUS_MODE_V1 -->
 </body></html>
